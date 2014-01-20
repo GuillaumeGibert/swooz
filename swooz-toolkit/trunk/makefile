@@ -32,12 +32,9 @@ FASTRAK_OBJ=\
 TOBII_OBJ=\
     $(LIBDIR)/Tobii.obj\
 
-FILTER_OBJ=\
-    $(LIBDIR)/SWApplyTemporalFilter.obj $(LIBDIR)/SWComputeTemporalFilterCoefficients.obj\
-
 ############################################################################## Makefile commands
 	
-all: $(KINECT_OBJ) $(FACELAB_OBJ) $(TOBII_OBJ) $(FASTRAK_OBJ) $(FILTER_OBJ)
+all: $(KINECT_OBJ) $(FACELAB_OBJ) $(TOBII_OBJ) $(FASTRAK_OBJ)
 
 ############################################################################## exe files
 
@@ -97,13 +94,3 @@ $(LIBDIR)/SWSaveKinectData_dynamic.obj: ./src/devices/rgbd/SWSaveKinectData.cpp
 
 $(LIBDIR)/SWLoadKinectData_dynamic.obj: ./src/devices/rgbd/SWLoadKinectData.cpp
         $(CC) -c ./src/devices/rgbd/SWLoadKinectData.cpp $(CFLAGS_DYN) $(SW_LOAD_KINECT_DATA) -Fo"$(LIBDIR)/SWLoadKinectData_dynamic.obj"
-
-
-##################################################### filters
-	
-$(LIBDIR)/SWComputeTemporalFilterCoefficients.obj: ./src/filters/SWComputeTemporalFilterCoefficients.cpp
-	$(CC) -c ./src/filters/SWComputeTemporalFilterCoefficients.cpp $(CFLAGS_STA) $(SW_CTEMPFILTERCOEFF) -Fo"$(LIBDIR)/"
-	
-$(LIBDIR)/SWApplyTemporalFilter.obj: ./src/filters/SWApplyTemporalFilter.cpp
-	$(CC) -c ./src/filters/SWApplyTemporalFilter.cpp $(CFLAGS_STA) $(SW_APPLYTEMPFILRER) -Fo"$(LIBDIR)/"
-

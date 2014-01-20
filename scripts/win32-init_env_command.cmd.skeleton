@@ -1,0 +1,91 @@
+@echo off
+
+SET SW_base=%CD%\..
+REM SET SW_base=D:\_swooz
+SET SW_third_party=%SW_base%\swooz-3rdparty 
+
+SET SW_percent=%%
+set SW_DIST=%SW_base%\dist
+
+REM ## To transmit scripts parameters to the exe
+SET PARAMS_EXEC="%%1 %%2 %%3 %%4 %%5"
+REM ########################################################################################################################
+REM ## GLOBAL BRANCH VALUE
+REM
+REM ## this variable sets the branch for everything
+SET SW_default_branch=
+REM
+REM ########################################################################################################################
+
+
+REM ########################################################################################################################
+REM ## TOOLKIT
+REM
+REM ## these variables SET each project branch
+SET SW_toolkit=%SW_base%\swooz-toolkit
+REM
+SET SW_toolkit_branch=
+REM
+REM ########################################################################################################################
+
+
+REM ########################################################################################################################
+REM ## choose the trunk branch as default value if nothing is set
+if "%SW_default_branch%" == "" SET SW_default_branch=trunk
+REM
+REM ########################################################################################################################
+
+
+REM ########################################################################################################################
+REM ## choose the trunk branch as default value is nothing is set
+REM TOOLKIT
+if "%SW_toolkit_branch%" == "" SET SW_toolkit_branch=%SW_default_branch%
+REM ########################################################################################################################
+
+
+REM ########################################################################################################################
+REM ### SET 3RD PARTY SOFTWARE PATH
+REM ##################### TOBII
+set THIRD_PARTY_TOBII=%SW_base%\swooz-3rdparty\...
+REM ##################### FACELAB
+set THIRD_PARTY_FACELAB=%SW_base%\swooz-3rdparty\...
+REM ##################### OPENNI
+set THIRD_PARTY_OPENNI=%SW_base%\swooz-3rdparty\...
+REM ##################### OPENCV
+set THIRD_PARTY_OPENCV=%SW_base%\swooz-3rdparty\...
+REM ##################### BOOST
+set THIRD_PARTY_BOOST=%SW_base%\swooz-3rdparty\...
+REM ##################### POLHEMUS
+set THIRD_PARTY_POLHEMUS=%SW_base%\swooz-3rdparty\...
+REM ########################################################################################################################
+
+
+REM ########################################################################################################################
+REM ### SET CLASSPATH
+set CLASSPATH_RESTORE=%CLASSPATH% REM save current CLASSPATH to restore it in win32-clean-env_commande.cmd
+rem path where the class will be created and stored
+set CLASSPATH=%SW_base%\dist\bin;%CLASSPATH% 
+REM
+REM ########################################################################################################################
+
+
+REM ########################################################################################################################
+REM ### SET PATH
+set PATH_RESTORE=%PATH% REM save current PATH to restore it in win32-clean-env_commande.cmd
+set PATH=%THIRD_PARTY_TOBII%\...;%PATH%
+set PATH=%THIRD_PARTY_FACELAB%\...;%PATH%
+set PATH=%THIRD_PARTY_OPENNI%\...;%PATH%
+set PATH=%THIRD_PARTY_BOOST%\...;%PATH%
+set PATH=%THIRD_PARTY_POLHEMUS%\...;%PATH%
+REM ########################################################################################################################
+
+set DIST_LIB=%SW_base%\dist\lib
+
+REM ########################################################################################################################
+REM ## create the building order file
+set SW_build_order=SW_build_order.txt
+del %SW_build_order% > NULL 2<&1
+REM
+echo %SW_toolkit%\%SW_toolkit_branch% >> %SW_build_order%
+REM
+REM ########################################################################################################################
