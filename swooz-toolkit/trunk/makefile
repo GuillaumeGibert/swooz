@@ -34,7 +34,7 @@ TOBII_OBJ=\
 
 ############################################################################## Makefile commands
 	
-all: $(KINECT_OBJ) $(FACELAB_OBJ) $(TOBII_OBJ) $(FASTRAK_OBJ)
+all: $(KINECT_OBJ) $(FACELAB_OBJ) $(TOBII_OBJ) $(FASTRAK_OBJ) $(BINDIR)/SWDisplayKinectOnDimenco.exe
 
 ############################################################################## exe files
 

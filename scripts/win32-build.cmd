@@ -7,6 +7,8 @@ REM ############################################################################
 REM ## Uncomment if you want to clean before each compilation
 REM ~ call "win32-clean.cmd"
 
+REM #######################################################################################
+
 call "win32-init_env_command.cmd"
 
 REM
@@ -85,6 +87,7 @@ for /F %%s in (%SW_build_order%) do (
 echo _______________________________________________________________________________
 echo.
 echo Building process terminated successfully !
+echo.
 REM #######################################################################################
 REM ### Kinect on Dimenco 3D display
 echo @echo off                                               				>  %target_dist%\swooz-toolkit_kinectOnDimenco.cmd
