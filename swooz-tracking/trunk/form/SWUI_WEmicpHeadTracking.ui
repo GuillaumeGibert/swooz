@@ -1,0 +1,631 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SWUI_WEmicpHeadTracking</class>
+ <widget class="QMainWindow" name="SWUI_WEmicpHeadTracking">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1165</width>
+    <height>860</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QHBoxLayout" name="horizontalLayout">
+    <item>
+     <layout class="QVBoxLayout" name="vlMain" stretch="6,1">
+      <item>
+       <layout class="QGridLayout" name="glDisplay">
+        <item row="0" column="1">
+         <widget class="QGroupBox" name="gbClouds">
+          <property name="title">
+           <string>Clouds</string>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_7">
+           <item>
+            <layout class="QHBoxLayout" name="hlClouds"/>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QGroupBox" name="gbVideo">
+          <property name="title">
+           <string>Video</string>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_3">
+           <item>
+            <layout class="QHBoxLayout" name="hlVideo"/>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QGroupBox" name="gbRotations">
+          <property name="title">
+           <string>Rotations</string>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_8">
+           <item>
+            <layout class="QHBoxLayout" name="hlRotations"/>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QGroupBox" name="gbTranslations">
+          <property name="title">
+           <string>Translations</string>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_9">
+           <item>
+            <layout class="QHBoxLayout" name="hlTranslations"/>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="hlButtons" stretch="4,1">
+        <item>
+         <widget class="QGroupBox" name="gbParameters">
+          <property name="title">
+           <string>Parameters</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_3">
+           <item row="0" column="0">
+            <layout class="QGridLayout" name="glParameters">
+             <item row="1" column="5">
+              <widget class="QCheckBox" name="cbSmoothRigidMotion">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="text">
+                <string>Smooth rigid motion</string>
+               </property>
+               <property name="checked">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="2" alignment="Qt::AlignHCenter">
+              <widget class="QLabel" name="laTemplateCloudReduction">
+               <property name="text">
+                <string>Template cloud reduction :</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="2" alignment="Qt::AlignHCenter">
+              <widget class="QLabel" name="laTargetCloudReduction">
+               <property name="text">
+                <string>Target cloud reduction :</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="3">
+              <widget class="QDoubleSpinBox" name="dsbScoreComputingReduction">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="maximum">
+                <double>1.000000000000000</double>
+               </property>
+               <property name="singleStep">
+                <double>0.010000000000000</double>
+               </property>
+               <property name="value">
+                <double>0.100000000000000</double>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="3">
+              <widget class="QDoubleSpinBox" name="dsbTargetCloudReduction">
+               <property name="minimum">
+                <double>0.010000000000000</double>
+               </property>
+               <property name="maximum">
+                <double>1.000000000000000</double>
+               </property>
+               <property name="singleStep">
+                <double>0.010000000000000</double>
+               </property>
+               <property name="value">
+                <double>0.200000000000000</double>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QDoubleSpinBox" name="dsbP2">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="decimals">
+                <number>2</number>
+               </property>
+               <property name="minimum">
+                <double>0.000000000000000</double>
+               </property>
+               <property name="maximum">
+                <double>1000.000000000000000</double>
+               </property>
+               <property name="singleStep">
+                <double>0.010000000000000</double>
+               </property>
+               <property name="value">
+                <double>0.010000000000000</double>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0" alignment="Qt::AlignHCenter">
+              <widget class="QLabel" name="laP2">
+               <property name="text">
+                <string>P2 :</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0" colspan="2" alignment="Qt::AlignHCenter">
+              <widget class="QLabel" name="laEMICPParams">
+               <property name="text">
+                <string>EMICP</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="1">
+              <widget class="QDoubleSpinBox" name="dsbFactor">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
+               <property name="minimum">
+                <double>0.010000000000000</double>
+               </property>
+               <property name="maximum">
+                <double>0.990000000000000</double>
+               </property>
+               <property name="singleStep">
+                <double>0.010000000000000</double>
+               </property>
+               <property name="value">
+                <double>0.750000000000000</double>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="1">
+              <widget class="QDoubleSpinBox" name="dsbINF">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="decimals">
+                <number>6</number>
+               </property>
+               <property name="minimum">
+                <double>0.000001000000000</double>
+               </property>
+               <property name="maximum">
+                <double>0.010000000000000</double>
+               </property>
+               <property name="singleStep">
+                <double>0.000001000000000</double>
+               </property>
+               <property name="value">
+                <double>0.000010000000000</double>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="0" alignment="Qt::AlignHCenter">
+              <widget class="QLabel" name="laFactor">
+               <property name="text">
+                <string>Factor :</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0" alignment="Qt::AlignHCenter">
+              <widget class="QLabel" name="laInf">
+               <property name="text">
+                <string>INF :</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="0" alignment="Qt::AlignHCenter">
+              <widget class="QLabel" name="laD02">
+               <property name="text">
+                <string>D02 :</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="1">
+              <widget class="QDoubleSpinBox" name="dsbD02">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="maximum">
+                <double>100.000000000000000</double>
+               </property>
+               <property name="singleStep">
+                <double>0.010000000000000</double>
+               </property>
+               <property name="value">
+                <double>0.010000000000000</double>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="3">
+              <widget class="QDoubleSpinBox" name="dsbTemplateCloudReduction">
+               <property name="minimum">
+                <double>0.010000000000000</double>
+               </property>
+               <property name="maximum">
+                <double>1.000000000000000</double>
+               </property>
+               <property name="singleStep">
+                <double>0.010000000000000</double>
+               </property>
+               <property name="value">
+                <double>0.200000000000000</double>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="2" alignment="Qt::AlignHCenter">
+              <widget class="QLabel" name="laScoreComputingReduction">
+               <property name="text">
+                <string>Score computing reduction :</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="2" colspan="2" alignment="Qt::AlignHCenter">
+              <widget class="QLabel" name="laCloudsParams">
+               <property name="text">
+                <string>Clouds</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="4" alignment="Qt::AlignHCenter">
+              <widget class="QLabel" name="laKSmooth">
+               <property name="text">
+                <string>K smooth</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="4" colspan="2" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+              <widget class="QLabel" name="laRigidMotion">
+               <property name="text">
+                <string>Rigid motion</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="5">
+              <widget class="QSpinBox" name="sbKSmooth">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="maximum">
+                <number>50</number>
+               </property>
+               <property name="value">
+                <number>5</number>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="5">
+              <widget class="QDoubleSpinBox" name="dsbKTransSmoothConst">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="minimum">
+                <double>1.000000000000000</double>
+               </property>
+               <property name="maximum">
+                <double>5000.000000000000000</double>
+               </property>
+               <property name="singleStep">
+                <double>10.000000000000000</double>
+               </property>
+               <property name="value">
+                <double>10.000000000000000</double>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="5">
+              <widget class="QDoubleSpinBox" name="dsbKRotSmoothConst">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="minimum">
+                <double>1.000000000000000</double>
+               </property>
+               <property name="maximum">
+                <double>5000.000000000000000</double>
+               </property>
+               <property name="singleStep">
+                <double>10.000000000000000</double>
+               </property>
+               <property name="value">
+                <double>10.000000000000000</double>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="4" alignment="Qt::AlignHCenter">
+              <widget class="QLabel" name="laKTransConst">
+               <property name="text">
+                <string>K trans smooth const</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="4" alignment="Qt::AlignHCenter">
+              <widget class="QLabel" name="laKRotSmooth">
+               <property name="text">
+                <string>K rot smooth const</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="gbActions">
+          <property name="title">
+           <string>Actions</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_2">
+           <item row="0" column="0">
+            <layout class="QGridLayout" name="gridLayout">
+             <item row="1" column="0">
+              <widget class="QPushButton" name="pbStop">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>100</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>Stop</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0">
+              <widget class="QPushButton" name="pbStart">
+               <property name="maximumSize">
+                <size>
+                 <width>100</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>Start</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0">
+              <widget class="QCheckBox" name="cbExpertMode">
+               <property name="text">
+                <string>Expert mode</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1165</width>
+     <height>21</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>pbStart</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>pbStart</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>991</x>
+     <y>720</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1067</x>
+     <y>719</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pbStart</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>pbStop</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1085</x>
+     <y>719</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1084</x>
+     <y>762</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pbStop</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>pbStop</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1040</x>
+     <y>767</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1020</x>
+     <y>762</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pbStop</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>pbStart</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1004</x>
+     <y>766</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1007</x>
+     <y>718</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbExpertMode</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>cbSmoothRigidMotion</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1048</x>
+     <y>801</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>894</x>
+     <y>729</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbExpertMode</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>sbKSmooth</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1031</x>
+     <y>799</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>894</x>
+     <y>760</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbExpertMode</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>dsbKTransSmoothConst</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>992</x>
+     <y>796</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>879</x>
+     <y>782</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbExpertMode</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>dsbKRotSmoothConst</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1070</x>
+     <y>804</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>870</x>
+     <y>803</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbExpertMode</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>dsbD02</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1017</x>
+     <y>792</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>288</x>
+     <y>806</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbExpertMode</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>dsbScoreComputingReduction</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1072</x>
+     <y>804</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>598</x>
+     <y>783</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbExpertMode</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>dsbINF</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1051</x>
+     <y>792</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>275</x>
+     <y>756</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbExpertMode</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>dsbP2</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1033</x>
+     <y>792</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>299</x>
+     <y>728</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

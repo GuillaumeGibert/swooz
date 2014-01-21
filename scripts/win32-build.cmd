@@ -102,6 +102,33 @@ echo call win32-clean-env_command.cmd							>> %target_dist%\swooz-toolkit_kinec
 echo cd ../dist										>> %target_dist%\swooz-toolkit_kinectOnDimenco.cmd
 echo pause 										>> %target_dist%\swooz-toolkit_kinectOnDimenco.cmd
 REM #######################################################################################
+REM ### Head Tracking Forest
+echo @echo off                                                                          >  %target_dist%\swooz-trackingHeadForest.cmd
+echo %SystemRoot%\system32\xcopy /q /e /y %saved_directory%\..\swooz-config %saved_directory%\%target_dist%\data >> %target_dist%\swooz-trackingHeadForest.cmd
+echo pushd ..\scripts                                                                   >> %target_dist%\swooz-trackingHeadForest.cmd
+echo call win32-init_env_command.cmd                                                    >> %target_dist%\swooz-trackingHeadForest.cmd
+echo popd                                                                               >> %target_dist%\swooz-trackingHeadForest.cmd
+echo cd bin                                                                             >> %target_dist%\swooz-trackingHeadForest.cmd
+echo SWTrackingHeadForest.exe config.txt                                                >> %target_dist%\swooz-trackingHeadForest.cmd
+echo cd ../../scripts                                                                   >> %target_dist%\swooz-trackingHeadForest.cmd
+echo call win32-clean-env_command.cmd                                                   >> %target_dist%\swooz-trackingHeadForest.cmd
+echo cd ../dist                                                                         >> %target_dist%\swooz-trackingHeadForest.cmd
+echo pause                                                                              >> %target_dist%\swooz-trackingHeadForest.cmd
+REM #######################################################################################
+REM ### Emicp head tracking
+echo @echo off                                                                          >  %target_dist%\swooz-trackingHeadEmicp.cmd
+echo %SystemRoot%\system32\xcopy /q /e /y %saved_directory%\..\swooz-config %saved_directory%\%target_dist%\data >> %target_dist%\swooz-trackingHeadEmicp.cmd
+echo pushd ..\scripts                                                                   >> %target_dist%\swooz-trackingHeadEmicp.cmd
+echo call win32-init_env_command.cmd                                                    >> %target_dist%\swooz-trackingHeadEmicp.cmd
+echo popd                                                                               >> %target_dist%\swooz-trackingHeadEmicp.cmd
+echo cd bin                                                                             >> %target_dist%\swooz-trackingHeadEmicp.cmd
+echo SWEmicpHeadTracking.exe config.txt                                                 >> %target_dist%\swooz-trackingHeadEmicp.cmd
+echo cd ../../scripts                                                                   >> %target_dist%\swooz-trackingHeadEmicp.cmd
+echo call win32-clean-env_command.cmd                                                   >> %target_dist%\swooz-trackingHeadEmicp.cmd
+echo cd ../dist                                                                         >> %target_dist%\swooz-trackingHeadEmicp.cmd
+echo pause                                                                              >> %target_dist%\swooz-trackingHeadEmicp.cmd
+REM #######################################################################################
+
 echo.
 echo Install completed !
 echo.

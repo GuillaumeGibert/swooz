@@ -47,7 +47,6 @@ LIBDIR	     	 =./lib
 INCDIR_INTERFACE =./include/interface
 INCDIR_QTW       =./include/interface/QtWidgets
 INCDIR_QTWORKERS =./include/interface/QtWorkers
-INCDIR_QTGENW    =./include/interface/QtWidgets/generated
 SRCDIR_QTW	 =./src/interface/QtWidgets
 SRCDIR  	 =./src/
 SRCDIR_QTWORKERS =./src/interface/QtWorkers
