@@ -1,4 +1,17 @@
 SWoOZ (Super Wizard of OZ)
-=======================
+==========================
 
-Test edit 
+[SWoOZ Website](http://swooz.free.fr/)
+
+Sumary :
+--------
+
+...
+
+
+
+Platform content :
+------------------
+
+
+....
