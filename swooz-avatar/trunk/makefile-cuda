@@ -1,0 +1,52 @@
+# $vc10\makefile 0.1 flance for create-avatar module of SWoOZ project using Visual C++
+#
+# Release build: mkdir Release; nmake -nologo CFG=Release -f makefile
+# Debug build: mkdir Debug; nmake -nologo CFG=Debug -f makefile
+#
+# flance lyon nov 2012
+
+
+!IF "$(CFG)" != "Release" &&  "$(CFG)" != "Debug" 
+!ERROR Invalid CFG "($CFG)
+!ENDIF
+
+
+!IF  "$(CFG)" == "Release"
+
+CUDA=nvcc --machine 32 -arch=compute_20 -code=sm_20
+
+!ENDIF
+
+!IF  "$(CFG)" == "Debug"
+
+CUDA=nvcc --debug --device-debug  --machine 32
+
+!ENDIF
+
+
+LINK=link
+
+!INCLUDE <./makefile-include>
+
+INC_CUDA=\
+        -I./include/gpuMat\
+	-I./include/emicp\
+	-I"$(THIRD_PARTY_CUDA)"/include\
+
+all:  $(LIBDIR)/emicp.obj $(LIBDIR)/findRTfromS.obj \
+      $(LIBDIR)/gpuMat.obj \
+
+################################################ EMCIP
+
+$(LIBDIR)/emicp.obj: ./src/emicp/emicp.cu
+        $(CUDA) -c ./src/emicp/emicp.cu $(CFLAGS_CUDA_EMICP)
+
+$(LIBDIR)/findRTfromS.obj: ./src/emicp/findRTfromS.cpp
+        $(CUDA) -c ./src/emicp/findRTfromS.cpp $(CFLAGS_CUDA_EMICP)
+
+
+################################################ GPUMAT
+
+$(LIBDIR)/gpuMat.obj: ./src/gpuMat/gpuMat.cu
+    $(CUDA) -c ./src/gpuMat/gpuMat.cu $(CFLAGS_CUDA_GPUMAT)
+

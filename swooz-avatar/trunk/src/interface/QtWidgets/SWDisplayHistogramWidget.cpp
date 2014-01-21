@@ -1,0 +1,197 @@
+
+
+#include "SWDisplayHistogramWidget.h"
+#include "SWExceptions.h"
+
+#include "moc_SWDisplayHistogramWidget.cpp"
+
+#include <iostream>
+#include <sstream>
+
+using namespace std;
+
+SWDisplayHistogramWidget::SWDisplayHistogramWidget(QWidget* oParent, const std::vector<std::string> &aSCurvesLabel, QSize &oSize, cfloat fScale, cuint ui32Xtic, cuint ui32YTic, cint i32TaitSize) : 
+						   m_ui32NumberOfCurves(aSCurvesLabel.size()), m_oSize(oSize), m_fScaleValue(fScale), m_ui32XTic(ui32Xtic), m_ui32YTic(ui32YTic),
+						   m_i32TraitSize(i32TaitSize)
+{
+    // set parameters
+	this->setParent(oParent);
+	this->resize(m_oSize);		
+	m_bDrawLines	= true;
+    m_bDrawHisto    = false;
+    m_ui32ScrollingOffsetXTic    = 0;
+    m_ui32ScrollingOffsetXLegend = 0;
+
+    // init curves colors
+    QColor l_aCol[] = {Qt::red, Qt::green, Qt::blue, Qt::cyan, Qt::yellow, Qt::gray, Qt::magenta};
+    m_aColors = std::vector<QColor>(l_aCol, l_aCol + sizeof(l_aCol) / sizeof(QColor) );
+
+    // init list of curves values
+    for(uint ii = 0; ii < aSCurvesLabel.size(); ++ii)
+    {
+        list<float> l_lCurveValue;
+        m_aLCurvesValues.push_back(l_lCurveValue);
+        m_aSCurvesName.push_back(aSCurvesLabel[ii].c_str());
+    }
+
+    if(m_ui32NumberOfCurves == 0 || m_oSize.width() == 0 || m_oSize.height() == 0 || m_ui32NumberOfCurves > 10)
+    {
+        cerr << "Bad input values (constructor SWDisplayHistogramWidget). " << std::endl;
+        // throw
+    }
+}
+
+SWDisplayHistogramWidget::~SWDisplayHistogramWidget()
+{}
+
+void SWDisplayHistogramWidget::setNewValues(std::vector<float> &aFCurvesValues)
+{
+
+    if(aFCurvesValues.size() != m_ui32NumberOfCurves)
+    {
+        cerr << "Error, the input values number doesn't match. " << std::endl;
+        m_bDrawHisto = false;
+        // throw... TODO
+    }
+    else
+    {
+        bool l_bIsSroll = false;
+        m_bDrawHisto = true;
+
+        for(uint ii = 0; ii < m_ui32NumberOfCurves; ++ii)
+        {
+            if(m_aLCurvesValues[ii].size() == m_oSize.width() / m_i32TraitSize)
+            {
+                m_aLCurvesValues[ii].pop_front();
+                l_bIsSroll = true;
+            }
+
+            m_aLCurvesValues[ii].push_back(aFCurvesValues[ii]);
+        }
+
+        // apply scrolling offset
+        if(l_bIsSroll)
+        {
+            ++m_ui32ScrollingOffsetXTic;
+
+            if(m_ui32ScrollingOffsetXTic % m_ui32XTic == 0 )
+            {
+                ++m_ui32ScrollingOffsetXLegend;
+            }
+
+            m_ui32ScrollingOffsetXTic = m_ui32ScrollingOffsetXTic % m_ui32XTic;
+        }
+    }
+
+    update();
+}
+
+void SWDisplayHistogramWidget::paintEvent(QPaintEvent *)
+{
+    QPainter l_oPainter(this);
+
+    if(m_bDrawHisto)
+    {
+        // draw background
+        l_oPainter.fillRect(0, 0, m_oSize.width(), m_oSize.height(), Qt::black);
+
+        // draw tics
+        l_oPainter.setPen(Qt::darkGray);
+        for(uint ii = 0; ii <= m_oSize.width()/m_ui32XTic/m_i32TraitSize; ++ii)
+        {
+            l_oPainter.drawLine(QPoint((ii * m_ui32XTic - m_ui32ScrollingOffsetXTic)*m_i32TraitSize, 0), QPoint((ii * m_ui32XTic - m_ui32ScrollingOffsetXTic)*m_i32TraitSize, m_oSize.height()));
+        }
+        for(uint ii = 0; ii < m_oSize.height()/m_ui32YTic; ++ii)
+        {
+            l_oPainter.drawLine(QPoint(0, ii * m_ui32YTic), QPoint(m_oSize.width(), ii * m_ui32YTic));
+        }
+
+
+
+        // draw 0 line
+        l_oPainter.setPen(Qt::white);
+        l_oPainter.drawLine(QPoint(0,  m_oSize.height()/2), QPoint(m_oSize.width(), m_oSize.height()/2));
+
+        // draw legends
+        for(uint ii = 0; ii < m_oSize.width()/m_ui32XTic/m_i32TraitSize; ++ii)
+        {
+            ostringstream l_osXLegend;
+            l_osXLegend << (ii+m_ui32ScrollingOffsetXLegend) * m_ui32XTic;
+            l_oPainter.drawText(QPoint((ii * m_ui32XTic - m_ui32ScrollingOffsetXTic + m_ui32XTic/8)*m_i32TraitSize,  m_oSize.height() - m_oSize.height()/10), l_osXLegend.str().c_str());
+        }
+        for(uint ii = 0; ii <=  m_oSize.height()/2/m_ui32YTic; ++ii)
+        {
+            ostringstream l_osYLegend;
+            float l_fYLegend = ii * m_ui32YTic / m_fScaleValue;
+            l_osYLegend << l_fYLegend;
+            l_oPainter.drawText(QPoint(0, m_oSize.height()/2 - (ii * m_ui32YTic)), l_osYLegend.str().c_str());
+        }
+        for(uint ii = 1; ii <=  m_oSize.height()/2/m_ui32YTic; ++ii)
+        {
+            ostringstream l_osYLegend;
+            float l_fYLegend = ii * m_ui32YTic / m_fScaleValue;
+            l_osYLegend << -l_fYLegend;
+            l_oPainter.drawText(QPoint(0, m_oSize.height()/2 + (ii * m_ui32YTic)), l_osYLegend.str().c_str());
+        }
+
+
+        uint l_ui32LegendTextWidth = m_oSize.width() / m_aLCurvesValues.size();
+
+        for(uint ii = 0; ii < m_aLCurvesValues.size(); ++ii)
+        {
+            l_oPainter.setPen(m_aColors[ii]);
+            l_oPainter.drawText(QPoint( ii * l_ui32LegendTextWidth + m_oSize.width()/20,  m_oSize.height()/20), m_aSCurvesName[ii]);
+        }
+
+        // draw values
+        std::vector<std::vector<QPoint> > l_aAP3fPointsToDraw;
+        for(uint ii = 0; ii < m_aLCurvesValues.size(); ++ii)
+        {
+            std::vector<QPoint> l_aP3fCurvePoints;
+
+            uint jj = 0;
+            for(std::list<float>::iterator it = m_aLCurvesValues[ii].begin(); it != m_aLCurvesValues[ii].end(); ++it, ++jj)
+            {
+                float l_fVal = (*it) * m_fScaleValue + m_oSize.height()/2;
+
+                if(l_fVal > m_oSize.height())
+                {
+                    l_fVal = m_oSize.height();
+                }
+                else if(l_fVal < 0)
+                {
+                    l_fVal = 0;
+                }
+
+                l_fVal = m_oSize.height() - l_fVal; // qt origin is top left
+
+                l_aP3fCurvePoints.push_back(QPoint(jj*m_i32TraitSize, (int)l_fVal));
+
+            }
+
+            l_aAP3fPointsToDraw.push_back(l_aP3fCurvePoints);
+        }
+
+        for(uint ii = 0; ii < l_aAP3fPointsToDraw.size(); ++ii)
+        {
+            l_oPainter.setPen(m_aColors[ii]);
+
+            if(m_bDrawLines)
+            {
+                for(uint jj = 0; jj < l_aAP3fPointsToDraw[ii].size()-1; ++jj)
+                {
+                    l_oPainter.drawLine(l_aAP3fPointsToDraw[ii].at(jj), l_aAP3fPointsToDraw[ii].at(jj+1));
+                }
+            }
+            else
+            {
+                for(uint jj = 0; jj < l_aAP3fPointsToDraw[ii].size(); ++jj)
+                {
+                    l_oPainter.drawPoint(l_aAP3fPointsToDraw[ii].at(jj));
+                }
+            }
+        }
+    }
+}
+
+

@@ -1,0 +1,237 @@
+
+
+
+################################################################################################################# DEBUG/RELEASE MODE
+
+############################ DOC CL OPTIONS
+
+# -MTd   : Creates a debug multithreaded executable file, No need to define _DEBUG, compiler does it for us if -MTd flag is on
+# -DGSL_RANGE_CHECK : tells the mat lib to do range checking
+# -Zi    : Generates complete debugging information
+# -nolog : In brief, the positive form suppresses the logo at startup and the negative form makes explicit that this suppression is not wanted. However, there are some other effects. 
+# -O2 	 : Creates fast code
+# -W3 	 : Sets warning level
+# -MT 	 : Causes your application to use the multithread, static version of the run-time library. 
+#     	   Defines _MT and causes the compiler to place the library name LIBCMT.lib into the .obj file 
+#     	   so that the linker will use LIBCMT.lib to resolve external symbols.
+# -MD 	 : Causes your application to use the multithread- and DLL-specific version of the run-time library
+#     	   Defines _MT and _DLL and causes the compiler to place the library name MSVCRT.lib into the .obj file.
+#    	   Applications compiled with this option are statically linked to MSVCRT.lib. 
+#     	   This library provides a layer of code that allows the linker to resolve external references. 
+#     	   The actual working code is contained in MSVCR100.DLL, which must be available at run time to applications linked with MSVCRT.lib.
+# -GF 	 : enable string pooling
+# -Gy 	 : enable function-level linking
+# -EHsc  : exception model to use : /EHsc -> intercept only C++ exceptions, extern C functions never launch C++ exception.
+# 	   object files go to -Fo 
+
+COMPILE_NUMPROC = -MP$(NUMBER_OF_PROCESSORS)
+
+# We include setargv.obj for executables that do command line filename globbing.
+# PROGRAMFILES is inherited from the shell evironment (where it is
+# called ProgramFiles, but nmake converts it to upper case).  This allows us
+# to work with systems that use \Program Files or \Program Files x86.
+#SETARGV = "$(PROGRAMFILES)/Microsoft Visual Studio 10.0/VC/lib/setargv.obj"
+SETARGV = "$(VS100COMNTOOLS)/../../VC/lib/setargv.obj"
+
+# we include binmode.obj so files are opened as _O_BINARY, for compat with unix
+#BINMODE = "$(PROGRAMFILES)/Microsoft Visual Studio 10.0/VC/lib/binmode.obj"
+BINMODE = "$(VS100COMNTOOLS)/../../VC/lib/binmode.obj"
+
+WINLIBS=advapi32.lib comctl32.lib comdlg32.lib gdi32.lib shell32.lib user32.lib vfw32.lib winmm.lib opengl32.lib
+# glew32.lib glew32s.lib
+ 
+
+############################ DIRECTORIES
+
+LIBDIR	     	 =./lib
+INCDIR_INTERFACE =./include/interface
+INCDIR_QTW       =./include/interface/QtWidgets
+INCDIR_QTWORKERS =./include/interface/QtWorkers
+INCDIR_QTGENW    =./include/interface/QtWidgets/generated
+SRCDIR_QTW	 =./src/interface/QtWidgets
+SRCDIR  	 =./src/
+SRCDIR_QTWORKERS =./src/interface/QtWorkers
+FORMDIR		 =./form
+MOCDIR		 =./moc
+BINDIR=./bin
+
+############################ INCLUDES
+
+INC_OTHERS	= -I$(SW_DIST)\include
+	
+INC_SW    	= -I./include\
+	
+INC_VS		= -I"$(PROGRAMFILES)/Microsoft SDKs/Windows/v7.0A/Include"\ -I"$(VS100COMNTOOLS)/../../VC/include"\
+	
+INC_STASM	= -I./include/stasm\			  
+
+INC_BOOST	= -I"$(THIRD_PARTY_BOOST)"/include\
+
+INC_CUDA	= -I"$(THIRD_PARTY_CUDA)"/include -I"$(THIRD_PARTY_CAPLACK)"/include\
+# -I./include/emicp 
+
+INC_CULA        = -I"$(THIRD_PARTY_CULA)"/include\
+		  
+INC_GSL 	= -I"$(THIRD_PARTY_GSL)"/gsl -I"$(THIRD_PARTY_GSL)"\
+		  
+INC_OPENCV = -I"$(THIRD_PARTY_OPENCV)"\modules/core/include -I"$(THIRD_PARTY_OPENCV)"\modules/imgproc/include\
+			 -I"$(THIRD_PARTY_OPENCV)"\modules/objdetect/include -I"$(THIRD_PARTY_OPENCV)"\modules/features2d/include\
+			 -I"$(THIRD_PARTY_OPENCV)"\modules/features2d/include -I"$(THIRD_PARTY_OPENCV)"\modules/flann/include\
+			 -I"$(THIRD_PARTY_OPENCV)"\modules/highgui/include -I"$(THIRD_PARTY_OPENCV)"\modules/video/include\		  
+# -I"$(THIRD_PARTY_OPENCV)"\modules/gpu/include				
+
+INC_MOC		= -I$(MOCDIR)\
+
+INC_QTWIDGETS	= -I./include/interface/QtWidgets -I./include/interface/QtWidgets/generated\
+		  
+INC_QT		= -I"$(THIRD_PARTY_QT)"/include/QtOpenGL -I"$(THIRD_PARTY_QT)"/include/QtGui -I"$(THIRD_PARTY_QT)"/include/QtCore -I"$(THIRD_PARTY_QT)"/include/Qt -I"$(THIRD_PARTY_QT)"/include\
+
+############################ DEPENDENCIES
+
+COMMON	 	    = $(INC_VS) $(INC_SW) $(INC_OTHERS)
+#	avatar
+#SW_CREATE_AVATAR    = $(COMMON) $(INC_BOOST) $(INC_PCL) $(INC_OPENCV_BASE) $(INC_OPENCV_DETECT) $(INC_OPENCV_TRACK) $(INC_OPENCV_OTHERS) $(INC_GSL) $(INC_STASM)
+#	save kinect data
+#SW_LAUNCH_EXP       = $(COMMON) $(INC_BOOST) $(INC_YARP) $(INC_COREDATA) $(INC_POLHEMUS) $(INC_BOOST_FACELAB) $(INC_OPENCV_BASE) $(INC_OPENCV_GUI)
+#	save multi rigid motion data
+#SW_SAVE_MULTI_RM_DATA=$(COMMON) $(INC_BOOST) $(INC_YARP) $(INC_COREDATA) $(INC_POLHEMUS) $(INC_BOOST_FACELAB) $(INC_OPENCV_BASE) $(INC_OPENCV_GUI)
+#	load kinect data
+#SW_PROCESS_EXP_DATA = $(COMMON) $(INC_BOOST) $(INC_PCL) $(INC_ITPP) $(INC_OPENCV_BASE) $(INC_OPENCV_GUI) $(INC_OPENCV_TRACK) $(INC_OPENCV_DETECT) $(INC_GSL) $(INC_STASM) $(INC_QT)
+#	detect
+SW_HAAR_CASCADE     = $(COMMON) $(INC_OPENCV)
+SW_FACE_DETECTION   = $(COMMON) $(INC_BOOST) $(INC_OPENCV)
+SW_STASM_DETECTION  = $(COMMON) $(INC_OPENCV_BASE) $(INC_OPENCV) $(INC_GSL) $(INC_STASM)
+#	track
+SW_TRACK_FLOW       = $(COMMON) $(INC_OPENCV)
+SW_TRACK            = $(SW_TRACK_FLOW) $(INC_BOOST)
+#	cloud
+SW_CLOUD	    	= $(COMMON)
+#SW_VISUALIZE_CLOUD  = $(COMMON) $(INC_BOOST) $(INC_PCL) $(INC_OPENCV_BASE)
+SW_ALIGN_CLOUDS     = $(COMMON) $(INC_BOOST) $(INC_OPENCV)
+SW_CAPTURE_HEAD_M   = $(COMMON) $(INC_BOOST) $(INC_OPENCV) $(INC_GSL) $(INC_STASM)
+#       mesh
+SW_MESH             = $(SW_CLOUD)
+#SW_OSNRICP          = $(SW_MESH) $(INC_OPENCV_BASE) $(INC_OPENCV_GUI) $(SW_ALIGN_CLOUDS)
+#	stasm
+STASM		    	= $(COMMON) $(INC_GSL) $(INC_STASM) $(INC_OPENCV)
+
+#       widgets
+SW_DISPLAY_IMAGEW   = $(COMMON) $(INC_QT) $(INC_MOC) $(INC_QTWIDGETS) $(INC_OPENCV_BASE)
+SW_DISPLAY_HISTOW   = $(COMMON) $(INC_QT) $(INC_MOC) $(INC_QTWIDGETS)
+SW_GL_WIDGET	    = $(COMMON) $(INC_QT) $(INC_MOC) $(INC_QTWIDGETS)
+SW_GL_CLOUD_WIDGET  = $(SW_GL_WIDGET)
+SW_GL_MESH_WIDGET   = $(SW_GL_WIDGET)
+#SW_GL_OSNRI_WIDGET  = $(SW_GL_WIDGET) $(SW_OSNRICP)
+#SW_CREATEAVATAR_WORKER= $(COMMON) $(INC_BOOST) $(INC_QT) $(INC_PCL) $(INC_OPENCV_BASE) $(INC_OPENCV_DETECT) $(INC_OPENCV_TRACK) $(INC_MOC) $(INC_GSL) $(INC_STASM)
+#SW_MORPHING_WORKER  = $(COMMON) $(SW_GL_OSNRI_WIDGET)
+SW_QT_CAMERA	    = $(COMMON) $(INC_QT)
+#	interface
+#SW_CREATEAVATAR_INTERFACE     = $(COMMON) $(INC_BOOST) $(INC_PCL) $(INC_OPENCV_BASE) $(INC_OPENCV_DETECT) $(INC_OPENCV_TRACK) $(INC_QT) $(INC_MOC) $(INC_QTWIDGETS) $(INC_GSL) $(INC_STASM)
+#SW_MORPH_INTERFACE  = $(SW_MORPHING_WORKER)
+
+#	test code
+#SW_TEST_CODE        = $(SW_MORPH_INTERFACE)
+
+############################ COMMON DEBUG/RELEASE LIBS
+
+LIBS_COMMON	= "$(PROGRAMFILES)\Microsoft SDKs\Windows\v7.0A\Lib/ws2_32.lib"\
+
+LIBS_SW		= $(SW_DIST)/lib/SWKinect.obj $(SW_DIST)/lib/SWKinect_thread.obj $(SW_DIST)/lib/SWSaveKinectData.obj $(SW_DIST)/lib/SWLoadKinectData.obj\
+
+LIBS_SW_DYN     = $(SW_DIST)/lib/SWKinect_dynamic.obj  $(SW_DIST)/lib/SWKinect_thread_dynamic.obj  $(LIBDIR)/SWMaskCloud_dynamic.obj $(LIBDIR)/SWCloud_dynamic.obj\
+                  $(SW_DIST)/lib/SWFastrak_dynamic.obj $(SW_DIST)/lib/SWFastrak_thread_dynamic.obj $(SW_DIST)/lib/SWSaveKinectData_dynamic.obj $(SW_DIST)/lib/SWLoadKinectData_dynamic.obj\
+
+################################################################################################################# RELEASE MODE
+
+!IF  "$(CFG)" == "Release"
+	
+############################ FLAGS
+
+CFLAGS_STA = -nologo -O2 -GF -Gy -W3 -w44996 -w14189 -MT -EHsc -DWIN32 $(COMPILE_NUMPROC) 
+CFLAGS_DYN = -nologo -O2 -GF -Gy -W3 -w44996 -w14189 -MD -EHsc -DWIN32 $(COMPILE_NUMPROC)
+
+CXXWARN_CUDA_FLAGS = -W0
+COMMON_CUDA_FLAGS  = -O0 -DUNIX --use_fast_math
+CFLAGS_CUDA_EMICP  = $(INC_CUDA) $(COMMON_CUDA_FLAGS) -odir="./lib"
+CFLAGS_CUDA_GPUMAT = $(INC_CUDA) $(INC_CULA) $(INC_CUDACONFIG) $(COMMON_CUDA_FLAGS) -odir="./lib"
+CFLAGS_PLY         = $(INC_CUDA) -Fo"$(LIBDIR)/
+
+LFLAGS=-nologo -nodefaultlib:LIBCMT -nodefaultlib:LIBC -nodefaultlib:MSVCPRT
+LFLAGS_SK=-nologo
+
+ 
+############################ LIBS
+
+LIBS_CV		= $(THIRD_PARTY_OPENNI)/Lib/openNI.lib $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_highgui245.lib $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_core245.lib\
+		  $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_imgproc245.lib $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_objdetect245.lib $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_video245.lib\
+# $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_gpu245.lib\
+
+LIBS_QT 	= $(THIRD_PARTY_QT)/lib/QtOpenGL4.lib $(THIRD_PARTY_QT)/lib/QtCore4.lib $(THIRD_PARTY_QT)/lib/QtGui4.lib $(THIRD_PARTY_QT)/lib/qtmain.lib\
+
+# LIBS_CLA	= $(THIRD_PARTY_CLAPACK)/lib/lapack.lib $(THIRD_PARTY_CLAPACK)/lib/blas.lib $(THIRD_PARTY_CLAPACK)/lib/libf2c.lib\
+	
+LIBS_CUDA	= $(THIRD_PARTY_CUDA)/lib/cuda.lib $(THIRD_PARTY_CUDA)/lib/cublas.lib $(THIRD_PARTY_CUDA)/lib/cudart.lib $(THIRD_PARTY_CUDA)/lib/cutil32.lib\
+
+LIBS_CULA       = $(THIRD_PARTY_CULA)\lib\cula_lapack_basic.lib\
+
+LIBS_GSL	= $(THIRD_PARTY_GSL)/lib/mini_gslML.lib $(THIRD_PARTY_GSL)/lib/gslcblasML.lib\
+	
+LIBS_BOOST	= "$(THIRD_PARTY_BOOST)/lib/libboost_thread-vc100-mt-1_49.lib" "$(THIRD_PARTY_BOOST)/lib/libboost_date_time-vc100-mt-1_49.lib"\
+		  "$(THIRD_PARTY_BOOST)/lib/libboost_iostreams-vc100-mt-1_49.lib"\
+
+LIBS_BOOST_S	= $(THIRD_PARTY_BOOST)/lib/libboost_date_time-vc100-mt-s-1_49.lib $(THIRD_PARTY_BOOST)/lib/libboost_iostreams-vc100-mt-s-1_49.lib\
+		  $(THIRD_PARTY_BOOST)/lib/libboost_thread-vc100-mt-s-1_49.lib\
+	
+# LIBS_CA		= $(LIBS_COMMON) $(LIBS_SW) $(LIBS_BOOST_S) $(LIBS_CV) $(LIBS_QT) $(LIBS_PCL) $(LIBS_CLA) $(LIBS_CUDA) $(LIBS_GSL) $(LIBS_ITPP) $(LIBS_SPARSELM) $(LIBS_CULA)\
+	
+# LIBS_SK		= $(LIBS_COMMON) $(LIBS_SW_DYN) $(LIBS_CV) $(LIBS_BOOST) $(LIBS_PH) $(LIBS_FL) $(LIBS_YARP)\
+
+
+
+!ENDIF
+
+################################################################################################################# DEBUG MODE
+
+!IF  "$(CFG)" == "Debug"
+
+############################ FLAGS
+
+CFLAGS_STA= -nologo -Zi -W2 -MTd -EHsc -DWIN32 $(COMPILE_NUMPROC) -D_ALLOW_ITERATOR_DEBUG_LEVEL_MISMATCH
+CFLAGS_DYN= -nologo -Zi -W2 -MDd -EHsc -DWIN32 $(COMPILE_NUMPROC) -D_ALLOW_ITERATOR_DEBUG_LEVEL_MISMATCH
+
+LFLAGS=-nologo -nodefaultlib:LIBCMT -nodefaultlib:MSVCRT 
+LFLAGS_SK=-nologo
+
+CXXWARN_CUDA_FLAGS=  -W0
+COMMON_CUDA_FLAGS= 
+# -O0 -DUNIX --use_fast_math
+CFLAGS_CUDA= $(INC_CUDA) $(COMMON_CUDA_FLAGS) -odir="./lib
+CFLAGS_PLY= $(INC_CUDA) -Fo"$(LIBDIR)/
+# -D_ITERATOR_DEBUG_LEVEL=2
+
+############################ LIBS
+
+LIBS_CV		= $(THIRD_PARTY_OPENNI)/Lib/openNI.lib $(THIRD_PARTY_OPENCV)/build/lib/Debug/opencv_highgui245d.lib $(THIRD_PARTY_OPENCV)/build/lib/Debug/opencv_core245d.lib\
+			$(THIRD_PARTY_OPENCV)/build/lib/Debug/opencv_imgproc245d.lib $(THIRD_PARTY_OPENCV)/build/lib/Debug/opencv_objdetect245d.lib $(THIRD_PARTY_OPENCV)/build/lib/Debug/opencv_video245d.lib\
+		 
+LIBS_QT 	= $(THIRD_PARTY_QT)/lib/QtOpenGLd4.lib $(THIRD_PARTY_QT)/lib/QtCored4.lib $(THIRD_PARTY_QT)/lib/QtGuid4.lib $(THIRD_PARTY_QT)/lib/qtmaind.lib\
+
+LIBS_CLA	= $(THIRD_PARTY_CLAPACK)/lib/lapackd.lib $(THIRD_PARTY_CLAPACK)/lib/blasd.lib $(THIRD_PARTY_CLAPACK)/lib/libf2cd.lib\
+	
+LIBS_CUDA	= $(THIRD_PARTY_CUDA)/lib/cuda.lib $(THIRD_PARTY_CUDA)/lib/cublas.lib $(THIRD_PARTY_CUDA)/lib/cudart.lib $(THIRD_PARTY_CUDA)/lib/cutil32.lib\
+
+LIBS_GSL	= $(THIRD_PARTY_GSL)/lib/mini_gslMLd.lib $(THIRD_PARTY_GSL)/lib/gslcblasMLd.lib\
+	
+LIBS_BOOST	= "$(THIRD_PARTY_BOOST)/lib/libboost_thread-vc100-mt-gd-1_49.lib" "$(THIRD_PARTY_BOOST)/lib/libboost_date_time-vc100-mt-gd-1_49.lib"\
+		  "$(THIRD_PARTY_BOOST)/lib/libboost_iostreams-vc100-mt-gd-1_49.lib"\
+
+LIBS_BOOST_S	= $(THIRD_PARTY_BOOST)/lib/libboost_date_time-vc100-mt-sgd-1_49.lib $(THIRD_PARTY_BOOST)/lib/libboost_iostreams-vc100-mt-sgd-1_49.lib\
+		  $(THIRD_PARTY_BOOST)/lib/libboost_thread-vc100-mt-sgd-1_49.lib\
+	
+# LIBS_CA		= $(LIBS_COMMON) $(LIBS_SW) $(LIBS_BOOST_S) $(LIBS_CV) $(LIBS_QT) $(LIBS_PCL) $(LIBS_CLA) $(LIBS_CUDA) $(LIBS_GSL) $(LIBS_ITPP)\
+	
+# LIBS_SK		= $(LIBS_COMMON) $(LIBS_SW_DYN) $(LIBS_CV) $(LIBS_BOOST) $(LIBS_FL)\
+
+#Debug Single-threaded (libcd.lib) 	libc.lib, libcmt.lib, msvcrt.lib, libcmtd.lib, msvcrtd.lib
+
+!ENDIF
