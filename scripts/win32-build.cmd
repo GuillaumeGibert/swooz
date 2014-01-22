@@ -109,7 +109,7 @@ echo pushd ..\scripts                                                           
 echo call win32-init_env_command.cmd                                                    >> %target_dist%\swooz-trackingHeadForest.cmd
 echo popd                                                                               >> %target_dist%\swooz-trackingHeadForest.cmd
 echo cd bin                                                                             >> %target_dist%\swooz-trackingHeadForest.cmd
-echo SWTrackingHeadForest.exe config.txt                                                >> %target_dist%\swooz-trackingHeadForest.cmd
+echo SWTrackingHeadForest.exe ../data/ini/headForestConfig.ini                          >> %target_dist%\swooz-trackingHeadForest.cmd
 echo cd ../../scripts                                                                   >> %target_dist%\swooz-trackingHeadForest.cmd
 echo call win32-clean-env_command.cmd                                                   >> %target_dist%\swooz-trackingHeadForest.cmd
 echo cd ../dist                                                                         >> %target_dist%\swooz-trackingHeadForest.cmd
@@ -122,7 +122,7 @@ echo pushd ..\scripts                                                           
 echo call win32-init_env_command.cmd                                                    >> %target_dist%\swooz-trackingHeadEmicp.cmd
 echo popd                                                                               >> %target_dist%\swooz-trackingHeadEmicp.cmd
 echo cd bin                                                                             >> %target_dist%\swooz-trackingHeadEmicp.cmd
-echo SWEmicpHeadTracking.exe config.txt                                                 >> %target_dist%\swooz-trackingHeadEmicp.cmd
+echo SWEmicpHeadTracking.exe                                                            >> %target_dist%\swooz-trackingHeadEmicp.cmd
 echo cd ../../scripts                                                                   >> %target_dist%\swooz-trackingHeadEmicp.cmd
 echo call win32-clean-env_command.cmd                                                   >> %target_dist%\swooz-trackingHeadEmicp.cmd
 echo cd ../dist                                                                         >> %target_dist%\swooz-trackingHeadEmicp.cmd
