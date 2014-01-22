@@ -223,9 +223,9 @@ set SW_build_order=SW_build_order.txt
 del %SW_build_order% > NULL 2<&1
 REM
 echo %SW_toolkit%\%SW_toolkit_branch% >> %SW_build_order%
-REM echo %SW_avatar%\%SW_avatar_branch% >> %SW_build_order%
-REM echo %SW_tracking%\%SW_tracking_branch% >> %SW_build_order%
-REM echo %SW_teleoperation%\%SW_teleoperation_branch% >> %SW_build_order%
+echo %SW_avatar%\%SW_avatar_branch% >> %SW_build_order%
+echo %SW_tracking%\%SW_tracking_branch% >> %SW_build_order%
+echo %SW_teleoperation%\%SW_teleoperation_branch% >> %SW_build_order%
 
 REM
 REM ########################################################################################################################

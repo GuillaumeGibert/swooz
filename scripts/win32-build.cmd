@@ -154,6 +154,19 @@ echo call win32-clean-env_command.cmd                                           
 echo cd ../dist                                                                         >> %target_dist%\swooz-trackingFaceShift.cmd
 REM echo pause                                                                              >> %target_dist%\swooz-trackingFaceShift.cmd
 REM #######################################################################################
+REM ### iCub Teleoperation
+echo @echo off                                                                          >  %target_dist%\swooz-teleoperation_iCub.cmd
+echo %SystemRoot%\system32\xcopy /q /e /y %saved_directory%\..\swooz-config %saved_directory%\%target_dist%\data >> %target_dist%\swooz-teleoperation_iCub.cmd
+echo pushd ..\scripts                                                                   >> %target_dist%\swooz-teleoperation_iCub.cmd
+echo call win32-init_env_command.cmd                                                    >> %target_dist%\swooz-teleoperation_iCub.cmd
+echo popd                                                                               >> %target_dist%\swooz-teleoperation_iCub.cmd
+echo cd bin                                                                             >> %target_dist%\swooz-teleoperation_iCub.cmd
+echo SWTeleoperation_iCub.exe                                                           >> %target_dist%\swooz-teleoperation_iCub.cmd
+echo cd ../../scripts                                                                   >> %target_dist%\swooz-teleoperation_iCub.cmd
+echo call win32-clean-env_command.cmd                                                   >> %target_dist%\swooz-teleoperation_iCub.cmd
+echo cd ../dist                                                                         >> %target_dist%\swooz-teleoperation_iCub.cmd
+echo pause                                                                              >> %target_dist%\swooz-teleoperation_iCub.cmd
+REM #######################################################################################
 
 echo.
 echo Install completed !
