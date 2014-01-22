@@ -100,7 +100,7 @@ echo SWDisplayKinectOnDimenco.exe 							>> %target_dist%\swooz-toolkit_kinectOn
 echo cd ../../scripts									>> %target_dist%\swooz-toolkit_kinectOnDimenco.cmd
 echo call win32-clean-env_command.cmd							>> %target_dist%\swooz-toolkit_kinectOnDimenco.cmd
 echo cd ../dist										>> %target_dist%\swooz-toolkit_kinectOnDimenco.cmd
-echo pause 										>> %target_dist%\swooz-toolkit_kinectOnDimenco.cmd
+REM echo pause 										>> %target_dist%\swooz-toolkit_kinectOnDimenco.cmd
 REM #######################################################################################
 REM ### Head Tracking Forest
 echo @echo off                                                                          >  %target_dist%\swooz-trackingHeadForest.cmd
@@ -113,7 +113,7 @@ echo SWTrackingHeadForest.exe ../data/ini/headForestConfig.ini                  
 echo cd ../../scripts                                                                   >> %target_dist%\swooz-trackingHeadForest.cmd
 echo call win32-clean-env_command.cmd                                                   >> %target_dist%\swooz-trackingHeadForest.cmd
 echo cd ../dist                                                                         >> %target_dist%\swooz-trackingHeadForest.cmd
-echo pause                                                                              >> %target_dist%\swooz-trackingHeadForest.cmd
+REM echo pause                                                                              >> %target_dist%\swooz-trackingHeadForest.cmd
 REM #######################################################################################
 REM ### Emicp head tracking
 echo @echo off                                                                          >  %target_dist%\swooz-trackingHeadEmicp.cmd
@@ -126,7 +126,33 @@ echo SWEmicpHeadTracking.exe                                                    
 echo cd ../../scripts                                                                   >> %target_dist%\swooz-trackingHeadEmicp.cmd
 echo call win32-clean-env_command.cmd                                                   >> %target_dist%\swooz-trackingHeadEmicp.cmd
 echo cd ../dist                                                                         >> %target_dist%\swooz-trackingHeadEmicp.cmd
-echo pause                                                                              >> %target_dist%\swooz-trackingHeadEmicp.cmd
+REM echo pause                                                                              >> %target_dist%\swooz-trackingHeadEmicp.cmd
+REM #######################################################################################
+REM ### FaceLab tracking
+echo @echo off                                                                          >  %target_dist%\swooz-trackingFaceLab.cmd
+echo %SystemRoot%\system32\xcopy /q /e /y %saved_directory%\..\swooz-config %saved_directory%\%target_dist%\data >> %target_dist%\swooz-trackingFaceLab.cmd
+echo pushd ..\scripts                                                                   >> %target_dist%\swooz-trackingFaceLab.cmd
+echo call win32-init_env_command.cmd                                                    >> %target_dist%\swooz-trackingFaceLab.cmd
+echo popd                                                                               >> %target_dist%\swooz-trackingFaceLab.cmd
+echo cd bin                                                                             >> %target_dist%\swooz-trackingFaceLab.cmd
+echo SWFaceLabTracking.exe                                                              >> %target_dist%\swooz-trackingFaceLab.cmd
+echo cd ../../scripts                                                                   >> %target_dist%\swooz-trackingFaceLab.cmd
+echo call win32-clean-env_command.cmd                                                   >> %target_dist%\swooz-trackingFaceLab.cmd
+echo cd ../dist                                                                         >> %target_dist%\swooz-trackingFaceLab.cmd
+REM echo pause                                                                              >> %target_dist%\swooz-trackingFaceLab.cmd
+REM #######################################################################################
+REM ### FaceShift tracking
+echo @echo off                                                                          >  %target_dist%\swooz-trackingFaceShift.cmd
+echo %SystemRoot%\system32\xcopy /q /e /y %saved_directory%\..\swooz-config %saved_directory%\%target_dist%\data >> %target_dist%\swooz-trackingFaceShift.cmd
+echo pushd ..\scripts                                                                   >> %target_dist%\swooz-trackingFaceShift.cmd
+echo call win32-init_env_command.cmd                                                    >> %target_dist%\swooz-trackingFaceShift.cmd
+echo popd                                                                               >> %target_dist%\swooz-trackingFaceShift.cmd
+echo cd bin                                                                             >> %target_dist%\swooz-trackingFaceShift.cmd
+echo SWFaceShiftTracking.exe                                                            >> %target_dist%\swooz-trackingFaceShift.cmd
+echo cd ../../scripts                                                                   >> %target_dist%\swooz-trackingFaceShift.cmd
+echo call win32-clean-env_command.cmd                                                   >> %target_dist%\swooz-trackingFaceShift.cmd
+echo cd ../dist                                                                         >> %target_dist%\swooz-trackingFaceShift.cmd
+REM echo pause                                                                              >> %target_dist%\swooz-trackingFaceShift.cmd
 REM #######################################################################################
 
 echo.

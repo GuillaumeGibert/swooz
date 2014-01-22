@@ -1,3 +1,7 @@
+# makefile of swooz-toolkit project using Visual C++
+# Guillaume Gibert / Florian Lance
+# lyon dec 2012
+
 
 !IF "$(CFG)" != "Release" &&  "$(CFG)" != "Debug" 
 !ERROR Invalid CFG "($CFG)

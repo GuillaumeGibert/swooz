@@ -67,7 +67,7 @@ INC_FREEGLUT    =  -I"$(THIRD_PARTY_FREEGLUT)"\include
 
 INC_YARP	= -I"$(THIRD_PARTY_YARP)"\include
 
-#INC_FACELAB     = -I$(THIRD_PARTY_FACELAB)/coredata/include\
+INC_FACELAB     = -I$(THIRD_PARTY_FACELAB)/coredata/include\
 
 INC_BOOST	= -I"$(THIRD_PARTY_BOOST)"/include\
 

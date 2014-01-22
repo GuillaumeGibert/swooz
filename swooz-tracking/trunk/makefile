@@ -1,9 +1,6 @@
-# $vc10\makefile 0.1 ggibert$ for Tracking module of SWoOZ project using Visual C++
-#
-# Release build: mkdir Release; nmake -nologo CFG=Release -f makefile
-# Debug build: mkdir Debug; nmake -nologo CFG=Debug -f makefile
-#
-# ggibert lyon sept 2012
+# makefile of swooz-toolkit project using Visual C++
+# Guillaume Gibert / Florian Lance
+# lyon sept 2013
 
 !IF "$(CFG)" != "Release" &&  "$(CFG)" != "Debug" &&  "$(CFG)" != "Profile"
 !ERROR Invalid CFG "($CFG)
@@ -13,7 +10,6 @@
 CC=cl
 LINK=link
 
-# following include allows this makefile to work for all supported versions of VisualC
 !INCLUDE <./makefile-include>
 
 ############################################################################## OBJ PROGRAMS
@@ -24,14 +20,14 @@ OBJ_TRACKING_HEAD_FOREST=\
 	$(LIBDIR)/CRTree.obj\
 	$(LIBDIR)/SWForestHeadTracking.obj\
 
-#OBJ_TRACKING_FACELAB=\
-#        $(LIBDIR)/SWFaceLabTracking_dynamic.obj\
-#        $(DIST_LIB)/SWFaceLab_dynamic.obj\
-#        $(DIST_LIB)/FaceLab_dynamic.obj\
+OBJ_TRACKING_FACELAB=\
+        $(LIBDIR)/SWFaceLabTracking_dynamic.obj\
+        $(DIST_LIB)/SWFaceLab_dynamic.obj\
+        $(DIST_LIB)/FaceLab_dynamic.obj\
 
-#OBJ_TRACKING_FACESHIFT=\
-#        $(LIBDIR)/fsbinarystream.obj\
-#        $(LIBDIR)/SWFaceShiftTracking.obj\
+OBJ_TRACKING_FACESHIFT=\
+        $(LIBDIR)/fsbinarystream.obj\
+        $(LIBDIR)/SWFaceShiftTracking.obj\
 
 OBJ_TRACKING_EMCIP=\
         $(DIST_LIB)/SWKinect_thread.obj $(DIST_LIB)/SWKinect.obj\
@@ -44,12 +40,11 @@ OBJ_TRACKING_EMCIP=\
 
 ############################################################################## Makefile commands
 	
-all: trackingHeadEmicp trackingHeadForest
-#trackingFaceLab trackingFaceShift 
+all: trackingHeadEmicp trackingHeadForest trackingFaceLab trackingFaceShift
 
 trackingHeadForest : $(BINDIR)/SWTrackingHeadForest.exe
-#trackingFaceLab    : $(BINDIR)/SWFaceLabTracking.exe
-#trackingFaceShift  : $(BINDIR)/SWFaceShiftTracking.exe
+trackingFaceLab    : $(BINDIR)/SWFaceLabTracking.exe
+trackingFaceShift  : $(BINDIR)/SWFaceShiftTracking.exe
 trackingHeadEmicp  : $(QTGENW_RGBD)/SWUI_WEmicpHeadTracking.h $(MOCDIR)/moc_SWEmicpHeadTracking.cpp $(BINDIR)/SWEmicpHeadTracking.exe
 
 clean:
