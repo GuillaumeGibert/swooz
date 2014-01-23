@@ -89,7 +89,7 @@ in the swooz projects defined in the auto-generated file **"SW_build_order.txt"*
  
 win32-doc-generate.cmd will call all the win32-generate_doc.cmd of each project, these scripts generate the Doxygen documentation using their respective Doxyfile.
 
-4. CLEAN DOC
+5. CLEAN DOC
 ------------
 
 win32-doc-clean.cmd will delete the doc directories of all the projects.
