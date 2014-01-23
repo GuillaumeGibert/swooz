@@ -22,7 +22,7 @@ Install the swooz-3rdparty installer...
 
 
 Modify the **win32-init_env_command.cmd.skeleton** script.
-If you have used the **swooz-3rdparty* installer, only rename **"win32-init_env_command.cmd.skeleton"** into **"win32-init_env_command.cmd"**, else you will have to open it and define manually all the librairies links before renaming it.
+If you have used the **swooz-3rdparty** installer, only rename **"win32-init_env_command.cmd.skeleton"** into **"win32-init_env_command.cmd"**, else you will have to open it and define manually all the librairies links before renaming it.
 
 
 1. BUILD SWOOZ
