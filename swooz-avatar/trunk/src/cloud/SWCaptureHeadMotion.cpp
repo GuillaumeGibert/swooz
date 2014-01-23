@@ -54,7 +54,10 @@ int SWCaptureHeadMotion::computeHeadMotion(SWRigidMotion &oHeadRigidMotion, cons
             }
             else
             {
-                std::cout << "Face not detected. Use previous face rectangle. " << std::endl;
+                if(m_bVerbose)
+                {
+                    std::cout << "Face not detected. Use previous face rectangle. " << std::endl;
+                }
                 l_oFaceRectangle = m_oLastDetectedRectFace;
             }
         }

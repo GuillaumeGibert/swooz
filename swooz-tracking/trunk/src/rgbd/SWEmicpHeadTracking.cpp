@@ -204,8 +204,6 @@ void SWEmicpHeadTrackingWorker::doWork()
                 m_pCurrentFaceRect = new cv::Rect(l_oFaceRect);
                 m_pCurrentNoseRect = new cv::Rect(l_oNoseRect);
 
-
-
             // send the cloud and the rectangles to the interface for displaying
                 emit sendFaceRect(m_pCurrentFaceRect);
                 emit sendNoseRect(m_pCurrentNoseRect);
@@ -269,7 +267,7 @@ SWEmicpHeadTrackingInterface::SWEmicpHeadTrackingInterface() : m_uiMainWindow(ne
 
         // init widgets
             m_pDisplayImageWidget = new SWDisplayImageWidget();
-            m_pDisplayImageWidget->setMinimumSize(600,400);
+            m_pDisplayImageWidget->setMinimumSize(640,480);
             m_pDisplayImageWidget->setMaximumSize(1000,700);
 
             QGLFormat l_glFormat;
@@ -278,9 +276,9 @@ SWEmicpHeadTrackingInterface::SWEmicpHeadTrackingInterface() : m_uiMainWindow(ne
             l_glFormat.setSampleBuffers( true );
             QGLContext *l_glContext = new QGLContext(l_glFormat);
             m_pGLCloudWidget        = new SWGLCloudWidget(l_glContext);
-            m_pGLCloudWidget->setMinimumSize(600,400);
+            m_pGLCloudWidget->setMinimumSize(640,480);
             m_pGLCloudWidget->setMaximumSize(1000,700);
-            m_pGLCloudWidget->resetCamera(QVector3D(0.f, -0.1f, 0.6f), QVector3D(0.f, -0.1f,  1.f), QVector3D(0.f, 1.f,  0.f));
+            m_pGLCloudWidget->resetCamera(QVector3D(0.f, 0.0f, 0.6f), QVector3D(0.f, 0.0f,  1.f), QVector3D(0.f, 1.f,  0.f));
 
             std::vector<std::string> l_aSRotationsLabel;
             l_aSRotationsLabel.push_back("rX");
@@ -290,8 +288,8 @@ SWEmicpHeadTrackingInterface::SWEmicpHeadTrackingInterface() : m_uiMainWindow(ne
             l_aSTranslationsLabel.push_back("tX");
             l_aSTranslationsLabel.push_back("tY");
             l_aSTranslationsLabel.push_back("tZ");
-            m_pDisplayHistoRotWidget   = new SWDisplayHistogramWidget(this, l_aSRotationsLabel,    QSize(600, 300), 2.f, 100, 30, 2);
-            m_pDisplayHistoTransWidget = new SWDisplayHistogramWidget(this, l_aSTranslationsLabel, QSize(600, 300), 200.f, 100, 30, 2);
+            m_pDisplayHistoRotWidget   = new SWDisplayHistogramWidget(this, l_aSRotationsLabel,    QSize(600, 250), 2.f, 100, 30, 2);
+            m_pDisplayHistoTransWidget = new SWDisplayHistogramWidget(this, l_aSTranslationsLabel, QSize(600, 250), 200.f, 100, 30, 2);
 
             m_uiMainWindow->hlVideo->addWidget(m_pDisplayImageWidget);
             m_uiMainWindow->hlClouds->addWidget(m_pGLCloudWidget);
@@ -443,12 +441,51 @@ void SWEmicpHeadTrackingInterface::updateImageDisplay()
     std::ostringstream l_osDelay;
 
 
+    // apply a filter on the zones where detection could fail
+
+    for(int ii = 0; ii < l_oRgb.rows/4; ++ii)
+    {
+        for(int jj = 0; jj < l_oRgb.cols; ++jj)
+        {
+//            cv::Vec3b l_oColValueUp   = l_oRgb.at<cv::Vec3b>(ii,jj);
+//            cv::Vec3b l_oColValueDown = l_oRgb.at<cv::Vec3b>(l_oRgb.rows -1 - ii,jj);
+
+//            for(int kk = 0; kk < 3; ++kk)
+//            {
+//                if(l_oColValueUp[kk] < 155)
+//                {
+//                    l_oColValueUp[kk] += 100;
+//                }
+//                else
+//                {
+//                    l_oColValueUp[kk] = 255;
+//                }
+
+//                if(l_oColValueDown[kk] < 155)
+//                {
+//                    l_oColValueDown[kk] += 100;
+//                }
+//                else
+//                {
+//                    l_oColValueDown[kk] = 255;
+//                }
+//            }
+
+//            l_oRgb.at<cv::Vec3b>(ii,jj)                   = l_oColValueUp;
+//            l_oRgb.at<cv::Vec3b>(l_oRgb.rows - 1 - ii,jj) = l_oColValueDown;
+
+            l_oRgb.at<cv::Vec3b>(ii,jj)                   = cv::Vec3b(0,0,0);
+            l_oRgb.at<cv::Vec3b>(l_oRgb.rows - 1 - ii,jj) = cv::Vec3b(0,0,0);
+        }
+    }
+
+
     // apply rectangles used for the rigid motion computing on the cv mat image
     m_oMutex.lockForRead();
         cv::Rect l_oFaceRectangle = m_oFaceRect;
         cv::Rect l_oNoseRectangle = m_oNoseRect;
         l_osDelay  << m_fDelay;
-    m_oMutex.unlock();
+    m_oMutex.unlock();            
 
     if(swUtil::isInside(l_oFaceRectangle, l_oRgb))
     {
@@ -471,6 +508,7 @@ void SWEmicpHeadTrackingInterface::updateImageDisplay()
 
     m_pDisplayImageWidget->refreshDisplay(swConv::mat2QImage(l_oRgb));
 }
+
 
 void SWEmicpHeadTrackingInterface::updateInterfaceValues(int i32Value)
 {
