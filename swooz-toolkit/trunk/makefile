@@ -22,6 +22,7 @@ KINECT_DIMENCO_OBJ=\
 KINECT_OBJ=\
     $(LIBDIR)/SWKinect.obj $(LIBDIR)/SWKinect_thread.obj $(LIBDIR)/SWKinect_dynamic.obj $(LIBDIR)/SWKinect_thread_dynamic.obj\
     $(LIBDIR)/SWSaveKinectData.obj $(LIBDIR)/SWSaveKinectData_dynamic.obj $(LIBDIR)/SWLoadKinectData.obj $(LIBDIR)/SWLoadKinectData_dynamic.obj\
+    $(LIBDIR)/SWKinectSkeleton.obj $(LIBDIR)/SWKinectSkeleton_dynamic.obj\
 
 FACELAB_OBJ=\
     $(LIBDIR)/FaceLab_dynamic.obj $(LIBDIR)/SWFaceLab_dynamic.obj\
@@ -69,6 +70,10 @@ $(LIBDIR)/Tobii.obj: ./src/devices/tobii/Tobii.cpp
 $(LIBDIR)/SWDimenco3DDisplay.obj: ./src/devices/dimenco/SWDimenco3DDisplay.cpp
         $(CC) -c ./src/devices/dimenco/SWDimenco3DDisplay.cpp $(CFLAGS_STA) $(SW_SDIMENCO3DPLAY) -Fo"$(LIBDIR)/"
 
+$(LIBDIR)/SWKinectSkeleton.obj: ./src/devices/rgbd/SWKinectSkeleton.cpp
+        $(CC) -c ./src/devices/rgbd/SWKinectSkeleton.cpp $(CFLAGS_STA) $(SW_KINECT_SKELETON) -Fo"$(LIBDIR)/"
+
+
 ####### dynamic
 
 $(LIBDIR)/FaceLab_dynamic.obj: ./src/devices/faceLab/FaceLab.cpp
@@ -94,3 +99,6 @@ $(LIBDIR)/SWSaveKinectData_dynamic.obj: ./src/devices/rgbd/SWSaveKinectData.cpp
 
 $(LIBDIR)/SWLoadKinectData_dynamic.obj: ./src/devices/rgbd/SWLoadKinectData.cpp
         $(CC) -c ./src/devices/rgbd/SWLoadKinectData.cpp $(CFLAGS_DYN) $(SW_LOAD_KINECT_DATA) -Fo"$(LIBDIR)/SWLoadKinectData_dynamic.obj"
+
+$(LIBDIR)/SWKinectSkeleton_dynamic.obj: ./src/devices/rgbd/SWKinectSkeleton.cpp
+        $(CC) -c ./src/devices/rgbd/SWKinectSkeleton.cpp $(CFLAGS_DYN) $(SW_KINECT_SKELETON) -Fo"$(LIBDIR)/SWKinectSkeleton_dynamic.obj"
