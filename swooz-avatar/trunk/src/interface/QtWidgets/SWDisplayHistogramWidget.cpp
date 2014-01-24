@@ -97,27 +97,28 @@ void SWDisplayHistogramWidget::paintEvent(QPaintEvent *)
 
         // draw tics
         l_oPainter.setPen(Qt::darkGray);
+
         for(uint ii = 0; ii <= m_oSize.width()/m_ui32XTic/m_i32TraitSize; ++ii)
         {
             l_oPainter.drawLine(QPoint((ii * m_ui32XTic - m_ui32ScrollingOffsetXTic)*m_i32TraitSize, 0), QPoint((ii * m_ui32XTic - m_ui32ScrollingOffsetXTic)*m_i32TraitSize, m_oSize.height()));
         }
-        for(uint ii = 0; ii < m_oSize.height()/m_ui32YTic; ++ii)
+
+        for(uint ii = 0; ii < m_oSize.height()/m_ui32YTic/2; ++ii)
         {
-            l_oPainter.drawLine(QPoint(0, ii * m_ui32YTic), QPoint(m_oSize.width(), ii * m_ui32YTic));
+            l_oPainter.drawLine(QPoint(0, m_oSize.height()/2 + ii * m_ui32YTic), QPoint(m_oSize.width(), m_oSize.height()/2 + ii * m_ui32YTic));
+            l_oPainter.drawLine(QPoint(0, m_oSize.height()/2 - ii * m_ui32YTic), QPoint(m_oSize.width(), m_oSize.height()/2 - ii * m_ui32YTic));
         }
-
-
 
         // draw 0 line
         l_oPainter.setPen(Qt::white);
         l_oPainter.drawLine(QPoint(0,  m_oSize.height()/2), QPoint(m_oSize.width(), m_oSize.height()/2));
 
         // draw legends
-        for(uint ii = 0; ii < m_oSize.width()/m_ui32XTic/m_i32TraitSize; ++ii)
+        for(uint ii = 0; ii < m_oSize.width()/m_ui32XTic/m_i32TraitSize + 1; ++ii)
         {
             ostringstream l_osXLegend;
             l_osXLegend << (ii+m_ui32ScrollingOffsetXLegend) * m_ui32XTic;
-            l_oPainter.drawText(QPoint((ii * m_ui32XTic - m_ui32ScrollingOffsetXTic + m_ui32XTic/8)*m_i32TraitSize,  m_oSize.height() - m_oSize.height()/10), l_osXLegend.str().c_str());
+            l_oPainter.drawText(QPoint((ii * m_ui32XTic - m_ui32ScrollingOffsetXTic + m_ui32XTic/15)*m_i32TraitSize,  m_oSize.height()/2 + m_oSize.height()/20), l_osXLegend.str().c_str());
         }
         for(uint ii = 0; ii <=  m_oSize.height()/2/m_ui32YTic; ++ii)
         {
@@ -166,7 +167,6 @@ void SWDisplayHistogramWidget::paintEvent(QPaintEvent *)
                 l_fVal = m_oSize.height() - l_fVal; // qt origin is top left
 
                 l_aP3fCurvePoints.push_back(QPoint(jj*m_i32TraitSize, (int)l_fVal));
-
             }
 
             l_aAP3fPointsToDraw.push_back(l_aP3fCurvePoints);

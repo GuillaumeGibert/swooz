@@ -82,6 +82,7 @@ class SWGLCloudWidget : public SWGLWidget
         QGLBuffer m_indexBuffer;        /**< ... */
         QGLBuffer m_colorBuffer;        /**< ... */
 
+        bool m_bInitCamWithCloudPosition; /**< init the camera with the cloud bbox at the first frame */
         bool m_bApplyRigidMotion;   /**< ... */
         float m_fDefaultOpacity;    /**< ... */
 

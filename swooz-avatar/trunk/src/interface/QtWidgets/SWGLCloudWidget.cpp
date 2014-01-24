@@ -16,7 +16,7 @@
 using namespace swExcept;
 
 SWGLCloudWidget::SWGLCloudWidget(QGLContext *context, QWidget* parent) :
-    SWGLWidget(context, parent), m_bApplyRigidMotion(false),
+    SWGLWidget(context, parent), m_bApplyRigidMotion(false), m_bInitCamWithCloudPosition(true),
     m_vertexBuffer(QGLBuffer::VertexBuffer), m_colorBuffer(QGLBuffer::VertexBuffer), m_indexBuffer(QGLBuffer::IndexBuffer), m_pCloud(NULL)
 {
     // init rigid motion parameters
@@ -133,6 +133,24 @@ void SWGLCloudWidget::setCloudAndRigidMotion(const swCloud::SWRigidMotion &oRigi
 
 void SWGLCloudWidget::setCloud(swCloud::SWCloud *oCloud)
 {
+    if(m_bInitCamWithCloudPosition)
+    {
+        swCloud::SWCloudBBox l_oBBox = oCloud->bBox();
+        QVector3D l_oEye,l_oLookAt;
+        l_oEye.setX((l_oBBox.m_fMaxX + l_oBBox.m_fMinX)/2);
+        l_oEye.setY((l_oBBox.m_fMaxY + l_oBBox.m_fMinY)/2);
+        l_oEye.setZ((l_oBBox.m_fMaxZ + l_oBBox.m_fMinZ)/2);
+
+        l_oLookAt = l_oEye;
+        l_oEye.setZ(l_oEye.z() - 0.15f);
+        l_oLookAt.setZ(l_oLookAt.z() + 1.f);
+
+        resetCamera(l_oEye,l_oLookAt);
+
+        m_bInitCamWithCloudPosition = false;
+    }
+
+
     deleteAndNullify(m_pCloud);
     m_pCloud = new swCloud::SWCloud(*oCloud);
     updateGL();
