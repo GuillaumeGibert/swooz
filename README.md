@@ -26,13 +26,15 @@ The project will have two clear phases :
 
 Content :
 ---------
-
+ * A toolkit for working with tracking devices :
+   * [interfaces](https://github.com/GuillaumeGibert/swooz/wiki/toolkit#wiki-devices) (Kinect/Xtion, FaceLab, Fastrak Polhemus, Tobii..)
+   * depth captor data recorder/loader
  * Modules based on yarp :
-   * Tracking human movements without intrusive devices : head rigid/non-rigid motion, arms(not online now), torso(not online now)
-   * Teleoperation for iCub, NAO(not online now), 3D Avatars(not online now) based on the tracking modules
+   * [Tracking](https://github.com/GuillaumeGibert/swooz/wiki/tracking) human movements without intrusive devices : head rigid/non-rigid motion, arms(not online now), torso(not online now)
+   * [Teleoperation](https://github.com/GuillaumeGibert/swooz/wiki/teleoperation) for iCub, NAO(not online now), 3D Avatars(not online now) based on the tracking modules
  * Avatar creation/morphing :
-   * Avatar creation from depths sensors devices(Kinect/Xtion) data (not online now)
-   * Avatar morphing for fitting references avatars meshes (not online now)
+   * [Creation](https://github.com/GuillaumeGibert/swooz/wiki/avatar#wiki-creation) from depths sensors devices(Kinect/Xtion) data (not online now)
+   * [Morphing](https://github.com/GuillaumeGibert/swooz/wiki/avatar#wiki-morphing) for fitting references avatars meshes (not online now)
  
 
 
