@@ -1,11 +1,14 @@
-# makefile of swooz-toolkit project using Visual C++
+# makefile of swooz-tracking project using Visual C++
 # Guillaume Gibert / Florian Lance
 # lyon sept 2013
 
-!IF "$(CFG)" != "Release" &&  "$(CFG)" != "Debug" &&  "$(CFG)" != "Profile"
+!IF "$(CFG)" != "Release" &&  "$(CFG)" != "Debug"
 !ERROR Invalid CFG "($CFG)
 !ENDIF
 
+!IF "$(ARCH)" != "x86" &&  "$(ARCH)" != "amd64"
+!ERROR Invalid ARCH "($ARCH)
+!ENDIF
 
 CC=cl
 LINK=link
@@ -15,10 +18,15 @@ LINK=link
 ############################################################################## OBJ PROGRAMS
 
 OBJ_TRACKING_HEAD_FOREST=\
-	$(LIBDIR)/gl_camera.obj \
-	$(LIBDIR)/CRForestEstimator.obj \
-	$(LIBDIR)/CRTree.obj\
-	$(LIBDIR)/SWForestHeadTracking.obj\
+        $(LIBDIR)/gl_camera.obj \
+        $(LIBDIR)/CRForestEstimator.obj \
+        $(LIBDIR)/CRTree.obj\
+        $(LIBDIR)/SWForestHeadTracking.obj\
+
+OBJ_TRACKING_OPENNI=\
+        $(DIST_LIB)/SWKinectSkeleton_dynamic.obj\
+        $(LIBDIR)/SWOpenNITracking.obj\
+
 
 OBJ_TRACKING_FACELAB=\
         $(LIBDIR)/SWFaceLabTracking_dynamic.obj\
@@ -38,14 +46,26 @@ OBJ_TRACKING_EMCIP=\
         $(DIST_LIB)/SWGLCloudWidget.obj $(DIST_LIB)/SWGLWidget.obj $(DIST_LIB)/SWQtCamera.obj \
         $(LIBDIR)/SWEmicpHeadTracking.obj\
 
+OBJ_TRACKING_FORTH=\
+        $(LIBDIR)/SWForthTracking.obj
+
 ############################################################################## Makefile commands
-	
-all: trackingHeadEmicp trackingHeadForest trackingFaceLab trackingFaceShift
+
+!if  "$(ARCH)" == "x86"
+all: trackingHeadEmicp trackingHeadForest trackingFaceLab trackingFaceShift trackingOpenNI
+!endif
+
+!if "$(ARCH)" == "amd64"
+all: trackingForth
+!endif
+
 
 trackingHeadForest : $(BINDIR)/SWTrackingHeadForest.exe
 trackingFaceLab    : $(BINDIR)/SWFaceLabTracking.exe
 trackingFaceShift  : $(BINDIR)/SWFaceShiftTracking.exe
 trackingHeadEmicp  : $(QTGENW_RGBD)/SWUI_WEmicpHeadTracking.h $(MOCDIR)/moc_SWEmicpHeadTracking.cpp $(BINDIR)/SWEmicpHeadTracking.exe
+trackingOpenNI     : $(BINDIR)/SWOpenNITracking.exe
+trackingForth      : $(BINDIR)/SWForthTracking.exe
 
 clean:
 
@@ -65,20 +85,36 @@ $(BINDIR)/SWFaceShiftTracking.exe: $(OBJ_TRACKING_FACESHIFT) $(LIBS_FACESHIFT_TR
 $(BINDIR)/SWEmicpHeadTracking.exe: $(OBJ_TRACKING_EMCIP) $(LIBS_EMICP_TRACK)
         $(LINK) /OUT:$(BINDIR)/SWEmicpHeadTracking.exe $(LFLAGS_EMICP_HEAD_TRACKING) $(OBJ_TRACKING_EMCIP) $(SETARGV) $(BINMODE) $(LIBS_EMICP_TRACK) $(WINLIBS)
 
+$(BINDIR)/SWOpenNITracking.exe: $(OBJ_TRACKING_OPENNI) $(LIBS_OPENNI_TRACK)
+        $(LINK) /OUT:$(BINDIR)/SWOpenNITracking.exe $(LFLAGS) $(OBJ_TRACKING_OPENNI) $(SETARGV) $(BINMODE) $(LIBS_OPENNI_TRACK) $(WINLIBS)
+
+$(BINDIR)/SWForthTracking.exe: $(OBJ_TRACKING_FORTH) $(LIBS_FORTH_TRACK)
+        $(LINK) /OUT:$(BINDIR)/SWForthTracking.exe $(LFLAGS) $(OBJ_TRACKING_FORTH) $(SETARGV) $(BINMODE) $(LIBS_FORTH_TRACK) $(WINLIBS)
+
+############################################################################## OPENNI TRACKING OBJ
+
+$(LIBDIR)/SWOpenNITracking.obj: ./src/rgbd/SWOpenNITracking.cpp
+        $(CC) -c ./src/rgbd/SWOpenNITracking.cpp $(CFLAGS_DYN) $(SW_OPENNITRACKING) -Fo"$(LIBDIR)/"
+
+############################################################################## FORTH TRACKING OBJ
+
+$(LIBDIR)/SWForthTracking.obj: ./src/rgbd/SWForthTracking.cpp
+        $(CC) -c ./src/rgbd/SWForthTracking.cpp $(CFLAGS_DYN) $(SW_FORTHTRACKING) -Fo"$(LIBDIR)/"
+
 ############################################################################## FOREST TRACKING OBJ
 
 $(LIBDIR)/gl_camera.obj: ./src/rgbd/forest/gl_camera.cpp
         $(CC) -c ./src/rgbd/forest/gl_camera.cpp $(CFLAGS_STA) $(SW_FOREST) -Fo"$(LIBDIR)/"
-	
+
 $(LIBDIR)/CRForestEstimator.obj: ./src/rgbd/forest/CRForestEstimator.cpp
         $(CC) -c ./src/rgbd/forest/CRForestEstimator.cpp $(CFLAGS_STA) $(SW_FOREST) -Fo"$(LIBDIR)/"
-	
+
 $(LIBDIR)/CRTree.obj: ./src/rgbd/forest/CRTree.cpp
         $(CC) -c ./src/rgbd/forest/CRTree.cpp $(CFLAGS_STA) $(SW_FOREST) -Fo"$(LIBDIR)/"
-	
+
 $(LIBDIR)/SWForestHeadTracking.obj: ./src/rgbd/SWForestHeadTracking.cpp
         $(CC) -c ./src/rgbd/SWForestHeadTracking.cpp $(CFLAGS_STA) $(SW_FOREST) -Fo"$(LIBDIR)/"
-	
+
 ############################################################################## FACELAB TRACKING OBJ
 
 $(LIBDIR)/SWFaceLabTracking_dynamic.obj: ./src/facelab/SWFaceLabTracking.cpp

@@ -19,7 +19,7 @@
 #include "interface/QtWidgets/SWGLCloudWidget.h"
 #include "interface/QtWidgets/SWDisplayImageWidget.h"
 #include "interface/QtWidgets/SWDisplayHistogramWidget.h"
-#include "rgbd/SWUI_WEmicpHeadTracking.h"
+#include "../genUI/SWUI_WEmicpHeadTracking.h"
 
 
 // RGBD

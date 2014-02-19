@@ -52,10 +52,10 @@
 
 */
 
-std::string deviceName = "rgbd"; 
-std::string libraryName = "forest"; 
-std::string effectorName= "head"; 
-std::string configfileName; 
+std::string deviceName = "rgbd";
+std::string libraryName = "forest";
+std::string effectorName= "head";
+std::string configfileName;
 // yarp ports & bottle
 std::string headTrackingPortName;
 yarp::os::BufferedPort<yarp::os::Bottle> headTrackingPort;
@@ -121,210 +121,210 @@ math_vector_3f g_face_curr_dir, g_face_dir(0,0,-1);
 
 void drawCylinder( const math_vector_3f& p1, const math_vector_3f& p2 , float radius, GLUquadric *quadric)
 {
-	math_vector_3f d = p2 - p1;
-	if (d[2] == 0)
-		d[2] = .0001f;
+    math_vector_3f d = p2 - p1;
+    if (d[2] == 0)
+        d[2] = .0001f;
 
-	float n = length(d);
-	float ax = ( d[2] < 0.0 ) ? -57.295779f*acos( d[2]/n ) : 57.295779f*acos( d[2]/n );
+    float n = length(d);
+    float ax = ( d[2] < 0.0 ) ? -57.295779f*acos( d[2]/n ) : 57.295779f*acos( d[2]/n );
 
-	glPushMatrix();
+    glPushMatrix();
 
-	glTranslatef( p1[0],p1[1],p1[2] );
-	glRotatef( ax, -d[1]*d[2], d[0]*d[2], 0.0);
-	gluQuadricOrientation(quadric,GLU_OUTSIDE);
-	gluCylinder(quadric, radius, radius, n, 10, 1);
+    glTranslatef( p1[0],p1[1],p1[2] );
+    glRotatef( ax, -d[1]*d[2], d[0]*d[2], 0.0);
+    gluQuadricOrientation(quadric,GLU_OUTSIDE);
+    gluCylinder(quadric, radius, radius, n, 10, 1);
 
-	gluQuadricOrientation(quadric,GLU_INSIDE);
-	gluDisk( quadric, 0.0, radius, 10, 1);
-	glTranslatef( 0,0,n );
+    gluQuadricOrientation(quadric,GLU_INSIDE);
+    gluDisk( quadric, 0.0, radius, 10, 1);
+    glTranslatef( 0,0,n );
 
-	gluQuadricOrientation(quadric,GLU_OUTSIDE);
-	gluDisk( quadric, 0.0, radius, 10, 1);
-	glPopMatrix();
+    gluQuadricOrientation(quadric,GLU_OUTSIDE);
+    gluDisk( quadric, 0.0, radius, 10, 1);
+    glPopMatrix();
 }
 
 void initialize(){
 
-	std::cout << "initializing kinect... " << endl;
+    std::cout << "initializing kinect... " << endl;
 
-	// Initialize context object
-	g_RetVal = g_Context.Init();
+    // Initialize context object
+    g_RetVal = g_Context.Init();
 
-	g_RetVal = g_DepthGenerator.Create(g_Context);
-	if (g_RetVal != XN_STATUS_OK)
-		printf("Failed creating DEPTH generator %s\n", xnGetStatusString(g_RetVal));
+    g_RetVal = g_DepthGenerator.Create(g_Context);
+    if (g_RetVal != XN_STATUS_OK)
+        printf("Failed creating DEPTH generator %s\n", xnGetStatusString(g_RetVal));
 
-	XnMapOutputMode outputMode;
-	outputMode.nXRes = g_im_w;
-	outputMode.nYRes = g_im_h;
-	outputMode.nFPS = g_fps;
-	g_RetVal = g_DepthGenerator.SetMapOutputMode(outputMode);
-	if (g_RetVal != XN_STATUS_OK)
-		printf("Failed setting the DEPTH output mode %s\n", xnGetStatusString(g_RetVal));
+    XnMapOutputMode outputMode;
+    outputMode.nXRes = g_im_w;
+    outputMode.nYRes = g_im_h;
+    outputMode.nFPS = g_fps;
+    g_RetVal = g_DepthGenerator.SetMapOutputMode(outputMode);
+    if (g_RetVal != XN_STATUS_OK)
+        printf("Failed setting the DEPTH output mode %s\n", xnGetStatusString(g_RetVal));
 
-	g_RetVal = g_Context.StartGeneratingAll();
-	if (g_RetVal != XN_STATUS_OK)
-		printf("Failed starting generating all %s\n", xnGetStatusString(g_RetVal));
+    g_RetVal = g_Context.StartGeneratingAll();
+    if (g_RetVal != XN_STATUS_OK)
+        printf("Failed starting generating all %s\n", xnGetStatusString(g_RetVal));
 
-	// get the focal length in mm (ZPS = zero plane distance)
-	g_DepthGenerator.GetIntProperty ("ZPD", g_focal_length);
-	// get the pixel size in mm ("ZPPS" = pixel size at zero plane)
-	g_DepthGenerator.GetRealProperty ("ZPPS", g_pixel_size);
-	g_pixel_size *= 2.f;
+    // get the focal length in mm (ZPS = zero plane distance)
+    g_DepthGenerator.GetIntProperty ("ZPD", g_focal_length);
+    // get the pixel size in mm ("ZPPS" = pixel size at zero plane)
+    g_DepthGenerator.GetRealProperty ("ZPPS", g_pixel_size);
+    g_pixel_size *= 2.f;
 
-	g_im3D.create(g_im_h,g_im_w,CV_32FC3);
-	
-	
-	// YARP
-	/* initialize yarp network */ 
-	Network yarp;
-	if (!yarp.checkNetwork())
-	{
-		std::cout << "-ERROR: Problem connecting to YARP server" << std::endl;
-		return;
-	}
-	headTrackingPortName =  "/tracking/" + deviceName + "/"+ libraryName + "/"+ effectorName;
-	headTrackingPort.open(headTrackingPortName.c_str());
+    g_im3D.create(g_im_h,g_im_w,CV_32FC3);
+
+
+    // YARP
+    /* initialize yarp network */
+    Network yarp;
+    if (!yarp.checkNetwork())
+    {
+        std::cout << "-ERROR: Problem connecting to YARP server" << std::endl;
+        return;
+    }
+    headTrackingPortName =  "/tracking/" + deviceName + "/"+ libraryName + "/"+ effectorName;
+    headTrackingPort.open(headTrackingPortName.c_str());
 
 }
 
 // load config file
 void loadConfig(const char* filename) {
 
-	ifstream in(filename);
-	string dummy;
+    ifstream in(filename);
+    string dummy;
 
-	if(in.is_open()) {
+    if(in.is_open()) {
 
-		// Path to trees
-		in >> dummy;
-		in >> g_treepath;
+        // Path to trees
+        in >> dummy;
+        in >> g_treepath;
 
-		// Number of trees
-		in >> dummy;
-		in >> g_ntrees;
+        // Number of trees
+        in >> dummy;
+        in >> g_ntrees;
 
-		in >> dummy;
-		in >> g_maxv;
+        in >> dummy;
+        in >> g_maxv;
 
-		in >> dummy;
-		in >> g_larger_radius_ratio;
+        in >> dummy;
+        in >> g_larger_radius_ratio;
 
-		in >> dummy;
-		in >> g_smaller_radius_ratio;
+        in >> dummy;
+        in >> g_smaller_radius_ratio;
 
-		in >> dummy;
-		in >> g_stride;
+        in >> dummy;
+        in >> g_stride;
 
-		in >> dummy;
-		in >> g_max_z;
+        in >> dummy;
+        in >> g_max_z;
 
-		in >> dummy;
-		in >> g_th;
+        in >> dummy;
+        in >> g_th;
 
 
-	} else {
-		cerr << "File not found " << filename << endl;
-		exit(-1);
-	}
-	in.close();
+    } else {
+        cerr << "File not found " << filename << endl;
+        exit(-1);
+    }
+    in.close();
 
-	cout << endl << "------------------------------------" << endl << endl;
-	cout << "Estimation:       " << endl;
-	cout << "Trees:            " << g_ntrees << " " << g_treepath << endl;
-	cout << "Stride:           " << g_stride << endl;
-	cout << "Max Variance:     " << g_maxv << endl;
-	cout << "Max Distance:     " << g_max_z << endl;
-	cout << "Head Threshold:   " << g_th << endl;
+    cout << endl << "------------------------------------" << endl << endl;
+    cout << "Estimation:       " << endl;
+    cout << "Trees:            " << g_ntrees << " " << g_treepath << endl;
+    cout << "Stride:           " << g_stride << endl;
+    cout << "Max Variance:     " << g_maxv << endl;
+    cout << "Max Distance:     " << g_max_z << endl;
+    cout << "Head Threshold:   " << g_th << endl;
 
-	cout << endl << "------------------------------------" << endl << endl;
+    cout << endl << "------------------------------------" << endl << endl;
 
 }
 
 bool read_data( ){
 
-	// Wait for new data to be available
-	g_RetVal = g_Context.WaitAndUpdateAll();
-	if (g_RetVal != XN_STATUS_OK)
-	{
-		printf("Failed updating data: %s\n", xnGetStatusString(g_RetVal));
-		return false;
-	}
+    // Wait for new data to be available
+    g_RetVal = g_Context.WaitAndUpdateAll();
+    if (g_RetVal != XN_STATUS_OK)
+    {
+        printf("Failed updating data: %s\n", xnGetStatusString(g_RetVal));
+        return false;
+    }
 
-	// Take current depth map
-	g_DepthGenerator.GetMetaData(g_depthMD);
+    // Take current depth map
+    g_DepthGenerator.GetMetaData(g_depthMD);
 
-	float f = g_focal_length/g_pixel_size;
-	int valid_pixels = 0;
+    float f = g_focal_length/g_pixel_size;
+    int valid_pixels = 0;
 
-	//generate 3D image
-	for(int y = 0; y < g_im3D.rows; y++)
-	{
-		Vec3f* Mi = g_im3D.ptr<Vec3f>(y);
-		for(int x = 0; x < g_im3D.cols; x++){
+    //generate 3D image
+    for(int y = 0; y < g_im3D.rows; y++)
+    {
+        Vec3f* Mi = g_im3D.ptr<Vec3f>(y);
+        for(int x = 0; x < g_im3D.cols; x++){
 
-			float d = (float)g_depthMD(x,y);
+            float d = (float)g_depthMD(x,y);
 
-			if ( d < g_max_z && d > 0 ){
+            if ( d < g_max_z && d > 0 ){
 
-				valid_pixels++;
+                valid_pixels++;
 
-				Mi[x][0] = ( float(d * (x - 320)) / f );
-				Mi[x][1] = ( float(d * (y - 240)) / f );
-				Mi[x][2] = d;
+                Mi[x][0] = ( float(d * (x - 320)) / f );
+                Mi[x][1] = ( float(d * (y - 240)) / f );
+                Mi[x][2] = d;
 
-			}
-			else
-				Mi[x] = 0;
+            }
+            else
+                Mi[x] = 0;
 
-		}
-	}
+        }
+    }
 
-	//this part is to set the camera position, depending on what's in the scene
-	if (g_first_rigid ) {
+    //this part is to set the camera position, depending on what's in the scene
+    if (g_first_rigid ) {
 
-		if( valid_pixels > 50000){ //wait for something to be in the image
+        if( valid_pixels > 50000){ //wait for something to be in the image
 
-			// calculate gravity center
-			Vec3f gravity(0,0,0);
-			int count = 0;
-			for(int y=0;y<g_im3D.rows;++y){
-				const Vec3f* Mi = g_im3D.ptr<Vec3f>(y);
-				for(int x=0;x<g_im3D.cols;++x){
+            // calculate gravity center
+            Vec3f gravity(0,0,0);
+            int count = 0;
+            for(int y=0;y<g_im3D.rows;++y){
+                const Vec3f* Mi = g_im3D.ptr<Vec3f>(y);
+                for(int x=0;x<g_im3D.cols;++x){
 
-					if( Mi[x][2] > 0 ) {
+                    if( Mi[x][2] > 0 ) {
 
-						gravity = gravity + Mi[x];
-						count++;
-					}
-				}
-			}
+                        gravity = gravity + Mi[x];
+                        count++;
+                    }
+                }
+            }
 
-			float maxDist = 0;
-			if(count > 0) {
+            float maxDist = 0;
+            if(count > 0) {
 
-				gravity = (1.f/(float)count)*gravity;
+                gravity = (1.f/(float)count)*gravity;
 
-				for(int y=0;y<g_im3D.rows;++y){
-					const Vec3f* Mi = g_im3D.ptr<Vec3f>(y);
-					for(int x=0;x<g_im3D.cols;++x){
+                for(int y=0;y<g_im3D.rows;++y){
+                    const Vec3f* Mi = g_im3D.ptr<Vec3f>(y);
+                    for(int x=0;x<g_im3D.cols;++x){
 
-						if( Mi[x][2] > 0 ) {
+                        if( Mi[x][2] > 0 ) {
 
-							maxDist = MAX(maxDist,(float)norm( Mi[x]-gravity ));
-						}
-					}
-				}
-			}
+                            maxDist = MAX(maxDist,(float)norm( Mi[x]-gravity ));
+                        }
+                    }
+                }
+            }
 
-			g_camera.resetview( math_vector_3f(gravity[0],gravity[1],gravity[2]), maxDist );
-			g_camera.rotate_180();
-			g_first_rigid = false;
-		}
-	}
+            g_camera.resetview( math_vector_3f(gravity[0],gravity[1],gravity[2]), maxDist );
+            g_camera.rotate_180();
+            g_first_rigid = false;
+        }
+    }
 
-	return true;
+    return true;
 }
 
 bool process() {
@@ -332,173 +332,173 @@ bool process() {
     // start timer
 //        clock_t l_oFirstTime = clock();
 
-	read_data( );
+    read_data( );
 
-	g_means.clear();
-	g_votes.clear();
-	g_clusters.clear();
+    g_means.clear();
+    g_votes.clear();
+    g_clusters.clear();
 
-	//do the actual estimation
-	g_Estimate->estimate( 	g_im3D,
-							g_means,
-							g_clusters,
-							g_votes,
-							g_stride,
-							g_maxv,
-							g_prob_th,
-							g_larger_radius_ratio,
-							g_smaller_radius_ratio,
-							false,
-							g_th
-						);
+    //do the actual estimation
+    g_Estimate->estimate( 	g_im3D,
+                            g_means,
+                            g_clusters,
+                            g_votes,
+                            g_stride,
+                            g_maxv,
+                            g_prob_th,
+                            g_larger_radius_ratio,
+                            g_smaller_radius_ratio,
+                            false,
+                            g_th
+                        );
 
-	//~ if(g_means.size()>0)
-		//~ cout << g_means[0][0] << " " << g_means[0][1]  << " " <<g_means[0][2]  << " " << g_means[0][3]  << " " <<g_means[0][4] << " " <<g_means[0][5] << endl;
-	
+    //~ if(g_means.size()>0)
+        //~ cout << g_means[0][0] << " " << g_means[0][1]  << " " <<g_means[0][2]  << " " << g_means[0][3]  << " " <<g_means[0][4] << " " <<g_means[0][5] << endl;
+
     // compute total delay between the getting of the kinect data and the send of the bottle conainting the rigid motion
 //        float l_fDelay = (float)(clock() - l_oFirstTime) / CLOCKS_PER_SEC;
 //        std::cout << "Delay : " << l_fDelay << std::endl;
 
-	Bottle &target=headTrackingPort.prepare();
-		target.clear();
+    Bottle &target=headTrackingPort.prepare();
+        target.clear();
         target.addInt(swTracking::FOREST_LIB); // device lib id
         target.addDouble(g_means[0][3]);
         target.addDouble(g_means[0][4]);
         target.addDouble(g_means[0][5]);
-	headTrackingPort.write();
-	
-	return true;
+    headTrackingPort.write();
+
+    return true;
 
 }
 
 // ##############################################################################
 void key(unsigned char _k, int, int) {
 
-	switch(_k) {
+    switch(_k) {
 
-		case 's': {
+        case 's': {
 
-			g_show_votes = !g_show_votes;
-			cout << "toggled votes " << g_show_votes << endl;
-			break;
+            g_show_votes = !g_show_votes;
+            cout << "toggled votes " << g_show_votes << endl;
+            break;
 
-		}
+        }
 
-		case 't': {
+        case 't': {
 
-			g_draw_triangles = !g_draw_triangles;
-			cout << "toggled triangles " << g_draw_triangles << endl;
-			break;
+            g_draw_triangles = !g_draw_triangles;
+            cout << "toggled triangles " << g_draw_triangles << endl;
+            break;
 
-		}
+        }
 
-		case '+': {
+        case '+': {
 
-			g_stride++;
-			cout << "stride : " << g_stride << endl;
-			break;
+            g_stride++;
+            cout << "stride : " << g_stride << endl;
+            break;
 
-		}
-		case '-':{
+        }
+        case '-':{
 
-			g_stride = MAX(0, g_stride-1);
-			cout << "stride : " << g_stride << endl;
-			break;
+            g_stride = MAX(0, g_stride-1);
+            cout << "stride : " << g_stride << endl;
+            break;
 
-		}
-		case '*': {
+        }
+        case '*': {
 
-			g_th += 20;
-			cout << "head threshold : " << g_th << endl;
-			break;
-		}
+            g_th += 20;
+            cout << "head threshold : " << g_th << endl;
+            break;
+        }
 
-		case '/':{
+        case '/':{
 
-			g_th -= 20;
-			cout << "head threshold : " << g_th << endl;
-			break;
-		}
+            g_th -= 20;
+            cout << "head threshold : " << g_th << endl;
+            break;
+        }
 
-		case 'h':{
+        case 'h':{
 
-			printf("\nAvailable commands:\n");
+            printf("\nAvailable commands:\n");
 
-			printf("\t 's' : toggle votes display \n");
+            printf("\t 's' : toggle votes display \n");
 
-			printf("\t 't' : toggle triangles display \n");
+            printf("\t 't' : toggle triangles display \n");
 
-			printf("\t '+' : increase stride \n");
-			printf("\t '-' : decrease stride \n");
+            printf("\t '+' : increase stride \n");
+            printf("\t '-' : decrease stride \n");
 
-			printf("\t '*' : increase head threshold \n");
-			printf("\t '/' : decrease head threshold \n");
+            printf("\t '*' : increase head threshold \n");
+            printf("\t '/' : decrease head threshold \n");
 
-			break;
+            break;
 
-		}
-		
-		case 'q':{
-			headTrackingPort.close();
-			break;
-		}
+        }
 
-	default:
-		break;
+        case 'q':{
+            headTrackingPort.close();
+            break;
+        }
 
-	}
-	glutSwapBuffers();
+    default:
+        break;
+
+    }
+    glutSwapBuffers();
 
 }
 
 // ##############################################################################
 void resize(int _w, int _h) {
-	w = _w;
-	h = _h;
+    w = _w;
+    h = _h;
 }
 
 // ##############################################################################
 void mm(int x, int y)
 {
-	y = h-y;
-	g_camera.mouse_move(x,y);
+    y = h-y;
+    g_camera.mouse_move(x,y);
 
 }
 
 // ##############################################################################
 void mb(int button, int state, int x, int y)
 {
-	y = h-y;
+    y = h-y;
 
-	Mouse::button b = Mouse::NONE;
+    Mouse::button b = Mouse::NONE;
 
-	if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
+    if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
 
-		b = Mouse::ROTATE;
-		g_camera.mouse(x,y,b);
+        b = Mouse::ROTATE;
+        g_camera.mouse(x,y,b);
 
-	}
-	else if(button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN) {
+    }
+    else if(button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN) {
 
-		b = Mouse::MOVEXY;
-		g_camera.mouse(x,y,b);
-	}
-	else if((button & 3) == 3) {
+        b = Mouse::MOVEXY;
+        g_camera.mouse(x,y,b);
+    }
+    else if((button & 3) == 3) {
 
-		g_camera.mouse_wheel(20);
-	}
-	else if ((button & 4) == 4) {
+        g_camera.mouse_wheel(20);
+    }
+    else if ((button & 4) == 4) {
 
-		g_camera.mouse_wheel(-20);
-	}
+        g_camera.mouse_wheel(-20);
+    }
 
 
 }
 
 void idle(){
 
-	process();
-	g_frame_no++;
+    process();
+    g_frame_no++;
 
 }
 
@@ -506,218 +506,218 @@ void idle(){
 void draw()
 {
 
-	glEnable(GL_NORMALIZE);
-	glEnable(GL_DEPTH_TEST);
+    glEnable(GL_NORMALIZE);
+    glEnable(GL_DEPTH_TEST);
 
-	g_camera.set_viewport(0,0,w,h);
-	g_camera.setup();
-	g_camera.use_light(true);
+    g_camera.set_viewport(0,0,w,h);
+    g_camera.setup();
+    g_camera.use_light(true);
 
-	glClearColor(1,1,1,1);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glDisable(GL_CULL_FACE);
+    glClearColor(1,1,1,1);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glDisable(GL_CULL_FACE);
 
-	glPushMatrix();
-	glColor3f(0.9f,0.9f,1.f);
+    glPushMatrix();
+    glColor3f(0.9f,0.9f,1.f);
 
-	if(g_draw_triangles){
+    if(g_draw_triangles){
 
-		math_vector_3f d1,d2;
-		glBegin(GL_TRIANGLES);
+        math_vector_3f d1,d2;
+        glBegin(GL_TRIANGLES);
 
-		for(int y = 0; y < g_im3D.rows-1; y++)
-		{
+        for(int y = 0; y < g_im3D.rows-1; y++)
+        {
 
-			const Vec3f* Mi = g_im3D.ptr<Vec3f>(y);
-			const Vec3f* Mi1 = g_im3D.ptr<Vec3f>(y+1);
+            const Vec3f* Mi = g_im3D.ptr<Vec3f>(y);
+            const Vec3f* Mi1 = g_im3D.ptr<Vec3f>(y+1);
 
-			for(int x = 0; x < g_im3D.cols-1; x++){
+            for(int x = 0; x < g_im3D.cols-1; x++){
 
-				if( Mi[x][2] <= 0 || Mi1[x][2] <= 0 || Mi[x+1][2] <= 0 || Mi1[x+1][2] <= 0 )
-					continue;
+                if( Mi[x][2] <= 0 || Mi1[x][2] <= 0 || Mi[x+1][2] <= 0 || Mi1[x+1][2] <= 0 )
+                    continue;
 
-				d1[0] = Mi[x][0] - Mi1[x][0];// v1 - v2;
-				d1[1] = Mi[x][1] - Mi1[x][1];
-				d1[2] = Mi[x][2] - Mi1[x][2];
+                d1[0] = Mi[x][0] - Mi1[x][0];// v1 - v2;
+                d1[1] = Mi[x][1] - Mi1[x][1];
+                d1[2] = Mi[x][2] - Mi1[x][2];
 
-				d2[0] = Mi[x+1][0] - Mi1[x][0];// v1 - v2;
-				d2[1] = Mi[x+1][1] - Mi1[x][1];
-				d2[2] = Mi[x+1][2] - Mi1[x][2];
+                d2[0] = Mi[x+1][0] - Mi1[x][0];// v1 - v2;
+                d2[1] = Mi[x+1][1] - Mi1[x][1];
+                d2[2] = Mi[x+1][2] - Mi1[x][2];
 
-				if ( fabs(d2[2])>20 || fabs(d1[2])>20 )
-					continue;
+                if ( fabs(d2[2])>20 || fabs(d1[2])>20 )
+                    continue;
 
-				math_vector_3f norm = cross_product(d2,d1);
+                math_vector_3f norm = cross_product(d2,d1);
 
-				glNormal3f(norm[0],norm[1],norm[2]);
-				glVertex3f(Mi[x][0],Mi[x][1],Mi[x][2]);
-				glVertex3f(Mi1[x][0],Mi1[x][1],Mi1[x][2]);
-				glVertex3f(Mi[x+1][0],Mi[x+1][1],Mi[x+1][2]);
-				glVertex3f(Mi1[x][0],Mi1[x][1],Mi1[x][2]);
-				glVertex3f(Mi1[x+1][0],Mi1[x+1][1],Mi1[x+1][2]);
-				glVertex3f(Mi[x+1][0],Mi[x+1][1],Mi[x+1][2]);
+                glNormal3f(norm[0],norm[1],norm[2]);
+                glVertex3f(Mi[x][0],Mi[x][1],Mi[x][2]);
+                glVertex3f(Mi1[x][0],Mi1[x][1],Mi1[x][2]);
+                glVertex3f(Mi[x+1][0],Mi[x+1][1],Mi[x+1][2]);
+                glVertex3f(Mi1[x][0],Mi1[x][1],Mi1[x][2]);
+                glVertex3f(Mi1[x+1][0],Mi1[x+1][1],Mi1[x+1][2]);
+                glVertex3f(Mi[x+1][0],Mi[x+1][1],Mi[x+1][2]);
 
-			}
-		}
-		glEnd();
+            }
+        }
+        glEnd();
 
-	}
-	else{
+    }
+    else{
 
-		math_vector_3f d1,d2;
-		glBegin(GL_POINTS);
+        math_vector_3f d1,d2;
+        glBegin(GL_POINTS);
 
-		for(int y = 0; y < g_im3D.rows-1; y++)
-		{
+        for(int y = 0; y < g_im3D.rows-1; y++)
+        {
 
-			const Vec3f* Mi = g_im3D.ptr<Vec3f>(y);
-			const Vec3f* Mi1 = g_im3D.ptr<Vec3f>(y+1);
+            const Vec3f* Mi = g_im3D.ptr<Vec3f>(y);
+            const Vec3f* Mi1 = g_im3D.ptr<Vec3f>(y+1);
 
-			for(int x = 0; x < g_im3D.cols-1; x++){
+            for(int x = 0; x < g_im3D.cols-1; x++){
 
-				if( Mi[x][2] <= 0 || Mi[x][2] <= 0 )
-					continue;
+                if( Mi[x][2] <= 0 || Mi[x][2] <= 0 )
+                    continue;
 
-				d1[0] = Mi[x][0] - Mi1[x][0];// v1 - v2;
-				d1[1] = Mi[x][1] - Mi1[x][1];
-				d1[2] = Mi[x][2] - Mi1[x][2];
+                d1[0] = Mi[x][0] - Mi1[x][0];// v1 - v2;
+                d1[1] = Mi[x][1] - Mi1[x][1];
+                d1[2] = Mi[x][2] - Mi1[x][2];
 
-				d2[0] = Mi[x+1][0] - Mi1[x][0];// v1 - v2;
-				d2[1] = Mi[x+1][1] - Mi1[x][1];
-				d2[2] = Mi[x+1][2] - Mi1[x][2];
+                d2[0] = Mi[x+1][0] - Mi1[x][0];// v1 - v2;
+                d2[1] = Mi[x+1][1] - Mi1[x][1];
+                d2[2] = Mi[x+1][2] - Mi1[x][2];
 
-				math_vector_3f norm = cross_product(d2,d1);
-				glNormal3f(norm[0],norm[1],norm[2]);
-				glVertex3f(Mi[x][0],Mi[x][1],Mi[x][2]);
+                math_vector_3f norm = cross_product(d2,d1);
+                glNormal3f(norm[0],norm[1],norm[2]);
+                glVertex3f(Mi[x][0],Mi[x][1],Mi[x][2]);
 
-			}
-		}
-		glEnd();
+            }
+        }
+        glEnd();
 
-	}
+    }
 
-	glPopMatrix();
+    glPopMatrix();
 
-	GLUquadric* point = gluNewQuadric();
-	GLUquadric *quadric = gluNewQuadric();
-	gluQuadricNormals(quadric, GLU_SMOOTH);
+    GLUquadric* point = gluNewQuadric();
+    GLUquadric *quadric = gluNewQuadric();
+    gluQuadricNormals(quadric, GLU_SMOOTH);
 
-	
-	
-	//draw head poses
-	if(g_means.size()>0){
 
-		glColor3f( 0, 1, 0);
-		float mult = 0.0174532925f;
 
-		for(unsigned int i=0;i<g_means.size();++i){
+    //draw head poses
+    if(g_means.size()>0){
 
-			rigid_motion<float> rm;
-			
-			//~ cout << "(" << g_means[i][3] << ", " << g_means[i][4] << ", " << g_means[i][5] << ")" << endl;
-			
-			rm.m_rotation = euler_to_rotation_matrix( mult*g_means[i][3], mult*g_means[i][4], mult*g_means[i][5] );
-			math_vector_3f head_center( g_means[i][0], g_means[i][1], g_means[i][2] );
+        glColor3f( 0, 1, 0);
+        float mult = 0.0174532925f;
 
-			glPushMatrix();
-			glTranslatef( head_center[0], head_center[1], head_center[2] );
-			gluSphere( point, 10.f, 10, 10 );
-			glPopMatrix();
+        for(unsigned int i=0;i<g_means.size();++i){
 
-			g_face_curr_dir = rm.m_rotation * (g_face_dir);
-			math_vector_3f head_front(head_center + 150.f*g_face_curr_dir);
+            rigid_motion<float> rm;
 
-			drawCylinder(head_center, head_front, 8, quadric);
+            //~ cout << "(" << g_means[i][3] << ", " << g_means[i][4] << ", " << g_means[i][5] << ")" << endl;
 
-		}
+            rm.m_rotation = euler_to_rotation_matrix( mult*g_means[i][3], mult*g_means[i][4], mult*g_means[i][5] );
+            math_vector_3f head_center( g_means[i][0], g_means[i][1], g_means[i][2] );
 
-	}
+            glPushMatrix();
+            glTranslatef( head_center[0], head_center[1], head_center[2] );
+            gluSphere( point, 10.f, 10, 10 );
+            glPopMatrix();
 
-	//draw the single votes
-	if(g_show_votes){
+            g_face_curr_dir = rm.m_rotation * (g_face_dir);
+            math_vector_3f head_front(head_center + 150.f*g_face_curr_dir);
 
-		int rate = 1;
-		glColor3f( 0 , 0, 1);
+            drawCylinder(head_center, head_front, 8, quadric);
 
-		for (unsigned int i = 0; i<g_votes.size();i+=rate){
+        }
 
-			glPushMatrix();
-			glTranslatef( g_votes[i].vote[0], g_votes[i].vote[1], g_votes[i].vote[2] );
-			gluSphere( point, 2.f, 10, 10 );
-			glPopMatrix();
+    }
 
-		}
+    //draw the single votes
+    if(g_show_votes){
 
-		for(unsigned int c=0;c<g_clusters.size();c++){
+        int rate = 1;
+        glColor3f( 0 , 0, 1);
 
-			switch(c%5){
+        for (unsigned int i = 0; i<g_votes.size();i+=rate){
 
-				case 0 : glColor3f( 1.f, 0.f, 0.f); break;
-				case 1 : glColor3f( 0.f, 1.f, 0.f); break;
-				case 2 : glColor3f( 0.f, 0.f, 1.f); break;
-				case 3 : glColor3f( 1.f, 0.f, 1.f); break;
-				case 4 : glColor3f( 0.2f, 0.f, 0.8f); break;
-				default : glColor3f( 0.f, 1.f, 1.f); break;
+            glPushMatrix();
+            glTranslatef( g_votes[i].vote[0], g_votes[i].vote[1], g_votes[i].vote[2] );
+            gluSphere( point, 2.f, 10, 10 );
+            glPopMatrix();
 
-			}
+        }
 
-			for(unsigned int i=0;i<g_clusters[c].size();i+=rate){
+        for(unsigned int c=0;c<g_clusters.size();c++){
 
-				glPushMatrix();
-				glTranslatef(  g_clusters[c][i].vote[0],  g_clusters[c][i].vote[1],  g_clusters[c][i].vote[2] );
-				gluSphere( point, 3.f, 10, 10 );
-				glPopMatrix();
+            switch(c%5){
 
-			}
+                case 0 : glColor3f( 1.f, 0.f, 0.f); break;
+                case 1 : glColor3f( 0.f, 1.f, 0.f); break;
+                case 2 : glColor3f( 0.f, 0.f, 1.f); break;
+                case 3 : glColor3f( 1.f, 0.f, 1.f); break;
+                case 4 : glColor3f( 0.2f, 0.f, 0.8f); break;
+                default : glColor3f( 0.f, 1.f, 1.f); break;
 
-		}
+            }
 
-	} //show votes
+            for(unsigned int i=0;i<g_clusters[c].size();i+=rate){
 
-	gluDeleteQuadric(point);
-	gluDeleteQuadric(quadric);
+                glPushMatrix();
+                glTranslatef(  g_clusters[c][i].vote[0],  g_clusters[c][i].vote[1],  g_clusters[c][i].vote[2] );
+                gluSphere( point, 3.f, 10, 10 );
+                glPopMatrix();
 
-	glutSwapBuffers();
-	glutPostRedisplay();
+            }
+
+        }
+
+    } //show votes
+
+    gluDeleteQuadric(point);
+    gluDeleteQuadric(quadric);
+
+    glutSwapBuffers();
+    glutPostRedisplay();
 
 }
 
 int main(int argc, char* argv[])
 {
 
-	if( argc != 2 ){
+    if( argc != 2 ){
 
-		cout << "usage: ./SWForestHeadTracking <config_file>" << endl;
-		exit(-1);
-	}
-	
-	loadConfig( argv[1] );
-	g_Estimate =  new CRForestEstimator();
-	if( !g_Estimate->loadForest(g_treepath.c_str(), g_ntrees) ){
+        cout << "usage: ./SWForestHeadTracking <config_file>" << endl;
+        exit(-1);
+    }
 
-		cerr << "could not read forest!" << endl;
-		exit(-1);
-	}
+    loadConfig( argv[1] );
+    g_Estimate =  new CRForestEstimator();
+    if( !g_Estimate->loadForest(g_treepath.c_str(), g_ntrees) ){
 
-	initialize();
-	
-	// 
+        cerr << "could not read forest!" << endl;
+        exit(-1);
+    }
 
-	// initialize GLUT
-	glutInitWindowSize(800, 800);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
-	glutInit(&argc, argv);
+    initialize();
 
-	glutCreateWindow("HeadPoseDemo (press h for list of available commands)");
-	glutDisplayFunc(draw);
-	glutMouseFunc(mb);
-	glutMotionFunc(mm);
-	glutKeyboardFunc(key);
-	glutReshapeFunc(resize);
-	glutIdleFunc(idle);
-	glutMainLoop();
+    //
 
-	return 0;
+    // initialize GLUT
+    glutInitWindowSize(800, 800);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
+    glutInit(&argc, argv);
+
+    glutCreateWindow("HeadPoseDemo (press h for list of available commands)");
+    glutDisplayFunc(draw);
+    glutMouseFunc(mb);
+    glutMotionFunc(mm);
+    glutKeyboardFunc(key);
+    glutReshapeFunc(resize);
+    glutIdleFunc(idle);
+    glutMainLoop();
+
+    return 0;
 
 
 }

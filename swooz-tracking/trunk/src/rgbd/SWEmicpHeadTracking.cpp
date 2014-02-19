@@ -72,9 +72,9 @@ SWEmicpHeadTrackingWorker::SWEmicpHeadTrackingWorker() : m_oCaptureHeadMotion(sw
     }
 }
 
-
 SWEmicpHeadTrackingWorker::~SWEmicpHeadTrackingWorker()
 {
+    m_oKinectThread.stopListening();
     deleteAndNullify(m_pReferenceCloud);
     deleteAndNullify(m_pCurrCloud);
     deleteAndNullify(m_pCurrentFaceRect);
@@ -110,13 +110,13 @@ void SWEmicpHeadTrackingWorker::doWork()
             }
 
         // tracking
-            cv::Mat l_oRGB   = m_oKinectThread.bgrImage();
+            cv::Mat l_oBGR   = m_oKinectThread.bgrImage();
             cv::Mat l_oCloud = m_oKinectThread.cloudMap();
 
         // resize the rgb mat
             if(m_CKinectParams.m_oOriginalSize != m_CKinectParams.m_oVideoSize)
             {
-                resize(l_oRGB, l_oRGB, m_CKinectParams.m_oVideoSize);
+                resize(l_oBGR, l_oBGR, m_CKinectParams.m_oVideoSize);
             }
 
         // check if the loop must be stopped
@@ -132,7 +132,7 @@ void SWEmicpHeadTrackingWorker::doWork()
 //                qDebug() << "launch head motion computing : " << (float)(clock() - l_oFirstTime) / CLOCKS_PER_SEC;
 
             m_oParametersMutex.lockForRead();
-                int l_i32Res = m_oCaptureHeadMotion.computeHeadMotion(l_oRigidMotion, l_oRGB, l_oCloud, l_oRGBDetect);
+                int l_i32Res = m_oCaptureHeadMotion.computeHeadMotion(l_oRigidMotion, l_oBGR, l_oCloud, l_oRGBDetect);
             m_oParametersMutex.unlock();
 
             // DEBUG
@@ -267,8 +267,6 @@ SWEmicpHeadTrackingInterface::SWEmicpHeadTrackingInterface() : m_uiMainWindow(ne
 
         // init widgets
             m_pDisplayImageWidget = new SWDisplayImageWidget();
-            m_pDisplayImageWidget->setMinimumSize(640,480);
-            m_pDisplayImageWidget->setMaximumSize(1000,700);
 
             QGLFormat l_glFormat;
             l_glFormat.setVersion( 4, 3 );
@@ -276,8 +274,6 @@ SWEmicpHeadTrackingInterface::SWEmicpHeadTrackingInterface() : m_uiMainWindow(ne
             l_glFormat.setSampleBuffers( true );
             QGLContext *l_glContext = new QGLContext(l_glFormat);
             m_pGLCloudWidget        = new SWGLCloudWidget(l_glContext);
-            m_pGLCloudWidget->setMinimumSize(640,480);
-            m_pGLCloudWidget->setMaximumSize(1000,700);
             m_pGLCloudWidget->resetCamera(QVector3D(0.f, 0.0f, 0.6f), QVector3D(0.f, 0.0f,  1.f), QVector3D(0.f, 1.f,  0.f));
 
             std::vector<std::string> l_aSRotationsLabel;
@@ -333,7 +329,6 @@ SWEmicpHeadTrackingInterface::SWEmicpHeadTrackingInterface() : m_uiMainWindow(ne
         // init thread
             m_pWTracking->moveToThread(&m_TTracking);
             m_TTracking.start();
-
 
         // init kinect thread used by the display widget
             if(m_oKinectThread.init(0) != -1)

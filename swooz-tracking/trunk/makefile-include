@@ -1,4 +1,8 @@
 
+# makefile-include of swooz-tracking project using Visual C++
+# Guillaume Gibert / Florian Lance
+# lyon sept 2012
+
 ################################################################################################################# DEBUG/RELEASE MODE
 
 ############################ DOC CL OPTIONS
@@ -6,35 +10,23 @@
 # -MTd   : Creates a debug multithreaded executable file, No need to define _DEBUG, compiler does it for us if -MTd flag is on
 # -DGSL_RANGE_CHECK : tells the mat lib to do range checking
 # -Zi    : Generates complete debugging information
-# -nolog : In brief, the positive form suppresses the logo at startup and the negative form makes explicit that this suppression is not wanted. However, there are some other effects. 
+# -nolog : In brief, the positive form suppresses the logo at startup and the negative form makes explicit that this suppression is not wanted. However, there are some other effects.
 # -O2 	 : Creates fast code
 # -W3 	 : Sets warning level
-# -MT 	 : Causes your application to use the multithread, static version of the run-time library. 
-#     	   Defines _MT and causes the compiler to place the library name LIBCMT.lib into the .obj file 
+# -MT 	 : Causes your application to use the multithread, static version of the run-time library.
+#     	   Defines _MT and causes the compiler to place the library name LIBCMT.lib into the .obj file
 #     	   so that the linker will use LIBCMT.lib to resolve external symbols.
 # -MD 	 : Causes your application to use the multithread- and DLL-specific version of the run-time library
 #     	   Defines _MT and _DLL and causes the compiler to place the library name MSVCRT.lib into the .obj file.
-#    	   Applications compiled with this option are statically linked to MSVCRT.lib. 
-#     	   This library provides a layer of code that allows the linker to resolve external references. 
+#    	   Applications compiled with this option are statically linked to MSVCRT.lib.
+#     	   This library provides a layer of code that allows the linker to resolve external references.
 #     	   The actual working code is contained in MSVCR100.DLL, which must be available at run time to applications linked with MSVCRT.lib.
 # -GF 	 : enable string pooling
 # -Gy 	 : enable function-level linking
 # -EHsc  : exception model to use : /EHsc -> intercept only C++ exceptions, extern C functions never launch C++ exception.
-# 	   object files go to -Fo 
+# 	   object files go to -Fo
 
-COMPILE_NUMPROC = -MP$(NUMBER_OF_PROCESSORS)
-
-# We include setargv.obj for executables that do command line filename globbing.
-# PROGRAMFILES is inherited from the shell evironment (where it is
-# called ProgramFiles, but nmake converts it to upper case).  This allows us
-# to work with systems that use \Program Files or \Program Files x86.
-#SETARGV = "$(PROGRAMFILES)/Microsoft Visual Studio 10.0/VC/lib/setargv.obj"
-SETARGV = "$(VS100COMNTOOLS)/../../VC/lib/setargv.obj"
-
-# we include binmode.obj so files are opened as _O_BINARY, for compat with unix
-#BINMODE = "$(PROGRAMFILES)/Microsoft Visual Studio 10.0/VC/lib/binmode.obj"
-BINMODE = "$(VS100COMNTOOLS)/../../VC/lib/binmode.obj"
-
+############################ WIN LIB
 
 WINLIBS=advapi32.lib comctl32.lib comdlg32.lib gdi32.lib shell32.lib user32.lib vfw32.lib winmm.lib opengl32.lib
 
@@ -47,6 +39,38 @@ FORMDIR      =./form
 MOCDIR       =./moc
 QTGENW_RGBD  =./genUI
 
+############################ SET UP FOR THE WANTED ARCH
+
+# We include setargv.obj for executables that do command line filename globbing.
+# PROGRAMFILES is inherited from the shell evironment (where it is
+# called ProgramFiles, but nmake converts it to upper case).  This allows us
+# to work with systems that use \Program Files or \Program Files x86.
+# we include binmode.obj so files are opened as _O_BINARY, for compat with unix
+
+SETARGV = "$(VS100COMNTOOLS)/../../VC/lib/setargv.obj"
+BINMODE = "$(VS100COMNTOOLS)/../../VC/lib/binmode.obj"
+
+!IF "$(ARCH)" != "x86"
+SETARGV = "$(VS100COMNTOOLS)/../../VC/lib/amd64/setargv.obj"
+BINMODE = "$(VS100COMNTOOLS)/../../VC/lib/amd64/binmode.obj"
+
+THIRD_PARTY_OPENNI      = $(THIRD_PARTY_OPENNI_64)
+THIRD_PARTY_OPENNI2     = $(THIRD_PARTY_OPENNI2_64)
+THIRD_PARTY_OPENCV      = $(THIRD_PARTY_OPENCV_64)
+THIRD_PARTY_HANDTRACKER = $(THIRD_PARTY_HANDTRACKER_64)
+THIRD_PARTY_FREEGLUT    = $(THIRD_PARTY_FREEGLUT_64)
+THIRD_PARTY_CUDA        = $(THIRD_PARTY_CUDA_64)
+THIRD_PARTY_QT          = $(THIRD_PARTY_QT_64)
+THIRD_PARTY_GSL         = $(THIRD_PARTY_GSL_64)
+THIRD_PARTY_BOOST       = $(THIRD_PARTY_BOOST_64)
+THIRD_PARTY_FACELAB     = $(THIRD_PARTY_FACELAB_64)
+THIRD_PARTY_YARP        = $(THIRD_PARTY_YARP_64)
+THIRD_PARTY_ACE         = $(THIRD_PARTY_ACE_64)
+!ENDIF
+
+
+
+
 ############################ INCLUDES
 
 INC_TRACKING	= -I.\include
@@ -55,15 +79,16 @@ INC_OTHERS	= -I$(SW_DIST)\include
 
 INC_VS		= -I"$(PROGRAMFILES)/Microsoft SDKs/Windows/v7.0A/Include"\ -I"$(VS100COMNTOOLS)/../../VC/include"\
 
-INC_OPENCV = -I"$(THIRD_PARTY_OPENCV)"\modules/core/include -I"$(THIRD_PARTY_OPENCV)"\modules/imgproc/include\
-			 -I"$(THIRD_PARTY_OPENCV)"\modules/objdetect/include -I"$(THIRD_PARTY_OPENCV)"\modules/features2d/include\
-			 -I"$(THIRD_PARTY_OPENCV)"\modules/features2d/include -I"$(THIRD_PARTY_OPENCV)"\modules/flann/include\
-			 -I"$(THIRD_PARTY_OPENCV)"\modules/highgui/include -I"$(THIRD_PARTY_OPENCV)"\modules/video/include\		  
-
+INC_OPENCV      = -I"$(THIRD_PARTY_OPENCV)"\modules/core/include -I"$(THIRD_PARTY_OPENCV)"\modules/imgproc/include\
+                 -I"$(THIRD_PARTY_OPENCV)"\modules/objdetect/include -I"$(THIRD_PARTY_OPENCV)"\modules/features2d/include\
+                 -I"$(THIRD_PARTY_OPENCV)"\modules/features2d/include -I"$(THIRD_PARTY_OPENCV)"\modules/flann/include\
+                 -I"$(THIRD_PARTY_OPENCV)"\modules/highgui/include -I"$(THIRD_PARTY_OPENCV)"\modules/video/include\
 
 INC_OPENNI	= -I"$(THIRD_PARTY_OPENNI)"\Include
 
-INC_FREEGLUT    =  -I"$(THIRD_PARTY_FREEGLUT)"\include
+INC_OPENNI2	= -I"$(THIRD_PARTY_OPENNI2)"\Include
+
+INC_FREEGLUT    = -I"$(THIRD_PARTY_FREEGLUT)"\include
 
 INC_YARP	= -I"$(THIRD_PARTY_YARP)"\include
 
@@ -79,6 +104,8 @@ INC_MOC		= -I$(MOCDIR)\
 
 INC_QT		= -I"$(THIRD_PARTY_QT)"/include/QtOpenGL -I"$(THIRD_PARTY_QT)"/include/QtGui -I"$(THIRD_PARTY_QT)"/include/QtCore -I"$(THIRD_PARTY_QT)"/include/Qt -I"$(THIRD_PARTY_QT)"/include\
 
+INC_HANDTRACKER = -I"$(THIRD_PARTY_HANDTRACKER)"/Include\
+
 ############################ DEPENDENCIES
 
 COMMON			= $(INC_TRACKING) $(INC_OTHERS) $(INC_VS)
@@ -88,13 +115,19 @@ SW_FOREST		= $(COMMON) $(INC_OPENCV)  $(INC_FREEGLUT) $(INC_YARP) $(INC_OPENNI)
 SW_FACELABTRACKING      = $(COMMON) $(INC_YARP) $(INC_FACELAB) $(INC_BOOST)
 
 FSBINARYSTREAM          = $(COMMON)
+
 SW_FACESHIFTTRACKING    = $(COMMON) $(INC_YARP) $(INC_BOOST)
 
 SW_EMICPHEADTRACKING    = $(COMMON) $(INC_OPENNI) $(INC_OPENCV) $(INC_BOOST) $(INC_YARP) $(INC_CUDA) $(INC_QT) $(INC_MOC)
 
+SW_OPENNITRACKING       = $(COMMON) $(INC_OPENNI) $(INC_YARP) $(INC_BOOST)
+
+SW_FORTHTRACKING        = $(COMMON) $(INC_OPENNI2) $(INC_YARP) $(INC_OPENCV) $(INC_HANDTRACKER)
+
 ############################ COMMON DEBUG/RELEASE LIBS
 
-LIBS_COMMON	= "$(PROGRAMFILES)\Microsoft SDKs\Windows\v7.0A\Lib\ws2_32.lib"
+LIBS_COMMON	=
+#"$(PROGRAMFILES)\Microsoft SDKs\Windows\v7.0A\Lib\ws2_32.lib"
 
 ################################################################################################################# RELEASE MODE
 
@@ -102,8 +135,8 @@ LIBS_COMMON	= "$(PROGRAMFILES)\Microsoft SDKs\Windows\v7.0A\Lib\ws2_32.lib"
 
 ############################ FLAGS
 
-CFLAGS_STA = -nologo -O2 -GF -Gy -W3 -MT -EHsc -DWIN32 $(COMPILE_NUMPROC)
-CFLAGS_DYN = -nologo -O2 -GF -Gy -W3 -MD -EHsc -DWIN32 $(COMPILE_NUMPROC)
+CFLAGS_STA = -nologo -O2 -GF -Gy -W3 -MT -EHsc -DWIN32 -MP$(NUMBER_OF_PROCESSORS)
+CFLAGS_DYN = -nologo -O2 -GF -Gy -W3 -MD -EHsc -DWIN32 -MP$(NUMBER_OF_PROCESSORS)
 
 LFLAGS=-nologo
 LFLAGS_EMICP_HEAD_TRACKING=-nologo -nodefaultlib:LIBCMT -nodefaultlib:MSVCPRT
@@ -115,13 +148,13 @@ LFLAGS_FOREST_HEAD_TRACKING=-nologo -nodefaultlib:LIBCMT -nodefaultlib:MSVCPRT
 
 LIBS_OPENNI     = $(THIRD_PARTY_OPENNI)/Lib/openNI.lib\
 
+LIBS_OPENNI2    = $(THIRD_PARTY_OPENNI2)/Lib/OpenNI2.lib\
+
 LIBS_OPENCV     = $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_highgui245.lib\
                   $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_core245.lib\
                   $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_imgproc245.lib\
                   $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_objdetect245.lib\
 
-# $(THIRD_PARTY_OPENCV)/build/x86/vc10/lib/opencv_highgui245.lib\
-				
 LIBS_FREEGLUT   = $(THIRD_PARTY_FREEGLUT)/lib/freeglut.lib\
 
 LIBS_YARP       = $(THIRD_PARTY_YARP)/lib/YARP_OS.lib\
@@ -130,8 +163,10 @@ LIBS_YARP       = $(THIRD_PARTY_YARP)/lib/YARP_OS.lib\
                   $(THIRD_PARTY_YARP)/lib/YARP_dev.lib\
                   $(THIRD_PARTY_YARP)/lib/YARP_math.lib\
                   $(THIRD_PARTY_YARP)/lib/yarpcar.lib\
+                  $(THIRD_PARTY_YARP)/lib/yarpmod.lib\
                   $(THIRD_PARTY_YARP)/lib/yarp_bayer.lib\
-					
+
+
 LIBS_FACELAB    = $(THIRD_PARTY_FACELAB)/coredata/libshared/win32_ia32sse2_vc90/sm_cd_coredata_3.2.lib $(THIRD_PARTY_FACELAB)/coredata/thirdparty/zlib1.2.3/win_ia32_vc90/libshared/zlib1.lib\
                   $(THIRD_PARTY_FACELAB)/coredata/thirdparty/libvpx0.9.5\libstatic\win_ia32_vc90\vpxmt.lib\
 
@@ -151,6 +186,9 @@ LIBS_CLA	= $(THIRD_PARTY_CLAPACK)/lib/lapack.lib $(THIRD_PARTY_CLAPACK)/lib/blas
 
 LIBS_QT 	= $(THIRD_PARTY_QT)/lib/QtOpenGL4.lib $(THIRD_PARTY_QT)/lib/QtCore4.lib $(THIRD_PARTY_QT)/lib/QtGui4.lib $(THIRD_PARTY_QT)/lib/qtmain.lib\
 
+LIBS_HANDTRACKER= $(THIRD_PARTY_HANDTRACKER)/lib/HandTrackerLib.lib
+
+############################ LIBS SWOOZ FILES
 
 LIBS_HEAD_FOREST     = $(LIBS_OPENNI) $(LIBS_OPENCV) $(LIBS_FREEGLUT) $(LIBS_YARP)  $(LIBS_ACE)  $(LIBS_COMMON)
 
@@ -159,6 +197,10 @@ LIBS_FACELAB_TRACK   = $(LIBS_COMMON) $(LIBS_FACELAB) $(LIBS_ACE) $(LIBS_YARP) $
 LIBS_FACESHIFT_TRACK = $(LIBS_COMMON) $(LIBS_ACE) $(LIBS_YARP) $(LIBS_BOOST)
 
 LIBS_EMICP_TRACK     = $(LIBS_COMMON)  $(LIBS_OPENCV) $(LIBS_ACE) $(LIBS_YARP) $(LIBS_BOOST_S) $(LIBS_CUDA) $(LIBS_QT) $(LIBS_OPENNI) $(LIBS_CLA)
+
+LIBS_OPENNI_TRACK	= $(LIBS_COMMON) $(LIBS_OPENNI) $(LIBS_ACE) $(LIBS_BOOST) $(LIBS_OPENCV)  $(LIBS_YARP) $(LIBS_ICUB) $(LIBS_GSL)
+
+LIBS_FORTH_TRACK	= $(LIBS_COMMON) $(LIBS_OPENNI2) $(LIBS_OPENCV) $(LIBS_YARP) $(LIBS_FORTH) $(LIBS_ACE) $(LIBS_HANDTRACKER)
 
 !ENDIF
 
@@ -174,28 +216,28 @@ CFLAGS_DYN = -nologo -Zi -W3 -MDd -EHsc -DWIN32
 
 LFLAGS=-nologo
 #-nodefaultlib:MSVCPRT -nodefaultlib:LIBCMT -nodefaultlib:MSVCRT
-#LFLAGS=-nologo -nodefaultlib:LIBCMT -nodefaultlib:MSVCRT 
+#LFLAGS=-nologo -nodefaultlib:LIBCMT -nodefaultlib:MSVCRT
 ############################ LIBS
 
 LIBS_OPENNI		=	$(THIRD_PARTY_OPENNI)/Lib/openNI.lib
 
 LIBS_OPENCV		=	$(THIRD_PARTY_OPENCV)/build/x86/vc10/lib/opencv_highgui246d.lib\
-					$(THIRD_PARTY_OPENCV)/build/x86/vc10/lib/opencv_core246d.lib\
-					$(THIRD_PARTY_OPENCV)/build/x86/vc10/lib/opencv_imgproc246d.lib
-				
+                                        $(THIRD_PARTY_OPENCV)/build/x86/vc10/lib/opencv_core246d.lib\
+                                        $(THIRD_PARTY_OPENCV)/build/x86/vc10/lib/opencv_imgproc246d.lib
+
 LIBS_FREEGLUT		=	$(THIRD_PARTY_FREEGLUT)/lib/freeglut.lib
 
 LIBS_YARP		= 	$(THIRD_PARTY_YARP)/lib/YARP_sigd.lib\
-					$(THIRD_PARTY_YARP)/lib/YARP_OSd.lib\
-					$(THIRD_PARTY_YARP)/lib/YARP_devd.lib\
-					$(THIRD_PARTY_YARP)/lib/YARP_initd.lib\
-					$(THIRD_PARTY_YARP)/lib/YARP_mathd.lib\
-					$(THIRD_PARTY_YARP)/lib/yarpcard.lib\
-					$(THIRD_PARTY_YARP)/lib/yarp_bayerd.lib
-					
+                                        $(THIRD_PARTY_YARP)/lib/YARP_OSd.lib\
+                                        $(THIRD_PARTY_YARP)/lib/YARP_devd.lib\
+                                        $(THIRD_PARTY_YARP)/lib/YARP_initd.lib\
+                                        $(THIRD_PARTY_YARP)/lib/YARP_mathd.lib\
+                                        $(THIRD_PARTY_YARP)/lib/yarpcard.lib\
+                                        $(THIRD_PARTY_YARP)/lib/yarp_bayerd.lib
+
 LIBS_ACE		= 	$(THIRD_PARTY_ACE)/lib/ACEd.lib
-					
-LIBS_HEAD_FOREST	=	$(LIBS_OPENNI) $(LIBS_OPENCV) $(LIBS_FREEGLUT) $(LIBS_YARP) $(LIBS_ACE) $(LIBS_COMMON) 				
+
+LIBS_HEAD_FOREST	=	$(LIBS_OPENNI) $(LIBS_OPENCV) $(LIBS_FREEGLUT) $(LIBS_YARP) $(LIBS_ACE) $(LIBS_COMMON)
 
 !ENDIF
 
