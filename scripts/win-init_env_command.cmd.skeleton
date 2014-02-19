@@ -41,7 +41,7 @@ REM
 REM ## these variables SET each project branch
 SET SW_avatar=%SW_base%\swooz-avatar
 REM
-SET SW_avatar_branch="branches\wip-flance"
+SET SW_avatar_branch=
 REM
 REM ########################################################################################################################
 
