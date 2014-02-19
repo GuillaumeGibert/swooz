@@ -246,7 +246,7 @@ void SWStasm::compute3DPoints(const cv::Mat& oCloudMap, std::vector<cv::Point3f>
 	for(uint ii = 0; ii < m_oFeaturesPoints.size(); ++ii)
 	{
 		cv::Point3f l_oCurrPoint = oCloudMap.at<cv::Point3f>(m_oFeaturesPoints[ii].y, m_oFeaturesPoints[ii].x);
-        std::cout << ii << " -> " << l_oCurrPoint << " | ";
+//        std::cout << ii << " -> " << l_oCurrPoint << " | ";
         vP3FStasmPoints.push_back(l_oCurrPoint);
 	}
 }
@@ -270,24 +270,24 @@ void SWStasm::setStasmMask(const cv::Mat &oCloudMap, cv::Mat &oStasmMask)
 	}
 }
 
-cv::Rect SWStasm::computeUpperFaceRect()
-{
-	cv::Rect l_oCurrUpperFaceRect;
+//cv::Rect SWStasm::computeUpperFaceRect()
+//{
+//	cv::Rect l_oCurrUpperFaceRect;
 	
-	// nose
-	// l_oCurrUpperFaceRect.x = m_oFeaturesPoints[41].x - 20;
-	// l_oCurrUpperFaceRect.y = m_oFeaturesPoints[41].y - 45;
+//	// nose
+//	// l_oCurrUpperFaceRect.x = m_oFeaturesPoints[41].x - 20;
+//	// l_oCurrUpperFaceRect.y = m_oFeaturesPoints[41].y - 45;
 	
-	// l_oCurrUpperFaceRect.height = 35;
-	// l_oCurrUpperFaceRect.width = 40;
+//	// l_oCurrUpperFaceRect.height = 35;
+//	// l_oCurrUpperFaceRect.width = 40;
 	
 	
-	// front
-	l_oCurrUpperFaceRect.x = m_oFeaturesPoints[41].x - 30;
-	l_oCurrUpperFaceRect.y = m_oFeaturesPoints[41].y - 75;
+//	// front
+//	l_oCurrUpperFaceRect.x = m_oFeaturesPoints[41].x - 30;
+//	l_oCurrUpperFaceRect.y = m_oFeaturesPoints[41].y - 75;
 	
-	l_oCurrUpperFaceRect.height = 25;
-	l_oCurrUpperFaceRect.width = 60;	
+//	l_oCurrUpperFaceRect.height = 25;
+//	l_oCurrUpperFaceRect.width = 60;
 	
-	return l_oCurrUpperFaceRect;
-}
+//	return l_oCurrUpperFaceRect;
+//}

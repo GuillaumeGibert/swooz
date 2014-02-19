@@ -91,7 +91,7 @@ namespace swDetect
 			void setStasmMask(const cv::Mat &oCloudMap, cv::Mat &oStasmMask);
 
 			
-			cv::Rect computeUpperFaceRect();
+//			cv::Rect computeUpperFaceRect();
 			
 			/**
 			 * \brief get the right eye brow points

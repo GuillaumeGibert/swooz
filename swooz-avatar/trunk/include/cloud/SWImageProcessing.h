@@ -154,6 +154,63 @@ namespace swImage
 		}						
 		
 
+//        static void cylinderMask(const cv::Mat &oMatToApplyMastk, cv::Mat &oMatResult, cv::Point2i o2IStartPoint = cv::Point(-1,-1))
+//        {
+//            oMatResult = cv::Mat(oMatToApplyMastk.rows, oMatToApplyMastk.cols, oMatToApplyMastk.depth());
+
+//            if(o2IStartPoint == cv::Point(-1,-1))
+//            {
+//                o2IStartPoint = cv::Point(oMatToApplyMastk.rows/2,oMatToApplyMastk.cols/2);
+//            }
+
+//            bool l_bXPositive = true;
+//            bool l_bYPositive = false;
+//            bool l_bXTurn     = true;
+
+//            for(int offsetX = 1, offsetY = 1; offsetX < oMatToApplyMastk.rows/2;)
+//            {
+//                std::cout << o2IStartPoint << " | ";
+//                if(oMatToApplyMastk.at<float>(o2IStartPoint.x,o2IStartPoint.y) > 0.f)
+//                {
+//                    oMatResult.at<float>(o2IStartPoint.x,o2IStartPoint.y) = oMatToApplyMastk.at<float>(o2IStartPoint.x,o2IStartPoint.y);
+
+////                    if(l_bXTurn)
+////                    {
+////                        if(l_bXPositive)
+////                        {
+////                            o2IStartPoint.x = offsetX++;
+////                            l_bXPositive = false;
+////                        }
+////                        else
+////                        {
+////                            o2IStartPoint.x -= offsetX++;
+////                            l_bXPositive = true;
+////                        }
+
+////                        l_bXTurn = false;
+////                    }
+////                    else
+////                    {
+////                        if(l_bYPositive)
+////                        {
+////                            o2IStartPoint.y += offsetY++;
+////                            l_bYPositive = false;
+////                        }
+////                        else
+////                        {
+////                            o2IStartPoint.y -= offsetY++;
+////                            l_bYPositive = true;
+////                        }
+
+////                        l_bXTurn = true;
+////                    }
+//                }
+//                else
+//                {
+//                    break;
+//                }
+//            }
+//        }
 
 		/**
 		 * \brief  Encode the input vec3f and the input index in a vec2i with some restrictions :

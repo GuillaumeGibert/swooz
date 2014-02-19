@@ -1,14 +1,14 @@
-# $vc10\makefile 0.1 ggibert$ for FaceLab module of SWoOZ project using Visual C++
-#
-# Release build: mkdir Release; nmake -nologo CFG=Release -f makefile
-# Debug build: mkdir Debug; nmake -nologo CFG=Debug -f makefile
-#
-# ggibert lyon sept 2012
+# makefile of swooz-teleoperation project using Visual C++
+# Guillaume Gibert / Florian Lance
+# lyon sept 2013
 
-!IF "$(CFG)" != "Release" &&  "$(CFG)" != "Debug" &&  "$(CFG)" != "Profile"
+!IF "$(CFG)" != "Release" &&  "$(CFG)" != "Debug"
 !ERROR Invalid CFG "($CFG)
 !ENDIF
 
+!IF "$(ARCH)" != "x86" &&  "$(ARCH)" != "amd64"
+!ERROR Invalid ARCH "($ARCH)
+!ENDIF
 
 CC=cl
 LINK=link
@@ -22,13 +22,14 @@ OBJ_TELEOPERATION_ICUB=\
         $(LIBDIR)/SWTeleoperation_iCub.obj
 	
 ############################################################################## Makefile commands
-	
 
+!if "$(ARCH)" == "x86"
 all: $(BINDIR)/SWTeleoperation_iCub.exe
- 
-clean:
+!endif
 
-clean all:
+!if "$(ARCH)" == "amd64"
+all:
+!endif
 
 ############################################################################## exe files
 

@@ -36,6 +36,9 @@ class SWDisplayImageWidget : public QWidget
 		*/	    
 		~SWDisplayImageWidget();
 
+
+        void resizeEvent ( QResizeEvent * event );
+
 	public slots:
 
 		/**
@@ -54,6 +57,8 @@ class SWDisplayImageWidget : public QWidget
 	private:
 
 		QImage m_oQImage;	/**< rgb image to display */
+
+        QSize m_oSize;  /**< ... */
 };
 
 

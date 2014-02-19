@@ -133,6 +133,18 @@ void SWGLCloudWidget::setCloudAndRigidMotion(const swCloud::SWRigidMotion &oRigi
 
 void SWGLCloudWidget::setCloud(swCloud::SWCloud *oCloud)
 {
+    if(oCloud)
+    {
+        if(oCloud->size() < 1)
+        {
+            return;
+        }
+    }
+    else
+    {
+        return;
+    }
+
     if(m_bInitCamWithCloudPosition)
     {
         swCloud::SWCloudBBox l_oBBox = oCloud->bBox();
@@ -142,7 +154,7 @@ void SWGLCloudWidget::setCloud(swCloud::SWCloud *oCloud)
         l_oEye.setZ((l_oBBox.m_fMaxZ + l_oBBox.m_fMinZ)/2);
 
         l_oLookAt = l_oEye;
-        l_oEye.setZ(l_oEye.z() - 0.15f);
+        l_oEye.setZ(l_oEye.z() - 0.25f);
         l_oLookAt.setZ(l_oLookAt.z() + 1.f);
 
         resetCamera(l_oEye,l_oLookAt);

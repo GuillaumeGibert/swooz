@@ -301,10 +301,9 @@ void SWRigidMotion::display()
 }
 
 
-
 // ############################################# CONSTRUCTORS / DESTRUCTORS - SWCloud
 
-SWCloud::SWCloud(void) : m_ui32NumberOfPoints(0), m_ui32ArraySize(0), m_aFCoords(NULL), m_aUi8Colors(NULL)
+SWCloud::SWCloud() : m_ui32NumberOfPoints(0), m_ui32ArraySize(0), m_aFCoords(NULL), m_aUi8Colors(NULL)
 {
 	++m_i32NumberOfCreatedClouds;
 }
@@ -424,13 +423,18 @@ SWCloud::SWCloud(const SWCloud &oCloud) : m_ui32NumberOfPoints(0), m_ui32ArraySi
     copy(oCloud);
 }
 
+SWCloud &SWCloud::operator=(const SWCloud &oCloud)
+{
+    ++m_i32NumberOfCreatedClouds;
+    copy(oCloud);
+    return *this;
+}
 
 SWCloud::~SWCloud(void)
 {	
 	++m_i32NumberOfDestroyedClouds;
 	erase(); // delete current data
 }
-
 
 // ############################################# METHODS - SWCloud
 

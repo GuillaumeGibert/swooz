@@ -37,6 +37,15 @@ namespace swUtil
         putText( oInputMat, "fps: " + int2string(static_cast<int>(fps)), cv::Point( 10,50), cv::FONT_HERSHEY_SIMPLEX, 0.7, RED, 3 );
     }
 
+    static int getFPS()
+    {
+        static double l_dFreq = cv::getTickFrequency();
+        static int64 tm = 0;
+        int64 fps = static_cast<int64> (l_dFreq/(cv::getTickCount() - tm));
+        tm = cv::getTickCount();
+        return static_cast<int>(fps);
+    }
+
     static void displayTextTopRight(cv::Mat &oInputMat, const std::string &oText)
     {
         putText( oInputMat, oText, cv::Point( oInputMat.cols - 100 ,50), cv::FONT_HERSHEY_SIMPLEX, 0.7, RED, 3 );
@@ -44,7 +53,7 @@ namespace swUtil
 
     static void displayTextDownRight(cv::Mat &oInputMat, const std::string &oText)
     {
-        putText( oInputMat, oText, cv::Point( oInputMat.cols - 100 - oText.size()*10, oInputMat.rows - 100), cv::FONT_HERSHEY_SIMPLEX, 0.7, RED, 3 );
+        putText( oInputMat, oText, cv::Point( oInputMat.cols - 50 - oText.size()*10, oInputMat.rows - 50), cv::FONT_HERSHEY_SIMPLEX, 0.7, RED, 3 );
     }
 
     /**

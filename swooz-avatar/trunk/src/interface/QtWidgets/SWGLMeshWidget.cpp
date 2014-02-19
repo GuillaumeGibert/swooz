@@ -18,7 +18,8 @@
 
 SWGLMeshWidget::SWGLMeshWidget(QGLContext *context, QWidget* parent, const QString &sVertexShaderPath, const QString &sFragmentShaderPath) :
     SWGLWidget(context, parent), m_sVertexShaderPath(sVertexShaderPath), m_sFragmentShaderPath(sFragmentShaderPath), m_pMesh(NULL),
-    m_vertexBuffer(QGLBuffer::VertexBuffer), m_indexBuffer(QGLBuffer::IndexBuffer),  m_normalBuffer(QGLBuffer::VertexBuffer), m_textureBuffer(QGLBuffer::VertexBuffer)
+    m_vertexBuffer(QGLBuffer::VertexBuffer), m_indexBuffer(QGLBuffer::IndexBuffer),  m_normalBuffer(QGLBuffer::VertexBuffer), m_textureBuffer(QGLBuffer::VertexBuffer),
+    m_bInitCamWithCloudPosition(true), m_bLinesRender(false), m_bApplyTexture(false)
 {}
 
 SWGLMeshWidget::~SWGLMeshWidget()
@@ -26,71 +27,126 @@ SWGLMeshWidget::~SWGLMeshWidget()
 
 void SWGLMeshWidget::initializeGL()
 {
-    // qglClearColor(Qt::black);
-    qglClearColor(QColor(49, 53, 70));
+    // set background
+        qglClearColor(QColor(49, 53, 70));
 
     // init shaders
-    initShaders("../data/shaders/cloudAvatar.vert", "../data/shaders/cloudAvatar.frag", m_oShaderLines,     false);
-    initShaders(m_sVertexShaderPath, m_sFragmentShaderPath, m_oShaderMesh, true);
-
-    qWarning() << m_sVertexShaderPath << " " << m_sFragmentShaderPath;
-//    std::cout << "m_sVertexShaderPath : " << m_sVertexShaderPath << " " << m_sFragmentShaderPath << std::endl;
+        initShaders("../data/shaders/cloudAvatar.vert", "../data/shaders/cloudAvatar.frag", m_oShaderLines, false);
+        initShaders("../data/shaders/meshAvatar.vert", "../data/shaders/meshAvatar.frag", m_oShaderMesh,  true);
 
     // enable depth buffer
-    glEnable(GL_DEPTH_TEST);
+        glEnable(GL_DEPTH_TEST);
 
-    // enable back face culling
-    glEnable(GL_CULL_FACE);
+    // enable texture
+        glEnable(GL_TEXTURE_2D);
 
-    // init geometry
-    initMeshBuffers();
-
-    // init texture
-    QImage l_oTexture("../data/textures/avatars/stel_skin3.jpg");
-    qDebug() << "Size texture loaded : " << l_oTexture.size();
-    m_textureLocation = bindTexture(l_oTexture);
-
-
-    // using QBasicTimer because its faster that QTimer
-//    m_oTimer->start(5, this);
+    // init buffers
+        initMeshBuffers();
 }
 
 
 void SWGLMeshWidget::paintGL()
 {
     // set the size point
-    glPointSize(m_glFSizePoint);
+        glPointSize(m_glFSizePoint);
 
     // clear color and depth buffer
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // activate texture
-    glBindTexture(GL_TEXTURE_2D, m_textureLocation);
+        if(m_bApplyTexture)
+        {
+            qDebug() << "bind : " << m_textureLocation;
+            glBindTexture(GL_TEXTURE_2D, m_textureLocation);
+        }
 
     // calculate model view transformation
-    QMatrix4x4 l_oViewMatrix;
-    l_oViewMatrix.setToIdentity();
+        QMatrix4x4 l_oViewMatrix;
+        l_oViewMatrix.setToIdentity();
 
     // set camera vue
-    l_oViewMatrix.lookAt( m_pCamera->eyePosition(), m_pCamera->viewDirection(), m_pCamera->up());
+        l_oViewMatrix.lookAt( m_pCamera->eyePosition(), m_pCamera->viewDirection(), m_pCamera->up());
 
     // comput MVP matrix
-    QMatrix4x4 l_oModelMatrix;
-    l_oModelMatrix.setToIdentity();
-    m_oMVPMatrix = l_oModelMatrix  * m_oProjectionMatrix * l_oViewMatrix;
+        QMatrix4x4 l_oModelMatrix;
+        l_oModelMatrix.setToIdentity();
+        m_oMVPMatrix = l_oModelMatrix  * m_oProjectionMatrix * l_oViewMatrix;
 
-    if(m_pMesh)
-    {
-        drawMesh();
-    }
+    // draw
+        if(m_pMesh)
+        {
+            drawMesh();
+        }
 
-    drawAxes(m_oShaderLines, m_oMVPMatrix, 0.02f);
+        drawAxes(m_oShaderMesh, m_oMVPMatrix, 0.02f);
 }
 
+void SWGLMeshWidget::setTexture(const QImage &oTexture)
+{
+    m_oParamMutex.lockForWrite();
+        m_oTexture = oTexture;
+        m_textureLocation = bindTexture(m_oTexture);
+    m_oParamMutex.unlock();
+}
 
 void SWGLMeshWidget::setTexture(const QString &sTexturePath)
 {
-    m_textureLocation = bindTexture(QImage(sTexturePath));
+    m_oParamMutex.lockForWrite();
+        m_textureLocation = bindTexture(QImage(sTexturePath));
+    m_oParamMutex.unlock();
+}
+
+void SWGLMeshWidget::applyTexture(const bool bApplyTexture)
+{
+    m_oParamMutex.lockForWrite();
+        m_bApplyTexture = bApplyTexture;
+        qDebug() << "m_bApplyTexture : " << m_bApplyTexture;
+    m_oParamMutex.unlock();
+    updateGL();
+}
+
+void SWGLMeshWidget::setMeshLinesRender(const bool bRenderLines)
+{
+    m_oParamMutex.lockForWrite();
+        m_bLinesRender = bRenderLines;
+    m_oParamMutex.unlock();
+    updateGL();
+}
+
+void SWGLMeshWidget::setMesh(swMesh::SWMesh *pMesh)
+{
+    if(pMesh)
+    {
+        if(pMesh->trianglesNumber() < 1)
+        {
+            return;
+        }
+    }
+    else
+    {
+        return;
+    }
+
+    if(m_bInitCamWithCloudPosition)
+    {
+        swCloud::SWCloudBBox l_oBBox = pMesh->cloud()->bBox();
+        QVector3D l_oEye,l_oLookAt;
+        l_oEye.setX((l_oBBox.m_fMaxX + l_oBBox.m_fMinX)/2);
+        l_oEye.setY((l_oBBox.m_fMaxY + l_oBBox.m_fMinY)/2);
+        l_oEye.setZ((l_oBBox.m_fMaxZ + l_oBBox.m_fMinZ)/2);
+
+        l_oLookAt = l_oEye;
+        l_oEye.setZ(l_oEye.z() - 0.25f);
+        l_oLookAt.setZ(l_oLookAt.z() + 1.f);
+
+        resetCamera(l_oEye,l_oLookAt);
+
+        m_bInitCamWithCloudPosition = false;
+    }
+
+    deleteAndNullify(m_pMesh);
+    m_pMesh = new swMesh::SWMesh(*pMesh);
+    updateGL();
 }
 
 
@@ -104,16 +160,16 @@ void SWGLMeshWidget::setMesh(swMesh::SWMesh &oMesh)
 void SWGLMeshWidget::initMeshBuffers()
 {
     // create the buffer
-    m_vertexBuffer.create();
-    m_indexBuffer.create();
-    m_normalBuffer.create();
-    m_textureBuffer.create();
+        m_vertexBuffer.create();
+        m_indexBuffer.create();
+        m_normalBuffer.create();
+        m_textureBuffer.create();
 
     // define the usage pattern
-    m_vertexBuffer.setUsagePattern(QGLBuffer::DynamicDraw);
-    m_indexBuffer.setUsagePattern(QGLBuffer::DynamicDraw);
-    m_normalBuffer.setUsagePattern(QGLBuffer::DynamicDraw);
-    m_textureBuffer.setUsagePattern(QGLBuffer::DynamicDraw);
+        m_vertexBuffer.setUsagePattern(QGLBuffer::DynamicDraw);
+        m_indexBuffer.setUsagePattern(QGLBuffer::DynamicDraw);
+        m_normalBuffer.setUsagePattern(QGLBuffer::DynamicDraw);
+        m_textureBuffer.setUsagePattern(QGLBuffer::DynamicDraw);
 }
 
 void SWGLMeshWidget::drawMesh()
@@ -121,11 +177,21 @@ void SWGLMeshWidget::drawMesh()
     // bind shader
     if(!m_oShaderMesh.bind())
     {
-        // TODO : throw ...
+         throw swExcept::swShaderGLError();
     }
 
     // set mode
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    m_oParamMutex.lockForRead();
+    if(m_bLinesRender)
+    {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    }
+    else
+    {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    }
+    m_oParamMutex.unlock();
+
 
     // release buffers
     QGLBuffer::release(QGLBuffer::VertexBuffer);
@@ -143,11 +209,12 @@ void SWGLMeshWidget::drawMesh()
     allocateBuffer(m_textureBuffer, l_aFTextureBuffer,  m_pMesh->pointsNumber() *     2 * sizeof(float) );
 
     m_oShaderMesh.setUniformValue("mvpMatrix", m_oMVPMatrix);
-    drawBufferWithTexture(m_indexBuffer, m_vertexBuffer, m_textureBuffer, m_normalBuffer, m_oShaderMesh, GL_TRIANGLES); //
+
+    qDebug() << "m_textureBuffer " << m_textureBuffer.size();
+    drawBufferWithTexture(m_indexBuffer, m_vertexBuffer, m_textureBuffer, m_normalBuffer, m_oShaderMesh, GL_TRIANGLES);
 
     delete[] l_aFVertexBuffer;
     delete[] l_aUI32IndexBuffer;
     delete[] l_aFNormalBuffer;
     delete[] l_aFTextureBuffer;
 }
-

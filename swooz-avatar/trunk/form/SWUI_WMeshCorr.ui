@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SWUI_WMeshCorr</class>
+ <widget class="QWidget" name="SWUI_WMeshCorr">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>415</width>
+    <height>524</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QTabWidget" name="twMeshCorr">
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="twpMeshes">
+      <attribute name="title">
+       <string>Meshes</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0">
+         <property name="sizeConstraint">
+          <enum>QLayout::SetDefaultConstraint</enum>
+         </property>
+         <item>
+          <layout class="QVBoxLayout" name="verticalLayout_5" stretch="1,8,1,8">
+           <item>
+            <widget class="QLabel" name="label_2">
+             <property name="text">
+              <string>Template mesh :</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QListWidget" name="lWSourceMeshes"/>
+           </item>
+           <item>
+            <widget class="QLabel" name="label">
+             <property name="text">
+              <string>Target mesh :</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QListWidget" name="lWTargetMeshes"/>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout">
+           <item>
+            <widget class="QPushButton" name="pbSetMeshes">
+             <property name="minimumSize">
+              <size>
+               <width>100</width>
+               <height>30</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>120</width>
+               <height>40</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Set meshes</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="twpCorr">
+      <attribute name="title">
+       <string>Stasm corr</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_7">
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_4">
+         <item>
+          <layout class="QVBoxLayout" name="verticalLayout_6" stretch="1,8,1,8">
+           <item>
+            <widget class="QLabel" name="label_3">
+             <property name="text">
+              <string>Template corr :</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QListWidget" name="lWSourceCorr"/>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_4">
+             <property name="text">
+              <string>Target corr :</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QListWidget" name="lWTargetCorr"/>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_2">
+           <item>
+            <widget class="QPushButton" name="pbSetStamCorr">
+             <property name="minimumSize">
+              <size>
+               <width>100</width>
+               <height>30</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>120</width>
+               <height>40</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Set stasm corr</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

@@ -1,19 +1,18 @@
-# makefile of swooz-toolkit project using Visual C++
-# Guillaume Gibert / Florian Lance
-# lyon dec 2012
+# makefile of swooz-avatar project using Visual C++
+# Florian Lance
+# lyon sept 2013
 
-
-!IF "$(CFG)" != "Release" &&  "$(CFG)" != "Debug" 
+!IF "$(CFG)" != "Release" &&  "$(CFG)" != "Debug"
 !ERROR Invalid CFG "($CFG)
+!ENDIF
+
+!IF "$(ARCH)" != "x86" &&  "$(ARCH)" != "amd64"
+!ERROR Invalid ARCH "($ARCH)
 !ENDIF
 
 CC=cl
 CUDA=nvcc 
 LINK=link
-
-#ifdef ON_WINDOWS
-#export compiler-bindir := "C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin"\
-#endif
 
 !INCLUDE <./makefile-include>
 
@@ -27,11 +26,9 @@ STASM_LIST_OBJ=\
 
 CLOUD_LIST_OBJ=\
         $(LIBDIR)/SWCloud.obj $(LIBDIR)/SWMaskCloud.obj $(LIBDIR)/SWAlignClouds.obj $(LIBDIR)/SWCaptureHeadMotion.obj\
-# $(LIBDIR)/SWVisualizeCloud.obj
 
 MESH_LIST_OBJ=\
-        $(LIBDIR)/SWMesh.obj\
-# $(LIBDIR)/SWOptimalStepNonRigidICP.obj
+        $(LIBDIR)/SWMesh.obj $(LIBDIR)/SWOptimalStepNonRigidICP.obj\
 	
 DETECT_LIST_OBJ=\
         $(LIBDIR)/SWHaarCascade.obj $(LIBDIR)/SWFaceDetection.obj $(LIBDIR)/SWStasm.obj\
@@ -42,16 +39,17 @@ EMICP_LIST_OBJ=\
 GPUMAT_LIST_OBJ=\
         $(LIBDIR)/gpuMat.obj\
 
+
 TRACK_LIST_OBJ=\
         $(LIBDIR)/SWTrackFlow.obj $(LIBDIR)/SWTrack.obj\
 	
 QT_INTER_LIST_OBJ=\
-        $(LIBDIR)/SWDisplayImageWidget.obj $(LIBDIR)/SWDisplayHistogramWidget.obj\
-#  $(LIBDIR)/SWCreateAvatarWorker.obj $(LIBDIR)/SWCreateAvatarInterface.obj $(LIBDIR)/SWMorphingWorker.obj $(LIBDIR)/SWMorphingInterface.obj\
+        $(LIBDIR)/SWDisplayImageWidget.obj $(LIBDIR)/SWDisplayHistogramWidget.obj $(LIBDIR)/SWCreateAvatarWorker.obj $(LIBDIR)/SWCreateAvatarInterface.obj\
+        $(LIBDIR)/SWMorphingWorker.obj $(LIBDIR)/SWMorphingInterface.obj\
 		
 QT_GL_LIST_OBJ=\
         $(LIBDIR)/SWQtCamera.obj $(LIBDIR)/SWGLWidget.obj $(LIBDIR)/SWGLCloudWidget.obj $(LIBDIR)/SWGLMeshWidget.obj\
-#        $(LIBDIR)/SWGLOptimalStepNonRigidICP.obj\
+        $(LIBDIR)/SWGLOptimalStepNonRigidICP.obj\
 
 FACELAB_LIST_OBJ=\
         $(DIST_LIB)/FaceLab_dynamic.obj \
@@ -60,56 +58,56 @@ DYNAMIC_LIST_OBJ=\
         $(LIBDIR)/SWCloud_dynamic.obj $(LIBDIR)/SWMaskCloud_dynamic.obj\
 
 EXP_LIST_OBJ=\
-#	$(LIBDIR)/SWSaveMultiRigidMotionData.obj \
+        $(LIBDIR)/SWSaveMultiRigidMotionData.obj \
 	
 ############################################################################## MOC LIST
 
 MOC_LIST=\
-		$(MOCDIR)/moc_SWDisplayImageWidget.cpp $(MOCDIR)/moc_SWDisplayHistogramWidget.cpp\
-        $(MOCDIR)/moc_SWGLWidget.cpp $(MOCDIR)/moc_SWGLMeshWidget.cpp $(MOCDIR)/moc_SWGLCloudWidget.cpp\
+        $(MOCDIR)/moc_SWCreateAvatarInterface.cpp $(MOCDIR)/moc_SWMorphingInterface.cpp $(MOCDIR)/moc_SWDisplayImageWidget.cpp $(MOCDIR)/moc_SWDisplayHistogramWidget.cpp \
+        $(MOCDIR)/moc_SWGLWidget.cpp $(MOCDIR)/moc_SWGLCloudWidget.cpp $(MOCDIR)/moc_SWGLMeshWidget.cpp $(MOCDIR)/moc_SWCreateAvatarWorker.cpp\
+        $(MOCDIR)/moc_SWMorphingWorker.cpp $(MOCDIR)/moc_SWGLOptimalStepNonRigidICP.cpp $(MOCDIR)/moc_SWTestCode.cpp\
 
-# $(MOCDIR)/moc_SWCreateAvatarInterface.cpp $(MOCDIR)/moc_SWMorphingInterface.cpp $(MOCDIR)/moc_SWMorphingWorker.cpp $(MOCDIR)/moc_SWGLOptimalStepNonRigidICP.cpp $(MOCDIR)/moc_SWTestCode.cpp\
-# $(MOCDIR)/moc_SWCreateAvatarWorker.cpp
-		
 ############################################################################## UI LIST
 
 UI_LIST=\
-#		$(INCDIR_QTGENW)/SWMainWindow.h $(INCDIR_QTGENW)/SWUI_WMeshCorr.h $(INCDIR_QTGENW)/SWUI_WParamsDisplay.h $(INCDIR_QTGENW)/SWUI_WTargetTransfo.h\
+        $(INCDIR_QTGENW)/SWMainWindow.h $(INCDIR_QTGENW)/SWUI_WMeshCorr.h $(INCDIR_QTGENW)/SWUI_WParamsDisplay.h $(INCDIR_QTGENW)/SWUI_WTargetTransfo.h\
+        $(INCDIR_QTGENW)/SWUI_WCreateAvatar.h\
 
 ############################################################################## OBJ PROGRAMS
 
-#CREATE_AVATAR_OBJ=\
-#        $(EMICP_LIST_OBJ) $(STASM_LIST_OBJ) $(CLOUD_LIST_OBJ) $(MESH_LIST_OBJ) $(GPUMAT_LIST_OBJ) $(DETECT_LIST_OBJ) $(TRACK_LIST_OBJ) $(QT_INTER_LIST_OBJ) $(QT_GL_LIST_OBJ)\
-#        $(LIBDIR)/SWCreateAvatar.obj\
+CREATE_AVATAR_OBJ=\
+        $(EMICP_LIST_OBJ) $(STASM_LIST_OBJ) $(CLOUD_LIST_OBJ) $(MESH_LIST_OBJ) $(GPUMAT_LIST_OBJ) $(DETECT_LIST_OBJ) $(TRACK_LIST_OBJ) $(CV_INTER_LIST_OBJ) $(QT_INTER_LIST_OBJ) $(QT_GL_LIST_OBJ)\
+        $(LIBDIR)/SWCreateAvatar.obj\
 
-#PROCESS_EXP_DATA_OBJ=\
-#        $(EMICP_LIST_OBJ) $(GPUMAT_LIST_OBJ) $(STASM_LIST_OBJ) $(CLOUD_LIST_OBJ) $(DETECT_LIST_OBJ) $(MESH_LIST_OBJ) $(TRACK_LIST_OBJ) $(QT_GL_LIST_OBJ) $(QT_INTER_LIST_OBJ)\
-#        $(LIBDIR)/SWProcessExpData.obj $(LIBDIR)/SWCreateAvatar.obj\
+PROCESS_EXP_DATA_OBJ=\
+        $(EMICP_LIST_OBJ) $(GPUMAT_LIST_OBJ) $(STASM_LIST_OBJ) $(CLOUD_LIST_OBJ) $(DETECT_LIST_OBJ) $(MESH_LIST_OBJ) $(TRACK_LIST_OBJ) $(QT_GL_LIST_OBJ) $(QT_INTER_LIST_OBJ)\
+        $(LIBDIR)/SWProcessExpData.obj $(LIBDIR)/SWCreateAvatar.obj\
 
-#LAUNCH_EXP_OBJ=\
-#        $(FACELAB_LIST_OBJ) $(EXP_LIST_OBJ)\
-#        $(LIBDIR)/SWLaunchExp.obj\
+LAUNCH_EXP_OBJ=\
+        $(FACELAB_LIST_OBJ) $(EXP_LIST_OBJ)\
+        $(LIBDIR)/SWLaunchExp.obj\
 
-#TEST_CODE_OBJ=\
-#       $(EMICP_LIST_OBJ) $(GPUMAT_LIST_OBJ) $(STASM_LIST_OBJ) $(DETECT_LIST_OBJ) $(TRACK_LIST_OBJ) $(CLOUD_LIST_OBJ) $(MESH_LIST_OBJ) $(QT_GL_LIST_OBJ)\
-#       $(LIBDIR)/SWMorphingWorker.obj $(LIBDIR)/SWMorphingInterface.obj $(LIBDIR)/SWTestCode.obj\
+TEST_CODE_OBJ=\
+       $(EMICP_LIST_OBJ) $(GPUMAT_LIST_OBJ) $(STASM_LIST_OBJ) $(DETECT_LIST_OBJ) $(TRACK_LIST_OBJ) $(CLOUD_LIST_OBJ) $(MESH_LIST_OBJ) $(QT_GL_LIST_OBJ)\
+       $(LIBDIR)/SWMorphingWorker.obj $(LIBDIR)/SWMorphingInterface.obj $(LIBDIR)/SWTestCode.obj\
 
-ALL_OBJ=\
-	$(EMICP_LIST_OBJ) $(GPUMAT_LIST_OBJ) $(STASM_LIST_OBJ) $(DETECT_LIST_OBJ) $(TRACK_LIST_OBJ) \
-	$(CLOUD_LIST_OBJ) $(MESH_LIST_OBJ) $(MOC_LIST) $(QT_GL_LIST_OBJ) $(QT_INTER_LIST_OBJ) $(FACELAB_LIST_OBJ) $(EXP_LIST_OBJ)\
+############################################################################## Makefile commands  $(QT_INTER_LIST_OBJ)
 
-############################################################################## Makefile commands  
+!if  "$(ARCH)" == "x86"
+all: createAvatar testCodeData
+!endif
 
-all:  $(ALL_OBJ)
-#createAvatar testCodeData
+!if "$(ARCH)" == "amd64"
+all:
+!endif
 
-#createAvatar   : $(UI_LIST) $(MOC_LIST) $(BINDIR)/SWCreateAvatar.exe
+createAvatar   : $(UI_LIST) $(MOC_LIST) $(BINDIR)/SWCreateAvatar.exe
 		
-#launchExp : $(BINDIR)/SWLaunchExp.exe
+launchExp : $(BINDIR)/SWLaunchExp.exe
 
-#processExpData : $(BINDIR)/SWProcessExpData.exe
+processExpData : $(BINDIR)/SWProcessExpData.exe
 
-#testCodeData   : $(BINDIR)/SWTestCode.exe
+testCodeData   : $(BINDIR)/SWTestCode.exe
 
 clean:
 
@@ -194,9 +192,6 @@ $(LIBDIR)/SWCloud.obj: ./src/cloud/SWCloud.cpp
 	
 $(LIBDIR)/SWMaskCloud.obj: ./src/cloud/SWMaskCloud.cpp
         $(CC) -c ./src/cloud/SWMaskCloud.cpp $(CFLAGS_STA) $(SW_CLOUD) -Fo"$(LIBDIR)/"
-
-$(LIBDIR)/SWVisualizeCloud.obj: ./src/cloud/SWVisualizeCloud.cpp
-        $(CC) -c ./src/cloud/SWVisualizeCloud.cpp $(CFLAGS_STA) $(SW_VISUALIZE_CLOUD) -Fo"$(LIBDIR)/"
 
 $(LIBDIR)/SWAlignClouds.obj: ./src/cloud/SWAlignClouds.cpp
         $(CC) -c ./src/cloud/SWAlignClouds.cpp $(CFLAGS_STA) $(SW_ALIGN_CLOUDS) -Fo"$(LIBDIR)/"
@@ -317,6 +312,9 @@ $(INCDIR_QTGENW)/SWUI_WParamsDisplay.h: $(FORMDIR)/SWUI_WParamsDisplay.ui
 
 $(INCDIR_QTGENW)/SWUI_WTargetTransfo.h: $(FORMDIR)/SWUI_WTargetTransfo.ui
         uic $(FORMDIR)/SWUI_WTargetTransfo.ui -o $@
+
+$(INCDIR_QTGENW)/SWUI_WCreateAvatar.h: $(FORMDIR)/SWUI_CreateAvatar.ui
+        uic $(FORMDIR)/SWUI_CreateAvatar.ui -o $@
 
 ############################################################################## Qt moc files
 

@@ -59,10 +59,21 @@ class SWGLMeshWidget : public SWGLWidget
         void drawMesh();  
 
         /**
+         * @brief drawMeshLines
+         */
+//        void drawMeshLines();
+
+        /**
          * \brief Set the mesh to draw
          * \param [in] oMesh    : mesh to draw
          */
         void setMesh(swMesh::SWMesh &oMesh);
+
+        /**
+         * \brief Set the mesh to draw
+         * \param [in] pMesh    : pointer to the mesh to draw
+         */
+        void setMesh(swMesh::SWMesh *pMesh);
 
         /**
          * \brief Set the texture for the mesh.
@@ -70,18 +81,45 @@ class SWGLMeshWidget : public SWGLWidget
          */
         void setTexture(const QString &sTexturePath);
 
+        /**
+         * @brief setTexture
+         * @param oTexture
+         */
+        void setTexture(const QImage &oTexture);
+
+        /**
+         * @brief applyTexture
+         * @param bApplyTexture
+         */
+        void applyTexture(const bool bApplyTexture);
+
+        /**
+         * @brief SWGLMeshWidget::setMeshLinesRender
+         * @param bRenderLines
+         */
+        void setMeshLinesRender(const bool bRenderLines = true);
+
     private :
+
+        bool m_bInitCamWithCloudPosition;
 
         QString m_sVertexShaderPath;    /**< ... */
         QString m_sFragmentShaderPath;  /**< ... */
 
+        bool m_bLinesRender;                  /**< ... */
+        bool m_bApplyTexture;                  /**< ... */
+
         QGLShaderProgram m_oShaderMesh;         /**< ... */
         QGLShaderProgram m_oShaderLines;    /**< ... */
+
+        QImage m_oTexture;
 
         QGLBuffer m_vertexBuffer;   /**< ... */
         QGLBuffer m_indexBuffer;    /**< ... */
         QGLBuffer m_normalBuffer;   /**< ... */
         QGLBuffer m_textureBuffer;  /**< ... */
+
+        QReadWriteLock m_oParamMutex; /**< ... */
 
         GLuint m_textureLocation;
 

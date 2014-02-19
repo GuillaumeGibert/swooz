@@ -206,8 +206,15 @@ namespace swCloud
              * \brief Constructor of SWCloud
              * \param [in] oCloud : input cloud  to copy
              */
-            SWCloud(const SWCloud &oCloud);
-		
+            SWCloud(const SWCloud &oCloud);            
+
+            /**
+             * @brief SWCloud::operator =
+             * @param [in] oCloud : cloud to be copied
+             * @return
+             */
+            SWCloud &SWCloud::operator=(const SWCloud &oCloud);
+
 			/**
 			 * \brief destructor of SWCloud
 			 */		
@@ -251,7 +258,7 @@ namespace swCloud
                 }
                 else
                 {
-                    std::cerr << "Error : point SWCloud, input index is not valid. " << std::endl; // TODO : throw
+                    std::cerr << "Error : point SWCloud, input index is not valid. (" << ui32IndexPoint << ")" << std::endl; // TODO : throw
                 }
             }
 

@@ -16,7 +16,8 @@ namespace swMesh
 {
     /**
      * \class SWMesh
-     * \brief Defines a mehs...
+     * \brief A mesh class using a SWCloud for the cloud geometry, useful for saving/loading obj,
+     *        designed to be utilized with opengl.
      * \author Florian Lance
       * \date 08/07/13
      */
@@ -38,10 +39,14 @@ namespace swMesh
             SWMesh(const std::string &sPathObjFile);
 
             /**
-             * \brief Copy constructor of SWMesh
-             * \param [in] oMesh  : mesh to be copied
+             * @brief Constructor of SWMesh
+             * @param [in] v3FPoints        : 3D points coords
+             * @param [in] v3IFaces         : index of the triangles
+             * @param [in] v2FTextureCoords : texture coordinates
              */
-//            SWMesh(const SWMesh &oMesh);
+            SWMesh(const std::vector<std::vector<float> > &v3FPoints,
+                   const std::vector<std::vector<uint> >  &v3UIFaces,
+                   const std::vector<std::vector<float> > &v2FTextureCoords);
 
             /**
              * \brief Destructor of SWMesh
@@ -49,6 +54,29 @@ namespace swMesh
             virtual ~SWMesh(void);
 
             // ############################################# METHODS
+
+            /**
+             * @brief operator =
+             * @param [in] oMesh : mesh to copy
+             * @return
+             */
+            SWMesh &operator=(const SWMesh &oMesh);
+
+            /**
+             * @brief Set mesh
+             * @param [in] v3FPoints        : 3D points coords
+             * @param [in] v3IFaces         : index of the triangles
+             * @param [in] v2FTextureCoords : texture coordinates
+             */
+            void set(const std::vector<std::vector<float> > &v3FPoints,
+                     const std::vector<std::vector<uint> >  &v3UIFaces,
+                     const std::vector<std::vector<float> > &v2FTextureCoords);
+
+            /**
+             * @brief Clean all the mesh data.
+             */
+            void clean();
+
 
             /**
              * \brief Get the cloud point corresponding to the input id.

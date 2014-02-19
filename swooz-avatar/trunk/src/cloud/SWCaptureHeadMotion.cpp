@@ -75,8 +75,8 @@ int SWCaptureHeadMotion::computeHeadMotion(SWRigidMotion &oHeadRigidMotion, cons
         cv::Point3f l_oNoseTip = m_CFaceDetectPtr->computeNoseTip(oDepth(l_oFaceRectangle), l_i32IdNoseX, l_i32IdNoseY);
 
         cv::Rect l_oNoseRectangle;
-        l_oNoseRectangle.x = l_oFaceRectangle.x + l_i32IdNoseX -30;
-        l_oNoseRectangle.y = (int)(l_oFaceRectangle.y + l_oFaceRectangle.height*0.2);// + l_i32IdNoseY + l_oFaceRectangle.height*0.5;//-40;
+        l_oNoseRectangle.x      =       l_oFaceRectangle.x + l_i32IdNoseX -30;
+        l_oNoseRectangle.y      = (int)(l_oFaceRectangle.y + l_oFaceRectangle.height*0.2);// + l_i32IdNoseY + l_oFaceRectangle.height*0.5;//-40;
         l_oNoseRectangle.width  = 60;
         l_oNoseRectangle.height = (int)(l_oFaceRectangle.height*0.6);//95;
 

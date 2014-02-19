@@ -1,4 +1,8 @@
 
+# makefile-include of swooz-teleoperation project using Visual C++
+# Guillaume Gibert / Florian Lance
+# lyon sept 2013
+
 ################################################################################################################# DEBUG/RELEASE MODE
 
 ############################ DOC CL OPTIONS
@@ -22,18 +26,8 @@
 # -EHsc  : exception model to use : /EHsc -> intercept only C++ exceptions, extern C functions never launch C++ exception.
 # 	   object files go to -Fo 
 
-COMPILE_NUMPROC = -MP$(NUMBER_OF_PROCESSORS)
 
-# We include setargv.obj for executables that do command line filename globbing.
-# PROGRAMFILES is inherited from the shell evironment (where it is
-# called ProgramFiles, but nmake converts it to upper case).  This allows us
-# to work with systems that use \Program Files or \Program Files x86.
-#SETARGV = "$(PROGRAMFILES)/Microsoft Visual Studio 10.0/VC/lib/setargv.obj"
-SETARGV = "$(VS100COMNTOOLS)/../../VC/lib/setargv.obj"
-
-# we include binmode.obj so files are opened as _O_BINARY, for compat with unix
-#BINMODE = "$(PROGRAMFILES)/Microsoft Visual Studio 10.0/VC/lib/binmode.obj"
-BINMODE = "$(VS100COMNTOOLS)/../../VC/lib/binmode.obj"
+############################ WIN LIB
 
 WINLIBS=advapi32.lib comctl32.lib comdlg32.lib gdi32.lib shell32.lib user32.lib vfw32.lib winmm.lib
 
@@ -42,27 +36,47 @@ WINLIBS=advapi32.lib comctl32.lib comdlg32.lib gdi32.lib shell32.lib user32.lib 
 LIBDIR=./lib
 BINDIR=./bin
 
+
+############################ SET UP FOR THE WANTED ARCH
+
+# We include setargv.obj for executables that do command line filename globbing.
+# PROGRAMFILES is inherited from the shell evironment (where it is
+# called ProgramFiles, but nmake converts it to upper case).  This allows us
+# to work with systems that use \Program Files or \Program Files x86.
+# we include binmode.obj so files are opened as _O_BINARY, for compat with unix
+
+SETARGV = "$(VS100COMNTOOLS)/../../VC/lib/setargv.obj"
+BINMODE = "$(VS100COMNTOOLS)/../../VC/lib/binmode.obj"
+
+!IF "$(ARCH)" != "x86"
+SETARGV = "$(VS100COMNTOOLS)/../../VC/lib/amd64/setargv.obj"
+BINMODE = "$(VS100COMNTOOLS)/../../VC/lib/amd64/binmode.obj"
+
+THIRD_PARTY_YARP      = $(THIRD_PARTY_YARP_64)
+!ENDIF
+
 ############################ INCLUDES
 
-INC_TELEOPERATION	= -I.\include
+INC_TELEOPERATION   = -I.\include
 
-INC_OTHERS		= -I$(SW_DIST)\include
+INC_OTHERS          = -I$(SW_DIST)\include
 
-INC_VS                  = -I"$(PROGRAMFILES)/Microsoft SDKs/Windows/v7.0A/Include"\ -I"$(VS100COMNTOOLS)/../../VC/include"\
+INC_VS              = -I"$(PROGRAMFILES)/Microsoft SDKs/Windows/v7.0A/Include"\ -I"$(VS100COMNTOOLS)/../../VC/include"\
 
-INC_YARP                = -I"$(THIRD_PARTY_YARP)"\include
+INC_YARP            = -I"$(THIRD_PARTY_YARP)"\include
 	
 ############################ DEPENDENCIES
 
-COMMON	     = $(INC_TELEOPERATION) $(INC_OTHERS) $(INC_VS)
+COMMON              = $(INC_TELEOPERATION) $(INC_OTHERS) $(INC_VS)
 
-SW_HEAD_ICUB = $(COMMON) $(INC_YARP)
+SW_HEAD_ICUB        = $(COMMON) $(INC_YARP)
 
-SW_TELE_ICUB = $(COMMON) $(INC_YARP)
+SW_TELE_ICUB        = $(COMMON) $(INC_YARP)
 
 ############################ COMMON DEBUG/RELEASE LIBS
 
-LIBS_COMMON	= "$(PROGRAMFILES)\Microsoft SDKs\Windows\v7.0A\Lib\ws2_32.lib"
+LIBS_COMMON	=
+#"$(PROGRAMFILES)\Microsoft SDKs\Windows\v7.0A\Lib\ws2_32.lib"
 
 ################################################################################################################# RELEASE MODE
 
@@ -70,29 +84,31 @@ LIBS_COMMON	= "$(PROGRAMFILES)\Microsoft SDKs\Windows\v7.0A\Lib\ws2_32.lib"
 
 ############################ FLAGS
 
-CFLAGS_STA = -nologo -O2 -GF -Gy -W3 -MT -EHsc -DWIN32 $(COMPILE_NUMPROC)
-CFLAGS_DYN = -nologo -O2 -GF -Gy -W3 -MD -EHsc -DWIN32 $(COMPILE_NUMPROC)
+CFLAGS_STA = -nologo -O2 -GF -Gy -W3 -MT -EHsc -DWIN32 -MP$(NUMBER_OF_PROCESSORS)
+CFLAGS_DYN = -nologo -O2 -GF -Gy -W3 -MD -EHsc -DWIN32 -MP$(NUMBER_OF_PROCESSORS)
 
 LFLAGS=-nologo
 
 ############################ LIBS
 
-LIBS_YARP		= 	$(THIRD_PARTY_YARP)/lib/YARP_sig.lib\
-                                $(THIRD_PARTY_YARP)/lib/YARP_OS.lib\
-                                $(THIRD_PARTY_YARP)/lib/YARP_dev.lib\
-                                $(THIRD_PARTY_YARP)/lib/YARP_init.lib\
-                                $(THIRD_PARTY_YARP)/lib/YARP_math.lib\
-                                $(THIRD_PARTY_YARP)/lib/yarpcar.lib\
-                                $(THIRD_PARTY_YARP)/lib/yarp_bayer.lib
+LIBS_YARP           =   $(THIRD_PARTY_YARP)/lib/YARP_sig.lib\
+                        $(THIRD_PARTY_YARP)/lib/YARP_OS.lib\
+                        $(THIRD_PARTY_YARP)/lib/YARP_dev.lib\
+                        $(THIRD_PARTY_YARP)/lib/YARP_init.lib\
+                        $(THIRD_PARTY_YARP)/lib/YARP_math.lib\
+                        $(THIRD_PARTY_YARP)/lib/yarpcar.lib\
+                        $(THIRD_PARTY_YARP)/lib/yarp_bayer.lib
 					
-LIBS_ACE                = 	$(THIRD_PARTY_ACE)/lib/ACE.lib
+LIBS_ACE            =   $(THIRD_PARTY_ACE)/lib/ACE.lib
 
+LIBS_HEAD_ICUB      =   $(LIBS_YARP)  $(LIBS_ACE)  $(LIBS_COMMON)
 
-LIBS_TELEOP_ICUB = $(LIBS_YARP)  $(LIBS_ACE)  $(LIBS_COMMON)
+LIBS_TELEOP_ICUB    =   $(LIBS_YARP)  $(LIBS_ACE)  $(LIBS_COMMON)
 
 !ENDIF
 
 ################################################################################################################# DEBUG MODE
+# TODO : complete
 
 !IF  "$(CFG)" == "Debug"
 
@@ -105,18 +121,19 @@ LFLAGS=-nologo
 
 ############################ LIBS
 
-LIBS_YARP		= 	$(THIRD_PARTY_YARP)/lib/YARP_sigd.lib\
-                                $(THIRD_PARTY_YARP)/lib/YARP_OSd.lib\
-                                $(THIRD_PARTY_YARP)/lib/YARP_devd.lib\
-                                $(THIRD_PARTY_YARP)/lib/YARP_initd.lib\
-                                $(THIRD_PARTY_YARP)/lib/YARP_mathd.lib\
-                                $(THIRD_PARTY_YARP)/lib/yarpcard.lib\
-                                $(THIRD_PARTY_YARP)/lib/yarp_bayerd.lib
+LIBS_YARP       =   $(THIRD_PARTY_YARP)/lib/YARP_sigd.lib\
+                    $(THIRD_PARTY_YARP)/lib/YARP_OSd.lib\
+                    $(THIRD_PARTY_YARP)/lib/YARP_devd.lib\
+                    $(THIRD_PARTY_YARP)/lib/YARP_initd.lib\
+                    $(THIRD_PARTY_YARP)/lib/YARP_mathd.lib\
+                    $(THIRD_PARTY_YARP)/lib/yarpcard.lib\
+                    $(THIRD_PARTY_YARP)/lib/yarp_bayerd.lib
 					
-LIBS_ACE                = 	$(THIRD_PARTY_ACE)/lib/ACEd.lib
+LIBS_ACE        =   $(THIRD_PARTY_ACE)/lib/ACEd.lib
 					
+LIBS_HEAD_ICUB	=   $(LIBS_YARP) $(LIBS_ACE) $(LIBS_COMMON)
 
-
+	
 
 !ENDIF
 

@@ -12,6 +12,7 @@
 #include "boost/shared_ptr.hpp"
 #include "detect/SWHaarCascade.h"
 
+#include "opencvUtility.h"
 
 typedef boost::shared_ptr<swDetect::SWHaarCascade> SWHaarCascadePtr;	/**< boost shared pointer for SWHaarCascade */
 
@@ -57,7 +58,7 @@ namespace swDetect
              * @brief Display the face detection on the input mat image
              * @param [in,out] oRgbImg : input image
              */
-            void displayFace(cv::Mat &oRgbImg);
+            void displayFace(cv::Mat &oRgbImg, cv::Scalar oColor = RED);
 
 
             /**

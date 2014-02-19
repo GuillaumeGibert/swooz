@@ -151,37 +151,129 @@ SWMesh::SWMesh(const std::string &sPathObjFile) : m_ui32TrianglesNumber(0), m_ui
     // build links data
         buildEdgeVertexGraph();
         buildVerticesNeighbors();
-
-        // DEBUG
-//        cout << "m_trianglesNumber : " << m_ui32TrianglesNumber << endl;
-//        cout << "m_vVertexIdTriangle : " << m_vVertexIdTriangle.size() << endl;
-//        cout << "m_aIdFaces : " << m_aIdFaces.size() << endl;
-//        cout << "m_aIdTextures : " << m_aIdTextures.size() << endl;
-//        cout << "m_aIdNormals : " << m_aIdNormals.size() << endl;
-//        cout << "m_aIdTriangles : " << m_aIdTriangles.size() << endl;
-
-        // DEBUG
-    //    for(uint ii = 0; ii < m_vVertexIdTriangle.size(); ++ii)
-    //    {
-    //        cout << ii << " -> ";
-    //        for(uint jj = 0; jj < m_vVertexIdTriangle[ii].size(); ++jj)
-    //        {
-    //            cout << m_vVertexIdTriangle[ii][jj] << " ";
-    //        }
-    //        cout << endl;
-    //    }
 }
 
-//SWMesh::SWMesh(const SWMesh &oMesh) :  m_oCloud(oMesh.m_oCloud),
-//    m_ui32EdgesNumber(oMesh.m_ui32EdgesNumber), m_ui32TrianglesNumber(oMesh.m_ui32TrianglesNumber),
-//    m_a2FTextures(oMesh.m_a2FTextures), m_a3FNormals(oMesh.m_a3FNormals),
-//    m_a3FNonOrientedVerticesNormals(oMesh.m_a3FNonOrientedVerticesNormals), m_a3FNonOrientedTrianglesNormals(oMesh.m_a3FNonOrientedTrianglesNormals),
-//    m_aIdFaces(oMesh.m_aIdFaces), m_aIdTextures(oMesh.m_aIdTextures), m_aIdNormals(oMesh.m_aIdNormals), m_vVertexIdTriangle(oMesh.m_vVertexIdTriangle),
-//    m_aIdTriangles(oMesh.m_aIdTriangles), m_a2VertexLinks(oMesh.m_a2VertexLinks), m_a2VertexNeighbors(oMesh.m_a2VertexNeighbors)
-//{}
+SWMesh::SWMesh(const std::vector<std::vector<float> > &v3FPoints,
+               const std::vector<std::vector<uint> >  &v3UIFaces,
+               const std::vector<std::vector<float> > &v2FTextureCoords) : m_ui32EdgesNumber(0),  m_ui32TrianglesNumber(0)
+{
+    set(v3FPoints, v3UIFaces, v2FTextureCoords);
+}
 
 SWMesh::~SWMesh()
 {}
+
+
+SWMesh &SWMesh::operator=(const SWMesh &oMesh)
+{
+    clean();
+    m_oCloud.copy(oMesh.m_oCloud);
+
+    m_ui32EdgesNumber     = oMesh.m_ui32EdgesNumber;
+    m_ui32TrianglesNumber = oMesh.m_ui32TrianglesNumber;
+
+    m_a2FTextures = oMesh.m_a2FTextures;
+    m_a3FNormals  = oMesh.m_a3FNormals;
+
+    m_a3FNonOrientedVerticesNormals  = oMesh.m_a3FNonOrientedVerticesNormals;
+    m_a3FNonOrientedTrianglesNormals = oMesh.m_a3FNonOrientedTrianglesNormals;
+
+    m_aIdFaces          = oMesh.m_aIdFaces;
+    m_aIdTextures       = oMesh.m_aIdTextures;
+    m_aIdNormals        = oMesh.m_aIdNormals;
+    m_vVertexIdTriangle = oMesh.m_vVertexIdTriangle;
+
+    m_aIdTriangles      = oMesh.m_aIdTriangles;
+    m_a2VertexLinks     = oMesh.m_a2VertexLinks;
+    m_a2VertexNeighbors = oMesh.m_a2VertexNeighbors;
+
+    return *this;
+}
+
+
+void SWMesh::set(const std::vector<std::vector<float> > &v3FPoints,
+                 const std::vector<std::vector<uint> >  &v3UIFaces,
+                 const std::vector<std::vector<float> > &v2FTextureCoords)
+{
+    clean();
+
+    // set points
+    std::vector<float> vX(v3FPoints.size()), vY(v3FPoints.size()), vZ(v3FPoints.size());
+        for(uint ii = 0; ii < v3FPoints.size(); ++ii)
+        {
+            vX[ii] = v3FPoints[ii][0];
+            vY[ii] = v3FPoints[ii][1];
+            vZ[ii] = v3FPoints[ii][2];
+        }
+        m_oCloud.set(vX,vY,vZ);
+
+    // set triangles
+        m_aIdFaces = std::vector<uint>(v3UIFaces.size()*3);
+        m_vVertexIdTriangle = std::vector<std::vector<uint> >(m_aIdFaces.size(), vector<uint>());
+        for(uint ii = 0; ii < v3UIFaces.size(); ++ii)
+        {
+            uint l_ui32V1, l_ui32V2, l_ui32V3;
+            l_ui32V1 = v3UIFaces[ii][0]-1;
+            l_ui32V2 = v3UIFaces[ii][1]-1;
+            l_ui32V3 = v3UIFaces[ii][2]-1;
+            std::vector<uint> l_v3UIFaces;
+            l_v3UIFaces.push_back(l_ui32V1);
+            l_v3UIFaces.push_back(l_ui32V2);
+            l_v3UIFaces.push_back(l_ui32V3);
+
+            m_aIdFaces[ii*3]  = l_ui32V1;
+            m_aIdFaces[ii*3+1]= l_ui32V2;
+            m_aIdFaces[ii*3+2]= l_ui32V3;
+
+            m_vVertexIdTriangle[l_ui32V1].push_back(m_aIdTriangles.size());
+            m_vVertexIdTriangle[l_ui32V2].push_back(m_aIdTriangles.size());
+            m_vVertexIdTriangle[l_ui32V3].push_back(m_aIdTriangles.size());
+
+            m_aIdTriangles.push_back(l_v3UIFaces);
+        }
+        m_ui32TrianglesNumber = m_aIdFaces.size() / 3;
+
+    // set texture
+        m_aIdTextures.assign(m_aIdFaces.cbegin(), m_aIdFaces.cend());
+        m_a2FTextures = std::vector<float>(v2FTextureCoords.size()*2);
+        for(uint ii = 0; ii < v2FTextureCoords.size(); ++ii)
+        {
+            m_a2FTextures[ii*2]   = v2FTextureCoords[ii][0];
+            m_a2FTextures[ii*2+1] = v2FTextureCoords[ii][1];
+        }
+
+    // build links data
+        buildEdgeVertexGraph();
+        buildVerticesNeighbors();
+
+    // build normals
+        m_aIdNormals.assign(m_aIdFaces.cbegin(), m_aIdFaces.cend());
+        updateNonOrientedTrianglesNormals();
+        updateNonOrientedVerticesNormals();
+}
+
+void SWMesh::clean()
+{
+    m_oCloud.erase();
+
+    m_a2FTextures.clear();
+    m_a3FNormals.clear();
+
+    m_a3FNonOrientedVerticesNormals.clear();
+    m_a3FNonOrientedTrianglesNormals.clear();
+
+    m_aIdFaces.clear();
+    m_aIdTextures.clear();
+    m_aIdNormals.clear();
+    m_vVertexIdTriangle.clear();
+
+    m_aIdTriangles.clear();
+    m_a2VertexLinks.clear();
+    m_a2VertexNeighbors.clear();
+
+    m_ui32EdgesNumber     = 0;
+    m_ui32TrianglesNumber = 0;
+}
 
 void SWMesh::point(float *aFXYZ, cuint ui32IdVertex) const
 {
@@ -224,6 +316,16 @@ bool SWMesh::saveToObj(const string &sPath) // TODO : finish
 
                 l_oFlow << "v " + l_osV1.str() + " " + l_osV2.str() + " " + l_osV3.str() << endl;
             }
+        // save vertex texture coord
+            for(uint ii = 0; ii < m_a2FTextures.size()/2; ++ii)
+            {
+                std::ostringstream l_osVT1, l_osVT2;
+
+                l_osVT1 << m_a2FTextures[2*ii];
+                l_osVT2 << m_a2FTextures[2*ii+1];
+
+                l_oFlow << "vt " + l_osVT1.str() + " " + l_osVT2.str() << endl;
+            }
         // save vertex normals
             for(uint ii = 0; ii < m_a3FNormals.size()/3; ++ii)
             {
@@ -234,16 +336,6 @@ bool SWMesh::saveToObj(const string &sPath) // TODO : finish
                 l_osVN3 << m_a3FNormals[3*ii+2];
 
                 l_oFlow << "vn " + l_osVN1.str() + " " + l_osVN2.str() + " " + l_osVN3.str() << endl;
-            }
-        // save vertex texture coord
-            for(uint ii = 0; ii < m_a2FTextures.size()/2; ++ii)
-            {
-                std::ostringstream l_osVT1, l_osVT2;
-
-                l_osVT1 << m_a2FTextures[2*ii];
-                l_osVT2 << m_a2FTextures[2*ii+1];
-
-                l_oFlow << "vt " + l_osVT1.str() + " " + l_osVT2.str() << endl;
             }
         // save faces
             for(uint ii = 0; ii < trianglesNumber(); ++ii)
@@ -258,13 +350,14 @@ bool SWMesh::saveToObj(const string &sPath) // TODO : finish
                 string l_oF2 = l_osI2.str();
                 string l_oF3 = l_osI3.str();
 
-                if(m_a3FNormals.size() > 0)
+                if(m_a2FTextures.size() > 0)
                 {
                     l_oF1 += "/" + l_osI1.str();
                     l_oF2 += "/" + l_osI2.str();
                     l_oF3 += "/" + l_osI3.str();
                 }
-                if(m_a2FTextures.size() > 0)
+
+                if(m_a3FNormals.size() > 0)
                 {
                     l_oF1 += "/" + l_osI1.str();
                     l_oF2 += "/" + l_osI2.str();
@@ -431,7 +524,6 @@ swCloud::SWCloud *SWMesh::cloud()
     return &m_oCloud;
 }
 
-
 void SWMesh::updateNonOrientedTrianglesNormals()
 {
     m_a3FNonOrientedTrianglesNormals.clear();
@@ -441,14 +533,9 @@ void SWMesh::updateNonOrientedTrianglesNormals()
         vector<float> l_vP1, l_vP2, l_vP3;
         trianglePoints(l_vP1, l_vP2, l_vP3, ii);
 
-//        vector<float> l_vNormal = swUtil::crossProduct(swUtil::vec(l_vP1, l_vP2), swUtil::vec(l_vP1, l_vP3));
         vector<float> l_vNormal = swUtil::crossProduct(swUtil::vec(l_vP1, l_vP2), swUtil::vec(l_vP3, l_vP1));
         swUtil::normalize(l_vNormal);
         m_a3FNonOrientedTrianglesNormals.push_back(l_vNormal);        
-
-        // DEBUG
-//        if(rand()%100== 0)
-//            cout << ii << " " << l_vNormal[0] << " " << l_vNormal[1] << " " << l_vNormal[2] << " " << m_aIdTriangles.size() << endl;
     }
 }
 
@@ -579,19 +666,6 @@ void SWMesh::buildEdgeVertexGraph()
         }
 
     }
-
-    // DEBUG
-//    cout << "END "  << m_ui32EdgesNumber << " " <<edgesNumber() << endl;
-//    for(uint ii = 0; ii < pointsNumber(); ++ii)
-//    {
-//        cout << ii << " -> ";
-//        for(uint jj = 0; jj < m_a2VertexLinks[ii].size(); ++jj)
-//        {
-//            cout << m_a2VertexLinks[ii][jj] << " ";
-//        }
-//        cout << endl;
-//    }
-
 }
 
 void SWMesh::buildVerticesNeighbors()
@@ -614,16 +688,6 @@ void SWMesh::buildVerticesNeighbors()
         }
     }
 
-    // DEBUG
-//    for(uint ii = 0; ii < m_a2VertexNeighbors.size(); ++ii)
-//    {
-//        cout << ii << " -> ";
-//        for(uint jj = 0; jj < m_a2VertexNeighbors[ii].size(); ++jj)
-//        {
-//            cout << m_a2VertexNeighbors[ii][jj] << " ";
-//        }
-//        cout << endl;
-//    }
 }
 
 

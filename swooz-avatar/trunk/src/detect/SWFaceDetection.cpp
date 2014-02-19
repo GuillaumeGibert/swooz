@@ -8,7 +8,6 @@
 
 #include "detect/SWFaceDetection.h"
 
-#include "opencvUtility.h"
 
 using namespace swDetect;
 using namespace swExcept;
@@ -121,15 +120,14 @@ bool SWFaceDetection::detectFace(const cv::Mat &oRgbImg)
     return  false;
 }
 
-void SWFaceDetection::displayFace(cv::Mat &oRgbImg)
+void SWFaceDetection::displayFace(cv::Mat &oRgbImg, cv::Scalar oColor)
 {
-
     if(m_oLastDetectFace.width > 0)
     {
         if(swUtil::isInside(m_oLastDetectFace, oRgbImg))
         {
             cv::rectangle(oRgbImg, cv::Point(m_oLastDetectFace.x, m_oLastDetectFace.y),
-                cv::Point(m_oLastDetectFace.x+m_oLastDetectFace.width, m_oLastDetectFace.y+m_oLastDetectFace.height), RED,1);
+                cv::Point(m_oLastDetectFace.x+m_oLastDetectFace.width, m_oLastDetectFace.y+m_oLastDetectFace.height), oColor,1);
         }
     }
 }
@@ -165,6 +163,114 @@ cv::Point3f SWFaceDetection::computeNoseTip(cv::Mat &oFaceDepth, int &idX, int &
 
     return l_oNoseTip;
 }
+
+//cv::Point3f SWFaceDetection::computeNoseTip(cv::Mat &oFaceDepth, int &idX, int &idY)
+//{
+//    float l_fMinDist = FLT_MAX;
+//    cv::Point3f l_oNoseTip;
+
+//    // find the closest point
+
+//    for(int ii = 0; ii < oFaceDepth.rows; ++ii)
+//    {
+//        for(int jj = 0; jj < oFaceDepth.cols; ++jj)
+//        {
+//            float l_fCurrDepth = oFaceDepth.at<cv::Vec3f>(ii,jj)[2]; // retrieve current depth
+
+//            if(l_fCurrDepth == 0)
+//            {
+//                // if null value of to the next value
+//                continue;
+//            }
+
+//            if(l_fCurrDepth < l_fMinDist)
+//            {
+//                l_fMinDist = l_fCurrDepth;
+//            }
+//        }
+//    }
+
+//    std::cout << "cnt : " << l_fMinDist << std::endl;
+
+//    // ...
+//    bool  l_bNoseTipFound= false;
+//    float l_fFactorClose = 1.01f;
+
+//    for(int ii = 0; ii < oFaceDepth.rows/2; ++ii)
+//    {
+//        for(int jj = 0; jj < oFaceDepth.cols/2; ++jj)
+//        {
+//            float l_fCurrDepthUpRight   = oFaceDepth.at<cv::Vec3f>(oFaceDepth.rows/2 - ii, oFaceDepth.cols/2 + jj)[2];
+//            float l_fCurrDepthUpLeft    = oFaceDepth.at<cv::Vec3f>(oFaceDepth.rows/2 - ii, oFaceDepth.cols/2 - jj)[2];
+
+//            float l_fCurrDepthDownRight = oFaceDepth.at<cv::Vec3f>(oFaceDepth.rows/2 + ii, oFaceDepth.cols/2 + jj)[2];
+//            float l_fCurrDepthDownLeft  = oFaceDepth.at<cv::Vec3f>(oFaceDepth.rows/2 + ii, oFaceDepth.cols/2 - jj)[2];
+
+////            std::cout << "up : "   << oFaceDepth.rows/2 - ii << " "  << jj  << " " << l_fCurrDepthUp << " | ";
+////            std::cout << "down : " << oFaceDepth.rows/2 + ii << " "  << jj  << " " << l_fCurrDepthDown << " | ";
+
+//            // check up
+//            if(l_fCurrDepthUpRight != 0)
+//            {
+//                if(l_fCurrDepthUpRight < l_fFactorClose * l_fMinDist)
+//                {
+//                    idX = oFaceDepth.cols/2 + jj;
+//                    idY = oFaceDepth.rows/2 - ii;
+//                    l_bNoseTipFound = true;
+//                    std::cout << "up right found : " << idX << " " << idY << " " << l_fCurrDepthUpRight << std::endl;
+//                    break;
+//                }
+//            }
+//            if(l_fCurrDepthUpLeft != 0)
+//            {
+//                if(l_fCurrDepthUpLeft < l_fFactorClose * l_fMinDist)
+//                {
+//                    idX = oFaceDepth.cols/2 - jj;
+//                    idY = oFaceDepth.rows/2 - ii;
+//                    l_bNoseTipFound = true;
+//                    std::cout << "up left found : " << idX << " " << idY << " " << l_fCurrDepthUpLeft << std::endl;
+//                    break;
+//                }
+//            }
+
+
+//            // check down
+//            if(l_fCurrDepthDownRight != 0)
+//            {
+//                if(l_fCurrDepthDownRight < l_fFactorClose * l_fMinDist)
+//                {
+//                    idX = oFaceDepth.cols/2 + jj;
+//                    idY = oFaceDepth.rows/2 + ii;
+//                    l_bNoseTipFound = true;
+//                    std::cout << "down right found : " << idX << " " << idY << " " << l_fCurrDepthDownRight << std::endl;
+//                    break;
+//                }
+//            }
+//            if(l_fCurrDepthDownLeft != 0)
+//            {
+//                if(l_fCurrDepthDownLeft < l_fFactorClose * l_fMinDist)
+//                {
+//                    idX = oFaceDepth.cols/2 - jj;
+//                    idY = oFaceDepth.rows/2 + ii;
+//                    l_bNoseTipFound = true;
+//                    std::cout << "down left found : " << idX << " " << idY << " " << l_fCurrDepthDownLeft << std::endl;
+//                    break;
+//                }
+//            }
+
+//        }
+
+//        if(l_bNoseTipFound)
+//        {
+//            break;
+//        }
+//    }
+
+//    l_oNoseTip = oFaceDepth.at<cv::Vec3f>(idY,idX);
+
+//    return l_oNoseTip;
+//}
+
 
 
 //void SWFaceDetection::setFaceHeightRatio(cfloat fRatio)

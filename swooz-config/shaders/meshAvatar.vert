@@ -9,17 +9,15 @@ in vec2 texture_coord;
 
 uniform sampler2D texture2d;
 
-out vec3 N;
-out vec3 V;
-out vec4 T;
-out vec2 TC;
+out vec3 Normal;
+out vec3 Vertex;
+out vec2 TextureCoord;
 
 void main( void )
 {	
-    N  = normal;
-    V  = vertex;
-    T  = texture(texture2d, texture_coord.st);
-    TC = texture_coord;
+    Normal  = normal;
+    Vertex  = vertex;
+    TextureCoord = texture_coord;
 
     gl_Position = mvpMatrix * vec4(vertex,1.0);
 }

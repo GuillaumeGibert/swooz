@@ -222,6 +222,8 @@ void SWGLWidget::resizeGL( int i32Width, int i32Height )
 
 	// set perspective projection
     m_oProjectionMatrix.perspective(l_rFOV, aspect, l_rZNear, l_rZFar);
+
+    updateGL();
 }
 
 

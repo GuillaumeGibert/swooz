@@ -1,25 +1,37 @@
-# $vc10\makefile 0.1 flance for create-avatar module of SWoOZ project using Visual C++
-#
-# Release build: mkdir Release; nmake -nologo CFG=Release -f makefile
-# Debug build: mkdir Debug; nmake -nologo CFG=Debug -f makefile
-#
-# flance lyon nov 2012
-
+# makefile-cuda of swooz-avatar project using Visual C++
+# Florian Lance
+# lyon sept 2013
 
 !IF "$(CFG)" != "Release" &&  "$(CFG)" != "Debug" 
 !ERROR Invalid CFG "($CFG)
 !ENDIF
 
 
+
+
+CUDA=
+
 !IF  "$(CFG)" == "Release"
 
+!IF "$(ARCH)" == "x86"
 CUDA=nvcc --machine 32 -arch=compute_20 -code=sm_20
+!ENDIF
+
+!IF "$(ARCH)" == "amd64"
+CUDA=nvcc --machine 64 -arch=compute_20 -code=sm_20
+!ENDIF
 
 !ENDIF
 
 !IF  "$(CFG)" == "Debug"
 
+!IF "$(ARCH)" == "x86"
 CUDA=nvcc --debug --device-debug  --machine 32
+!ENDIF
+
+!IF "$(ARCH)" == "amd64"
+CUDA=nvcc --debug --device-debug  --machine 64
+!ENDIF
 
 !ENDIF
 
@@ -33,8 +45,15 @@ INC_CUDA=\
 	-I./include/emicp\
 	-I"$(THIRD_PARTY_CUDA)"/include\
 
-all:  $(LIBDIR)/emicp.obj $(LIBDIR)/findRTfromS.obj \
-      $(LIBDIR)/gpuMat.obj \
+################################################  MAKEFILE COMMAND
+
+!IF "$(ARCH)" == "x86"
+all:  $(LIBDIR)/emicp.obj $(LIBDIR)/findRTfromS.obj $(LIBDIR)/gpuMat.obj \
+!ENDIF
+
+!IF "$(ARCH)" == "amd64"
+all:
+!ENDIF
 
 ################################################ EMCIP
 

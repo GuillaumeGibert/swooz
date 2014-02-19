@@ -235,6 +235,41 @@ namespace swUtil
 
         return true; // intersection point is inside
     }
+	
+	/*
+	 * \brief Calculates roll-pitch-yaw angles between two vectors
+	 * \param [in] vecAxis     : ...
+	 * \param [in] vecRotation : ...
+	 */
+	template <typename T>
+	std::vector<T> computeRollPitchYaw(const std::vector<T> & vecAxis, const std::vector<T> & vecRotation)
+	{
+		std::vector<T> vecUp	(3);	vecUp	[0] = 0.;	vecUp	[1] = 1.;	vecUp	[2] = 0.;
+		std::vector<T> vecLeft	(3);	vecLeft	[0] = 1.;	vecLeft	[1] = 0.;	vecLeft	[2] = 0.;
+
+		std::vector<T> vecAxisX (vecAxis);	vecAxisX[0] = 0.;
+		std::vector<T> vecAxisZ (vecAxis);	vecAxisZ[2] = 0.;
+
+		std::vector<T> roll_pitch_yaw (3);
+
+		roll_pitch_yaw[1]	= (vecAxisX[2]>=0?-1:1) * swUtil::vectorAngle(vecAxisX, vecUp);
+		roll_pitch_yaw[0]	= (vecAxisZ[0]>=0?-1:1) * swUtil::vectorAngle(vecAxisZ, vecUp);
+		roll_pitch_yaw[2]	= (vecRotation[1]>=0?1:-1) * swUtil::vectorAngle(vecRotation, vecLeft);
+
+		return roll_pitch_yaw;
+
+	}
+
+    /*
+     * \brief Sets the value of an angle in degrees to the value of the same angle between -180 and 180 degrees.
+     * \param [in] An angle in degrees
+     * \return The same angle in degrees, bound between -180 and 180.
+     */
+    template <typename T>
+    T degree180(T angle)
+    {
+        return angle > 180 ? degree180(angle - 360) : (angle <= -180 ? degree180(angle + 360) : angle);
+    }
 }
 
 #endif

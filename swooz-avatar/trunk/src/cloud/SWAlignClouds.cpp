@@ -24,7 +24,7 @@ SWAlignClouds::SWAlignClouds(cbool bVerbose) :  m_bVerbose(bVerbose), m_fReducti
     // set default emicp parameters
         m_SParam.sigma_p2     = 0.01f;
         m_SParam.sigma_inf    = 0.00001f;
-        m_SParam.sigma_factor = 0.8f;
+        m_SParam.sigma_factor = 0.85f;
         m_SParam.d_02         = 0.01f;
 }
 
