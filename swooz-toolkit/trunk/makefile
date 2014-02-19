@@ -2,10 +2,13 @@
 # Guillaume Gibert / Florian Lance
 # lyon sept 2012
 
-!IF "$(CFG)" != "Release" &&  "$(CFG)" != "Debug" &&  "$(CFG)" != "Profile"
+!IF "$(CFG)" != "Release" &&  "$(CFG)" != "Debug"
 !ERROR Invalid CFG "($CFG)
 !ENDIF
 
+!IF "$(ARCH)" != "x86" &&  "$(ARCH)" != "amd64"
+!ERROR Invalid ARCH "($ARCH)
+!ENDIF
 
 CC=cl
 LINK=link
@@ -33,9 +36,19 @@ FASTRAK_OBJ=\
 TOBII_OBJ=\
     $(LIBDIR)/Tobii.obj\
 
+FILTER_OBJ=\
+    $(LIBDIR)/SWApplyTemporalFilter.obj $(LIBDIR)/SWComputeTemporalFilterCoefficients.obj\
+
 ############################################################################## Makefile commands
 	
+!if  "$(ARCH)" == "x86"
 all: $(KINECT_OBJ) $(FACELAB_OBJ) $(TOBII_OBJ) $(FASTRAK_OBJ) $(BINDIR)/SWDisplayKinectOnDimenco.exe
+#$(FILTER_OBJ)
+!endif
+
+!if "$(ARCH)" == "amd64"
+all:
+!endif
 
 ############################################################################## exe files
 
@@ -71,8 +84,7 @@ $(LIBDIR)/SWDimenco3DDisplay.obj: ./src/devices/dimenco/SWDimenco3DDisplay.cpp
         $(CC) -c ./src/devices/dimenco/SWDimenco3DDisplay.cpp $(CFLAGS_STA) $(SW_SDIMENCO3DPLAY) -Fo"$(LIBDIR)/"
 
 $(LIBDIR)/SWKinectSkeleton.obj: ./src/devices/rgbd/SWKinectSkeleton.cpp
-        $(CC) -c ./src/devices/rgbd/SWKinectSkeleton.cpp $(CFLAGS_STA) $(SW_KINECT_SKELETON) -Fo"$(LIBDIR)/"
-
+	$(CC) -c ./src/devices/rgbd/SWKinectSkeleton.cpp $(CFLAGS_STA) $(SW_KINECT_SKELETON) -Fo"$(LIBDIR)/"
 
 ####### dynamic
 
@@ -101,4 +113,14 @@ $(LIBDIR)/SWLoadKinectData_dynamic.obj: ./src/devices/rgbd/SWLoadKinectData.cpp
         $(CC) -c ./src/devices/rgbd/SWLoadKinectData.cpp $(CFLAGS_DYN) $(SW_LOAD_KINECT_DATA) -Fo"$(LIBDIR)/SWLoadKinectData_dynamic.obj"
 
 $(LIBDIR)/SWKinectSkeleton_dynamic.obj: ./src/devices/rgbd/SWKinectSkeleton.cpp
-        $(CC) -c ./src/devices/rgbd/SWKinectSkeleton.cpp $(CFLAGS_DYN) $(SW_KINECT_SKELETON) -Fo"$(LIBDIR)/SWKinectSkeleton_dynamic.obj"
+	$(CC) -c ./src/devices/rgbd/SWKinectSkeleton.cpp $(CFLAGS_DYN) $(SW_KINECT_SKELETON) -Fo"$(LIBDIR)/SWKinectSkeleton_dynamic.obj"
+
+
+##################################################### filters
+	
+$(LIBDIR)/SWComputeTemporalFilterCoefficients.obj: ./src/filters/SWComputeTemporalFilterCoefficients.cpp
+	$(CC) -c ./src/filters/SWComputeTemporalFilterCoefficients.cpp $(CFLAGS_STA) $(SW_APPLYTEMPFILRER) -Fo"$(LIBDIR)/"
+	
+$(LIBDIR)/SWApplyTemporalFilter.obj: ./src/filters/SWApplyTemporalFilter.cpp
+	$(CC) -c ./src/filters/SWApplyTemporalFilter.cpp $(CFLAGS_STA) $(SW_APPLYTEMPFILRER) -Fo"$(LIBDIR)/"
+

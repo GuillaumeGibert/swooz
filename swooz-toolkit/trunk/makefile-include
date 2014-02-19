@@ -1,4 +1,8 @@
 
+# makefile-include of swooz-tracking project using Visual C++
+# Guillaume Gibert / Florian Lance
+# lyon sept 2013
+
 ################################################################################################################# DEBUG/RELEASE MODE
 
 ############################ DOC CL OPTIONS
@@ -22,16 +26,7 @@
 # -EHsc  : exception model to use : /EHsc -> intercept only C++ exceptions, extern C functions never launch C++ exception.
 # 	   object files go to -Fo
 
-COMPILE_NUMPROC = -MP$(NUMBER_OF_PROCESSORS)
-
-# We include setargv.obj for executables that do command line filename globbing.
-# PROGRAMFILES is inherited from the shell evironment (where it is
-# called ProgramFiles, but nmake converts it to upper case).  This allows us
-# to work with systems that use \Program Files or \Program Files x86.
-SETARGV = "$(VS100COMNTOOLS)/../../VC/lib/setargv.obj"
-
-# we include binmode.obj so files are opened as _O_BINARY, for compatibility with unix
-BINMODE = "$(VS100COMNTOOLS)/../../VC/lib/binmode.obj"
+############################ WIN LIB
 
 WINLIBS=advapi32.lib comctl32.lib comdlg32.lib gdi32.lib shell32.lib user32.lib vfw32.lib winmm.lib
 
@@ -39,6 +34,31 @@ WINLIBS=advapi32.lib comctl32.lib comdlg32.lib gdi32.lib shell32.lib user32.lib 
 
 LIBDIR=./lib
 BINDIR=./bin
+
+
+############################ SET UP FOR THE WANTED ARCH
+
+# We include setargv.obj for executables that do command line filename globbing.
+# PROGRAMFILES is inherited from the shell evironment (where it is
+# called ProgramFiles, but nmake converts it to upper case).  This allows us
+# to work with systems that use \Program Files or \Program Files x86.
+# we include binmode.obj so files are opened as _O_BINARY, for compat with unix
+
+SETARGV = "$(VS100COMNTOOLS)/../../VC/lib/setargv.obj"
+BINMODE = "$(VS100COMNTOOLS)/../../VC/lib/binmode.obj"
+
+!IF "$(ARCH)" != "x86"
+SETARGV = "$(VS100COMNTOOLS)/../../VC/lib/amd64/setargv.obj"
+BINMODE = "$(VS100COMNTOOLS)/../../VC/lib/amd64/binmode.obj"
+
+THIRD_PARTY_OPENNI      = $(THIRD_PARTY_OPENNI_64)
+THIRD_PARTY_OPENCV      = $(THIRD_PARTY_OPENCV_64)
+THIRD_PARTY_POLHEMUS    = $(THIRD_PARTY_POLHEMUS_64)
+THIRD_PARTY_TOBII       = $(THIRD_PARTY_TOBII_64)
+THIRD_PARTY_BOOST       = $(THIRD_PARTY_BOOST_64)
+THIRD_PARTY_FACELAB     = $(THIRD_PARTY_FACELAB_64)
+!ENDIF
+
 
 ############################ INCLUDES
 
@@ -62,6 +82,8 @@ INC_FACELAB     = -I$(THIRD_PARTY_FACELAB)/coredata/include\
 INC_TOBII       = -I$(THIRD_PARTY_TOBII)/win32/includes\
 
 INC_OPENNI	= -I$(THIRD_PARTY_OPENNI)/Include
+
+#INC_ITPP        = -I"$(THIRD_PARTY_ITPP)"\include
 
 ############################ DEPENDENCIES
 
@@ -91,21 +113,23 @@ SW_SDIMENCO3DPLAY   	= $(COMMON) $(INC_OPENCV)
 
 SW_MAIN                 = $(COMMON) $(INC_OPENCV)
 
+#SW_APPLYTEMPFILRER      = $(COMMON) $(INC_ITPP)
+
 ################################################################################################################# RELEASE MODE
 
 !IF  "$(CFG)" == "Release"
 
 ############################ FLAGS
 
-CFLAGS_STA = -nologo -O2 -GF -Gy -W3 -MT -EHsc -DWIN32 $(COMPILE_NUMPROC)
-CFLAGS_DYN = -nologo -O2 -GF -Gy -W3 -MD -EHsc -DWIN32 $(COMPILE_NUMPROC)
+CFLAGS_STA = -nologo -O2 -GF -Gy -W3 -MT -EHsc -DWIN32 -MP$(NUMBER_OF_PROCESSORS)
+CFLAGS_DYN = -nologo -O2 -GF -Gy -W3 -MD -EHsc -DWIN32 -MP$(NUMBER_OF_PROCESSORS)
 
 LFLAGS=-nologo -nodefaultlib:MSVCPRT
 
 ############################ LIBS
 
 LIBS_COMMON=\
-    "$(PROGRAMFILES)\Microsoft SDKs\Windows\v7.0A\Lib/ws2_32.lib"\
+#    "$(PROGRAMFILES)\Microsoft SDKs\Windows\v7.0A\Lib/ws2_32.lib"\
 
 LIBS_OPENNI=\
     $(THIRD_PARTY_OPENNI)/Lib/openNI.lib\
