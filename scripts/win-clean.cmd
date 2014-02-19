@@ -19,7 +19,7 @@ REM ############################################################################
 REM #######################################################################################
 REM ## start the initialisation of variables: path, classpath, branches...
 
-call "win32-init_env_command.cmd"
+call "win-init_env_command.cmd" noPATH
 
 REM #######################################################################################
 
@@ -49,11 +49,11 @@ for /F %%s in (%SW_build_order%) do (
             rmdir moc /s /q
             mkdir moc
         )
-		
+
         if exist ./genUI/nul (
             rmdir genUI /s /q
             mkdir genUI
-        )		
+        )
 
 	popd
 )

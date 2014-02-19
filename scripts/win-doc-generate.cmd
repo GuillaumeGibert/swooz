@@ -2,7 +2,7 @@
 
 REM ############################################################################ SET PATH
 echo.
-call "win32-init_env_command.cmd"
+call "win-init_env_command.cmd" noPATH
 REM set saved_directory=%CD%
 REM set target_dist=..\dist
 echo.
@@ -22,13 +22,13 @@ for /F %%s in (%SW_build_order%) do (
 	
 	pushd %%s
 	
-	call "win32-generate_doc.cmd"
+        call "win-generate_doc.cmd"
 		
 	popd	
 )
 
 REM ############################################################################ CLEAN PATH
 echo.
-call "win32-clean-env_command.cmd"
+call "win-clean-env_command.cmd"
 echo.
 
