@@ -302,7 +302,7 @@ $(LIBDIR)/sparsemat.obj: ./src/stasm/sparsemat.cpp
 ############################################################################## Qt ui files
 
 $(INCDIR_QTGENW)/SWMainWindow.h: $(FORMDIR)/SWMainWindow.ui  
-	uic $(FORMDIR)/SWMainWindow.ui -o $@
+        uic $(FORMDIR)/SWMainWindow.ui -o $@
 
 $(INCDIR_QTGENW)/SWUI_WMeshCorr.h: $(FORMDIR)/SWUI_WMeshCorr.ui
         uic $(FORMDIR)/SWUI_WMeshCorr.ui -o $@

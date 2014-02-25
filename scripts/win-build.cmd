@@ -262,11 +262,24 @@ echo cd ../../scripts                                                           
 echo call win-clean-env_command.cmd                                                   >> %target_dist%\swooz-trackingForth.cmd
 echo cd ../dist                                                                         >> %target_dist%\swooz-trackingForth.cmd
 REM #######################################################################################
+REM ### Manipulation
+echo @echo off                                                                          >  %target_dist%\swooz-manipulation.cmd
+echo %SystemRoot%\system32\xcopy /q /e /y %saved_directory%\..\swooz-config %saved_directory%\%target_dist%\data >> %target_dist%\swooz-manipulation.cmd
+echo pushd ..\scripts                                                                   >> %target_dist%\swooz-manipulation.cmd
+echo call win-init_env_command.cmd %ARCH_EXE_manipulation%                           >> %target_dist%\swooz-manipulation.cmd
+echo popd                                                                               >> %target_dist%\swooz-manipulation.cmd
+echo cd bin                                                                             >> %target_dist%\swooz-manipulation.cmd
+echo SWManipulation.exe                                                                >> %target_dist%\swooz-manipulation.cmd
+echo cd ../../scripts                                                                   >> %target_dist%\swooz-manipulation.cmd
+echo call win-clean-env_command.cmd                                                   >> %target_dist%\swooz-manipulation.cmd
+echo cd ../dist                                                                         >> %target_dist%\swooz-manipulation.cmd
+REM #######################################################################################
 echo.
 echo Install completed !
 echo.
 
 REM ####################################################################################### COPY SWOOZ-CONFIG TO DIST
+
 %SystemRoot%\system32\xcopy /q /e /y %saved_directory%\..\swooz-config %saved_directory%\%target_dist%\data
 
 echo.

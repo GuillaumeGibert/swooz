@@ -14,6 +14,7 @@ SET ARCH_EXE_testCode=x86
 SET ARCH_EXE_toolkit_kinectOnDimenco=x86
 SET ARCH_EXE_3dclient_dummy=x86
 SET ARCH_EXE_3dplayer=x86
+SET ARCH_EXE_manipulation=x86
 REM ########################################################################################################################
 
 
@@ -75,7 +76,6 @@ SET SW_player_branch=
 REM
 REM ########################################################################################################################
 
-
 REM ########################################################################################################################
 REM ## TOOLKIT
 REM
@@ -88,12 +88,12 @@ REM ############################################################################
 
 
 REM ########################################################################################################################
-REM ## TOBII SECTION BRANCH VALUE
+REM ## MANIPULATION SECTION BRANCH VALUE
 REM
 REM ## these variables SET each project branch
-REM SET SW_tobii=%SW_base%\swooz-tobii
+SET SW_manipulation=%SW_base%\swooz-manipulation
 REM
-REM SET SW_tobii_branch=
+SET SW_manipulation_branch=
 REM
 REM ########################################################################################################################
 
@@ -117,6 +117,8 @@ REM  TRACKING
 if "%SW_tracking_branch%" == "" SET SW_tracking_branch=%SW_default_branch%
 REM TELEOPERATION
 if "%SW_teleoperation_branch%" == "" SET SW_teleoperation_branch=%SW_default_branch%
+REM MANIPULATION
+if "%SW_manipulation_branch%" == "" SET SW_manipulation_branch=%SW_default_branch%
 REM ########################################################################################################################
 
 
@@ -274,6 +276,7 @@ echo %SW_toolkit%\%SW_toolkit_branch% >> %SW_build_order%
 echo %SW_avatar%\%SW_avatar_branch% >> %SW_build_order%
 echo %SW_tracking%\%SW_tracking_branch% >> %SW_build_order%
 echo %SW_teleoperation%\%SW_teleoperation_branch% >> %SW_build_order%
+echo %SW_manipulation%\%SW_manipulation_branch% >> %SW_build_order%
 
 REM
 REM ########################################################################################################################
