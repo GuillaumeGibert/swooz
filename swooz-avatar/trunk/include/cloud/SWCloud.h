@@ -457,6 +457,13 @@ namespace swCloud
 			 */		
 			bool retrieveCloudPart(SWCloud &oCloudPart, cuint32 ui32BeginIndexPoint, cuint32 ui32EndIndexPoint);
 
+
+            /**
+             * @brief Delete all the points of the cloud which are outside the input BBox.
+             * @param [in] oCloudBBox : bbox
+             */
+            void keepOnlyPointInsideBBox(const SWCloudBBox &oCloudBBox);
+
 			/**
 			 * \brief Get a copy of all the points coordinates in an array [x0,y0,z0,x1,y1,z1,...,xn,yn,zn] (used for opengl)
 			 * \return the float array

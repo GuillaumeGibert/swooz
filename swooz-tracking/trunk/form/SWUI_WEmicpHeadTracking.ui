@@ -18,7 +18,7 @@
     <item>
      <layout class="QVBoxLayout" name="vlMain" stretch="6,1">
       <item>
-       <layout class="QGridLayout" name="glDisplay">
+       <layout class="QGridLayout" name="glDisplay" rowstretch="2,1">
         <item row="0" column="1">
          <widget class="QGroupBox" name="gbClouds">
           <property name="title">
@@ -433,6 +433,22 @@
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
+ <tabstops>
+  <tabstop>dsbP2</tabstop>
+  <tabstop>dsbINF</tabstop>
+  <tabstop>dsbFactor</tabstop>
+  <tabstop>dsbD02</tabstop>
+  <tabstop>dsbTemplateCloudReduction</tabstop>
+  <tabstop>dsbTargetCloudReduction</tabstop>
+  <tabstop>dsbScoreComputingReduction</tabstop>
+  <tabstop>cbSmoothRigidMotion</tabstop>
+  <tabstop>sbKSmooth</tabstop>
+  <tabstop>dsbKTransSmoothConst</tabstop>
+  <tabstop>dsbKRotSmoothConst</tabstop>
+  <tabstop>pbStart</tabstop>
+  <tabstop>pbStop</tabstop>
+  <tabstop>cbExpertMode</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

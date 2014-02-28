@@ -180,8 +180,42 @@ double SWGLOptimalStepNonRigidICP::morph(cdouble dAlpha)
 }
 
 void SWGLOptimalStepNonRigidICP::saveCurrentMeshToObj(const QString &sPath)
-{
-    m_pOSNRICP->m_oSourceMesh.saveToObj(sPath.toStdString());
+{    
+    int l_i32SeparatorsNb = 0;
+    QString l_sName(sPath);
+    for(int ii = 0; ii < sPath.size(); ++ii)
+    {
+        if(sPath[ii] == '/' || sPath[ii] == '\\')
+        {
+            ++l_i32SeparatorsNb;
+        }
+    }
+
+    int ii = 0;
+    while(ii < l_i32SeparatorsNb)
+    {
+        if(l_sName[0] == '/' || l_sName[0] == '\\')
+        {
+            ++ii;
+        }
+
+        l_sName.remove(0, 1);
+    }
+
+    QString l_sNameOBJ(l_sName);
+    l_sName.remove(l_sName.size()-3, l_sName.size());
+    l_sName.append("mtl");
+    QString l_sNameMTL(l_sName);
+
+    QString l_sPath(sPath);
+    l_sPath.remove(l_sPath.size() - l_sNameOBJ.size(), l_sNameOBJ.size());
+
+    qDebug() << "Path : " << l_sPath;
+    qDebug() << "Save OBJ file : " << l_sNameOBJ;
+    qDebug() << "Save Material file : " << l_sNameMTL;
+
+    m_pOSNRICP->m_oSourceMesh.saveToObj(sPath.toStdString(), l_sNameOBJ.toStdString(), l_sNameMTL.toStdString());
+//    m_pOSNRICP->m_oSourceMesh.saveToObj(sPath.toStdString());
 }
 
 void SWGLOptimalStepNonRigidICP::setCloudSDisplay(bool bVal)

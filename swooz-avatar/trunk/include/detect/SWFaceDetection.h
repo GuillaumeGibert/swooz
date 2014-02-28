@@ -64,11 +64,18 @@ namespace swDetect
             /**
              * @brief computeNoseTip
              * @param oFaceDepth
-             * @param idX
-             * @param idY
-             * @return
+             * @param [out] idX : nose tip X position in oFaceDepth
+             * @param [out] idY : nose tip Y position in oFaceDepth
+             * @return noseTip
              */
             cv::Point3f computeNoseTip(cv::Mat &oFaceDepth, int &idX, int &idY);
+
+            /**
+             * @brief setRectRatios
+             * @param [in] fWidthRatio  : width rectangle ratio
+             * @param [in] fHeightRatio : height rectangle ratio
+             */
+            void setRectRatios(cfloat fWidthRatio, cfloat fHeightRatio);
 
         private :
 
@@ -91,7 +98,9 @@ namespace swDetect
 		
             float m_fWidthRatioImageToDetect;       /**< width detection ratio of the image */
             float m_fHeightRatioImageToDetect;      /**< height detection ratio of the image */
-            float m_fFaceHeightRatio;               /**< ... */
+
+            float m_fFaceHeightRatio;               /**< face rectangle height ratio */
+            float m_fFaceWidthRatio;                /**< face rectnagle width ratio */
 			
             cv::Size    m_oMinDetectFaceSize;       /**< minimum size of the detected faces */
 

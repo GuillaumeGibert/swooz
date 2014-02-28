@@ -10,11 +10,10 @@
 #include "stdafx.h"
 
 using namespace swDetect;
-using namespace swDevice;
 using namespace swExcept;
 
-SWStasm::SWStasm(const SWKinectParams &oKinectParams, const std::string &sConfFile0Path, const std::string &sConfFile1Path) :
-	m_CKinectParams(oKinectParams), m_sConfFile0(sConfFile0Path), m_sConfFile1(sConfFile1Path)
+SWStasm::SWStasm(const std::string &sConfFile0Path, const std::string &sConfFile1Path) :
+    m_sConfFile0(sConfFile0Path), m_sConfFile1(sConfFile1Path)
 {
 	// init result features points array
     m_oFeaturesPoints.assign(68, cv::Point2i(0,0));
@@ -43,18 +42,12 @@ SWStasm::~SWStasm()
 
 }
 
-void SWStasm::setKinectParams(const SWKinectParams &oKinectParams)
-{
-	m_CKinectParams = oKinectParams;
-}
-
 void SWStasm::resetParams()
 {
 	m_bInitFirstShape= false;		
 	m_oInitShape	 = SHAPE();
 	m_oCombinedShape = SHAPE();	
 }
-
 
 void SWStasm::convRectToStasmDetParams(const cv::Rect &oCurrAugmentedRectFace, const cv::Rect &oCurrRectFace, DET_PARAMS &oDetParams)
 {
@@ -97,14 +90,8 @@ bool SWStasm::launchAsmSearch(const cv::Mat &oCurrRgbMat,  cv::Rect &oCurrFaceRe
 	try
 	{		
 		DET_PARAMS l_oDetParams;
-		cv::Mat l_oCurrRgbMatResized = oCurrRgbMat.clone();
-		
-		// resize the rgb mat
-		if(m_CKinectParams.m_oOriginalSize != m_CKinectParams.m_oVideoSize)
-		{
-			resize(l_oCurrRgbMatResized,l_oCurrRgbMatResized, m_CKinectParams.m_oVideoSize);
-		}		
-		
+		cv::Mat l_oCurrRgbMatResized = oCurrRgbMat.clone();		
+
 		// init augmented face rectangle
 		cv::Rect l_oAugmentedFaceRect = oCurrFaceRect;
 		cv::Mat l_oFaceRgbMat;		

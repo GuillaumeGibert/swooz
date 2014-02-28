@@ -18,11 +18,11 @@
 
 
 SWCreateAvatarInterface::SWCreateAvatarInterface(QWidget *oQWRelative) : QMainWindow(oQWRelative), m_uiCreateAvatar(new Ui::SWUI_WCreateAvatar),
-//  , m_bFaceRectInitialise(false), m_bDetectionStopped(false)
   m_oTimer(new QBasicTimer)
 {
     m_pCloudToDisplay = NULL;
     m_bWorkStarted = false;
+    m_bResetKinect = false;
 
     // init rects
         m_oFaceRect.width = 0;
@@ -46,8 +46,11 @@ SWCreateAvatarInterface::SWCreateAvatarInterface(QWidget *oQWRelative) : QMainWi
     m_WRGBDisplay =  new SWDisplayImageWidget(this);
     m_uiCreateAvatar->hlRGB->addWidget(m_WRGBDisplay);
     //      radial proj
-    m_WRadialProjDisplay =  new SWDisplayImageWidget(this);
+    m_WRadialProjDisplay =  new SWDisplayImageWidget(this, true, true);
     m_uiCreateAvatar->hlRadial->addWidget(m_WRadialProjDisplay);
+    //      face texture
+    m_WFaceTextureDisplay =  new SWDisplayImageWidget(this);
+    m_uiCreateAvatar->hlFaceTexture->addWidget(m_WFaceTextureDisplay);
 
     //	cloud gl widget
     m_WCloudGL = new SWGLCloudWidget(l_glContext1, this);
@@ -58,7 +61,7 @@ SWCreateAvatarInterface::SWCreateAvatarInterface(QWidget *oQWRelative) : QMainWi
     m_uiCreateAvatar->hlMesh->addWidget(m_WMeshGL);
 
 	// init workers
-    m_WCreateAvatar = new SWCreateAvatarWorker(0);
+    m_WCreateAvatar = new SWCreateAvatarWorker(&m_oKinectThread);
 
     // set connections
     //      start work
@@ -69,6 +72,13 @@ SWCreateAvatarInterface::SWCreateAvatarInterface(QWidget *oQWRelative) : QMainWi
         QObject::connect(m_uiCreateAvatar->pbStop, SIGNAL(clicked()), m_WCreateAvatar, SLOT(stopWork()));
         QObject::connect(this, SIGNAL(leaveProgram()), m_WCreateAvatar, SLOT(stopWork()));
         QObject::connect(m_WCreateAvatar, SIGNAL(stopWorkSignal()), SLOT(switchDetect()));
+
+    //      reconstruct
+        QObject::connect(m_uiCreateAvatar->pbReconstruct, SIGNAL(clicked()), m_WCreateAvatar, SLOT(reconstruct()));
+
+    //      reset selected contours
+        QObject::connect(m_uiCreateAvatar->pbResetSelectedContours, SIGNAL(clicked()), m_WCreateAvatar,      SLOT(resetDeletedPointsRadialProj()));
+        QObject::connect(m_uiCreateAvatar->pbResetSelectedContours, SIGNAL(clicked()), m_WRadialProjDisplay, SLOT(resetSelectedPoints()));
 
     //      rectangles
         QObject::connect(m_WCreateAvatar, SIGNAL(sendFaceRect(cv::Rect*)), this, SLOT(updateFaceRectangle(cv::Rect*)));
@@ -90,62 +100,79 @@ SWCreateAvatarInterface::SWCreateAvatarInterface(QWidget *oQWRelative) : QMainWi
         QObject::connect(m_WCreateAvatar, SIGNAL(enableInterfaceSignal()), this,   SLOT(enableInterface()));
 
     //      display
-        QObject::connect(m_WCreateAvatar, SIGNAL(sendMat(cv::Mat*)), this,      SLOT(updateRadialProjDisplay(cv::Mat*)));
-        QObject::connect(m_WCreateAvatar, SIGNAL(sendTexture(cv::Mat*)), this,  SLOT(udpdateTexture3DDisplay(cv::Mat*)));
+        QObject::connect(m_WCreateAvatar, SIGNAL(sendMat(cv::Mat*)),     this,  SLOT(updateRadialProjDisplay(cv::Mat*)));
+        QObject::connect(m_WCreateAvatar, SIGNAL(sendTexture(cv::Mat*)), this,  SLOT(udpdateTexture3DDisplay(cv::Mat*)));        
+        QObject::connect(m_WCreateAvatar, SIGNAL(sendTexture(cv::Mat*)), this,  SLOT(updateFaceTextureDisplay(cv::Mat*)));
 
     //      parameters
+    //          projection
         QObject::connect(m_uiCreateAvatar->sbWidth,     SIGNAL(valueChanged(int)),  m_WCreateAvatar,  SLOT(setRadialWidth(const int)));
         QObject::connect(m_uiCreateAvatar->sbHeight,    SIGNAL(valueChanged(int)),  m_WCreateAvatar,  SLOT(setRadialHeight(const int)));
+        QObject::connect(m_uiCreateAvatar->dsbRadius,   SIGNAL(valueChanged(double)),m_WCreateAvatar, SLOT(setCylinderRadius(double)));
+        QObject::connect(m_uiCreateAvatar->sbErode,     SIGNAL(valueChanged(int)),  m_WCreateAvatar,  SLOT(setErode(int)));
+        QObject::connect(m_uiCreateAvatar->sbDilate,    SIGNAL(valueChanged(int)),  m_WCreateAvatar,  SLOT(setDilate(int)));
+        QObject::connect(m_uiCreateAvatar->sbExpandValue,SIGNAL(valueChanged(int)), m_WCreateAvatar,  SLOT(setExpandValue(int)));
+        QObject::connect(m_uiCreateAvatar->sbExpandConnex,SIGNAL(valueChanged(int)), m_WCreateAvatar,  SLOT(setExpandConnex(int)));
+        QObject::connect(m_uiCreateAvatar->sbEraseValue,SIGNAL(valueChanged(int)), m_WCreateAvatar,  SLOT(setEraseValue(int)));
+        QObject::connect(m_uiCreateAvatar->sbEraseConnex,SIGNAL(valueChanged(int)), m_WCreateAvatar,  SLOT(setEraseConnex(int)));
+    //          filter
         QObject::connect(m_uiCreateAvatar->sbColor,     SIGNAL(valueChanged(int)),  m_WCreateAvatar,  SLOT(setBilateralColor(const int)));
         QObject::connect(m_uiCreateAvatar->sbSpace,     SIGNAL(valueChanged(int)),  m_WCreateAvatar,  SLOT(setBilateralSpace(const int)));
         QObject::connect(m_uiCreateAvatar->sbDiameter,  SIGNAL(valueChanged(int)),  m_WCreateAvatar,  SLOT(setBilateralDiameter(const int)));
         QObject::connect(m_uiCreateAvatar->sbClouds,    SIGNAL(valueChanged(int)),  m_WCreateAvatar,  SLOT(setCloudNumberValue(const int)));
+        QObject::connect(m_uiCreateAvatar->cbBilateralFilter,SIGNAL(toggled(bool)) ,m_WCreateAvatar,  SLOT(setUseBilateralFilter(bool)));
+    //          rgbd device
         QObject::connect(m_uiCreateAvatar->sbXOffset,   SIGNAL(valueChanged(int)),  m_WCreateAvatar,  SLOT(setCalibrationXValue(const int)));
         QObject::connect(m_uiCreateAvatar->sbYOffset,   SIGNAL(valueChanged(int)),  m_WCreateAvatar,  SLOT(setCalibrationYValue(const int)));
-        QObject::connect(m_uiCreateAvatar->dsbRadius,   SIGNAL(valueChanged(double)),m_WCreateAvatar, SLOT(setCylinderRadius(double)));
-        QObject::connect(m_uiCreateAvatar->cbBilateralFilter,SIGNAL(toggled(bool)) ,m_WCreateAvatar,  SLOT(setUseBilateralFilter(bool)));
+        QObject::connect(m_uiCreateAvatar->dsbFaceDepth,SIGNAL(valueChanged(double)),  m_WCloudGL,      SLOT(setDepthRect(const double)));
+        QObject::connect(m_uiCreateAvatar->dsbFaceDepth,SIGNAL(valueChanged(double)),  m_WCreateAvatar, SLOT(setDepthCloud(const double)));
+    //          misc
         QObject::connect(m_uiCreateAvatar->cbSTASM,     SIGNAL(toggled(bool))      ,m_WCreateAvatar,  SLOT(setUseStasm(bool)));
-        QObject::connect(m_uiCreateAvatar->sbErode,     SIGNAL(valueChanged(int)),  m_WCreateAvatar,  SLOT(setErode(int)));
-        QObject::connect(m_uiCreateAvatar->sbDilate,    SIGNAL(valueChanged(int)),  m_WCreateAvatar,  SLOT(setDilate(int)));
+    //          display
         QObject::connect(m_uiCreateAvatar->cbDisplayLines,   SIGNAL(toggled(bool)), m_WMeshGL,        SLOT(setMeshLinesRender(const bool)));
         QObject::connect(m_uiCreateAvatar->cbApplyTexture,   SIGNAL(toggled(bool)), m_WMeshGL,        SLOT(applyTexture(bool)));
+        QObject::connect(m_uiCreateAvatar->dsbFOV,      SIGNAL(valueChanged(double)),m_WMeshGL,       SLOT(setFOV(const double)));
+        QObject::connect(m_uiCreateAvatar->dsbFOV,      SIGNAL(valueChanged(double)),m_WCloudGL,      SLOT(setFOV(const double)));
+        QObject::connect(m_WCreateAvatar,               SIGNAL(sendNumCloud(int)),  this,             SLOT(setNumCloud(const int)));
+
+    //      reset kinect
+        QObject::connect(m_uiCreateAvatar->sbDeviceMode,SIGNAL(valueChanged(int)),  this,             SLOT(resetKinect(int)));
+        QObject::connect(m_WCreateAvatar,   SIGNAL(endResetKinect()),   this,       SLOT(releaseKinectMutex()));
+
+    //      others
+        QObject::connect(m_WRadialProjDisplay, SIGNAL(clickPoint(QPoint, QSize)), m_WCreateAvatar,   SLOT(addPointToDeleteRadialProj(QPoint, QSize)));
 
     // init worker parameters values
-        m_WCreateAvatar->setRadialWidth(m_uiCreateAvatar->sbWidth->value());
-        m_WCreateAvatar->setRadialHeight(m_uiCreateAvatar->sbHeight->value());
-        m_WCreateAvatar->setBilateralColor(m_uiCreateAvatar->sbColor->value());
-        m_WCreateAvatar->setBilateralSpace(m_uiCreateAvatar->sbSpace->value());
-        m_WCreateAvatar->setBilateralDiameter(m_uiCreateAvatar->sbDiameter->value());
-        m_WCreateAvatar->setCloudNumberValue(m_uiCreateAvatar->sbClouds->value());
-        m_WCreateAvatar->setCalibrationXValue(m_uiCreateAvatar->sbXOffset->value());
-        m_WCreateAvatar->setCalibrationYValue(m_uiCreateAvatar->sbYOffset->value());
+        // radial projection width / height
+            m_WCreateAvatar->setRadialWidth(m_uiCreateAvatar->sbWidth->value());
+            m_WCreateAvatar->setRadialHeight(m_uiCreateAvatar->sbHeight->value());
+        // spatial filter
+            m_WCreateAvatar->setBilateralColor(m_uiCreateAvatar->sbColor->value());
+            m_WCreateAvatar->setBilateralSpace(m_uiCreateAvatar->sbSpace->value());
+            m_WCreateAvatar->setBilateralDiameter(m_uiCreateAvatar->sbDiameter->value());
+        // temporal filter
+            m_WCreateAvatar->setCloudNumberValue(m_uiCreateAvatar->sbClouds->value());
+        // calibration
+            m_WCreateAvatar->setCalibrationXValue(m_uiCreateAvatar->sbXOffset->value());
+            m_WCreateAvatar->setCalibrationYValue(m_uiCreateAvatar->sbYOffset->value());
+        // expand / erase
+            m_WCreateAvatar->setExpandValue(m_uiCreateAvatar->sbExpandValue->value());
+            m_WCreateAvatar->setExpandConnex(m_uiCreateAvatar->sbExpandConnex->value());
+            m_WCreateAvatar->setEraseValue(m_uiCreateAvatar->sbEraseValue->value());
+            m_WCreateAvatar->setEraseConnex(m_uiCreateAvatar->sbEraseConnex->value());
+        // dilate / erode
+            m_WCreateAvatar->setDilate(m_uiCreateAvatar->sbDilate->value());
+            m_WCreateAvatar->setErode(m_uiCreateAvatar->sbErode->value());
+
+        // cloud
+            m_WCloudGL->setDepthRect(m_uiCreateAvatar->dsbFaceDepth->value());
+            m_WCreateAvatar->setDepthCloud(m_uiCreateAvatar->dsbFaceDepth->value());
+
+
 
     // init and start create avatar thread
         m_WCreateAvatar->moveToThread(&m_TCreateAvatar);
         m_TCreateAvatar.start();
-
-    // init kinect thread used by the display widget
-        if(m_oKinectThread.init(0) != -1)
-        {
-            try
-            {
-                m_oKinectThread.startListening();
-
-                while(!m_oKinectThread.isDataAvailable())
-                {
-                    QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
-                }
-
-                cv::Mat l_oRGB   = m_oKinectThread.bgrImage();
-                cv::Mat l_oCloud = m_oKinectThread.cloudMap();
-                m_CKinectParams = swDevice::SWKinectParams(m_oKinectThread.captureMode(), cv::Size(l_oRGB.cols, l_oCloud.rows));
-                m_oKinectThread.setRecalibration(true, m_CKinectParams.m_i32OffsetRgbX, m_CKinectParams.m_i32OffsetRgbY);
-            }
-            catch(const swExcept::kinectInitError &e)
-            {
-                std::cerr << "-ERROR : " << e.what() << std::endl;
-            }
-        }
 
     // init face detection
         m_CFaceDetectPtr = SWFaceDetectionPtr(new swDetect::SWFaceDetection(cv::Size(80,80)));
@@ -154,7 +181,6 @@ SWCreateAvatarInterface::SWCreateAvatarInterface(QWidget *oQWRelative) : QMainWi
     // launch timer for updating the display widget
         m_oTimer->start(1000/30, this);
 }
-
 
 SWCreateAvatarInterface::~SWCreateAvatarInterface()
 {
@@ -171,11 +197,18 @@ SWCreateAvatarInterface::~SWCreateAvatarInterface()
         deleteAndNullify(m_pCloudToDisplay);
 }
 
-
 void SWCreateAvatarInterface::timerEvent(QTimerEvent *e)
 {
     Q_UNUSED(e);
-    updateDisplay();
+
+    m_oResetKinectMutex.lockForRead();
+        bool l_bDoDisplay  = !m_bResetKinect;        
+    m_oResetKinectMutex.unlock();
+
+    if(l_bDoDisplay)
+    {
+        updateDisplay();
+    }
 }
 
 void SWCreateAvatarInterface::closeEvent(QCloseEvent *event)
@@ -211,9 +244,24 @@ void SWCreateAvatarInterface::switchDetect()
 
 void SWCreateAvatarInterface::updateDisplay()
 {
+    if(!m_oKinectThread.isDataAvailable())
+    {
+        qWarning() << "Kinect data not available, display disactivated. ";
+        return;
+    }
+
     // get the current image from the kinect
-        cv::Mat l_oBGR   = m_oKinectThread.bgrImage();
-        cv::Mat l_oCloud = m_oKinectThread.cloudMap();
+        cv::Mat l_oBGR, l_oCloud;
+        l_oBGR   = m_oKinectThread.bgrImage().clone();
+        l_oCloud = m_oKinectThread.cloudMap().clone();
+
+    // check size mat
+        if(l_oBGR.rows != l_oCloud.rows)
+        {
+           cv::resize(l_oBGR, l_oBGR, cv::Size(l_oCloud.cols,l_oCloud.rows));
+        }
+
+    // remove background
         cv::Mat l_oBGRForeGround = swImage::swUtil::removeBackground(l_oBGR, l_oCloud);
 
     m_oMutex.lockForRead();
@@ -247,26 +295,33 @@ void SWCreateAvatarInterface::updateDisplay()
     }
     else if(l_oFaceRectangle.width > 0)
     {
-        if(swUtil::isInside(l_oFaceRectangle, l_oBGR))
-        {
-            cv::rectangle(l_oBGR, cv::Point(l_oFaceRectangle.x, l_oFaceRectangle.y),
-                cv::Point(l_oFaceRectangle.x+l_oFaceRectangle.width, l_oFaceRectangle.y+l_oFaceRectangle.height), RED,1);
-        }
+        // display face rectangle
+            if(swUtil::isInside(l_oFaceRectangle, l_oBGR))
+            {
+                cv::rectangle(l_oBGR, cv::Point(l_oFaceRectangle.x, l_oFaceRectangle.y),
+                    cv::Point(l_oFaceRectangle.x+l_oFaceRectangle.width, l_oFaceRectangle.y+l_oFaceRectangle.height), RED,1);
+            }
 
-        if(swUtil::isInside(l_oNoseRectangle,l_oBGR))
-        {
-            cv::rectangle(l_oBGR, cv::Point(l_oNoseRectangle.x, l_oNoseRectangle.y),
-                    cv::Point(l_oNoseRectangle.x + l_oNoseRectangle.width, l_oNoseRectangle.y + l_oNoseRectangle.height), RED,1);
-        }
+        // display nose rectangle
+            if(swUtil::isInside(l_oNoseRectangle,l_oBGR))
+            {
+                cv::rectangle(l_oBGR, cv::Point(l_oNoseRectangle.x, l_oNoseRectangle.y),
+                        cv::Point(l_oNoseRectangle.x + l_oNoseRectangle.width, l_oNoseRectangle.y + l_oNoseRectangle.height), RED,1);
+            }
 
-        // display feature points
+        // display stasm feature points
             for(uint ii = 0; ii < m_vP2IStasmPoints.size(); ++ii)
             {
                 cv::circle(l_oBGR, m_vP2IStasmPoints[ii], 1, BLUE);
             }
+
+        // display num cloud
+            std::ostringstream l_osNumCloud, l_osTotalCloud;
+            l_osNumCloud << m_i32NumCloud;
+            l_osTotalCloud << m_uiCreateAvatar->sbClouds->value();
+            swUtil::displayTextDownRight(l_oBGR, std::string(l_osNumCloud.str() + " / " + l_osTotalCloud.str() ));
     }
 
-//    swUtil::displayFPS(l_oBGR);
     // update display image widget
         m_WRGBDisplay->refreshDisplay(swConv::mat2QImage(l_oBGR));
 }
@@ -286,14 +341,46 @@ void SWCreateAvatarInterface::updateRadialProjDisplay(cv::Mat *pRadialProj)
     m_WRadialProjDisplay->refreshDisplay(swConv::mat2QImage(l_oRadialGray));
 }
 
+void SWCreateAvatarInterface::updateFaceTextureDisplay(cv::Mat *pFaceTexture)
+{
+    m_WFaceTextureDisplay->refreshDisplay(swConv::mat2QImage(*pFaceTexture));
+}
+
 void SWCreateAvatarInterface::udpdateTexture3DDisplay(cv::Mat *pTexture)
 {
     m_WMeshGL->setTexture(swConv::mat2QImage(*pTexture));
 }
 
+void SWCreateAvatarInterface::resetKinect(const int i32VideoMode)
+{
+    m_oResetKinectMutex.lockForWrite();
+        m_bResetKinect = true;
+    m_oResetKinectMutex.unlock();
+
+    m_WCreateAvatar->resetKinect(i32VideoMode);
+
+}
+
+void SWCreateAvatarInterface::releaseKinectMutex()
+{
+    m_oResetKinectMutex.lockForWrite();
+        m_bResetKinect = false;
+        m_oResetKinectMutex.unlock();
+}
+
+void SWCreateAvatarInterface::setNumCloud(const int i32NumCloud)
+{
+    m_oMutex.lockForWrite();
+        m_i32NumCloud = i32NumCloud;
+    m_oMutex.unlock();
+}
+
+
 void SWCreateAvatarInterface::updateStasmPoints(std::vector<cv::Point2i> vP2IStasmPoints)
 {
-    m_vP2IStasmPoints = vP2IStasmPoints;
+    m_oMutex.lockForWrite();
+        m_vP2IStasmPoints = vP2IStasmPoints;
+    m_oMutex.unlock();
 }
 
 void SWCreateAvatarInterface::updateFaceRectangle(cv::Rect *pFaceRect)
@@ -319,8 +406,8 @@ void SWCreateAvatarInterface::saveMeshFile()
 void SWCreateAvatarInterface::enableInterface()
 {
     m_uiCreateAvatar->pbSaveAvatar->setEnabled(true);
+    m_uiCreateAvatar->pbReconstruct->setEnabled(true);
 }
-
 
 int main(int argc, char* argv[])
 {

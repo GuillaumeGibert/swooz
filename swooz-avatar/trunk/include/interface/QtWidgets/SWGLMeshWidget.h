@@ -13,6 +13,8 @@
 
 #include "SWGLWidget.h"
 
+
+
 class SWGLMeshWidget : public SWGLWidget
 {
     Q_OBJECT
@@ -108,6 +110,7 @@ class SWGLMeshWidget : public SWGLWidget
 
         bool m_bLinesRender;                  /**< ... */
         bool m_bApplyTexture;                  /**< ... */
+        bool m_bBindTexture;            /**< ... */
 
         QGLShaderProgram m_oShaderMesh;         /**< ... */
         QGLShaderProgram m_oShaderLines;    /**< ... */
@@ -117,11 +120,10 @@ class SWGLMeshWidget : public SWGLWidget
         QGLBuffer m_vertexBuffer;   /**< ... */
         QGLBuffer m_indexBuffer;    /**< ... */
         QGLBuffer m_normalBuffer;   /**< ... */
-        QGLBuffer m_textureBuffer;  /**< ... */
-
-        QReadWriteLock m_oParamMutex; /**< ... */
+        QGLBuffer m_textureBuffer;  /**< ... */       
 
         GLuint m_textureLocation;
+        GLuint m_texHandle;
 
         QMatrix4x4  m_oMVPMatrix;	/**< ... */
 

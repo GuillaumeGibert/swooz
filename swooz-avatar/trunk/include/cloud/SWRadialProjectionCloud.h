@@ -12,6 +12,7 @@
 
 // std
 #include <math.h>
+#include <stack>
 
 // swooz
 #include "commonTypes.h"
@@ -20,6 +21,8 @@
 
 namespace swCloud
 {
+    static int aa = 0;
+
     /**
      * \brief  Project a point on an axe
      * \param  [in] oPointToProj : point to project on the axe
@@ -567,6 +570,14 @@ namespace swCloud
         return true;
     }
 
+
+
+//    static void erodeRadialProjc(cv::Mat &oRadialProj, cint i32Iteration, cv::Mat oKernel = cv::Mat(), )
+//    {
+
+//    }
+
+
     /**
      * \brief  Apply a secure dilatation and erosion on the radial proj (management of the edge)
      * \param  [in,out] oRadialProj   : the radial projection to dilate/erode
@@ -575,6 +586,11 @@ namespace swCloud
      */
     static void dilateErodeRadialProj(cv::Mat &oRadialProj, cint i32Dilatation, cint i32Erosion)
     {
+        if(i32Dilatation < 3 || i32Erosion < 3)
+        {
+            return;
+        }
+
         // init expanded mat
         cv::Mat l_oExpandedMat(oRadialProj.rows + 2*i32Dilatation, oRadialProj.cols + 2*i32Dilatation, CV_32FC1);
 
@@ -612,14 +628,15 @@ namespace swCloud
     }
 
     /**
-     * \brief  eraseContoursRadialProj...
-     * \param  [in,out] oRadialProj    : mat to erode
-     * \param  [in]     i32Erosion     : number of iterations
-     * \param  [in]     i32MinConnex   : ...
+     * \brief  Erase the contours of the radial projection image
+     * \param  [in,out] oRadialProj    : radial projection which contours will be erased
+     * \param  [in]     i32Erase       : number of iterations
+     * \param  [in]     i32MinConnex   : minimum connexe value for deletion
+     * \param  [in]     bConnex8       : activate 8-neighbours connexity check
      */
-    static void eraseContoursRadialProj(cv::Mat &oRadialProj, cint i32Erosion, cint i32MinConnex = 0)
+    static void eraseContoursRadialProj(cv::Mat &oRadialProj, cint i32Erase, cint i32MinConnex = 0, cbool bConnex8 = false)
     {
-        for(int kk = 0; kk < i32Erosion; ++kk)
+        for(int kk = 0; kk < i32Erase; ++kk)
         {
             cv::Mat l_oMask = oRadialProj.clone();
             for(int ii = 1; ii < oRadialProj.rows-1; ++ii)
@@ -627,10 +644,7 @@ namespace swCloud
                 for(int jj = 1; jj < oRadialProj.cols-1; ++jj)
                 {
                     int l_i32Number = 0;
-                    if(l_oMask.at<float>(ii-1,jj-1) == 0.f)
-                    {
-                        ++l_i32Number;
-                    }
+
                     if(l_oMask.at<float>(ii,jj-1) == 0.f)
                     {
                         ++l_i32Number;
@@ -639,14 +653,7 @@ namespace swCloud
                     {
                         ++l_i32Number;
                     }
-                    if(l_oMask.at<float>(ii+1,jj-1) == 0.f)
-                    {
-                        ++l_i32Number;
-                    }
-                    if(l_oMask.at<float>(ii-1,jj+1) == 0.f)
-                    {
-                        ++l_i32Number;
-                    }
+
                     if(l_oMask.at<float>(ii+1,jj) == 0.f)
                     {
                         ++l_i32Number;
@@ -655,9 +662,25 @@ namespace swCloud
                     {
                         ++l_i32Number;
                     }
-                    if(l_oMask.at<float>(ii+1,jj+1) == 0.f)
+
+                    if(bConnex8)
                     {
-                        ++l_i32Number;
+                        if(l_oMask.at<float>(ii+1,jj-1) == 0.f)
+                        {
+                            ++l_i32Number;
+                        }
+                        if(l_oMask.at<float>(ii-1,jj+1) == 0.f)
+                        {
+                            ++l_i32Number;
+                        }
+                        if(l_oMask.at<float>(ii+1,jj+1) == 0.f)
+                        {
+                            ++l_i32Number;
+                        }
+                        if(l_oMask.at<float>(ii-1,jj-1) == 0.f)
+                        {
+                            ++l_i32Number;
+                        }
                     }
 
                     if(l_i32Number >= i32MinConnex)
@@ -670,68 +693,75 @@ namespace swCloud
     }
 
     /**
-     * @brief expandContoursRadialProj
-     * @param [in,out] oRadialProj : ...
-     * @param [in] i32Dilatation :
-     * @param [in] i32MinConnex :
+     * @brief Expand the contours of the radial projection image
+     * @param [in,out] oRadialProj : radial projection which contours will be expanded
+     * @param [in] i32Expansion    : number of iterations
+     * @param [in] i32MinConnex    : minimum connexe value for expansion
+     * @param [in] bConnex8        : activate 8-neighbours connexity check
      */
-    static void expandContoursRadialProj(cv::Mat &oRadialProj, cint i32Dilatation, cint i32MinConnex = 0)
+    static void expandContoursRadialProj(cv::Mat &oRadialProj, cint i32Expansion, cint i32MinConnex = 0, cbool bConnex8 = false)
     {
-        for(int kk = 0; kk < i32Dilatation; ++kk)
+        for(int kk = 0; kk < i32Expansion; ++kk)
         {
             cv::Mat l_oMask = oRadialProj.clone();
-            for(int ii = 1; ii < oRadialProj.rows-1; ++ii)
+            for(int ii = 1; ii < l_oMask.rows-1; ++ii)
             {
-                for(int jj = 1; jj < oRadialProj.cols-1; ++jj)
+                for(int jj = 1; jj < l_oMask.cols-1; ++jj)
                 {
                     if(l_oMask.at<float>(ii,jj) == 0.f)
                     {
-                        int l_i32Number = 0;
+                        int l_i32ConnexNb = 0;
                         float l_fTotalValue = 0.f;
-                        if(l_oMask.at<float>(ii-1,jj-1) > 0.f)
-                        {
-                            l_fTotalValue += l_oMask.at<float>(ii-1,jj-1);
-                            ++l_i32Number;
-                        }
+
                         if(l_oMask.at<float>(ii,jj-1) > 0.f)
                         {
                             l_fTotalValue += l_oMask.at<float>(ii,jj-1);
-                            ++l_i32Number;
+                            ++l_i32ConnexNb;
                         }
                         if(l_oMask.at<float>(ii-1,jj) > 0.f)
                         {
                             l_fTotalValue += l_oMask.at<float>(ii-1,jj);
-                            ++l_i32Number;
+                            ++l_i32ConnexNb;
                         }
-                        if(l_oMask.at<float>(ii+1,jj-1) > 0.f)
-                        {
-                            l_fTotalValue += l_oMask.at<float>(ii+1,jj-1);
-                            ++l_i32Number;
-                        }
-                        if(l_oMask.at<float>(ii-1,jj+1) > 0.f)
-                        {
-                            l_fTotalValue += l_oMask.at<float>(ii-1,jj+1);
-                            ++l_i32Number;
-                        }
+
                         if(l_oMask.at<float>(ii+1,jj) > 0.f)
                         {
                             l_fTotalValue += l_oMask.at<float>(ii+1,jj);
-                            ++l_i32Number;
+                            ++l_i32ConnexNb;
                         }
                         if(l_oMask.at<float>(ii,jj+1) > 0.f)
                         {
                             l_fTotalValue += l_oMask.at<float>(ii,jj+1);
-                            ++l_i32Number;
-                        }
-                        if(l_oMask.at<float>(ii+1,jj+1) > 0.f)
-                        {
-                            l_fTotalValue += l_oMask.at<float>(ii+1,jj+1);
-                            ++l_i32Number;
+                            ++l_i32ConnexNb;
                         }
 
-                        if(l_i32Number > i32MinConnex)
+                        if(bConnex8)
                         {
-                            oRadialProj.at<float>(ii,jj) = l_fTotalValue/l_i32Number;
+                            if(l_oMask.at<float>(ii+1,jj+1) > 0.f)
+                            {
+                                l_fTotalValue += l_oMask.at<float>(ii+1,jj+1);
+                                ++l_i32ConnexNb;
+                            }
+                            if(l_oMask.at<float>(ii+1,jj-1) > 0.f)
+                            {
+                                l_fTotalValue += l_oMask.at<float>(ii+1,jj-1);
+                                ++l_i32ConnexNb;
+                            }
+                            if(l_oMask.at<float>(ii-1,jj+1) > 0.f)
+                            {
+                                l_fTotalValue += l_oMask.at<float>(ii-1,jj+1);
+                                ++l_i32ConnexNb;
+                            }
+                            if(l_oMask.at<float>(ii-1,jj-1) > 0.f)
+                            {
+                                l_fTotalValue += l_oMask.at<float>(ii-1,jj-1);
+                                ++l_i32ConnexNb;
+                            }
+                        }
+
+                        if(l_i32ConnexNb > i32MinConnex)
+                        {
+                            oRadialProj.at<float>(ii,jj) = l_fTotalValue/l_i32ConnexNb;
                         }
                     }
                 }
@@ -766,59 +796,174 @@ namespace swCloud
      * \param  [in]  oIndexMask  : input vertex index mat
      * \param  [out] v3FFacesId : ...
      */
-    static void retrieveFacesFromRadialProj(const cv::Mat &oIndexMask, std::vector<std::vector<uint> > &v3UIFacesId)
+//    static void retrieveFacesFromRadialProj(const cv::Mat &oIndexMask, std::vector<std::vector<uint> > &v3UIFacesId)
+//    {
+//        v3UIFacesId.clear();
+
+//        for(int ii = 1; ii < oIndexMask.rows; ++ii)
+//        {
+//            for(int jj = 1; jj < oIndexMask.cols; ++jj)
+//            {
+//                if(oIndexMask.at<int>(ii,jj) != 0)
+//                {
+//                    // .     . - .
+//                    // | \     \ |
+//                    // . - .     .
+//                    if(oIndexMask.at<int>(ii-1,jj-1) != 0)
+//                    {
+//                        if(oIndexMask.at<int>(ii,jj-1) != 0)
+//                        {
+//                            std::vector<uint> l_vFace(3);
+//                            l_vFace[0] = (uint)oIndexMask.at<int>(ii,jj);
+//                            l_vFace[1] = (uint)oIndexMask.at<int>(ii-1,jj-1);
+//                            l_vFace[2] = (uint)oIndexMask.at<int>(ii,jj-1);
+//                            v3UIFacesId.push_back(l_vFace);
+//                        }
+//                        if(oIndexMask.at<float>(ii-1,jj) != 0)
+//                        {
+//                            std::vector<uint> l_vFace(3);
+//                            l_vFace[0] = (uint)oIndexMask.at<int>(ii,jj);
+//                            l_vFace[1] = (uint)oIndexMask.at<int>(ii-1,jj);
+//                            l_vFace[2] = (uint)oIndexMask.at<int>(ii-1,jj-1);
+//                            v3UIFacesId.push_back(l_vFace);
+//                        }
+//                    }
+//                    //     .
+//                    //   / |
+//                    // . - .
+//                    else
+//                    {
+//                        if(oIndexMask.at<int>(ii,jj-1) != 0 && oIndexMask.at<int>(ii-1,jj) != 0)
+//                        {
+//                            std::vector<uint> l_vFace(3);
+//                            l_vFace[0] = (uint)oIndexMask.at<int>(ii,jj);
+//                            l_vFace[1] = (uint)oIndexMask.at<int>(ii-1,jj);
+//                            l_vFace[2] = (uint)oIndexMask.at<int>(ii,jj-1);
+//                            v3UIFacesId.push_back(l_vFace);
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
+
+
+    /**
+     * @brief retrieveFacesFromRadialProj2
+     * @param oIndexMask
+     * @param oDepthVertex
+     * @param v3UIFacesId
+     */
+    static void retrieveFacesFromRadialProj2(const cv::Mat &oIndexMask, const cv::Mat &oDepthVertex, std::vector<std::vector<uint> > &v3UIFacesId)
     {
         v3UIFacesId.clear();
 
-        for(int ii = 1; ii < oIndexMask.rows; ++ii)
+        for(int ii = 0; ii < oIndexMask.rows-1; ++ii)
         {
-            for(int jj = 1; jj < oIndexMask.cols; ++jj)
+            for(int jj = 0; jj < oIndexMask.cols-1; ++jj)
             {
-                if(oIndexMask.at<int>(ii,jj) != 0)
+                std::vector<uint> l_vFace1(3), l_vFace2(3);
+
+                // 1 - 2
+                // |   |
+                // 3 - 4
+                bool l_b1 = oIndexMask.at<int>(ii,jj)    != 0;
+                bool l_b2 = oIndexMask.at<int>(ii,jj+1)  != 0;
+                bool l_b3 = oIndexMask.at<int>(ii+1,jj)  != 0;
+                bool l_b4 = oIndexMask.at<int>(ii+1,jj+1)!= 0;
+
+                // . - .
+                // |   |
+                // . - .
+                if(l_b1 && l_b2 && l_b3 && l_b4)
                 {
-                    // .     . - .
-                    // | \     \ |
-                    // . - .     .
-                    if(oIndexMask.at<int>(ii-1,jj-1) != 0)
+                    float l_fDiff14 = oDepthVertex.at<float>(ii,jj) - oDepthVertex.at<float>(ii+1,jj+1);
+                    l_fDiff14 *= l_fDiff14;
+
+                    float l_fDiff23 = oDepthVertex.at<float>(ii,jj+1) - oDepthVertex.at<float>(ii+1,jj);
+                    l_fDiff23 *= l_fDiff23;
+
+                    if(l_fDiff14 > l_fDiff23)
                     {
-                        if(oIndexMask.at<int>(ii,jj-1) != 0)
-                        {
-                            std::vector<uint> l_vFace(3);
-                            l_vFace[0] = (uint)oIndexMask.at<int>(ii,jj);
-                            l_vFace[1] = (uint)oIndexMask.at<int>(ii-1,jj-1);
-                            l_vFace[2] = (uint)oIndexMask.at<int>(ii,jj-1);
-                            v3UIFacesId.push_back(l_vFace);
-                        }
-                        if(oIndexMask.at<float>(ii-1,jj) != 0)
-                        {
-                            std::vector<uint> l_vFace(3);
-                            l_vFace[0] = (uint)oIndexMask.at<int>(ii,jj);
-                            l_vFace[1] = (uint)oIndexMask.at<int>(ii-1,jj);
-                            l_vFace[2] = (uint)oIndexMask.at<int>(ii-1,jj-1);
-                            v3UIFacesId.push_back(l_vFace);
-                        }
+                        // 1 - 2
+                        //   \ |
+                        //     4
+                        l_vFace1[0] = (uint)oIndexMask.at<int>(ii,jj);
+                        l_vFace1[1] = (uint)oIndexMask.at<int>(ii+1,jj+1);
+                        l_vFace1[2] = (uint)oIndexMask.at<int>(ii,jj+1);
+                        v3UIFacesId.push_back(l_vFace1);
+
+                        // 1
+                        // | \
+                        // 3 - 4
+                        l_vFace2[0] = (uint)oIndexMask.at<int>(ii,jj);
+                        l_vFace2[1] = (uint)oIndexMask.at<int>(ii+1,jj);
+                        l_vFace2[2] = (uint)oIndexMask.at<int>(ii+1,jj+1);
+                        v3UIFacesId.push_back(l_vFace2);
                     }
-                    //     .
-                    //   / |
-                    // . - .
                     else
                     {
-                        if(oIndexMask.at<int>(ii,jj-1) != 0 && oIndexMask.at<int>(ii-1,jj) != 0)
-                        {
-                            std::vector<uint> l_vFace(3);
-                            l_vFace[0] = (uint)oIndexMask.at<int>(ii,jj);
-                            l_vFace[1] = (uint)oIndexMask.at<int>(ii-1,jj);
-                            l_vFace[2] = (uint)oIndexMask.at<int>(ii,jj-1);
-                            v3UIFacesId.push_back(l_vFace);
-                        }
+                        // 1 - 2
+                        // | /
+                        // 3
+                        l_vFace1[0] = (uint)oIndexMask.at<int>(ii,jj);
+                        l_vFace1[1] = (uint)oIndexMask.at<int>(ii+1,jj);
+                        l_vFace1[2] = (uint)oIndexMask.at<int>(ii,jj+1);
+                        v3UIFacesId.push_back(l_vFace1);
+
+                        //     2
+                        //   / |
+                        // 3 - 4
+                        l_vFace2[0] = (uint)oIndexMask.at<int>(ii,jj+1);
+                        l_vFace2[1] = (uint)oIndexMask.at<int>(ii+1,jj);
+                        l_vFace2[2] = (uint)oIndexMask.at<int>(ii+1,jj+1);
+                        v3UIFacesId.push_back(l_vFace2);
                     }
+                }
+                // . - .
+                // |   |
+                // x - .
+                else if(l_b1 && l_b2 && l_b4)
+                {
+                    l_vFace1[0] = (uint)oIndexMask.at<int>(ii,jj);
+                    l_vFace1[1] = (uint)oIndexMask.at<int>(ii+1,jj+1);
+                    l_vFace1[2] = (uint)oIndexMask.at<int>(ii,jj+1);
+                    v3UIFacesId.push_back(l_vFace1);
+                }
+                // . - .
+                // |   |
+                // . - x
+                else if(l_b1 && l_b2 && l_b3)
+                {
+                    l_vFace1[0] = (uint)oIndexMask.at<int>(ii,jj);
+                    l_vFace1[1] = (uint)oIndexMask.at<int>(ii+1,jj);
+                    l_vFace1[2] = (uint)oIndexMask.at<int>(ii,jj+1);
+
+                    v3UIFacesId.push_back(l_vFace1);
+                }
+                // . - x
+                // |   |
+                // . - .
+                else if(l_b1 && l_b3 && l_b4)
+                {
+                    l_vFace1[0] = (uint)oIndexMask.at<int>(ii,jj);
+                    l_vFace1[1] = (uint)oIndexMask.at<int>(ii+1,jj);
+                    l_vFace1[2] = (uint)oIndexMask.at<int>(ii+1,jj+1);
+                    v3UIFacesId.push_back(l_vFace1);
+                }
+                // x - .
+                // |   |
+                // . - .
+                else if(l_b2 && l_b3 && l_b4)
+                {
+                    l_vFace1[0] = (uint)oIndexMask.at<int>(ii,jj+1);
+                    l_vFace1[1] = (uint)oIndexMask.at<int>(ii+1,jj);
+                    l_vFace1[2] = (uint)oIndexMask.at<int>(ii+1,jj+1);
+                    v3UIFacesId.push_back(l_vFace1);
                 }
             }
         }
     }
-
-
-
 
     /**
      * \brief  ...
@@ -942,7 +1087,7 @@ namespace swCloud
 
         // retrieve faces index
             std::vector<std::vector<uint> > l_vIndexTri;
-            retrieveFacesFromRadialProj(l_oIdVertex, l_vIndexTri);
+            retrieveFacesFromRadialProj2(l_oIdVertex, l_oIdVertexDepth, l_vIndexTri);
 
         // retrieve texture coordinates
             std::vector<std::vector<float> > l_vTextureCoords;
@@ -951,13 +1096,127 @@ namespace swCloud
         // set the new mesh
             oResultMesh = swMesh::SWMesh(l_vVertexCoords, l_vIndexTri, l_vTextureCoords);
 
+
+
         return true;
     }
 
 
+    /**
+     * @brief checkGerm4Connex
+     * @param i32I
+     * @param i32J
+     * @param oRadialProj
+     * @param oMask
+     */
+    static void checkGerm4Connex(cint i32I, cint i32J, cv::Mat &oRadialProj, cv::Mat &oMask, cfloat fMaxDiffValue)
+    {
+        //    1
+        //    |
+        //2 - . - 3
+        //    |
+        //    4
+        if( oRadialProj.at<float>(i32I, i32J) <= 0.f)
+        {
+            std::cerr << "Error : checkGerm4Connex -> bad coordinate value for the germ. " << std::endl;
+            return;
+        }
+
+        std::stack<std::vector<int> > mystack;
+
+        std::vector<int> l_vPosInit(2);
+        l_vPosInit[0] = i32I;
+        l_vPosInit[1] = i32J;
+        mystack.push(l_vPosInit);
+
+        while(mystack.size() > 0)
+        {
+            std::vector<int> l_vCurrPos = mystack.top();
+            mystack.pop();
+
+            int l_i32PI = l_vCurrPos[0];
+            int l_i32PJ = l_vCurrPos[1];
+
+            oMask.at<float>(l_i32PI, l_i32PJ) = 1.f;
+
+            bool l_b1 = (oMask.at<float>(l_i32PI-1, l_i32PJ)   < 1.f) && (l_i32PI-1 > 0);// && oRadialProj.at<float>(oPt.x+1, oPt.y) > 0.f
+            bool l_b2 = (oMask.at<float>(l_i32PI,   l_i32PJ-1) < 1.f) && (l_i32PJ-1 > 0);
+            bool l_b3 = (oMask.at<float>(l_i32PI,   l_i32PJ+1) < 1.f) && (l_i32PJ+1 < oMask.cols);
+            bool l_b4 = (oMask.at<float>(l_i32PI+1, l_i32PJ)   < 1.f) && (l_i32PI+1 < oMask.rows);
+
+            bool l_bM1 = (oRadialProj.at<float>(l_i32PI-1, l_i32PJ)   > 0.f);
+            bool l_bM2 = (oRadialProj.at<float>(l_i32PI,   l_i32PJ-1) > 0.f);
+            bool l_bM3 = (oRadialProj.at<float>(l_i32PI,   l_i32PJ+1) > 0.f);
+            bool l_bM4 = (oRadialProj.at<float>(l_i32PI+1, l_i32PJ)   > 0.f);
+
+            float l_fV1 = (oRadialProj.at<float>(l_i32PI-1, l_i32PJ)  - oRadialProj.at<float>(l_i32PI, l_i32PJ));
+            float l_fV2 = (oRadialProj.at<float>(l_i32PI, l_i32PJ-1)  - oRadialProj.at<float>(l_i32PI, l_i32PJ));
+            float l_fV3 = (oRadialProj.at<float>(l_i32PI, l_i32PJ+1)  - oRadialProj.at<float>(l_i32PI, l_i32PJ));
+            float l_fV4 = (oRadialProj.at<float>(l_i32PI+1, l_i32PJ)  - oRadialProj.at<float>(l_i32PI, l_i32PJ));
+            if(l_fV1 < 0)
+                l_fV1 = -l_fV1;
+            if(l_fV2 < 0)
+                l_fV2 = -l_fV2;
+            if(l_fV3 < 0)
+                l_fV3 = -l_fV3;
+            if(l_fV4 < 0)
+                l_fV4 = -l_fV4;
+
+            bool l_Diff1 = l_fV1 < fMaxDiffValue;
+            bool l_Diff2 = l_fV2 < fMaxDiffValue;
+            bool l_Diff3 = l_fV3 < fMaxDiffValue;
+            bool l_Diff4 = l_fV4 < fMaxDiffValue;
 
 
+            std::vector<int> l_vNewPos(2);
+            if(l_b1 && l_bM1 && l_Diff1)
+            {
+                l_vNewPos[0] = l_i32PI-1;
+                l_vNewPos[1] = l_i32PJ;
+                mystack.push(l_vNewPos);
+            }
+            if(l_b2 && l_bM2 && l_Diff2)
+            {
+                l_vNewPos[0] = l_i32PI;
+                l_vNewPos[1] = l_i32PJ-1;
+                mystack.push(l_vNewPos);
+            }
+            if(l_b3 && l_bM3 && l_Diff3)
+            {
+                l_vNewPos[0] = l_i32PI;
+                l_vNewPos[1] = l_i32PJ+1;
+                mystack.push(l_vNewPos);
+            }
+            if(l_b4 && l_bM4 && l_Diff4)
+            {
+                l_vNewPos[0] = l_i32PI+1;
+                l_vNewPos[1] = l_i32PJ;
+                mystack.push(l_vNewPos);
+            }
+        }
+    }
 
+    /**
+     * @brief keepBiggestConnexAggregate
+     * @param oRadialProj
+     * @return
+     */
+    static bool keepBiggestConnexAggregate(cv::Mat &oRadialProj, cfloat fMaxDiffValue = 1000.f)
+    {
+        cv::Mat l_oMask = oRadialProj.clone();
+        l_oMask.setTo(0.f);
+        checkGerm4Connex(oRadialProj.rows/2, oRadialProj.cols/2, oRadialProj, l_oMask, fMaxDiffValue);
+
+        for(int ii = 0; ii < oRadialProj.rows * oRadialProj.cols; ++ii)
+        {
+            if(l_oMask.at<float>(ii) < 1.f)
+            {
+                oRadialProj.at<float>(ii) = 0.f;
+            }
+        }
+
+        return true;
+    }
 
 
 }

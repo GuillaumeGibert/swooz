@@ -54,6 +54,25 @@ class SWGLWidget : public QGLWidget
          */
         void resetCamera(const QVector3D &oEyePosition, const QVector3D &oLookAt, const QVector3D &oUp = QVector3D(0.f, 1.f,  0.f));
 
+
+        /**
+         * @brief setPerspective
+         * @param [in] rFOV   : ...
+         * @param [in] rZNear : ...
+         * @param [in] rZFar  : ...
+         */
+        void setPerspective(const qreal rFOV, const qreal rZNear, const qreal rZFar);
+
+
+    public slots :
+
+        /**
+         * @brief setFOV
+         * @param [in] dFOV   : ...
+         */
+        void setFOV(const double dFOV);
+
+
 	protected:
 		
 		/**
@@ -137,6 +156,10 @@ class SWGLWidget : public QGLWidget
 
         GLfloat m_glFSizePoint;         /**< size of the gl points */
 
+        qreal m_rZNear;                 /**< near perspective */
+        qreal m_rZFar;                  /**< far pespective */
+        qreal m_rFOV;                   /**< field of view perspective */
+
         QSize	  m_oSize;              /**< size of the OpenGl window */
         QVector3D m_oCurrentRotation;   /**< current rotation of the camera */
         QMatrix4x4 m_oProjectionMatrix;	/**< projection 4x4 matrix */
@@ -145,6 +168,9 @@ class SWGLWidget : public QGLWidget
         QBasicTimer *m_oTimer;          /**< qt timer */
 
         QGLContext *m_glContext;        /**< opengl context */
+
+
+        QReadWriteLock m_oParamMutex; /**< ... */
 };
      
 #endif

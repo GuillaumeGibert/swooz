@@ -16,13 +16,11 @@
 using namespace swExcept;
 
 SWGLCloudWidget::SWGLCloudWidget(QGLContext *context, QWidget* parent) :
-    SWGLWidget(context, parent), m_bApplyRigidMotion(false), m_bInitCamWithCloudPosition(true),
+    SWGLWidget(context, parent), m_bInitCamWithCloudPosition(true),
     m_vertexBuffer(QGLBuffer::VertexBuffer), m_colorBuffer(QGLBuffer::VertexBuffer), m_indexBuffer(QGLBuffer::IndexBuffer), m_pCloud(NULL)
 {
-    // init rigid motion parameters
-    m_oRigidMotion.setToIdentity();
-
-    m_fDefaultOpacity = 1.f;
+    m_fDefaultOpacity = 1.f;   
+    m_fDepthRect = -1.f;
 }
 
 SWGLCloudWidget::~SWGLCloudWidget()
@@ -32,37 +30,37 @@ SWGLCloudWidget::~SWGLCloudWidget()
 
 void SWGLCloudWidget::initializeGL()
 {
+    // set perspective
+        m_rZNear = 0.01;
+        m_rZFar  = 100.0;
+        m_rFOV   = 40.0;
 
-    // qglClearColor(Qt::black);
-    qglClearColor(QColor(49, 53, 70));
+    // set background
+        qglClearColor(QColor(49, 53, 70));
 
     // init shaders
-    initShaders("../data/shaders/cloudAvatar.vert", "../data/shaders/cloudAvatar.frag", m_oShader,    false);
+        initShaders("../data/shaders/cloudAvatar.vert", "../data/shaders/cloudAvatar.frag", m_oShader,    false);
 
-// enable depth buffer
-    glEnable(GL_DEPTH_TEST);
-
-// set transparency
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    glEnable(GL_LINE_SMOOTH);
-
-    // enable back face culling
-    glDisable(GL_CULL_FACE);
+    // set options
+    //  depth buffer
+        glEnable(GL_DEPTH_TEST);
+    //  transparency
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    //  line smoothing
+        glEnable(GL_LINE_SMOOTH);
+    //  back face culling
+        glDisable(GL_CULL_FACE);
 
     // init QGL buffers
-    initCloudBuffers();
+        initCloudBuffers();
 
-    // using QBasicTimer because its faster that QTimer
-    m_oTimer->start(1000/30, this);
+    // start timer
+        m_oTimer->start(1000/30, this);
 }
 
 void SWGLCloudWidget::paintGL()
 {
-    // set the size point
-    glPointSize(m_glFSizePoint);
-
     // clear color and depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -78,17 +76,18 @@ void SWGLCloudWidget::paintGL()
     l_oModelMatrix.setToIdentity();
     m_oMVPMatrix = l_oModelMatrix  * m_oProjectionMatrix * l_oViewMatrix;
 
-    if(m_bApplyRigidMotion)
-    {
-        m_oMVPMatrix *= m_oRigidMotion;
-    }
-
     // draw geometry
     try
     {
         if(m_pCloud)
         {
-            drawCloud(m_oShader, *m_pCloud, 3.f, m_oMVPMatrix);
+            if(m_pCloud->size() > 0)
+            {
+                drawCloud(m_oShader, *m_pCloud, m_glFSizePoint, m_oMVPMatrix);
+
+                swCloud::SWCloudBBox l_oBBox = m_pCloud->bBox();
+                drawDepthRect(m_oShader, m_oMVPMatrix, l_oBBox.m_fMinZ + m_fDepthRect);
+            }
         }
     }
     catch(const openglError &e)
@@ -97,45 +96,11 @@ void SWGLCloudWidget::paintGL()
     }
 }
 
-void SWGLCloudWidget::setCloudAndRigidMotion(const swCloud::SWRigidMotion &oRigidMotion, swCloud::SWCloud *oCloud)
-{
-    QMatrix4x4 l_oQMatRigidMotion;
-
-    l_oQMatRigidMotion.setToIdentity();
-
-    l_oQMatRigidMotion(0,0) = oRigidMotion.m_aFRotation[0];
-    l_oQMatRigidMotion(0,1) = oRigidMotion.m_aFRotation[1];
-    l_oQMatRigidMotion(0,2) = oRigidMotion.m_aFRotation[2];
-    l_oQMatRigidMotion(0,3) = oRigidMotion.m_aFTranslation[0];
-
-    l_oQMatRigidMotion(1,0) = oRigidMotion.m_aFRotation[3];
-    l_oQMatRigidMotion(1,1) = oRigidMotion.m_aFRotation[4];
-    l_oQMatRigidMotion(1,2) = oRigidMotion.m_aFRotation[5];
-    l_oQMatRigidMotion(1,3) = oRigidMotion.m_aFTranslation[1];
-
-    l_oQMatRigidMotion(2,0) = oRigidMotion.m_aFRotation[6];
-    l_oQMatRigidMotion(2,1) = oRigidMotion.m_aFRotation[7];
-    l_oQMatRigidMotion(2,2) = oRigidMotion.m_aFRotation[8];
-    l_oQMatRigidMotion(2,3) = oRigidMotion.m_aFTranslation[2];
-
-    l_oQMatRigidMotion(3,0) = 0;
-    l_oQMatRigidMotion(3,1) = 0;
-    l_oQMatRigidMotion(3,2) = 0;
-    l_oQMatRigidMotion(3,3) = 1;
-
-//    m_bApplyRigidMotion = true;
-
-    m_oRigidMotion    = l_oQMatRigidMotion;
-    m_pCloud          = oCloud;
-
-    updateGL();
-}
-
 void SWGLCloudWidget::setCloud(swCloud::SWCloud *oCloud)
 {
     if(oCloud)
     {
-        if(oCloud->size() < 1)
+        if(oCloud->size() == 0)
         {
             return;
         }
@@ -165,6 +130,16 @@ void SWGLCloudWidget::setCloud(swCloud::SWCloud *oCloud)
 
     deleteAndNullify(m_pCloud);
     m_pCloud = new swCloud::SWCloud(*oCloud);
+
+    if(oCloud->size() > 0 && m_fDepthRect > 0.f)
+    {
+        m_oCloudBBox = oCloud->bBox();
+        m_oCloudBBox.m_fMaxZ =  m_oCloudBBox.m_fMinZ + m_fDepthRect;
+        m_oCloudBBox.m_fMinZ -= 0.1f;
+
+        m_pCloud->keepOnlyPointInsideBBox(m_oCloudBBox);
+    }
+
     updateGL();
 }
 
@@ -174,13 +149,67 @@ void SWGLCloudWidget::initCloudBuffers()
     m_vertexBuffer.create();
     m_indexBuffer.create();
     m_colorBuffer.create();
-
-    // define the usage pattern (DynamicDraw : The data will be modified repeatedly and used many times for drawing operations. )
-//    m_vertexBuffer.setUsagePattern(QGLBuffer::DynamicDraw);
-//    m_indexBuffer.setUsagePattern(QGLBuffer::DynamicDraw);
-//    m_colorBuffer.setUsagePattern(QGLBuffer::DynamicDraw);
 }
 
+
+void SWGLCloudWidget::drawDepthRect(QGLShaderProgram &oShader, QMatrix4x4 &mvpMatrix, cfloat fDepth)
+{
+    // bind shader
+    if(!oShader.bind())
+    {
+        throw swShaderGLError();
+    }
+
+    // set mode
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+    // release buffers
+    QGLBuffer::release(QGLBuffer::VertexBuffer);
+    QGLBuffer::release(QGLBuffer::IndexBuffer);
+
+    // allocate buffers
+    int l_i32SizeIndex      = sizeof(GLuint);
+    int l_i32SizeVertex     = sizeof(float) * 3;
+    uint32 *l_aDepthRectI   = new uint32[6];
+    float  *l_aDepthRectV   = new float[3*4];
+
+    // defines points    
+    l_aDepthRectV[2] = l_aDepthRectV[5] = l_aDepthRectV[8] = l_aDepthRectV[11] = fDepth;
+    l_aDepthRectV[0] = m_oCloudBBox.m_fMinX; l_aDepthRectV[3] = m_oCloudBBox.m_fMinX; l_aDepthRectV[6] = m_oCloudBBox.m_fMaxX; l_aDepthRectV[9]  = m_oCloudBBox.m_fMaxX;
+    l_aDepthRectV[1] = m_oCloudBBox.m_fMaxY; l_aDepthRectV[4] = m_oCloudBBox.m_fMinY; l_aDepthRectV[7] = m_oCloudBBox.m_fMinY; l_aDepthRectV[10] = m_oCloudBBox.m_fMaxY;
+    // define index
+    l_aDepthRectI[0] = 0;
+    l_aDepthRectI[1] = 1;
+    l_aDepthRectI[2] = 2;
+    l_aDepthRectI[3] = 2;
+    l_aDepthRectI[4] = 3;
+    l_aDepthRectI[5] = 0;
+
+    // allocate
+    allocateBuffer(m_indexBuffer,  l_aDepthRectI, 6 * l_i32SizeIndex);
+    allocateBuffer(m_vertexBuffer, l_aDepthRectV, 4 * l_i32SizeVertex);
+
+    // set uniform values parameters
+    oShader.setUniformValue("uniColor", 22, 39, 51);
+    oShader.setUniformValue("mvpMatrix", mvpMatrix);
+    oShader.setUniformValue("opacity", 0.8f);
+
+    // draw primitives
+    GLenum l_glError = drawBufferWithColor(m_indexBuffer, m_vertexBuffer, m_colorBuffer, oShader, GL_TRIANGLES);
+
+    delete[] l_aDepthRectI;
+    delete[] l_aDepthRectV;
+
+    if(l_glError)
+    {
+        qWarning() << "drawDepthRect GLError : " << l_glError;
+    }
+}
+
+void SWGLCloudWidget::setDepthRect(const double dDepth)
+{
+    m_fDepthRect = (float)dDepth;
+}
 
 void SWGLCloudWidget::drawCloud(QGLShaderProgram &oShader, const swCloud::SWCloud &oCloud, cfloat fSizePoint, QMatrix4x4 &mvpMatrix, cfloat r, cfloat g, cfloat b)
 {

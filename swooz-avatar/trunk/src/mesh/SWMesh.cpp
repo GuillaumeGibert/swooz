@@ -150,7 +150,7 @@ SWMesh::SWMesh(const std::string &sPathObjFile) : m_ui32TrianglesNumber(0), m_ui
 
     // build links data
         buildEdgeVertexGraph();
-        buildVerticesNeighbors();
+        buildVerticesNeighbors();    
 }
 
 SWMesh::SWMesh(const std::vector<std::vector<float> > &v3FPoints,
@@ -294,13 +294,45 @@ void SWMesh::vertexNormal(float *a3FNormal, cuint ui32IdVertex) const
     a3FNormal[2] = m_a3FNonOrientedVerticesNormals[ui32IdVertex][2];
 }
 
-bool SWMesh::saveToObj(const string &sPath) // TODO : finish
+bool SWMesh::saveToObj(const std::string &sPath, const std::string &sNameObj, const std::string sNameMaterial, const std::string sNameTexture) // TODO : finish
 {
+    if(sPath.size() == 0 || sNameObj.size() == 0)
+    {
+        std::cerr << "-ERROR : SWMesh::saveToObj, bad parameters. " << std::endl;
+        return false;
+    }
 
-    std::ofstream l_oFlow(sPath.c_str());
-    l_oFlow << "# Mesh swooz : " << endl;
+    std::ofstream l_oFlowMaterial;
+    if(sNameMaterial.size() > 0)
+    {
+        l_oFlowMaterial.open(sPath + sNameMaterial);
+        l_oFlowMaterial << "# Mesh created with SWoOZ plateform (https://github.com/GuillaumeGibert/swooz)" << std::endl;
+        l_oFlowMaterial << "newmtl materialAvatar" << std::endl;
+        l_oFlowMaterial << "Ka 1.000000 1.000000 1.000000" << std::endl;
+        l_oFlowMaterial << "Kd 1.000000 1.000000 1.000000" << std::endl;
+        l_oFlowMaterial << "Ks 0.000000 0.000000 0.000000" << std::endl;
+        l_oFlowMaterial << "Tr 1.000000" << std::endl;
+        l_oFlowMaterial << "illum 1" << std::endl;
+        l_oFlowMaterial << "Ns 0.000000" << std::endl;
 
-    if(l_oFlow)
+        if(sNameTexture.size() > 0)
+        {
+            l_oFlowMaterial << "map_Kd " << sNameTexture << std::endl;
+        }
+
+        l_oFlowMaterial.close();
+    }
+
+    std::ofstream l_oFlowOBJ(sPath + sNameObj);
+    l_oFlowOBJ << "# Mesh created with SWoOZ plateform (https://github.com/GuillaumeGibert/swooz) " << std::endl;
+
+
+    if(sNameMaterial.size() > 0)
+    {
+        l_oFlowOBJ << "mtllib " + sNameMaterial << std::endl;;
+    }
+
+    if(l_oFlowOBJ)
     {
         // save vertices
             std::vector<double> l_a3FPoint;
@@ -314,7 +346,7 @@ bool SWMesh::saveToObj(const string &sPath) // TODO : finish
                 l_osV2 << l_a3FPoint[1];
                 l_osV3 << l_a3FPoint[2];
 
-                l_oFlow << "v " + l_osV1.str() + " " + l_osV2.str() + " " + l_osV3.str() << endl;
+                l_oFlowOBJ << "v " + l_osV1.str() + " " + l_osV2.str() + " " + l_osV3.str() << std::endl;
             }
         // save vertex texture coord
             for(uint ii = 0; ii < m_a2FTextures.size()/2; ++ii)
@@ -324,7 +356,7 @@ bool SWMesh::saveToObj(const string &sPath) // TODO : finish
                 l_osVT1 << m_a2FTextures[2*ii];
                 l_osVT2 << m_a2FTextures[2*ii+1];
 
-                l_oFlow << "vt " + l_osVT1.str() + " " + l_osVT2.str() << endl;
+                l_oFlowOBJ << "vt " + l_osVT1.str() + " " + l_osVT2.str() << std::endl;
             }
         // save vertex normals
             for(uint ii = 0; ii < m_a3FNormals.size()/3; ++ii)
@@ -335,9 +367,11 @@ bool SWMesh::saveToObj(const string &sPath) // TODO : finish
                 l_osVN2 << m_a3FNormals[3*ii+1];
                 l_osVN3 << m_a3FNormals[3*ii+2];
 
-                l_oFlow << "vn " + l_osVN1.str() + " " + l_osVN2.str() + " " + l_osVN3.str() << endl;
+                l_oFlowOBJ << "vn " + l_osVN1.str() + " " + l_osVN2.str() + " " + l_osVN3.str() << std::endl;
             }
         // save faces
+            l_oFlowOBJ << "usemtl materialAvatar" << std::endl;;
+
             for(uint ii = 0; ii < trianglesNumber(); ++ii)
             {
                 std::ostringstream l_osI1, l_osI2, l_osI3;
@@ -357,14 +391,20 @@ bool SWMesh::saveToObj(const string &sPath) // TODO : finish
                     l_oF3 += "/" + l_osI3.str();
                 }
 
-                if(m_a3FNormals.size() > 0)
+                if(m_a3FNormals.size() > 0 && m_a2FTextures.size() > 0)
                 {
                     l_oF1 += "/" + l_osI1.str();
                     l_oF2 += "/" + l_osI2.str();
                     l_oF3 += "/" + l_osI3.str();
                 }
+                else if(m_a3FNormals.size() > 0)
+                {
+                    l_oF1 += "//" + l_osI1.str();
+                    l_oF2 += "//" + l_osI2.str();
+                    l_oF3 += "//" + l_osI3.str();
+                }
 
-                l_oFlow << "f " + l_oF1 + " " + l_oF2 + " " + l_oF3 << endl;
+                l_oFlowOBJ << "f " + l_oF1 + " " + l_oF2 + " " + l_oF3 << std::endl;
             }
     }
     else

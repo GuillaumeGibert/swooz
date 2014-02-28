@@ -53,7 +53,7 @@ namespace swImage
                 }
             }
 
-            cv::dilate(l_oMask, l_oMask, cv::Mat(), cv::Point(-1,-1), i32DilatationBackground);
+//            cv::dilate(l_oMask, l_oMask, cv::Mat(), cv::Point(-1,-1), i32DilatationBackground);
 
             for(int ii = 0; ii < l_oMask.rows * l_oMask.cols; ++ii)
             {
@@ -95,24 +95,18 @@ namespace swImage
 		 * \param  [in]  ui32VideoMode  : ...
 		 * \return ...
 		 */		
-		static void computeSizeCloudRect(const cv::Rect &oInputRect, const cv::Mat &oInputCloudMat, swCloud::SWCloudBBox &bBox, cint ui32VideoMode)
+        static void computeSizeCloudRect(const cv::Rect &oInputRect, const cv::Mat &oInputCloudMat, swCloud::SWCloudBBox &bBox)
 		{
 			// init sub rect
-			cv::Rect l_oRect = oInputRect;
-			
-			if(ui32VideoMode == 1) // CV_CAP_OPENNI_SXGA_15HZ
-			{
-				// l_oRect.y += 22;
-			}
-						
-			l_oRect.x += l_oRect.width/3;
-			l_oRect.width -= 2*l_oRect.width/3;
-			l_oRect.y += l_oRect.height/3;
-			l_oRect.height -= 2*l_oRect.height/3;	
+			cv::Rect l_oRect = oInputRect;									
+            l_oRect.x += l_oRect.width/3;
+            l_oRect.width -= 2*l_oRect.width/3;
+            l_oRect.y += l_oRect.height/3;
+            l_oRect.height -= 2*l_oRect.height/3;
 
 			// init the cloud of the face mat 
 			cv::Mat l_oFaceCloudMat = oInputCloudMat.clone();
-			l_oFaceCloudMat 	= l_oFaceCloudMat(l_oRect);
+            l_oFaceCloudMat         = l_oFaceCloudMat(l_oRect);
 			
 			// init cloud coordinates arrays
 			std::vector<float> l_vFX, l_vFY, l_vFZ;

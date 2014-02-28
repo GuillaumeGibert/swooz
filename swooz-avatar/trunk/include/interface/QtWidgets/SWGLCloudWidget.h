@@ -54,10 +54,30 @@ class SWGLCloudWidget : public SWGLWidget
         void initCloudBuffers();
 
         /**
-         * \brief Draw the cloud.
+         * @brief drawDepthRect
+         * @param oShader
+         * @param mvpMatrix
+         * @param fDepth
          */
-//        void drawCloud();
+        void drawDepthRect(QGLShaderProgram &oShader, QMatrix4x4 &mvpMatrix, cfloat fDepth);
 
+        /**
+         * @brief setDepthRect
+         * @param dDepth
+         */
+        void setDepthRect(const double dDepth);
+
+
+        /**
+         * @brief drawCloud
+         * @param oShader
+         * @param oCloud
+         * @param fSizePoint
+         * @param mvpMatrix
+         * @param r
+         * @param g
+         * @param b
+         */
         void drawCloud(QGLShaderProgram &oShader, const swCloud::SWCloud &oCloud, cfloat fSizePoint,
                         QMatrix4x4 &mvpMatrix, cfloat r=-1, cfloat g=-1, cfloat b=-1);
 
@@ -67,12 +87,6 @@ class SWGLCloudWidget : public SWGLWidget
          */
         void setCloud(swCloud::SWCloud *oCloud);
 
-        /**
-         * \brief Set the rigid motion and the current cloud point to display.
-         * \param [in] oRigidMotion    : the rigid motion to apply on the cloud
-         * \param [in] oCloud          : cloud point to display in the scene
-         */
-        void setCloudAndRigidMotion(const swCloud::SWRigidMotion &oRigidMotion, swCloud::SWCloud *oCloud);
 
     private :
 
@@ -86,10 +100,13 @@ class SWGLCloudWidget : public SWGLWidget
         bool m_bApplyRigidMotion;   /**< ... */
         float m_fDefaultOpacity;    /**< ... */
 
-        QMatrix4x4  m_oRigidMotion;	/**< ... */
-        QMatrix4x4  m_oMVPMatrix;	/**< ... */
 
-        swCloud::SWCloud *m_pCloud; /**< ... */
+        float m_fDepthRect;         /**< .. */
+
+        QMatrix4x4  m_oMVPMatrix;          /**< model view projection matrix */
+
+        swCloud::SWCloud *m_pCloud;        /**< cloud pointer*/
+        swCloud::SWCloudBBox m_oCloudBBox; /**< bounded box of the cloud */
 };
 
 #endif

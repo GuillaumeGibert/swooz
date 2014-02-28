@@ -10,13 +10,6 @@
 #define _SWCREATEAVATARINTERFACE_
 
 #include <QtGui>
-//#include <QWidget>
-//#include <QGridLayout>
-//#include <QVBoxLayout>
-//#include <QPushButton>
-//#include <QSpinBox>
-//#include <QLabel>
-
 
 #include "../genUI/SWUI_WCreateAvatar.h"
 #include "QtWorkers/SWCreateAvatarWorker.h"
@@ -123,6 +116,32 @@ class SWCreateAvatarInterface : public QMainWindow
          */
         void udpdateTexture3DDisplay(cv::Mat *pTexture);
 
+
+        /**
+         * @brief updateFaceTextureDisplay
+         * @param pFaceTexture
+         */
+        void updateFaceTextureDisplay(cv::Mat *pFaceTexture);
+
+
+        /**
+         * @brief resetKinect
+         * @param i32VideoMode
+         */
+        void resetKinect(const int i32VideoMode);
+
+
+        /**
+         * @brief releaseKinectMutex
+         */
+        void releaseKinectMutex();
+
+        /**
+         * @brief setNumCloud
+         */
+        void setNumCloud(const int);
+
+
 	signals:
 
         /**
@@ -147,6 +166,7 @@ class SWCreateAvatarInterface : public QMainWindow
         Ui::SWUI_WCreateAvatar *m_uiCreateAvatar;   /**< qt main window */
         SWDisplayImageWidget *m_WRGBDisplay;        /**< qt rgb display widget */
         SWDisplayImageWidget *m_WRadialProjDisplay; /**< qt radial proj display widget */
+        SWDisplayImageWidget *m_WFaceTextureDisplay;/**< qt face texture display widget */
         SWGLCloudWidget *m_WCloudGL;                /**< qt opengl cloud widget */
         SWGLMeshWidget  *m_WMeshGL;                 /**< qt opengl mesh widget */
 	
@@ -170,6 +190,7 @@ class SWCreateAvatarInterface : public QMainWindow
         std::vector<cv::Point2i> m_vP2IStasmPoints; /**< last stsams points computed */
 
         // cloud
+        int m_i32NumCloud;                      /**< current cloud number */
         swCloud::SWCloud *m_pCloudToDisplay;    /**< cloud to be displayed in the gl cloud widget */
 
         // detection
@@ -180,12 +201,9 @@ class SWCreateAvatarInterface : public QMainWindow
         SWFaceDetectionPtr m_CFaceDetectPtr;    /**< detect face pointer */
 
         // kinect
-        cv::Mat  m_oRgb;                        /**< rgb kinect data */
-        cv::Mat  m_oDepth;                      /**< depth kinect data */
-        cv::Mat  m_oCloud;                      /**< cloud kinect data */
-        swDevice::SWKinectParams    m_CKinectParams; /**< kinect video params */
+        bool m_bResetKinect;                         /**< ... */
+        QReadWriteLock m_oResetKinectMutex;          /**< mutex */
         swDevice::SWKinect_thread   m_oKinectThread; /**< rgbd device */
-
 };
 
 

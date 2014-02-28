@@ -102,7 +102,7 @@ int SWCaptureHeadMotion::computeHeadMotion(SWRigidMotion &oHeadRigidMotion, cons
 
     // create cloud
         SWCloud l_oFaceCloud;
-        swCloud::convCloudMat2SWCloud(l_oFaceDepth, l_oFaceCloud, l_oNoseTip.z-0.05f, m_fDepthCloud, 0, 0, 255);
+        swCloud::convCloudMat2SWCloud(l_oFaceDepth, l_oFaceCloud, l_oNoseTip.z-0.10f, m_fDepthCloud + 0.10f, 0, 0, 255);
         uint l_ui32SizeCurrentFaceCloud = l_oFaceCloud.size();       
 
     // save reference cloud

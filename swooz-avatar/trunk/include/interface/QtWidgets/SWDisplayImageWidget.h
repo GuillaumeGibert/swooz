@@ -29,7 +29,7 @@ class SWDisplayImageWidget : public QWidget
 		* \brief default constructor of SWDisplayImageWidget
 		* \param [in] oParent : ... 
 		*/		
-		SWDisplayImageWidget(QWidget* oParent = 0 );
+        SWDisplayImageWidget(QWidget* oParent = 0,  const bool bScaleImage = true, const bool bActiveSelectPixelMode = false);
 
 		/**
 		* \brief destructor of SWDisplayImageWidget
@@ -47,6 +47,12 @@ class SWDisplayImageWidget : public QWidget
 		*/		
 		void refreshDisplay(const QImage &oQImage);
 
+        /**
+         * @brief resetSelectedPoints
+         */
+        void resetSelectedPoints();
+
+
 	protected:
 
 		/**
@@ -54,11 +60,45 @@ class SWDisplayImageWidget : public QWidget
 		*/		    
 		void paintEvent(QPaintEvent *);
 
+        /**
+         * @brief mousePressEvent
+         * @param event
+         */
+        void mousePressEvent ( QMouseEvent * event );
+
+        /**
+         * @brief mouseReleaseEvent
+         * @param event
+         */
+        void mouseReleaseEvent ( QMouseEvent * event );
+
+        /**
+         * @brief mouseMoveEvent
+         * @param event
+         */
+        void mouseMoveEvent(QMouseEvent * event);
+
+    signals :
+
+        void clickPoint(QPoint, QSize);
+
+
 	private:
 
 		QImage m_oQImage;	/**< rgb image to display */
+        QImage m_oScaledImage;
 
         QSize m_oSize;  /**< ... */
+
+        bool m_bMouseClicked;
+
+        bool m_bScaleImage;
+
+        bool m_bActiveSelectPixelMode;
+
+    public :
+        QVector<QPoint> m_vClickedPoints;
+        QVector<QSize> m_vCurrentSize;
 };
 
 

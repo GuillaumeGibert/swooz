@@ -210,10 +210,21 @@ namespace swMesh
 
             /**
              * \brief Save the mesh to obj file.
-             * \param [in] sPath             : file path for the obj
+             * \param [in] sPathObj         : file path for the obj
+             * \param [in] sPathMaterial    : file path for the material
              * \return true if hte save is successful
              */
-            bool saveToObj(const std::string &sPath);
+//            bool saveToObj(const std::string sPathObj, const std::string sPathMaterial = "");
+
+            /**
+             * @brief saveToObj
+             * @param sPath
+             * @param sNameObj
+             * @param sNameMaterial
+             * @param sNameTexture
+             * @return
+             */
+            bool saveToObj(const std::string &sPath, const std::string &sNameObj, const std::string sNameMaterial = "", const std::string sNameTexture = "");
 
             /**
              * \brief Scale the mesh by multipliying all the coordinates points by the input value.

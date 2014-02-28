@@ -15,9 +15,8 @@ using namespace swExcept;
 SWFaceDetection::SWFaceDetection(const cv::Size &oMinDetectFaceSize, cbool bVerbose) : m_oMinDetectFaceSize(oMinDetectFaceSize), m_bVerbose(bVerbose)
 {	
 	// init cascade files path
-    // std::string l_sCascadeFaceFile      = "../data/haar_cascade/haarcascade_frontalface_alt2.xml"; // haarcascade_frontalface_alt
-    std::string l_sCascadeFaceFile        = "../data/classifier/haarcascade_frontalface_alt.xml"; // haarcascade_frontalface_alt
-//    std::string l_sCascadeProfileFaceFile = "../data/classifier/haarcascade_profileface.xml";
+//    std::string l_sCascadeFaceFile        = "../data/classifier/haarcascade_frontalface_alt.xml";
+    std::string l_sCascadeFaceFile        = "../data/classifier/haarcascade_frontalface_alt2.xml";
 	
     if(m_bVerbose)
     {
@@ -40,7 +39,9 @@ SWFaceDetection::SWFaceDetection(const cv::Size &oMinDetectFaceSize, cbool bVerb
 	// init detection ratios
     m_fWidthRatioImageToDetect  = 0.9f;
     m_fHeightRatioImageToDetect = 0.9f;
-    m_fFaceHeightRatio 	        = 1.f;
+
+    m_fFaceHeightRatio 	        = 0.0f;
+    m_fFaceWidthRatio           = 0.0f;
 	
 	// init rectangle offset
 	m_i32WidthRectFaceOffset  = 10;
@@ -49,6 +50,12 @@ SWFaceDetection::SWFaceDetection(const cv::Size &oMinDetectFaceSize, cbool bVerb
     // init rects
     m_oLastDetectFace.width = 0;
 	
+}
+
+void SWFaceDetection::setRectRatios(cfloat fWidthRatio, cfloat fHeightRatio)
+{
+    m_fFaceWidthRatio  = fWidthRatio;
+    m_fFaceHeightRatio = fHeightRatio;
 }
 
 cv::Rect SWFaceDetection::faceRect() const
@@ -87,7 +94,10 @@ bool SWFaceDetection::detectFace(const cv::Mat &oRgbImg)
         }
 
         // resize face
-        m_oRects[0].height = (int)(m_fFaceHeightRatio * m_oRects[0].height);
+        m_oRects[0].y      -= (int)(m_fFaceHeightRatio * m_oRects[0].height);
+        m_oRects[0].height += (int)(m_fFaceHeightRatio * 2 * m_oRects[0].height);
+        m_oRects[0].x      -= (int)(m_fFaceWidthRatio * m_oRects[0].width);
+        m_oRects[0].width  += (int)(m_fFaceWidthRatio * 2 * m_oRects[0].width);
 
         // apply offsets on the face rectangle
         if(m_oRects[0].x > m_i32WidthRectFaceOffset)

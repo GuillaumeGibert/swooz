@@ -107,32 +107,6 @@ echo ___________________________________________________________________________
 echo.
 echo Building process terminated successfully !
 echo.
-REM ####################################################################################### Creates start files
-REM ### 3D Player
-echo @echo off                                               				>  %target_dist%\swooz-3dplayer.cmd
-echo %SystemRoot%\system32\xcopy /q /e /y %saved_directory%\..\swooz-config %saved_directory%\%target_dist%\data >> %target_dist%\swooz-3dplayer.cmd
-echo pushd ..\scripts                                        				>> %target_dist%\swooz-3dplayer.cmd
-echo call win-init_env_command.cmd %ARCH_EXE_3dplayer%                                >> %target_dist%\swooz-3dplayer.cmd
-echo popd                                                    				>> %target_dist%\swooz-3dplayer.cmd
-echo cd bin										>> %target_dist%\swooz-3dplayer.cmd
-echo java -Xmx512m SW3DPlayer -config configPlayer.txt -v 				>> %target_dist%\swooz-3dplayer.cmd
-echo cd ../../scripts									>> %target_dist%\swooz-3dplayer.cmd
-echo call win-clean-env_command.cmd							>> %target_dist%\swooz-3dplayer.cmd
-echo cd ../dist										>> %target_dist%\swooz-3dplayer.cmd
-REM echo pause 										>> %target_dist%\swooz-3dplayer.cmd
-REM #######################################################################################
-REM ### Dummy 3D Client
-echo @echo off                                               				>  %target_dist%\swooz-3dclient_dummy.cmd
-echo %SystemRoot%\system32\xcopy /q /e /y %saved_directory%\..\swooz-config %saved_directory%\%target_dist%\data >> %target_dist%\swooz-3dclient_dummy.cmd
-echo pushd ..\scripts                                        				>> %target_dist%\swooz-3dclient_dummy.cmd
-echo call win-init_env_command.cmd %ARCH_EXE_3dclient_dummy%                          >> %target_dist%\swooz-3dclient_dummy.cmd
-echo popd                                                    				>> %target_dist%\swooz-3dclient_dummy.cmd
-echo cd bin										>> %target_dist%\swooz-3dclient_dummy.cmd
-echo java  SW3DClientDummy -config configClient_Stelarc_head.txt -v  -seq Block_1.seq -gaze Block_1.gaze -fps 60>> %target_dist%\swooz-3dclient_dummy.cmd
-echo cd ../../scripts									>> %target_dist%\swooz-3dclient_dummy.cmd
-echo call win-clean-env_command.cmd							>> %target_dist%\swooz-3dclient_dummy.cmd
-echo cd ../dist										>> %target_dist%\swooz-3dclient_dummy.cmd
-REM echo pause 										>> %target_dist%\swooz-3dclient_dummy.cmd
 REM #######################################################################################
 REM ### Kinect on Dimenco 3D display
 echo @echo off                                               				>  %target_dist%\swooz-toolkit_kinectOnDimenco.cmd
@@ -237,6 +211,19 @@ echo cd ../../scripts                                                           
 echo call win-clean-env_command.cmd                                                   >> %target_dist%\swooz-teleoperation_iCub.cmd
 echo cd ../dist                                                                         >> %target_dist%\swooz-teleoperation_iCub.cmd
 REM echo pause                                                                          >> %target_dist%\swooz-teleoperation_iCub.cmd
+REM #######################################################################################
+REM ### nao Teleoperation
+echo @echo off                                                                          >  %target_dist%\swooz-teleoperation_nao.cmd
+echo %SystemRoot%\system32\xcopy /q /e /y %saved_directory%\..\swooz-config %saved_directory%\%target_dist%\data >> %target_dist%\swooz-teleoperation_nao.cmd
+echo pushd ..\scripts                                                                   >> %target_dist%\swooz-teleoperation_nao.cmd
+echo call win-init_env_command.cmd %ARCH_EXE_teleoperation_nao%                      >> %target_dist%\swooz-teleoperation_nao.cmd
+echo popd                                                                               >> %target_dist%\swooz-teleoperation_nao.cmd
+echo cd bin                                                                             >> %target_dist%\swooz-teleoperation_nao.cmd
+echo SWTeleoperation_nao.exe                                                           >> %target_dist%\swooz-teleoperation_nao.cmd
+echo cd ../../scripts                                                                   >> %target_dist%\swooz-teleoperation_nao.cmd
+echo call win-clean-env_command.cmd                                                   >> %target_dist%\swooz-teleoperation_nao.cmd
+echo cd ../dist                                                                         >> %target_dist%\swooz-teleoperation_nao.cmd
+REM echo pause                                                                          >> %target_dist%\swooz-teleoperation_nao.cmd
 REM #######################################################################################
 REM ### OpenNI tracking
 echo @echo off                                                                          >  %target_dist%\swooz-trackingOpenNI.cmd

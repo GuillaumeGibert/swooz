@@ -338,10 +338,17 @@ SWCloud::SWCloud(const std::vector<float> &vPX, const std::vector<float> &vPY, c
 			m_aUi8Colors[2*m_ui32NumberOfPoints + ii] = 0;
 		}
 	}
+    else if(vPX.size() == vPY.size() && vPY.size() == vPZ.size())
+    {
+        std::cout << "SWCloud vPX, vPY, vPZ constructor -> the cloud is null. " << std::endl;
+        m_aFCoords   	     = NULL;
+        m_aUi8Colors         = NULL;
+        m_ui32NumberOfPoints = 0;
+        m_ui32ArraySize	     = 0;
+    }
 	else
 	{
-		cerr << "SWCloud vPX, vPY, vPZ constructor -> bad parameters, array don't have all the same size or are null. " << endl;
-		
+        std::cerr << "SWCloud vPX, vPY, vPZ constructor -> bad parameters, array don't have all the same size " << std::endl;
 		m_aFCoords   	     = NULL;
 		m_aUi8Colors         = NULL;
 		m_ui32NumberOfPoints = 0;
@@ -377,9 +384,17 @@ SWCloud::SWCloud(const std::vector<float> &vPX, const std::vector<float> &vPY, c
 			m_aUi8Colors[2*m_ui32NumberOfPoints + ii] = vB[ii];
 		}		
 	}
+    else if(vPX.size() == vPY.size() && vPY.size() == vPZ.size() && vPZ.size() == vR.size() && vR.size() == vG.size() && vG.size() == vB.size())
+    {
+        std::cout << "SWCloud vPX, vPY, vPZ, vR vG vB constructor -> the cloud is null. " << std::endl;
+        m_aFCoords   	     = NULL;
+        m_aUi8Colors         = NULL;
+        m_ui32NumberOfPoints = 0;
+        m_ui32ArraySize	     = 0;
+    }
 	else
 	{
-		cerr << "SWCloud vPX, vPY, vPZ vR vG vB constructor -> bad parameters, array don't have all the same size or are null. " << endl;
+        std::cerr << "SWCloud vPX, vPY, vPZ vR vG vB constructor -> bad parameters, array don't have all the same size. " << std::endl;
 		
 		m_aFCoords   	     = NULL;
 		m_aUi8Colors 	     = NULL;
@@ -1053,11 +1068,43 @@ bool SWCloud::retrieveCloudPart(SWCloud &oCloudPart, cuint32 ui32BeginIndexPoint
 
 	oCloudPart.set(ui32NumberOfPoints, l_aFNewCoords, l_aUi8NewColors);
 	
-	return true;
+    return true;
+}
+
+void SWCloud::keepOnlyPointInsideBBox(const SWCloudBBox &oCloudBBox)
+{
+    std::vector<float> l_vX, l_vY, l_vZ;
+    std::vector<uint8> l_vR, l_vG, l_vB;
+
+    for(uint ii = 0; ii < size(); ++ii)
+    {
+        if(oCloudBBox.isInside(coord(0)[ii], coord(1)[ii], coord(2)[ii]))
+        {
+            l_vX.push_back(coord(0)[ii]);
+            l_vY.push_back(coord(1)[ii]);
+            l_vZ.push_back(coord(2)[ii]);
+
+            l_vR.push_back(color(0)[ii]);
+            l_vG.push_back(color(1)[ii]);
+            l_vB.push_back(color(2)[ii]);
+        }
+    }
+
+    erase();
+
+    SWCloud l_oCutCloud(l_vX , l_vY, l_vZ, l_vR, l_vG, l_vB);
+    copy(l_oCutCloud);
 }
 
 void SWCloud::lowerBBoxPoint(float &fMinX, float &fMinY, float &fMinZ) const
 {
+    if(size() == 0)
+    {
+        fMinX = 0.f;
+        fMinY = 0.f;
+        fMinZ = 0.f;
+    }
+
 	fMinX = FLT_MAX;
 	fMinY = FLT_MAX;
 	fMinZ = FLT_MAX;
@@ -1082,6 +1129,13 @@ void SWCloud::lowerBBoxPoint(float &fMinX, float &fMinY, float &fMinZ) const
 
 void SWCloud::upperBBoxPoint(float &fMaxX, float &fMaxY, float &fMaxZ) const
 {
+    if(size() == 0)
+    {
+        fMaxX = 0.f;
+        fMaxY = 0.f;
+        fMaxZ = 0.f;
+    }
+
 	fMaxX = -FLT_MAX;
 	fMaxY = -FLT_MAX;
 	fMaxZ = -FLT_MAX;

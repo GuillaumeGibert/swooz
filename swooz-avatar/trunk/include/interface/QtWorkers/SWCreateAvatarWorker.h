@@ -13,24 +13,17 @@
 #include "SWCreateAvatar.h"
 #include "cloud/SWCloud.h"
 
-
 #include <QObject>
 #include <QReadWriteLock>
-
 #include <QMatrix4x4>
-
-#include <boost/iostreams/device/mapped_file.hpp>
-
-
 
 
 typedef boost::shared_ptr<SWCreateAvatar> SWCreateAvatarPtr;	/**< boost shared pointer for SWCreateAvatar */
-typedef boost::shared_ptr<swDevice::SWKinect_thread> SWKinect_threadPtr;	/**< boost shared pointer for SWKinect */
 
 
 /**
  * \class SWCreateAvatarWorker
- * \brief  ...
+ * \brief  Worker thread for the create avatar module.
  * \author Florian Lance
  * \date 06/02/13
  */
@@ -40,16 +33,11 @@ class SWCreateAvatarWorker : public QObject
 	
 	public :
 		
-		/**
-		 * \brief current worker mode enum
-		 */		
-        enum WorkMode{ DETECT, ADD_CLOUD};
-	
-		/**
-         * \brief constructor of SWCreateAvatarWorker
-		 * \param [in] ui8VideoMode : kinect video mode
-		 */	
-        SWCreateAvatarWorker(const uint8 ui8VideoMode = CV_CAP_OPENNI_SXGA_30HZ);
+        /**
+         * @brief SWCreateAvatarWorker
+         * @param [in] pRGBDDeviceThread : pointer of the kinect thread allocated in the main interface
+         */
+        SWCreateAvatarWorker(swDevice::SWKinect_thread *pRGBDDeviceThread);
 	
 		/**
          * \brief destructor of SWCreateAvatarWorker
@@ -60,97 +48,144 @@ class SWCreateAvatarWorker : public QObject
 	public slots:
 	
         /**
-         * \brief ...
+         * @brief doWork
          */
         void doWork();
 		
         /**
-         * \brief ...
+         * @brief stopWork
          */
         void stopWork();
 
+
+        /**
+         * @brief reconstruct
+         */
+        void reconstruct();
+
         /**
          * @brief saveMeshFile
+         * @param [in] sPath : path for saving the mesh
          */
         void saveMeshFile(QString sPath);
 	
         /**
-         * \brief Set the number of clouds to use in the avatar creation.
-         * \param [in] i32NumberOfClouds : number of cloud
+         * \brief SsetCloudNumberValue
          */
-        void setCloudNumberValue(const int i32NumberOfClouds);
+        void setCloudNumberValue(const int);
 
         /**
-         * \brief Set the X value offset for the rgb video input.
-         * \param [in] i32CalibrationX : x offset
+         * \brief setCalibrationXValue
          */
-        void setCalibrationXValue(const int i32CalibrationX);
+        void setCalibrationXValue(const int);
 
         /**
-         * \brief Set the Y value offset for the rgb video input.
-         * \param [in] i32CalibrationY : y offset
+         * \brief setCalibrationYValue
          */
-        void setCalibrationYValue(const int i32CalibrationY);
+        void setCalibrationYValue(const int);
 		
         /**
          * @brief setRadialWidth
-         * @param i32Val
          */
-        void setRadialWidth(const int i32Val);
+        void setRadialWidth(const int);
 
         /**
          * @brief setRadialHeight
-         * @param i32Val
          */
-        void setRadialHeight(const int i32Val);
+        void setRadialHeight(const int);
 
         /**
          * @brief setBilateralDiameter
-         * @param i32Val
          */
-        void setBilateralDiameter(const int i32Val);
+        void setBilateralDiameter(const int);
 
         /**
          * @brief setBilateralColor
-         * @param i32Val
          */
-        void setBilateralColor(const int i32Val);
+        void setBilateralColor(const int);
 
         /**
          * @brief setBilateralSpace
-         * @param i32Val
          */
-        void setBilateralSpace(const int i32Val);
+        void setBilateralSpace(const int);
 
         /**
          * @brief setCylinderRadius
-         * @param dRadius
          */
-        void setCylinderRadius(const double dRadius);
+        void setCylinderRadius(const double);
 
         /**
          * @brief setUseBilateralFilter
-         * @param bUseFilter
          */
-        void setUseBilateralFilter(const bool bUseFilter);
+        void setUseBilateralFilter(const bool);
 
         /**
          * @brief setUseStasm
-         * @param bUseStasm
          */
-        void setUseStasm(const bool bUseStasm);
+        void setUseStasm(const bool);
 
         /**
          * @brief setErode
-         * @param i32Erode
          */
-        void setErode(const int i32Erode);
+        void setErode(const int);
 
         /**
          * @brief setDilate
-         * @param i32Dilate
          */
-        void setDilate(const int i32Dilate);
+        void setDilate(const int);
+
+        /**
+         * @brief resetKinect
+         */
+        void resetKinect(const int);
+
+        /**
+         * @brief setExpandValue
+         */
+        void setExpandValue(const int);
+
+        /**
+         * @brief setExpandConnex
+         */
+        void setExpandConnex(const int);
+
+        /**
+         * @brief setEraseValue
+         */
+        void setEraseValue(const int);
+
+        /**
+         * @brief setEraseConnex
+         */
+        void setEraseConnex(const int);
+
+        /**
+         * @brief setDepthCloud
+         */
+        void setDepthCloud(const double);
+
+
+        /**
+         * @brief addPointToDeleteRadialProj
+         */
+        void addPointToDeleteRadialProj(const QPoint, const QSize);
+
+        /**
+         * @brief resetDeletedPointsRadialProj
+         */
+        void resetDeletedPointsRadialProj();
+
+
+        /**
+         * @brief setWidthRectRatio
+         */
+        void setWidthRectRatio(const int);
+
+        /**
+         * @brief setHeightRectRatio
+         */
+        void setHeightRectRatio(const int);
+
 		
 	signals:
 
@@ -203,13 +238,22 @@ class SWCreateAvatarWorker : public QObject
          * @brief sendStasmPoints
          */
         void sendStasmPoints(std::vector<cv::Point2i>);
+
+        /**
+         * @brief endResetKinect
+         */
+        void endResetKinect();
+
+        /**
+         * @brief sendNumCloud
+         */
+        void sendNumCloud(int);
 		
 	private :
 		
 
         bool m_bDoWork;                             /**< ... */
-        bool m_bWorkStopped;                        /**< ... */
-        bool m_bResetKinectParams;                  /**< ... */
+        bool m_bInitKinect;                         /**< ... */
         int  m_i32NumberOfClouds;                   /**< ... */
 
         // parameters
@@ -222,42 +266,24 @@ class SWCreateAvatarWorker : public QObject
         cv::Rect *m_pCurrentNoseRect;               /**< current nose rectangle */
 
         // mat
-        cv::Mat *m_pRadialProjectionToDisplay;       /**< filtered radial projection mat to be displayed */
-        cv::Mat *m_pTextureToDisplay;               /**< ... */
+        cv::Mat *m_pRadialProjectionToDisplay;      /**< filtered radial projection mat to be displayed */
+        cv::Mat *m_pFaceTexture;                    /**< face mesh texture */
 
         // cloud
         swCloud::SWCloud *m_pCloudToDisplay;        /**< cloud to be displayed */
 
         // mesh
-        swMesh::SWMesh *m_pMeshToDisplay;           /**< mesh to be displayed */
+        swMesh::SWMesh *m_pFaceMeshResult;          /**< face mesh result */
 
         // mutex
         QReadWriteLock      m_oLoopMutex;           /**< loop mutex */
         QReadWriteLock      m_oParametersMutex;     /**< parameters mutex */
 
         // kinect
-        swDevice::SWKinectParams m_CKinectParams;   /**< kinect video params */
-		SWKinect_threadPtr 	m_CKinectTPtr;  		/**< kinect class pointer */		
+        swDevice::SWKinect_thread *m_pRGBDDeviceThread; /**< kinect class pointer defined in createAvatar interface */
 
         // avatar
         SWCreateAvatarPtr 	m_CAvatarPtr;           /**< create avatar class pointer */
 };
 
 #endif
-
-
-
-/**
- * \brief Save all the rgb and cloud data from a kinect, the length of the sequence must be under 3min.
- */
-//		void saveKinectData();
-
-/**
- * \brief Load the previoulsy saved kinect data and change the current data source in the main loop to use it.
- */
-//		void loadKinectData();
-
-/**
- * \brief Switch between SAVE_KINECT_DATA and DETECT_AND_DISPLAY mode.
- */
-//		void switchModeSaveKinectData();

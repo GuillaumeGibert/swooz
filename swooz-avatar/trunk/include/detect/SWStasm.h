@@ -11,8 +11,15 @@
 
 #undef _XLength_error
 
+// stasm
 #include "stasm/stasm.hpp"
-#include "devices/rgbd/SWKinectParams.h"
+
+// opencv
+#include "opencv2/highgui/highgui.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
+
+// swooz
+#include "commonTypes.h"
 #include "SWExceptions.h"
 #include "cloud/SWCloud.h"
 
@@ -33,12 +40,10 @@ namespace swDetect
 		
 			/**
 			 * \brief constructor of SWStasm
-			 * \param [in] oKinectParams : kinect video parameters
 			 * \param [in] sConfFile0Path : stasm config file 0 path
 			 * \param [in] sConfFile1Path : stasm config file 1 path			  
 			 */	
-			SWStasm(const swDevice::SWKinectParams &oKinectParams,
-                const std::string &sConfFile0Path = "../data/stasm/mu-68-1d.conf", const std::string &sConfFile1Path = "../data/stasm/mu-76-2d.conf");
+            SWStasm(const std::string &sConfFile0Path = "../data/stasm/mu-68-1d.conf", const std::string &sConfFile1Path = "../data/stasm/mu-76-2d.conf");
 			
 			/**
 			 * \brief destructor of SWStasm
@@ -55,12 +60,7 @@ namespace swDetect
 			 */		
 			bool launchAsmSearch(const cv::Mat &oCurrRgbMat,  cv::Rect &oCurrFaceRect);
 										
-			/**
-			 * \brief ...
-			 * \param [in] oKinectParams : ...
-			 */					
-			void setKinectParams(const swDevice::SWKinectParams &oKinectParams);
-						
+
 			/**
 			 * \brief Reset stasm params, but not the config files.
 			 */				
@@ -101,10 +101,7 @@ namespace swDetect
 						
 			std::vector<cv::Point2i> m_oFeaturesPoints;   /**< array of detected features points */
 
-		private :
-			
-			// kinect 		
-			swDevice::SWKinectParams m_CKinectParams;  /**< kinect video params */		
+		private :				
 
 			bool m_bInitDone;  	         /**< is the initialization done */
 			bool m_bInitFirstShape;		 /**< a shape has been computed */

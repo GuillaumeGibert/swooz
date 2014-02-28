@@ -15,6 +15,7 @@
 
 #include "interface/SWGLUtility.h"
 
+#include <QGLFunctions>
 
 SWGLMeshWidget::SWGLMeshWidget(QGLContext *context, QWidget* parent, const QString &sVertexShaderPath, const QString &sFragmentShaderPath) :
     SWGLWidget(context, parent), m_sVertexShaderPath(sVertexShaderPath), m_sFragmentShaderPath(sFragmentShaderPath), m_pMesh(NULL),
@@ -27,6 +28,11 @@ SWGLMeshWidget::~SWGLMeshWidget()
 
 void SWGLMeshWidget::initializeGL()
 {
+    // set perspective
+        m_rZNear = 0.01;
+        m_rZFar  = 100.0;
+        m_rFOV   = 40.0;
+
     // set background
         qglClearColor(QColor(49, 53, 70));
 
@@ -53,11 +59,11 @@ void SWGLMeshWidget::paintGL()
     // clear color and depth buffer
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // activate texture
-        if(m_bApplyTexture)
+    // create texture
+        if(m_bBindTexture)
         {
-            qDebug() << "bind : " << m_textureLocation;
-            glBindTexture(GL_TEXTURE_2D, m_textureLocation);
+            m_bBindTexture = false;
+            m_textureLocation = bindTexture(m_oTexture);
         }
 
     // calculate model view transformation
@@ -75,17 +81,26 @@ void SWGLMeshWidget::paintGL()
     // draw
         if(m_pMesh)
         {
+             m_oShaderMesh.bind();
+
+            // bind texture
+                if(m_bApplyTexture)
+                {
+                    glBindTexture(GL_TEXTURE_2D, m_textureLocation);
+                }
+
             drawMesh();
         }
 
-        drawAxes(m_oShaderMesh, m_oMVPMatrix, 0.02f);
+    m_oShaderLines.bind();
+    drawAxes(m_oShaderLines, m_oMVPMatrix, 0.02f);
 }
 
 void SWGLMeshWidget::setTexture(const QImage &oTexture)
-{
+{    
     m_oParamMutex.lockForWrite();
         m_oTexture = oTexture;
-        m_textureLocation = bindTexture(m_oTexture);
+        m_bBindTexture = true;
     m_oParamMutex.unlock();
 }
 
@@ -93,6 +108,7 @@ void SWGLMeshWidget::setTexture(const QString &sTexturePath)
 {
     m_oParamMutex.lockForWrite();
         m_textureLocation = bindTexture(QImage(sTexturePath));
+        m_bBindTexture = true;
     m_oParamMutex.unlock();
 }
 
@@ -100,7 +116,6 @@ void SWGLMeshWidget::applyTexture(const bool bApplyTexture)
 {
     m_oParamMutex.lockForWrite();
         m_bApplyTexture = bApplyTexture;
-        qDebug() << "m_bApplyTexture : " << m_bApplyTexture;
     m_oParamMutex.unlock();
     updateGL();
 }
@@ -192,7 +207,6 @@ void SWGLMeshWidget::drawMesh()
     }
     m_oParamMutex.unlock();
 
-
     // release buffers
     QGLBuffer::release(QGLBuffer::VertexBuffer);
     QGLBuffer::release(QGLBuffer::IndexBuffer);
@@ -209,8 +223,8 @@ void SWGLMeshWidget::drawMesh()
     allocateBuffer(m_textureBuffer, l_aFTextureBuffer,  m_pMesh->pointsNumber() *     2 * sizeof(float) );
 
     m_oShaderMesh.setUniformValue("mvpMatrix", m_oMVPMatrix);
+    m_oShaderMesh.setUniformValue("applyTexture", m_bApplyTexture);
 
-    qDebug() << "m_textureBuffer " << m_textureBuffer.size();
     drawBufferWithTexture(m_indexBuffer, m_vertexBuffer, m_textureBuffer, m_normalBuffer, m_oShaderMesh, GL_TRIANGLES);
 
     delete[] l_aFVertexBuffer;

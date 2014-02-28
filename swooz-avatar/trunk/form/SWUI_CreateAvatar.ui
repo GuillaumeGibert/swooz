@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1224</width>
-    <height>719</height>
+    <width>1672</width>
+    <height>921</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,7 +16,7 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QHBoxLayout" name="horizontalLayout">
     <item>
-     <layout class="QVBoxLayout" name="verticalLayout" stretch="6,2">
+     <layout class="QVBoxLayout" name="verticalLayout" stretch="8,2">
       <item>
        <widget class="QGroupBox" name="gbDisplay">
         <property name="title">
@@ -47,6 +47,16 @@
               <layout class="QHBoxLayout" name="horizontalLayout_8">
                <item>
                 <layout class="QHBoxLayout" name="hlRadial"/>
+               </item>
+              </layout>
+             </widget>
+             <widget class="QWidget" name="tabFaceTexture">
+              <attribute name="title">
+               <string>Face texture</string>
+              </attribute>
+              <layout class="QHBoxLayout" name="horizontalLayout_6">
+               <item>
+                <layout class="QHBoxLayout" name="hlFaceTexture"/>
                </item>
               </layout>
              </widget>
@@ -97,17 +107,36 @@
              <property name="currentIndex">
               <number>0</number>
              </property>
-             <widget class="QWidget" name="tabFilters" native="true">
+             <widget class="QWidget" name="tabFilters">
               <attribute name="title">
                <string>Filters</string>
               </attribute>
               <layout class="QGridLayout" name="glFilters_2">
                <item row="0" column="0">
                 <layout class="QGridLayout" name="glFilters" rowstretch="1,1,1,1,0" columnstretch="2,3,2">
-                 <item row="4" column="0" colspan="2" alignment="Qt::AlignHCenter">
-                  <widget class="QLabel" name="label">
+                 <item row="2" column="1" alignment="Qt::AlignHCenter">
+                  <widget class="QLabel" name="laPixelDiameter">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
                    <property name="text">
-                    <string>Clouds to sum (temporal filter) :</string>
+                    <string>Pixel diameter filter :</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="2" alignment="Qt::AlignHCenter">
+                  <widget class="QSpinBox" name="sbDiameter">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="minimum">
+                    <number>-1</number>
+                   </property>
+                   <property name="maximum">
+                    <number>100</number>
+                   </property>
+                   <property name="value">
+                    <number>-1</number>
                    </property>
                   </widget>
                  </item>
@@ -118,27 +147,7 @@
                    </property>
                   </widget>
                  </item>
-                 <item row="3" column="2" alignment="Qt::AlignHCenter">
-                  <widget class="QSpinBox" name="sbSpace">
-                   <property name="maximum">
-                    <number>500</number>
-                   </property>
-                   <property name="value">
-                    <number>8</number>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="2" column="2" alignment="Qt::AlignHCenter">
-                  <widget class="QSpinBox" name="sbColor">
-                   <property name="maximum">
-                    <number>500</number>
-                   </property>
-                   <property name="value">
-                    <number>40</number>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="2" column="1" alignment="Qt::AlignHCenter">
+                 <item row="4" column="1" alignment="Qt::AlignHCenter">
                   <widget class="QLabel" name="laColor">
                    <property name="text">
                     <string>Bilateral color :</string>
@@ -146,19 +155,46 @@
                   </widget>
                  </item>
                  <item row="4" column="2" alignment="Qt::AlignHCenter">
+                  <widget class="QSpinBox" name="sbColor">
+                   <property name="maximum">
+                    <number>500</number>
+                   </property>
+                   <property name="value">
+                    <number>200</number>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="2" alignment="Qt::AlignHCenter">
+                  <widget class="QSpinBox" name="sbSpace">
+                   <property name="maximum">
+                    <number>500</number>
+                   </property>
+                   <property name="value">
+                    <number>3</number>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="2" alignment="Qt::AlignHCenter">
                   <widget class="QSpinBox" name="sbClouds">
                    <property name="minimum">
                     <number>1</number>
                    </property>
                    <property name="maximum">
-                    <number>100</number>
+                    <number>500</number>
                    </property>
                    <property name="value">
-                    <number>30</number>
+                    <number>50</number>
                    </property>
                   </widget>
                  </item>
                  <item row="0" column="0" colspan="2" alignment="Qt::AlignHCenter">
+                  <widget class="QLabel" name="label">
+                   <property name="text">
+                    <string>Clouds to sum (temporal filter) :</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="0" colspan="2" alignment="Qt::AlignHCenter">
                   <widget class="QCheckBox" name="cbBilateralFilter">
                    <property name="text">
                     <string>Use bilateral filter</string>
@@ -171,26 +207,6 @@
                    </property>
                   </widget>
                  </item>
-                 <item row="1" column="1" alignment="Qt::AlignHCenter">
-                  <widget class="QLabel" name="laPixelDiameter">
-                   <property name="text">
-                    <string>Pixel diameter filter :</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="1" column="2" alignment="Qt::AlignHCenter">
-                  <widget class="QSpinBox" name="sbDiameter">
-                   <property name="minimum">
-                    <number>-1</number>
-                   </property>
-                   <property name="maximum">
-                    <number>100</number>
-                   </property>
-                   <property name="value">
-                    <number>-1</number>
-                   </property>
-                  </widget>
-                 </item>
                 </layout>
                </item>
               </layout>
@@ -199,51 +215,14 @@
               <attribute name="title">
                <string>Radial projection</string>
               </attribute>
-              <layout class="QGridLayout" name="gridLayout_8">
+              <layout class="QGridLayout" name="gridLayout_6">
                <item row="0" column="0">
-                <layout class="QGridLayout" name="glProjection" rowstretch="0,0,0,0,0" columnstretch="5,3">
-                 <item row="2" column="1" alignment="Qt::AlignHCenter">
-                  <widget class="QSpinBox" name="sbHeight">
-                   <property name="maximum">
-                    <number>2000</number>
-                   </property>
-                   <property name="singleStep">
-                    <number>50</number>
-                   </property>
-                   <property name="value">
-                    <number>485</number>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="1" column="1" alignment="Qt::AlignHCenter">
-                  <widget class="QSpinBox" name="sbWidth">
-                   <property name="maximum">
-                    <number>2000</number>
-                   </property>
-                   <property name="singleStep">
-                    <number>50</number>
-                   </property>
-                   <property name="value">
-                    <number>675</number>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="2" column="0" alignment="Qt::AlignHCenter">
-                  <widget class="QLabel" name="laHeight">
-                   <property name="text">
-                    <string>Height :</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="1" column="0" alignment="Qt::AlignHCenter">
-                  <widget class="QLabel" name="laWidth">
-                   <property name="text">
-                    <string>Width :</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="0" column="1" alignment="Qt::AlignHCenter">
+                <layout class="QGridLayout" name="glProjection" columnstretch="2,1,1,1,1">
+                 <item row="1" column="2" alignment="Qt::AlignHCenter">
                   <widget class="QDoubleSpinBox" name="dsbRadius">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
                    <property name="minimum">
                     <double>0.050000000000000</double>
                    </property>
@@ -258,44 +237,181 @@
                    </property>
                   </widget>
                  </item>
-                 <item row="0" column="0" alignment="Qt::AlignHCenter">
+                 <item row="5" column="1" alignment="Qt::AlignHCenter">
+                  <widget class="QLabel" name="laValueErase">
+                   <property name="text">
+                    <string>Value :</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="0" colspan="2" alignment="Qt::AlignHCenter">
                   <widget class="QLabel" name="laCynlinderRadius">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
                    <property name="text">
                     <string>Cylinder radius :</string>
                    </property>
                   </widget>
                  </item>
+                 <item row="2" column="0" alignment="Qt::AlignHCenter">
+                  <widget class="QLabel" name="laWidth">
+                   <property name="text">
+                    <string>Width :</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="1">
+                  <widget class="QSpinBox" name="sbWidth">
+                   <property name="maximum">
+                    <number>2000</number>
+                   </property>
+                   <property name="singleStep">
+                    <number>50</number>
+                   </property>
+                   <property name="value">
+                    <number>350</number>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="2" alignment="Qt::AlignHCenter">
+                  <widget class="QLabel" name="laHeight">
+                   <property name="text">
+                    <string>Height :</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="3" alignment="Qt::AlignHCenter">
+                  <widget class="QSpinBox" name="sbHeight">
+                   <property name="maximum">
+                    <number>2000</number>
+                   </property>
+                   <property name="singleStep">
+                    <number>50</number>
+                   </property>
+                   <property name="value">
+                    <number>250</number>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="5" column="2" alignment="Qt::AlignHCenter">
+                  <widget class="QSpinBox" name="sbEraseValue">
+                   <property name="maximum">
+                    <number>200</number>
+                   </property>
+                   <property name="value">
+                    <number>5</number>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="5" column="4" alignment="Qt::AlignHCenter">
+                  <widget class="QSpinBox" name="sbEraseConnex">
+                   <property name="minimum">
+                    <number>1</number>
+                   </property>
+                   <property name="maximum">
+                    <number>8</number>
+                   </property>
+                   <property name="value">
+                    <number>1</number>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="5" column="3" alignment="Qt::AlignHCenter">
+                  <widget class="QLabel" name="laConnexErase">
+                   <property name="text">
+                    <string>Connex :</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="5" column="0" alignment="Qt::AlignHCenter">
+                  <widget class="QLabel" name="laContoursErase">
+                   <property name="text">
+                    <string>Contours erase :</string>
+                   </property>
+                  </widget>
+                 </item>
                  <item row="3" column="0" alignment="Qt::AlignHCenter">
+                  <widget class="QLabel" name="laContoursExpand">
+                   <property name="text">
+                    <string>Contours expand :</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="4" column="1" alignment="Qt::AlignHCenter">
+                  <widget class="QSpinBox" name="sbDilate">
+                   <property name="minimum">
+                    <number>0</number>
+                   </property>
+                   <property name="maximum">
+                    <number>50</number>
+                   </property>
+                   <property name="value">
+                    <number>0</number>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="1" alignment="Qt::AlignHCenter">
+                  <widget class="QLabel" name="laValueExpand">
+                   <property name="text">
+                    <string>Value :</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="4" column="0" alignment="Qt::AlignHCenter">
                   <widget class="QLabel" name="laDilate">
                    <property name="text">
                     <string>Dilate :</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="4" column="0" alignment="Qt::AlignHCenter">
+                 <item row="4" column="2" alignment="Qt::AlignHCenter">
                   <widget class="QLabel" name="laErode">
                    <property name="text">
                     <string>Erode :</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="3" column="1" alignment="Qt::AlignHCenter">
-                  <widget class="QSpinBox" name="sbDilate">
+                 <item row="4" column="3" alignment="Qt::AlignHCenter">
+                  <widget class="QSpinBox" name="sbErode">
                    <property name="maximum">
-                    <number>10</number>
+                    <number>50</number>
                    </property>
                    <property name="value">
-                    <number>3</number>
+                    <number>0</number>
                    </property>
                   </widget>
                  </item>
-                 <item row="4" column="1" alignment="Qt::AlignHCenter">
-                  <widget class="QSpinBox" name="sbErode">
+                 <item row="3" column="2" alignment="Qt::AlignHCenter">
+                  <widget class="QSpinBox" name="sbExpandValue">
+                   <property name="minimum">
+                    <number>5</number>
+                   </property>
                    <property name="maximum">
-                    <number>10</number>
+                    <number>200</number>
                    </property>
                    <property name="value">
                     <number>5</number>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="4" alignment="Qt::AlignHCenter">
+                  <widget class="QSpinBox" name="sbExpandConnex">
+                   <property name="minimum">
+                    <number>1</number>
+                   </property>
+                   <property name="maximum">
+                    <number>8</number>
+                   </property>
+                   <property name="value">
+                    <number>1</number>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="3" alignment="Qt::AlignHCenter">
+                  <widget class="QLabel" name="laConnexExpand">
+                   <property name="text">
+                    <string>Connex :</string>
                    </property>
                   </widget>
                  </item>
@@ -309,7 +425,64 @@
               </attribute>
               <layout class="QGridLayout" name="gridLayout_9">
                <item row="0" column="0">
-                <layout class="QGridLayout" name="glDevice" rowstretch="0,0,0" columnstretch="5,3">
+                <layout class="QGridLayout" name="glDevice" rowstretch="0,0,0,0" columnstretch="5,3,0">
+                 <item row="1" column="1" alignment="Qt::AlignHCenter">
+                  <widget class="QLabel" name="laXOffset">
+                   <property name="text">
+                    <string>X offset :</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="1" alignment="Qt::AlignHCenter">
+                  <widget class="QLabel" name="laYOffset">
+                   <property name="text">
+                    <string>Y offset :</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="2" alignment="Qt::AlignHCenter">
+                  <widget class="QSpinBox" name="sbXOffset">
+                   <property name="enabled">
+                    <bool>true</bool>
+                   </property>
+                   <property name="minimum">
+                    <number>-200</number>
+                   </property>
+                   <property name="maximum">
+                    <number>200</number>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="2" alignment="Qt::AlignHCenter">
+                  <widget class="QSpinBox" name="sbYOffset">
+                   <property name="enabled">
+                    <bool>true</bool>
+                   </property>
+                   <property name="minimum">
+                    <number>-200</number>
+                   </property>
+                   <property name="maximum">
+                    <number>200</number>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="1" alignment="Qt::AlignHCenter">
+                  <widget class="QSpinBox" name="sbDeviceMode">
+                   <property name="enabled">
+                    <bool>true</bool>
+                   </property>
+                   <property name="maximum">
+                    <number>2</number>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="0" alignment="Qt::AlignHCenter">
+                  <widget class="QLabel" name="label_2">
+                   <property name="text">
+                    <string>Calibration :</string>
+                   </property>
+                  </widget>
+                 </item>
                  <item row="0" column="0" alignment="Qt::AlignHCenter">
                   <widget class="QLabel" name="laModeDevice">
                    <property name="text">
@@ -317,41 +490,90 @@
                    </property>
                   </widget>
                  </item>
-                 <item row="1" column="0" alignment="Qt::AlignHCenter">
-                  <widget class="QLabel" name="laXOffset">
+                 <item row="3" column="0" alignment="Qt::AlignHCenter">
+                  <widget class="QLabel" name="laFaceDepth">
                    <property name="text">
-                    <string>X offset :</string>
+                    <string>Face depth :</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="2" column="0" alignment="Qt::AlignHCenter">
-                  <widget class="QLabel" name="laYOffset">
+                 <item row="3" column="1" alignment="Qt::AlignHCenter">
+                  <widget class="QDoubleSpinBox" name="dsbFaceDepth">
+                   <property name="minimum">
+                    <double>0.050000000000000</double>
+                   </property>
+                   <property name="maximum">
+                    <double>1.000000000000000</double>
+                   </property>
+                   <property name="singleStep">
+                    <double>0.010000000000000</double>
+                   </property>
+                   <property name="value">
+                    <double>0.120000000000000</double>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
+             <widget class="QWidget" name="tabDetection">
+              <attribute name="title">
+               <string>Detection</string>
+              </attribute>
+              <layout class="QGridLayout" name="gridLayout_8">
+               <item row="0" column="0">
+                <layout class="QGridLayout" name="glDetection">
+                 <item row="1" column="1" alignment="Qt::AlignHCenter">
+                  <widget class="QLabel" name="laHeightFaceRect">
                    <property name="text">
-                    <string>Y offset :</string>
+                    <string>Height :</string>
                    </property>
                   </widget>
                  </item>
                  <item row="0" column="1" alignment="Qt::AlignHCenter">
-                  <widget class="QSpinBox" name="sbDeviceMode">
+                  <widget class="QLabel" name="laWidthFaceRect">
+                   <property name="text">
+                    <string>Width :</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="2" alignment="Qt::AlignHCenter">
+                  <widget class="QSlider" name="hsHeightFaceRect">
                    <property name="enabled">
                     <bool>false</bool>
                    </property>
                    <property name="maximum">
-                    <number>3</number>
+                    <number>200</number>
+                   </property>
+                   <property name="value">
+                    <number>100</number>
+                   </property>
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
                    </property>
                   </widget>
                  </item>
-                 <item row="1" column="1" alignment="Qt::AlignHCenter">
-                  <widget class="QSpinBox" name="sbXOffset">
+                 <item row="0" column="2" alignment="Qt::AlignHCenter">
+                  <widget class="QSlider" name="hlWidthFaceRect">
                    <property name="enabled">
                     <bool>false</bool>
                    </property>
+                   <property name="maximum">
+                    <number>200</number>
+                   </property>
+                   <property name="value">
+                    <number>100</number>
+                   </property>
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
                   </widget>
                  </item>
-                 <item row="2" column="1" alignment="Qt::AlignHCenter">
-                  <widget class="QSpinBox" name="sbYOffset">
-                   <property name="enabled">
-                    <bool>false</bool>
+                 <item row="0" column="0" alignment="Qt::AlignHCenter">
+                  <widget class="QLabel" name="laFaceRectangleSize">
+                   <property name="text">
+                    <string>Face rectangle size :</string>
                    </property>
                   </widget>
                  </item>
@@ -392,17 +614,40 @@
              <layout class="QGridLayout" name="gridLayout_5">
               <item row="0" column="0">
                <layout class="QGridLayout" name="glDisplayParameters">
-                <item row="0" column="0" alignment="Qt::AlignHCenter">
-                 <widget class="QCheckBox" name="cbApplyTexture">
-                  <property name="text">
-                   <string>Apply texture on result mesh</string>
+                <item row="2" column="1" alignment="Qt::AlignHCenter">
+                 <widget class="QDoubleSpinBox" name="dsbFOV">
+                  <property name="decimals">
+                   <number>1</number>
+                  </property>
+                  <property name="minimum">
+                   <double>10.000000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>90.000000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>40.000000000000000</double>
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="0" alignment="Qt::AlignHCenter">
+                <item row="2" column="0" alignment="Qt::AlignHCenter">
+                 <widget class="QLabel" name="laFOV">
+                  <property name="text">
+                   <string>FOV :</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0" colspan="2">
                  <widget class="QCheckBox" name="cbDisplayLines">
                   <property name="text">
                    <string>Display line mesh</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="0" colspan="2">
+                 <widget class="QCheckBox" name="cbApplyTexture">
+                  <property name="text">
+                   <string>Apply texture on result mesh</string>
                   </property>
                  </widget>
                 </item>
@@ -419,14 +664,26 @@
              <layout class="QGridLayout" name="gridLayout_7">
               <item row="0" column="0">
                <layout class="QGridLayout" name="glActions">
-                <item row="0" column="0">
-                 <widget class="QPushButton" name="pbStart">
+                <property name="topMargin">
+                 <number>20</number>
+                </property>
+                <property name="bottomMargin">
+                 <number>20</number>
+                </property>
+                <property name="spacing">
+                 <number>20</number>
+                </property>
+                <item row="2" column="0">
+                 <widget class="QPushButton" name="pbReconstruct">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
                   <property name="text">
-                   <string>Start recording</string>
+                   <string>Reconstruct avatar</string>
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="0">
+                <item row="1" column="2">
                  <widget class="QPushButton" name="pbStop">
                   <property name="enabled">
                    <bool>false</bool>
@@ -436,13 +693,27 @@
                   </property>
                  </widget>
                 </item>
-                <item row="2" column="0">
+                <item row="2" column="2">
                  <widget class="QPushButton" name="pbSaveAvatar">
                   <property name="enabled">
                    <bool>false</bool>
                   </property>
                   <property name="text">
                    <string>Save avatar</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QPushButton" name="pbStart">
+                  <property name="text">
+                   <string>Start recording</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="1">
+                 <widget class="QPushButton" name="pbResetSelectedContours">
+                  <property name="text">
+                   <string>Reset selected contours</string>
                   </property>
                  </widget>
                 </item>
@@ -465,7 +736,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1224</width>
+     <width>1672</width>
      <height>21</height>
     </rect>
    </property>
@@ -473,18 +744,9 @@
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <tabstops>
-  <tabstop>sbColor</tabstop>
-  <tabstop>sbSpace</tabstop>
-  <tabstop>sbClouds</tabstop>
-  <tabstop>sbWidth</tabstop>
-  <tabstop>sbHeight</tabstop>
-  <tabstop>sbDeviceMode</tabstop>
   <tabstop>sbXOffset</tabstop>
   <tabstop>sbYOffset</tabstop>
   <tabstop>cbSTASM</tabstop>
-  <tabstop>pbStart</tabstop>
-  <tabstop>pbStop</tabstop>
-  <tabstop>pbSaveAvatar</tabstop>
  </tabstops>
  <resources/>
  <connections>
@@ -495,12 +757,12 @@
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>978</x>
-     <y>652</y>
+     <x>1047</x>
+     <y>582</y>
     </hint>
     <hint type="destinationlabel">
-     <x>998</x>
-     <y>702</y>
+     <x>1191</x>
+     <y>582</y>
     </hint>
    </hints>
   </connection>
@@ -511,12 +773,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1056</x>
-     <y>644</y>
+     <x>1047</x>
+     <y>582</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1035</x>
-     <y>649</y>
+     <x>1047</x>
+     <y>582</y>
     </hint>
    </hints>
   </connection>
@@ -527,12 +789,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>929</x>
-     <y>711</y>
+     <x>1191</x>
+     <y>582</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1017</x>
-     <y>705</y>
+     <x>1191</x>
+     <y>582</y>
     </hint>
    </hints>
   </connection>

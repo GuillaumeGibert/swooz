@@ -20,6 +20,11 @@ SWGLWidget::SWGLWidget(  QGLContext *oContext, QWidget* oParent) :
     // miscellanous
         m_bVerbose = false;
 
+    // default perspective
+        m_rZNear = 0.01;
+        m_rZFar  = 100.0;
+        m_rFOV   = 60.0;
+
 	// init camera parameters
         m_bIsClickedMouse = false;
         m_bMidClick       = false;
@@ -50,6 +55,38 @@ void SWGLWidget::resetCamera(const QVector3D &oEyePosition, const QVector3D &oLo
     deleteAndNullify(m_pCamera);
 
     m_pCamera = new SWQtCamera(oEyePosition, oLookAt, oUp);
+}
+
+void SWGLWidget::setFOV(const double dFOV)
+{
+    m_oParamMutex.lockForWrite();
+        if(dFOV > 10 && dFOV < 120)
+        {
+            m_rFOV  = dFOV;
+        }
+    m_oParamMutex.unlock();
+
+
+    resizeGL(this->width(), this->height());
+}
+
+
+void SWGLWidget::setPerspective(const qreal rFOV, const qreal rZNear, const qreal rZFar)
+{
+    m_oParamMutex.lockForWrite();
+        if(rFOV > 10 && rFOV < 120)
+        {
+            m_rFOV  = rFOV;
+        }
+        if(rZNear > 0 && rZNear < rZFar)
+        {
+            m_rZNear = rZNear;
+            m_rZFar  = rZFar;
+        }
+    m_oParamMutex.unlock();
+
+
+    resizeGL(this->width(), this->height());
 }
 
 void SWGLWidget::initShaders( const QString& vertexShaderPath, const QString& fragmentShaderPath, QGLShaderProgram &oShader, cbool bBindShader)
@@ -205,6 +242,13 @@ void SWGLWidget::timerEvent(QTimerEvent *e)
 
 void SWGLWidget::resizeGL( int i32Width, int i32Height )
 {
+    m_oParamMutex.lockForRead();
+        qreal l_rFOV = m_rFOV;
+        qreal l_rZNear = m_rZNear;
+        qreal l_rZFar = m_rZFar;
+    m_oParamMutex.unlock();
+
+
 	// set OpenGL viewport to cover whole widget
 	glViewport(0, 0, i32Width, i32Height);
 
@@ -213,15 +257,13 @@ void SWGLWidget::resizeGL( int i32Width, int i32Height )
 	// calculate aspect ratio
 	qreal aspect = (qreal)i32Width / ((qreal)i32Height?i32Height:1);
 	
-	// set near plane to 3.0, far plane to 7.0, field of view 90 degrees
-	// const qreal l_rZNear = 0.10, l_rZFar = 100.0, l_rFOV = 60.0;
-    const qreal l_rZNear = 0.01, l_rZFar = 100.0, l_rFOV = 60.0;
-	
 	// reset projection
     m_oProjectionMatrix.setToIdentity();
 
-	// set perspective projection
+	// set perspective projection        
     m_oProjectionMatrix.perspective(l_rFOV, aspect, l_rZNear, l_rZFar);
+//    void ortho(qreal left, qreal right, qreal bottom, qreal top, qreal nearPlane, qreal farPlane);
+//    void frustum(qreal left, qreal right, qreal bottom, qreal top, qreal nearPlane, qreal farPlane);
 
     updateGL();
 }

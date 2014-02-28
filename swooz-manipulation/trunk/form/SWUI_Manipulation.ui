@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1074</width>
-    <height>633</height>
+    <width>1151</width>
+    <height>683</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -276,13 +276,13 @@
         </property>
         <layout class="QGridLayout" name="gridLayout_5">
          <item row="0" column="0">
-          <layout class="QGridLayout" name="glManipulation" columnstretch="1,0,0,0,0">
+          <layout class="QGridLayout" name="glManipulation" rowstretch="1,1" columnstretch="2,3,1,2,2">
            <item row="0" column="4">
             <widget class="QGroupBox" name="gbCommands">
              <property name="title">
               <string>Commands</string>
              </property>
-             <layout class="QGridLayout" name="gridLayout_13">
+             <layout class="QGridLayout" name="gridLayout_13" rowstretch="1">
               <item row="0" column="0">
                <layout class="QGridLayout" name="glCommands">
                 <item row="2" column="2">
@@ -306,7 +306,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="11" column="2">
+                <item row="6" column="2">
                  <spacer name="vsCommand1">
                   <property name="orientation">
                    <enum>Qt::Vertical</enum>
@@ -361,7 +361,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="11" column="0">
+                <item row="6" column="0">
                  <spacer name="vsCommand0">
                   <property name="orientation">
                    <enum>Qt::Vertical</enum>
@@ -381,85 +381,10 @@
                   </property>
                  </widget>
                 </item>
-                <item row="6" column="0" colspan="3">
-                 <widget class="Line" name="lineCommand1">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                 </widget>
-                </item>
                 <item row="1" column="0">
                  <widget class="Line" name="lineCommand3">
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
-                  </property>
-                 </widget>
-                </item>
-                <item row="7" column="0" colspan="2">
-                 <widget class="QLabel" name="label_5">
-                  <property name="enabled">
-                   <bool>false</bool>
-                  </property>
-                  <property name="text">
-                   <string>TextLabel</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="8" column="0" colspan="2">
-                 <widget class="QLabel" name="label">
-                  <property name="enabled">
-                   <bool>false</bool>
-                  </property>
-                  <property name="text">
-                   <string>TextLabel</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="9" column="0" colspan="2">
-                 <widget class="QLabel" name="label_2">
-                  <property name="enabled">
-                   <bool>false</bool>
-                  </property>
-                  <property name="text">
-                   <string>TextLabel</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="10" column="0" colspan="2">
-                 <widget class="QLabel" name="label_4">
-                  <property name="enabled">
-                   <bool>false</bool>
-                  </property>
-                  <property name="text">
-                   <string>TextLabel</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="7" column="2">
-                 <widget class="QLineEdit" name="lineEdit">
-                  <property name="enabled">
-                   <bool>false</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item row="8" column="2">
-                 <widget class="QLineEdit" name="lineEdit_2">
-                  <property name="enabled">
-                   <bool>false</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item row="9" column="2">
-                 <widget class="QLineEdit" name="lineEdit_3">
-                  <property name="enabled">
-                   <bool>false</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item row="10" column="2">
-                 <widget class="QLineEdit" name="lineEdit_4">
-                  <property name="enabled">
-                   <bool>false</bool>
                   </property>
                  </widget>
                 </item>
@@ -468,169 +393,58 @@
              </layout>
             </widget>
            </item>
-           <item row="0" column="2">
-            <widget class="QGroupBox" name="gbConstants">
+           <item row="1" column="4">
+            <widget class="QGroupBox" name="gbDisplayTimes">
              <property name="title">
-              <string>Constant to add</string>
+              <string>Current bottle planification</string>
              </property>
-             <layout class="QGridLayout" name="gridLayout_11">
+             <layout class="QGridLayout" name="gridLayout_6">
               <item row="0" column="0">
-               <layout class="QGridLayout" name="glConstants" columnstretch="1,3">
-                <item row="5" column="0">
-                 <widget class="QLabel" name="laCV6">
-                  <property name="text">
-                   <string>v6</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="3" column="0">
-                 <widget class="QLabel" name="laCV4">
-                  <property name="text">
-                   <string>v4</string>
-                  </property>
-                 </widget>
-                </item>
+               <layout class="QGridLayout" name="glDisplayTimes" columnstretch="2,1">
                 <item row="2" column="0">
-                 <widget class="QLabel" name="laCV3">
+                 <widget class="QLabel" name="laApplyModifiers">
                   <property name="text">
-                   <string>v3</string>
+                   <string>Modifier</string>
                   </property>
                  </widget>
                 </item>
-                <item row="4" column="0">
-                 <widget class="QLabel" name="laCV5">
-                  <property name="text">
-                   <string>v5</string>
+                <item row="2" column="1" alignment="Qt::AlignHCenter">
+                 <widget class="QLineEdit" name="leCurrentModifier">
+                  <property name="readOnly">
+                   <bool>true</bool>
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="0">
-                 <widget class="QLabel" name="laCV1">
-                  <property name="text">
-                   <string>v1</string>
+                <item row="0" column="1" alignment="Qt::AlignHCenter">
+                 <widget class="QLineEdit" name="lePlanStarted">
+                  <property name="readOnly">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1" alignment="Qt::AlignHCenter">
+                 <widget class="QLineEdit" name="leTimeRemaining">
+                  <property name="readOnly">
+                   <bool>true</bool>
                   </property>
                  </widget>
                 </item>
                 <item row="1" column="0">
-                 <widget class="QLabel" name="laCV2">
+                 <widget class="QLabel" name="laTimeRemaining">
                   <property name="text">
-                   <string>v2</string>
+                   <string>Time remaining</string>
                   </property>
                  </widget>
                 </item>
-                <item row="6" column="0">
-                 <widget class="QLabel" name="laCV7">
+                <item row="0" column="0">
+                 <widget class="QLabel" name="laStarted">
                   <property name="text">
-                   <string>v7</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="7" column="0">
-                 <widget class="QLabel" name="laCV8">
-                  <property name="text">
-                   <string>v8</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="8" column="0">
-                 <widget class="QLabel" name="laCV9">
-                  <property name="text">
-                   <string>v9</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="1">
-                 <widget class="QDoubleSpinBox" name="dsbCV1">
-                  <property name="minimum">
-                   <double>-200.000000000000000</double>
-                  </property>
-                  <property name="maximum">
-                   <double>200.000000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="1">
-                 <widget class="QDoubleSpinBox" name="dsbCV2">
-                  <property name="minimum">
-                   <double>-200.000000000000000</double>
-                  </property>
-                  <property name="maximum">
-                   <double>200.000000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="1">
-                 <widget class="QDoubleSpinBox" name="dsbCV3">
-                  <property name="minimum">
-                   <double>-200.000000000000000</double>
-                  </property>
-                  <property name="maximum">
-                   <double>200.000000000000000</double>
+                   <string>Planification started</string>
                   </property>
                  </widget>
                 </item>
                 <item row="3" column="1">
-                 <widget class="QDoubleSpinBox" name="dsbCV4">
-                  <property name="minimum">
-                   <double>-200.000000000000000</double>
-                  </property>
-                  <property name="maximum">
-                   <double>200.000000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-                <item row="4" column="1">
-                 <widget class="QDoubleSpinBox" name="dsbCV5">
-                  <property name="minimum">
-                   <double>-200.000000000000000</double>
-                  </property>
-                  <property name="maximum">
-                   <double>200.000000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-                <item row="5" column="1">
-                 <widget class="QDoubleSpinBox" name="dsbCV6">
-                  <property name="minimum">
-                   <double>-200.000000000000000</double>
-                  </property>
-                  <property name="maximum">
-                   <double>200.000000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-                <item row="6" column="1">
-                 <widget class="QDoubleSpinBox" name="dsbCV7">
-                  <property name="minimum">
-                   <double>-200.000000000000000</double>
-                  </property>
-                  <property name="maximum">
-                   <double>200.000000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-                <item row="7" column="1">
-                 <widget class="QDoubleSpinBox" name="dsbCV8">
-                  <property name="minimum">
-                   <double>-200.000000000000000</double>
-                  </property>
-                  <property name="maximum">
-                   <double>200.000000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-                <item row="8" column="1">
-                 <widget class="QDoubleSpinBox" name="dsbCV9">
-                  <property name="minimum">
-                   <double>-200.000000000000000</double>
-                  </property>
-                  <property name="maximum">
-                   <double>200.000000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-                <item row="9" column="1">
-                 <spacer name="vsConstant">
+                 <spacer name="verticalSpacer">
                   <property name="orientation">
                    <enum>Qt::Vertical</enum>
                   </property>
@@ -647,84 +461,606 @@
              </layout>
             </widget>
            </item>
-           <item row="0" column="1">
+           <item row="0" column="3" rowspan="2">
+            <widget class="QGroupBox" name="gbPlanification">
+             <property name="title">
+              <string>Planification</string>
+             </property>
+             <layout class="QGridLayout" name="gridLayout_12">
+              <item row="0" column="0">
+               <layout class="QGridLayout" name="glPlanification" rowstretch="1,0,0,0,0,0,0,0,0,0,0,0,0" columnstretch="3,3,3,3,3,1">
+                <item row="10" column="0" colspan="2">
+                 <widget class="QRadioButton" name="rbSequence">
+                  <property name="text">
+                   <string>Define sequence (s)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="6" column="0" colspan="2">
+                 <widget class="QRadioButton" name="rbManipulated">
+                  <property name="text">
+                   <string>Start with manipulated values</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="5" column="0" colspan="2">
+                 <widget class="QRadioButton" name="rbNormals">
+                  <property name="text">
+                   <string>Start with normals values</string>
+                  </property>
+                  <property name="checked">
+                   <bool>true</bool>
+                  </property>
+                  <property name="autoExclusive">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item row="8" column="0" colspan="2">
+                 <widget class="QRadioButton" name="rbRandom">
+                  <property name="enabled">
+                   <bool>true</bool>
+                  </property>
+                  <property name="text">
+                   <string>Set random choice</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="0" colspan="2">
+                 <widget class="QLabel" name="laTotalTime">
+                  <property name="text">
+                   <string>Total time (s)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="0" colspan="2">
+                 <widget class="QLabel" name="laTimeBlock">
+                  <property name="text">
+                   <string>Time block (s)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="0" colspan="6">
+                 <widget class="Line" name="line_5">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item row="12" column="0">
+                 <spacer name="vsPlanification">
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>20</width>
+                    <height>40</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item row="0" column="0" colspan="2">
+                 <widget class="QLabel" name="laLoopClock">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="text">
+                   <string>Loop clock (ms)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0" colspan="6">
+                 <widget class="Line" name="line_11">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item row="7" column="1">
+                 <widget class="QCheckBox" name="cbDampingMOD">
+                  <property name="text">
+                   <string>Damping</string>
+                  </property>
+                  <property name="checked">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item row="9" column="1">
+                 <widget class="QCheckBox" name="cbDampingRAND">
+                  <property name="text">
+                   <string>Damping</string>
+                  </property>
+                  <property name="checked">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="2" colspan="4">
+                 <widget class="QDoubleSpinBox" name="dsbTimeBlock">
+                  <property name="maximum">
+                   <double>4999.000000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>25.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="2" colspan="4">
+                 <widget class="QDoubleSpinBox" name="dsbTotalTime">
+                  <property name="maximum">
+                   <double>9999.000000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>100.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="2" colspan="4">
+                 <widget class="QDoubleSpinBox" name="dsbLoopClock">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="minimum">
+                   <double>1.000000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>9999.000000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>10.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="11" column="0" colspan="6">
+                 <widget class="QTextEdit" name="teSequence">
+                  <property name="html">
+                   <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; color:#000000;&quot;&gt;10 s10 10 d10 10 ds10 10&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="5" column="3" colspan="3" alignment="Qt::AlignHCenter">
+                 <widget class="QPushButton" name="pbHelpNORMAL">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>20</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>30</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>?</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="6" column="3" colspan="3" alignment="Qt::AlignHCenter">
+                 <widget class="QPushButton" name="pbHelpMOD">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>20</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>30</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="toolTip">
+                   <string/>
+                  </property>
+                  <property name="text">
+                   <string>?</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="7" column="2" colspan="4">
+                 <widget class="QCheckBox" name="cbShiftMOD">
+                  <property name="text">
+                   <string>Shift</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="9" column="2" colspan="4">
+                 <widget class="QCheckBox" name="cbShiftRAND">
+                  <property name="text">
+                   <string>Shift</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="8" column="3" colspan="3" alignment="Qt::AlignHCenter">
+                 <widget class="QPushButton" name="pbHelpRAND">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>20</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>30</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>?</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="10" column="3" colspan="3" alignment="Qt::AlignHCenter">
+                 <widget class="QPushButton" name="pbHelpSEQ">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>20</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>30</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>?</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item row="0" column="2" rowspan="2">
             <widget class="QGroupBox" name="gbShift">
              <property name="title">
-              <string>Shift to apply</string>
+              <string>Shift</string>
              </property>
-             <layout class="QGridLayout" name="gridLayout_10">
+             <layout class="QGridLayout" name="gridLayout_11">
               <item row="0" column="0">
-               <layout class="QGridLayout" name="glShift" columnstretch="1,4,1">
-                <item row="3" column="0">
-                 <widget class="QLabel" name="laSV4">
-                  <property name="text">
-                   <string>v4</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="5" column="2">
-                 <widget class="QLineEdit" name="leSV6"/>
-                </item>
-                <item row="6" column="2">
-                 <widget class="QLineEdit" name="leSV7"/>
-                </item>
-                <item row="0" column="0">
-                 <widget class="QLabel" name="laSV1">
-                  <property name="text">
-                   <string>v1</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="0">
-                 <widget class="QLabel" name="laSV2">
-                  <property name="text">
-                   <string>v2</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="0">
-                 <widget class="QLabel" name="laSV3">
-                  <property name="text">
-                   <string>v3</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="4" column="0">
+               <layout class="QGridLayout" name="glShift" columnstretch="1,3">
+                <item row="5" column="0" alignment="Qt::AlignHCenter">
                  <widget class="QLabel" name="laSV5">
                   <property name="text">
                    <string>v5</string>
                   </property>
                  </widget>
                 </item>
-                <item row="5" column="0">
+                <item row="3" column="0" alignment="Qt::AlignHCenter">
+                 <widget class="QLabel" name="laSV3">
+                  <property name="text">
+                   <string>v3</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="0" alignment="Qt::AlignHCenter">
+                 <widget class="QLabel" name="laSV2">
+                  <property name="text">
+                   <string>v2</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="0" alignment="Qt::AlignHCenter">
+                 <widget class="QLabel" name="laSV4">
+                  <property name="text">
+                   <string>v4</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="0" alignment="Qt::AlignHCenter">
+                 <widget class="QLabel" name="laSV0">
+                  <property name="text">
+                   <string>v0</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0" alignment="Qt::AlignHCenter">
+                 <widget class="QLabel" name="laSV1">
+                  <property name="text">
+                   <string>v1</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="6" column="0" alignment="Qt::AlignHCenter">
                  <widget class="QLabel" name="laSV6">
                   <property name="text">
                    <string>v6</string>
                   </property>
                  </widget>
                 </item>
-                <item row="2" column="2">
-                 <widget class="QLineEdit" name="leSV3"/>
-                </item>
-                <item row="6" column="0">
+                <item row="7" column="0" alignment="Qt::AlignHCenter">
                  <widget class="QLabel" name="laSV7">
                   <property name="text">
                    <string>v7</string>
                   </property>
                  </widget>
                 </item>
-                <item row="7" column="0">
+                <item row="8" column="0" alignment="Qt::AlignHCenter">
                  <widget class="QLabel" name="laSV8">
                   <property name="text">
                    <string>v8</string>
                   </property>
                  </widget>
                 </item>
+                <item row="0" column="1" alignment="Qt::AlignHCenter">
+                 <widget class="QDoubleSpinBox" name="dsbSV0">
+                  <property name="maximumSize">
+                   <size>
+                    <width>75</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="minimum">
+                   <double>-200.000000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>200.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1" alignment="Qt::AlignHCenter">
+                 <widget class="QDoubleSpinBox" name="dsbSV1">
+                  <property name="maximumSize">
+                   <size>
+                    <width>75</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="minimum">
+                   <double>-200.000000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>200.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="1" alignment="Qt::AlignHCenter">
+                 <widget class="QDoubleSpinBox" name="dsbSV2">
+                  <property name="maximumSize">
+                   <size>
+                    <width>75</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="minimum">
+                   <double>-200.000000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>200.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="1" alignment="Qt::AlignHCenter">
+                 <widget class="QDoubleSpinBox" name="dsbSV3">
+                  <property name="maximumSize">
+                   <size>
+                    <width>75</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="minimum">
+                   <double>-200.000000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>200.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="1" alignment="Qt::AlignHCenter">
+                 <widget class="QDoubleSpinBox" name="dsbSV4">
+                  <property name="maximumSize">
+                   <size>
+                    <width>75</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="minimum">
+                   <double>-200.000000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>200.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="5" column="1" alignment="Qt::AlignHCenter">
+                 <widget class="QDoubleSpinBox" name="dsbSV5">
+                  <property name="maximumSize">
+                   <size>
+                    <width>75</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="minimum">
+                   <double>-200.000000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>200.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="6" column="1" alignment="Qt::AlignHCenter">
+                 <widget class="QDoubleSpinBox" name="dsbSV6">
+                  <property name="maximumSize">
+                   <size>
+                    <width>75</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="minimum">
+                   <double>-200.000000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>200.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="7" column="1" alignment="Qt::AlignHCenter">
+                 <widget class="QDoubleSpinBox" name="dsbSV7">
+                  <property name="maximumSize">
+                   <size>
+                    <width>75</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="minimum">
+                   <double>-200.000000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>200.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="8" column="1" alignment="Qt::AlignHCenter">
+                 <widget class="QDoubleSpinBox" name="dsbSV8">
+                  <property name="maximumSize">
+                   <size>
+                    <width>75</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="minimum">
+                   <double>-200.000000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>200.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="9" column="1">
+                 <spacer name="vsShift">
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>20</width>
+                    <height>40</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item row="0" column="1" rowspan="2">
+            <widget class="QGroupBox" name="gbDamping">
+             <property name="title">
+              <string>Damping</string>
+             </property>
+             <layout class="QGridLayout" name="gridLayout_10">
+              <item row="0" column="0">
+               <layout class="QGridLayout" name="glDamping" columnstretch="1,6,1">
+                <item row="3" column="0" alignment="Qt::AlignHCenter">
+                 <widget class="QLabel" name="laDV3">
+                  <property name="text">
+                   <string>v3</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="5" column="2">
+                 <widget class="QLineEdit" name="leDV5">
+                  <property name="readOnly">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item row="6" column="2">
+                 <widget class="QLineEdit" name="leDV6">
+                  <property name="readOnly">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="0" alignment="Qt::AlignHCenter">
+                 <widget class="QLabel" name="laDV0">
+                  <property name="text">
+                   <string>v0</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0" alignment="Qt::AlignHCenter">
+                 <widget class="QLabel" name="laDV1">
+                  <property name="text">
+                   <string>v1</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="0" alignment="Qt::AlignHCenter">
+                 <widget class="QLabel" name="laDV2">
+                  <property name="text">
+                   <string>v2</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="0" alignment="Qt::AlignHCenter">
+                 <widget class="QLabel" name="laDV4">
+                  <property name="text">
+                   <string>v4</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="5" column="0" alignment="Qt::AlignHCenter">
+                 <widget class="QLabel" name="laDV5">
+                  <property name="text">
+                   <string>v5</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="2">
+                 <widget class="QLineEdit" name="leDV2">
+                  <property name="readOnly">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item row="6" column="0" alignment="Qt::AlignHCenter">
+                 <widget class="QLabel" name="laDV6">
+                  <property name="text">
+                   <string>v6</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="7" column="0" alignment="Qt::AlignHCenter">
+                 <widget class="QLabel" name="laDV7">
+                  <property name="text">
+                   <string>v7</string>
+                  </property>
+                 </widget>
+                </item>
                 <item row="3" column="2">
-                 <widget class="QLineEdit" name="leSV4"/>
+                 <widget class="QLineEdit" name="leDV3">
+                  <property name="readOnly">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
                 </item>
                 <item row="4" column="1">
-                 <widget class="QSlider" name="hsShift5">
+                 <widget class="QSlider" name="hsDamping4">
                   <property name="minimum">
                    <number>1</number>
                   </property>
@@ -740,7 +1076,7 @@
                  </widget>
                 </item>
                 <item row="5" column="1">
-                 <widget class="QSlider" name="hsShift6">
+                 <widget class="QSlider" name="hsDamping5">
                   <property name="minimum">
                    <number>1</number>
                   </property>
@@ -756,7 +1092,7 @@
                  </widget>
                 </item>
                 <item row="1" column="1">
-                 <widget class="QSlider" name="hsShift2">
+                 <widget class="QSlider" name="hsDamping1">
                   <property name="minimum">
                    <number>1</number>
                   </property>
@@ -772,10 +1108,14 @@
                  </widget>
                 </item>
                 <item row="4" column="2">
-                 <widget class="QLineEdit" name="leSV5"/>
+                 <widget class="QLineEdit" name="leDV4">
+                  <property name="readOnly">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
                 </item>
                 <item row="2" column="1">
-                 <widget class="QSlider" name="hsShift3">
+                 <widget class="QSlider" name="hsDamping2">
                   <property name="minimum">
                    <number>1</number>
                   </property>
@@ -790,8 +1130,120 @@
                   </property>
                  </widget>
                 </item>
+                <item row="8" column="0" alignment="Qt::AlignHCenter">
+                 <widget class="QLabel" name="laDV8">
+                  <property name="text">
+                   <string>v8</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="1">
+                 <widget class="QSlider" name="hsDamping3">
+                  <property name="minimum">
+                   <number>1</number>
+                  </property>
+                  <property name="maximum">
+                   <number>200</number>
+                  </property>
+                  <property name="value">
+                   <number>100</number>
+                  </property>
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item row="6" column="1">
+                 <widget class="QSlider" name="hsDamping6">
+                  <property name="minimum">
+                   <number>1</number>
+                  </property>
+                  <property name="maximum">
+                   <number>200</number>
+                  </property>
+                  <property name="sliderPosition">
+                   <number>100</number>
+                  </property>
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item row="7" column="1">
+                 <widget class="QSlider" name="hsDamping7">
+                  <property name="minimum">
+                   <number>1</number>
+                  </property>
+                  <property name="maximum">
+                   <number>200</number>
+                  </property>
+                  <property name="sliderPosition">
+                   <number>100</number>
+                  </property>
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item row="8" column="1">
+                 <widget class="QSlider" name="hsDamping8">
+                  <property name="minimum">
+                   <number>1</number>
+                  </property>
+                  <property name="maximum">
+                   <number>200</number>
+                  </property>
+                  <property name="value">
+                   <number>100</number>
+                  </property>
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="2">
+                 <widget class="QLineEdit" name="leDV0">
+                  <property name="readOnly">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="2">
+                 <widget class="QLineEdit" name="leDV1">
+                  <property name="readOnly">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item row="7" column="2">
+                 <widget class="QLineEdit" name="leDV7">
+                  <property name="readOnly">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item row="8" column="2">
+                 <widget class="QLineEdit" name="leDV8">
+                  <property name="readOnly">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item row="9" column="1">
+                 <spacer name="vsDampling">
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>20</width>
+                    <height>40</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
                 <item row="0" column="1">
-                 <widget class="QSlider" name="hsShift1">
+                 <widget class="QSlider" name="hsDamping0">
                   <property name="minimumSize">
                    <size>
                     <width>200</width>
@@ -812,250 +1264,12 @@
                   </property>
                  </widget>
                 </item>
-                <item row="8" column="0">
-                 <widget class="QLabel" name="laSV9">
-                  <property name="text">
-                   <string>v9</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="3" column="1">
-                 <widget class="QSlider" name="hsShift4">
-                  <property name="minimum">
-                   <number>1</number>
-                  </property>
-                  <property name="maximum">
-                   <number>200</number>
-                  </property>
-                  <property name="value">
-                   <number>100</number>
-                  </property>
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                 </widget>
-                </item>
-                <item row="6" column="1">
-                 <widget class="QSlider" name="hsShift7">
-                  <property name="minimum">
-                   <number>1</number>
-                  </property>
-                  <property name="maximum">
-                   <number>200</number>
-                  </property>
-                  <property name="sliderPosition">
-                   <number>100</number>
-                  </property>
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                 </widget>
-                </item>
-                <item row="7" column="1">
-                 <widget class="QSlider" name="hsShift8">
-                  <property name="minimum">
-                   <number>1</number>
-                  </property>
-                  <property name="maximum">
-                   <number>200</number>
-                  </property>
-                  <property name="sliderPosition">
-                   <number>100</number>
-                  </property>
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                 </widget>
-                </item>
-                <item row="8" column="1">
-                 <widget class="QSlider" name="hsShift9">
-                  <property name="minimum">
-                   <number>1</number>
-                  </property>
-                  <property name="maximum">
-                   <number>200</number>
-                  </property>
-                  <property name="value">
-                   <number>100</number>
-                  </property>
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="2">
-                 <widget class="QLineEdit" name="leSV1"/>
-                </item>
-                <item row="1" column="2">
-                 <widget class="QLineEdit" name="leSV2"/>
-                </item>
-                <item row="7" column="2">
-                 <widget class="QLineEdit" name="leSV8"/>
-                </item>
-                <item row="8" column="2">
-                 <widget class="QLineEdit" name="leSV9"/>
-                </item>
-                <item row="9" column="1">
-                 <spacer name="vsShift">
-                  <property name="orientation">
-                   <enum>Qt::Vertical</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>20</width>
-                    <height>40</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
                </layout>
               </item>
              </layout>
             </widget>
            </item>
-           <item row="0" column="3">
-            <widget class="QGroupBox" name="gbPlanification">
-             <property name="title">
-              <string>Planification</string>
-             </property>
-             <layout class="QGridLayout" name="gridLayout_12">
-              <item row="0" column="0">
-               <layout class="QGridLayout" name="glPlanification" rowstretch="1,0,0,0,0,0,0,0,0,0,0" columnstretch="2,0">
-                <item row="8" column="0">
-                 <widget class="QRadioButton" name="rbSequence">
-                  <property name="text">
-                   <string>Define sequence (s)</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="6" column="0">
-                 <widget class="QRadioButton" name="rbManipulated">
-                  <property name="text">
-                   <string>Start with manipulated values</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="5" column="0">
-                 <widget class="QRadioButton" name="rbNormals">
-                  <property name="text">
-                   <string>Start with normals values</string>
-                  </property>
-                  <property name="checked">
-                   <bool>true</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item row="7" column="0">
-                 <widget class="QRadioButton" name="rbRandom">
-                  <property name="text">
-                   <string>Set random choice</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="0">
-                 <widget class="QLabel" name="laTotalTime">
-                  <property name="text">
-                   <string>Total time (s) :</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="1">
-                 <widget class="QDoubleSpinBox" name="dsbTotalTime">
-                  <property name="maximum">
-                   <double>9999.000000000000000</double>
-                  </property>
-                  <property name="value">
-                   <double>100.000000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-                <item row="3" column="0">
-                 <widget class="QLabel" name="laTimeBlock">
-                  <property name="text">
-                   <string>Time block (s) :</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="3" column="1">
-                 <widget class="QDoubleSpinBox" name="dsbTimeBlock">
-                  <property name="maximum">
-                   <double>4999.000000000000000</double>
-                  </property>
-                  <property name="value">
-                   <double>25.000000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-                <item row="9" column="0" colspan="2">
-                 <widget class="QTextEdit" name="teSequence">
-                  <property name="html">
-                   <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;25 -25 25 -25 25 -25&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="4" column="0" colspan="2">
-                 <widget class="Line" name="line_5">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                 </widget>
-                </item>
-                <item row="10" column="0">
-                 <spacer name="vsPlanification">
-                  <property name="orientation">
-                   <enum>Qt::Vertical</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>20</width>
-                    <height>40</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-                <item row="0" column="0">
-                 <widget class="QLabel" name="laLoopClock">
-                  <property name="enabled">
-                   <bool>false</bool>
-                  </property>
-                  <property name="text">
-                   <string>Loop clock (ms) :</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="1">
-                 <widget class="QDoubleSpinBox" name="dsbLoopClock">
-                  <property name="enabled">
-                   <bool>false</bool>
-                  </property>
-                  <property name="minimum">
-                   <double>1.000000000000000</double>
-                  </property>
-                  <property name="maximum">
-                   <double>9999.000000000000000</double>
-                  </property>
-                  <property name="value">
-                   <double>10.000000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="0" colspan="2">
-                 <widget class="Line" name="line_11">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item row="0" column="0">
+           <item row="0" column="0" rowspan="2">
             <widget class="QGroupBox" name="gbBottleSelection">
              <property name="title">
               <string>Bottle selection</string>
@@ -1067,8 +1281,14 @@ p, li { white-space: pre-wrap; }
                  <widget class="QListWidget" name="lwManipulation">
                   <property name="minimumSize">
                    <size>
-                    <width>0</width>
+                    <width>150</width>
                     <height>230</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>300</width>
+                    <height>16777215</height>
                    </size>
                   </property>
                  </widget>
@@ -1105,7 +1325,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1074</width>
+     <width>1151</width>
      <height>21</height>
     </rect>
    </property>

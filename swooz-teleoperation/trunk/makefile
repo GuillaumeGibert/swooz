@@ -20,11 +20,15 @@ LINK=link
 
 OBJ_TELEOPERATION_ICUB=\
         $(LIBDIR)/SWTeleoperation_iCub.obj
+
+OBJ_TELEOPERATION_NAO=\
+        $(LIBDIR)/SWTeleoperation_nao.obj
+
 	
 ############################################################################## Makefile commands
 
 !if "$(ARCH)" == "x86"
-all: $(BINDIR)/SWTeleoperation_iCub.exe
+all: $(BINDIR)/SWTeleoperation_iCub.exe $(BINDIR)/SWTeleoperation_nao.exe
 !endif
 
 !if "$(ARCH)" == "amd64"
@@ -36,7 +40,15 @@ all:
 $(BINDIR)/SWTeleoperation_iCub.exe: $(OBJ_TELEOPERATION_ICUB)  $(LIBS_TELEOP_ICUB)
         $(LINK) /OUT:$(BINDIR)/SWTeleoperation_iCub.exe $(LFLAGS) $(OBJ_TELEOPERATION_ICUB)  $(SETARGV) $(BINMODE) $(LIBS_TELEOP_ICUB) $(WINLIBS)
 
+$(BINDIR)/SWTeleoperation_nao.exe: $(OBJ_TELEOPERATION_NAO) $(LIBS_TELEOP_NAO)
+        $(LINK) /OUT:$(BINDIR)/SWTeleoperation_nao.exe $(LFLAGS) $(OBJ_TELEOPERATION_NAO)  $(SETARGV) $(BINMODE) $(LIBS_TELEOP_NAO) $(WINLIBS)
+
 ##################################################### devices
 
 $(LIBDIR)/SWTeleoperation_iCub.obj: ./src/icub/SWTeleoperation_iCub.cpp
         $(CC) -c ./src/icub/SWTeleoperation_iCub.cpp $(CFLAGS_DYN) $(SW_TELE_ICUB) -Fo"$(LIBDIR)/"
+
+$(LIBDIR)/SWTeleoperation_nao.obj: ./src/nao/SWTeleoperation_nao.cpp
+        $(CC) -c ./src/nao/SWTeleoperation_nao.cpp $(CFLAGS_DYN) $(SW_TELE_NAO) -Fo"$(LIBDIR)/"
+
+

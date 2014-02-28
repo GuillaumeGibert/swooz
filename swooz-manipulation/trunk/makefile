@@ -30,7 +30,7 @@ all: manipulation
 all:
 !endif
 
-manipulation       : $(MOCDIR)/moc_SWManipulationInterface.cpp $(QTGENW)/SWUI_Manipulation.h $(BINDIR)/SWManipulation.exe
+manipulation       : $(QTGENW)/SWUI_Manipulation.h $(MOCDIR)/moc_SWManipulationInterface.cpp $(BINDIR)/SWManipulation.exe
 
 clean:
 

@@ -13,50 +13,56 @@
 #include "cloud/SWRadialProjectionCloud.h"
 #include "opencvUtility.h"
 
+// UTILITY
+#include <time.h>
+
 using namespace swDevice;
 
 
 
 // ############################################# CONSTRUCTORS / DESTRUCTORS
 
-SWCreateAvatar::SWCreateAvatar(const SWKinectParams &oKinectParams, bool bVerbose) : m_CKinectParams(oKinectParams),
-    m_bVerbose(bVerbose), m_i32NumCloud(0)
+SWCreateAvatar::SWCreateAvatar(cbool bVerbose) : m_bVerbose(bVerbose), m_i32NumCloud(0)
 {
     // detection
         m_bDetectStasmPoints        = false;
         m_fRemoveBackGroundDistance = 1.5f;
         m_CFaceDetectPtr            = SWFaceDetectionPtr(new swDetect::SWFaceDetection(cv::Size(80,80)));
-        m_CStasmDetectPtr           = SWStasmPtr(new swDetect::SWStasm(m_CKinectParams, "../data/stasm/mu-68-1d.conf", "../data/stasm/mu-76-2d.conf")); // TODO : manage error files
+        m_CStasmDetectPtr           = SWStasmPtr(new swDetect::SWStasm("../data/stasm/mu-68-1d.conf", "../data/stasm/mu-76-2d.conf")); // TODO : manage error files
 
     // clouds / alignment
-        m_fTemplateDownScale        = 0.3f;
-        m_fTargetDownScale          = 0.3f;
-        m_fDepthCloud               = 0.15f;
-        m_fDistMaxAlignment         = 0.00005f;
-        m_oAlignClouds.setEmicpParams(0.01f, 0.00001f, 0.85f, 0.01f);
+        m_fTemplateDownScale        = 0.2f;
+        m_fTargetDownScale          = 0.2f;
+        m_fDepthCloud               = 0.12f; //0.12f;// 0.25f; //0.20f;//0.15f;
+//        m_fDistMaxAlignment         = 0.00005f;
+//        m_fDistMaxAlignment         = 0.00015f;
+        m_fDistMaxAlignment         = 0.00020f;
+
+//        m_oAlignClouds.setEmicpParams(0.01f, 0.00001f, 0.85f, 0.01f);
+//        m_oAlignClouds.setEmicpParams(0.01f, 0.00001f, 0.75f, 0.01f);
+        m_oAlignClouds.setEmicpParams(0.01f, 0.000005f, 0.9f, 0.01f);
+
 
     // radial projection
-        m_i32Dilate                 = 3;
-        m_i32Erode                  = 5;
-        m_i32WidthRadialProj        = 675;  // 300
-        m_i32HeightRadialProj       = 485;  // 400
+        m_i32Dilate                 = 0;
+        m_i32Erode                  = 0;
+        m_i32WidthRadialProj        = 350;  // 350 // 200
+        m_i32HeightRadialProj       = 200;  // 250 // 125
         m_fCylinderRadius           = 0.15f;
+        m_i32ExpandValue            = 5;
+        m_i32ExpandConnex           = 2;
+        m_i32EraseValue             = 0;
+        m_i32EraseConnex            = 0;
 
     // bilateral filters
         m_bUseBilateralFilter       = true;
-        m_i32BilateralFilter        = 0;
-        m_i32ColorFilterValue       = 40;   /**< color value bilateral filter*/
-        m_i32SpaceFilterValue       = 8;    /**< space value bilateral filter*/
+        m_i32BilateralFilter        = -1;
+        m_i32ColorFilterValue       = 200;   /**< color value bilateral filter*/
+        m_i32SpaceFilterValue       = 0;    /**< space value bilateral filter*/
 
     // init rects
         m_oLastRectFace.width       = 0;
         m_oLastRectNose.width       = 0;
-
-    // display kinect video params
-        if(m_bVerbose)
-        {
-           m_CKinectParams.display();
-        }
 }
 
 // ############################################# METHODS
@@ -76,12 +82,6 @@ void SWCreateAvatar::resetData()
     m_vP3FTotalStasm3DPoints.clear();
     m_vP3FStasm3DPoints.     assign(68, cv::Point3f(0.f,0.f,0.f));
     m_vP3FTotalStasm3DPoints.assign(68, cv::Point3f(0.f,0.f,0.f));
-}
-
-void SWCreateAvatar::setKinectParams(const swDevice::SWKinectParams &oKinectParams)
-{
-   m_CKinectParams = oKinectParams;
-   m_CStasmDetectPtr->setKinectParams(m_CKinectParams);
 }
 
 void SWCreateAvatar::setHeightRadialProjection(cuint ui32HeightRadialProj)
@@ -138,6 +138,41 @@ void SWCreateAvatar::setDilateValue(cuint ui32Dilate)
     m_i32Dilate = ui32Dilate;
 }
 
+void SWCreateAvatar::setExpandValue(const int i32Val)
+{
+    m_i32ExpandValue = i32Val;
+}
+
+void SWCreateAvatar::setExpandConnex(const int i32Val)
+{
+    m_i32ExpandConnex = i32Val;
+}
+
+void SWCreateAvatar::setEraseValue(const int i32Val)
+{
+    m_i32EraseValue = i32Val;
+}
+
+void SWCreateAvatar::setEraseConnex(const int i32Val)
+{
+    m_i32EraseConnex = i32Val;
+}
+
+void SWCreateAvatar::setDepthCloud(const float fDepthCloud)
+{
+    m_fDepthCloud = fDepthCloud;
+}
+
+void SWCreateAvatar::addPixelToDelete(const std::vector<int> pixel)
+{
+    m_vPixelToDelete.push_back(pixel);
+}
+
+void SWCreateAvatar::resetDeletedPointsRadialProj()
+{
+    m_vPixelToDelete.clear();
+}
+
 cv::Rect SWCreateAvatar::lastRectFace() const
 {
     return m_oLastRectFace;
@@ -153,16 +188,17 @@ void SWCreateAvatar::lastRadialProjection(cv::Mat &oFilteredRadialProj) const
     oFilteredRadialProj = m_oFilteredRadialProjection.clone();
 }
 
+
 bool SWCreateAvatar::addCloudToAvatar(const cv::Mat &oRgb, const cv::Mat &oDepth)
 {
    // copy input data
        cv::Mat l_oRgb   = oRgb.clone();
        cv::Mat l_oDepth = oDepth.clone();
 
-   // resize the rgb mat
-       if(m_CKinectParams.m_oOriginalSize != m_CKinectParams.m_oVideoSize)
+    // check size mat
+       if(l_oRgb.rows != l_oDepth.rows)
        {
-           cv::resize(l_oRgb, l_oRgb, m_CKinectParams.m_oVideoSize);
+           cv::resize(l_oRgb, l_oRgb, cv::Size(l_oDepth.cols,l_oDepth.rows));
        }
 
    // remove background
@@ -186,7 +222,15 @@ bool SWCreateAvatar::addCloudToAvatar(const cv::Mat &oRgb, const cv::Mat &oDepth
        }
        else
        {
-           l_oCurrentRectFace = m_CFaceDetectPtr->faceRect();
+           // retrieve face rectangle            
+            l_oCurrentRectFace = m_CFaceDetectPtr->faceRect();
+
+           // upsize face rectangle
+               l_oCurrentRectFace.x -= (int)(l_oCurrentRectFace.width *0.05);
+               l_oCurrentRectFace.width += (int)(l_oCurrentRectFace.width *0.1);
+               l_oCurrentRectFace.y -= (int)(l_oCurrentRectFace.height *0.05);
+               l_oCurrentRectFace.height += (int)(l_oCurrentRectFace.height *0.03);
+
            m_oLastRectFace    = l_oCurrentRectFace;
        }
 
@@ -195,10 +239,10 @@ bool SWCreateAvatar::addCloudToAvatar(const cv::Mat &oRgb, const cv::Mat &oDepth
        cv::Point3f l_oNoseTip = m_CFaceDetectPtr->computeNoseTip(l_oDepth(l_oCurrentRectFace), l_i32IdNoseX, l_i32IdNoseY);
 
        cv::Rect l_oCurrentRectNose;
-       l_oCurrentRectNose.x = l_oCurrentRectFace.x + l_i32IdNoseX -30; // TODO : ratios
-       l_oCurrentRectNose.y = l_oCurrentRectFace.y + (int)(l_oCurrentRectFace.height*0.2);
+       l_oCurrentRectNose.x = l_oCurrentRectFace.x + l_i32IdNoseX -30;
        l_oCurrentRectNose.width  = 60;
-       l_oCurrentRectNose.height = (int)(l_oCurrentRectFace.height*0.6);
+       l_oCurrentRectNose.y = l_oCurrentRectFace.y + l_i32IdNoseY - 50;
+       l_oCurrentRectNose.height  = 70;
 
        m_oLastRectNose = l_oCurrentRectNose;
 
@@ -217,8 +261,8 @@ bool SWCreateAvatar::addCloudToAvatar(const cv::Mat &oRgb, const cv::Mat &oDepth
 
     // create cloud
         swCloud::SWCloud l_oFaceCloud, l_oNoseCloud;
-        swCloud::convCloudMat2SWCloud(l_oDepth(l_oCurrentRectFace), l_oRgb(l_oCurrentRectFace), l_oFaceCloud, l_oNoseTip.z-0.05f, m_fDepthCloud);
-        swCloud::convCloudMat2SWCloud(l_oDepth(l_oCurrentRectNose), l_oRgb(l_oCurrentRectNose), l_oNoseCloud, l_oNoseTip.z-0.05f, m_fDepthCloud);
+        swCloud::convCloudMat2SWCloud(l_oDepth(l_oCurrentRectFace), l_oRgb(l_oCurrentRectFace), l_oFaceCloud, l_oNoseTip.z-0.5f, m_fDepthCloud+0.5f);
+        swCloud::convCloudMat2SWCloud(l_oDepth(l_oCurrentRectNose), l_oRgb(l_oCurrentRectNose), l_oNoseCloud, l_oNoseTip.z-0.5f, m_fDepthCloud+0.5f );
 
     bool l_bIsLastCloudValid = false;
 
@@ -228,22 +272,16 @@ bool SWCreateAvatar::addCloudToAvatar(const cv::Mat &oRgb, const cv::Mat &oDepth
             m_oFaceCloudRef.copy(l_oFaceCloud);
         // save reference nose cloud
             m_oNoseCloudRef.copy(l_oNoseCloud);
-        // save texture
-            // scale the face rectangle
-                cv::Rect l_oRect = swImage::swUtil::scaleRect(l_oCurrentRectFace, m_CKinectParams.m_fWidthRatio, m_CKinectParams.m_fHeightRatio );
+        // retrieve face texture
+            m_oTextureMat = l_oRgbForeGround(l_oCurrentRectFace).clone();
+        // apply median blur on the texture
+//            cv::medianBlur(m_oTextureMat, m_oTextureMat, 3);
+        // save the texture
+            string l_sPath = "../data/textures/avatars/";
+            cv::imwrite(l_sPath + "texture.png" , m_oTextureMat);
 
-            // apply the texture offset
-                l_oRect.x += m_CKinectParams.m_i32OffsetHDTextureX;
-                l_oRect.y += m_CKinectParams.m_i32OffsetHDTextureY;
-
-            // save the texture (TODO -> interface parameter)
-                string l_sPath = "../data/textures/avatars/";
-                cv::imwrite(l_sPath + "t.png" , oRgb(l_oRect));
-                m_oTextureMat = oRgb(l_oRect).clone();
-
-            // compute cloud bbox of the texture
-                swImage::swUtil::computeSizeCloudRect(l_oCurrentRectFace, oDepth, m_oCloudFaceBBox, m_CKinectParams.m_i32CaptureMode);
-
+        // compute cloud bbox of the texture
+            swImage::swUtil::computeSizeCloudRect(l_oCurrentRectFace, oDepth, m_oCloudFaceBBox);
        }
    // save next clouds
        else
@@ -257,7 +295,10 @@ bool SWCreateAvatar::addCloudToAvatar(const cv::Mat &oRgb, const cv::Mat &oDepth
            m_oAlignClouds.transformedCloud(l_oFaceCloud);
 
            float l_fScore = m_oFaceCloudRef.squareDistanceCloud(l_oFaceCloud, true, 0.1f);
-           std::cout << "Score : " << l_fScore << " --- " << m_fDistMaxAlignment << " : " << endl;
+           if(m_bVerbose)
+           {
+               std::cout << "Score : " << l_fScore << " --- " << m_fDistMaxAlignment << " : " << endl;
+           }
 
            if(l_fScore > m_fDistMaxAlignment)
            {
@@ -282,6 +323,8 @@ bool SWCreateAvatar::addCloudToAvatar(const cv::Mat &oRgb, const cv::Mat &oDepth
 //                m_vP3FTotalStasm3DPoints[ii] += m_vP3FStasm3DPoints[ii]; // BUG
 //            }
        }
+
+//    cout << " 7 ]   " << (float)(clock() - m_oProgramTime) / CLOCKS_PER_SEC  << " |" << std::endl;
 
    return true;
 }
@@ -311,6 +354,7 @@ void SWCreateAvatar::constructAvatar()
                 l_vMatProj.push_back(l_oRadialProjMat);
         }
 
+
     // temporal filtering
         uint l_ui32CurrNumberOfPoints;
         float l_fCurrTotalValue;
@@ -339,21 +383,46 @@ void SWCreateAvatar::constructAvatar()
                 l_oFinalMat.at<float>(ii) = 0.f;
             }
         }
+        cv::imwrite("../data/images/radialProj/1_finalTemporal.png" ,l_oFinalMat);
 
-    // dilate / erode
-        swCloud::dilateErodeRadialProj(l_oFinalMat, m_i32Dilate, m_i32Erode);
+    // apply manual zone selection
+        for(uint ii = 0; ii < m_vPixelToDelete.size(); ++ii)
+        {
+            l_oFinalMat.at<float>(m_vPixelToDelete[ii][1], m_vPixelToDelete[ii][0]) = 0.f;
+        }
+         cv::imwrite("../data/images/radialProj/1b_pixelsDeleted.png" ,l_oFinalMat);
+
+
+    // keep only one connex aggregat
+//        swCloud::keepBiggestConnexAggregate(l_oFinalMat, 10);
+        swCloud::keepBiggestConnexAggregate(l_oFinalMat, 50);
+            cv::imwrite("../data/images/radialProj/2_keepConnexe.png" ,l_oFinalMat);
 
     // expand contours
-        swCloud::expandContoursRadialProj(l_oFinalMat, 10,3);
+        swCloud::expandContoursRadialProj(l_oFinalMat, m_i32ExpandValue, m_i32ExpandConnex);
+            cv::imwrite("../data/images/radialProj/3_expanded.png" ,l_oFinalMat);
+
+    // dilate / erode
+        if(m_i32Dilate >= 3)
+        {
+            cv::dilate(l_oFinalMat,  l_oFinalMat, cv::Mat(), cv::Point(-1, -1), m_i32Dilate);
+        }
+            cv::imwrite("../data/images/radialProj/4_dilate.png" ,l_oFinalMat);
+        if(m_i32Erode >= 3)
+        {
+            cv::erode(l_oFinalMat,  l_oFinalMat, cv::Mat(), cv::Point(-1, -1), m_i32Erode);
+        }
+            cv::imwrite("../data/images/radialProj/5_erode.png" ,l_oFinalMat);
 
     // spatial filtering
         cv::Mat l_oFinalFilteredMat;
         cv::Mat l_oMaskFinalMal = l_oFinalMat.clone();
 
-    // save the radial projection image before applying the spatial filtering
+    // applying the spatial filtering
         if(m_bUseBilateralFilter)
         {
             cv::bilateralFilter(l_oFinalMat, l_oFinalFilteredMat, m_i32BilateralFilter, m_i32ColorFilterValue, m_i32SpaceFilterValue);
+                 cv::imwrite("../data/images/radialProj/6_biolateral.png" ,l_oFinalFilteredMat);
 
             // cancel the effects of the filter on the borders
                 for(int ii = 0; ii < l_oFinalMat.rows * l_oFinalMat.cols; ++ii)
@@ -364,8 +433,7 @@ void SWCreateAvatar::constructAvatar()
                     }
                 }
 
-            // erase contours
-                swCloud::eraseContoursRadialProj(l_oFinalFilteredMat, 20,3);
+                cv::imwrite("../data/images/radialProj/7_cancelBorder.png" ,l_oFinalFilteredMat);
         }
         else
         {
@@ -373,11 +441,16 @@ void SWCreateAvatar::constructAvatar()
         }
 
 
+    // erase contours
+        swCloud::eraseContoursRadialProj(l_oFinalFilteredMat, m_i32EraseValue, m_i32EraseConnex);
+            cv::imwrite("../data/images/radialProj/8_eraseContours.png" ,l_oFinalFilteredMat);
+
     // save radial projection for display
         m_oFilteredRadialProjection = l_oFinalFilteredMat.clone();
 
     // compute vertex and faces, and save the obj file
         swCloud::transformRadialProjToMesh(l_oFinalFilteredMat, m_oLastResultFaceMesh, l_oBBox, m_oCloudFaceBBox, m_i32WidthRadialProj, m_i32HeightRadialProj, 0.15f);
+
 
     // save stasm point correspondence with the cloud
 //        swCloud::SWCloud l_oFinalCloud;
@@ -385,7 +458,6 @@ void SWCreateAvatar::constructAvatar()
 //            computeStasmCorr(l_oFinalCloud, l_sPathStasmCorr);
     // save the final radial projection image
 //        cv::imwrite(l_sBasePath + "afterSpatialFiltering.png" ,l_oFinalFilteredMat);
-
 }
 
 void SWCreateAvatar::totalCloud(swCloud::SWCloud &oTotalCloud)

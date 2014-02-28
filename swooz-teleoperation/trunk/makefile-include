@@ -64,6 +64,8 @@ INC_OTHERS          = -I$(SW_DIST)\include
 INC_VS              = -I"$(PROGRAMFILES)/Microsoft SDKs/Windows/v7.0A/Include"\ -I"$(VS100COMNTOOLS)/../../VC/include"\
 
 INC_YARP            = -I"$(THIRD_PARTY_YARP)"\include
+
+INC_NAO             = -I"$(THIRD_PARTY_NAOQI)"\include
 	
 ############################ DEPENDENCIES
 
@@ -72,6 +74,8 @@ COMMON              = $(INC_TELEOPERATION) $(INC_OTHERS) $(INC_VS)
 SW_HEAD_ICUB        = $(COMMON) $(INC_YARP)
 
 SW_TELE_ICUB        = $(COMMON) $(INC_YARP)
+
+SW_TELE_NAO  = $(COMMON) $(INC_NAO) $(INC_YARP)
 
 ############################ COMMON DEBUG/RELEASE LIBS
 
@@ -101,9 +105,55 @@ LIBS_YARP           =   $(THIRD_PARTY_YARP)/lib/YARP_sig.lib\
 					
 LIBS_ACE            =   $(THIRD_PARTY_ACE)/lib/ACE.lib
 
-LIBS_HEAD_ICUB      =   $(LIBS_YARP)  $(LIBS_ACE)  $(LIBS_COMMON)
+LIBS_NAO    =   $(THIRD_PARTY_NAOQI)\lib\pthreadVC2.lib\
+                $(THIRD_PARTY_NAOQI)\lib\pthreadVCE2.lib\
+                $(THIRD_PARTY_NAOQI)\lib\libboost_signals-vc100-mt-1_47.lib\
+                $(THIRD_PARTY_NAOQI)\lib\libboost_system-vc100-mt-1_47.lib\
+                $(THIRD_PARTY_NAOQI)\lib\tinyxml.lib\
+                $(THIRD_PARTY_NAOQI)\lib\libboost_filesystem-vc100-mt-1_47.lib\
+                $(THIRD_PARTY_NAOQI)\lib\rttools.lib\
+                $(THIRD_PARTY_NAOQI)\lib\qi.lib\
+                $(THIRD_PARTY_NAOQI)\lib\alerror.lib\
+                $(THIRD_PARTY_NAOQI)\lib\alcommon.lib\
+                $(THIRD_PARTY_NAOQI)\lib\alvalue.lib\
+                $(THIRD_PARTY_NAOQI)\lib\alproxies.lib\
+                $(THIRD_PARTY_NAOQI)\lib\alextractor.lib\
+                $(THIRD_PARTY_NAOQI)\lib\alfile.lib\
+                $(THIRD_PARTY_NAOQI)\lib\allauncher.lib\
+                $(THIRD_PARTY_NAOQI)\lib\allogremote.lib\
+                $(THIRD_PARTY_NAOQI)\lib\almath.lib\
+                $(THIRD_PARTY_NAOQI)\lib\almemoryfastaccess.lib\
+                $(THIRD_PARTY_NAOQI)\lib\alparammanager.lib\
+                $(THIRD_PARTY_NAOQI)\lib\alproject.lib\
+                $(THIRD_PARTY_NAOQI)\lib\alremotecall.lib\
+                $(THIRD_PARTY_NAOQI)\lib\alserial.lib\
+                $(THIRD_PARTY_NAOQI)\lib\alsoap.lib\
+                $(THIRD_PARTY_NAOQI)\lib\althread.lib\
+                $(THIRD_PARTY_NAOQI)\lib\altools.lib\
+                $(THIRD_PARTY_NAOQI)\lib\alvision.lib\
+
+#$(THIRD_PARTY_NAOQI)\lib\libboost_date_time-vc100-mt-1_47.lib\
+#$(THIRD_PARTY_NAOQI)\lib\libboost_prg_exec_monitor-vc100-mt-1_47.lib\
+#$(THIRD_PARTY_NAOQI)\lib\libboost_program_options-vc100-mt-1_47.lib\
+#$(THIRD_PARTY_NAOQI)\lib\libboost_python-vc100-mt-1_47.lib\
+# $(THIRD_PARTY_NAOQI)\lib\libboost_regex-vc100-mt-1_47.lib\
+#$(THIRD_PARTY_NAOQI)\lib\libboost_wserialization-vc100-mt-1_47.lib\
+#$(THIRD_PARTY_NAOQI)\lib\libboost_thread-vc100-mt-1_47.lib\
+#$(THIRD_PARTY_NAOQI)\lib\libboost_bzip2-vc100-mt-1_47.lib\
+#                $(THIRD_PARTY_NAOQI)\lib\libboost_serialization-vc100-mt-1_47.lib\
+#                $(THIRD_PARTY_NAOQI)\lib\libboost_zlib-vc100-mt-1_47.lib\
+#
+#$(THIRD_PARTY_NAOQI)\lib\alaudio.lib\
+
+LIBS_GSL=   $(THIRD_PARTY_GSL)/lib/gsl.lib\
+            $(THIRD_PARTY_GSL)/lib/gslcblas.lib
+
 
 LIBS_TELEOP_ICUB    =   $(LIBS_YARP)  $(LIBS_ACE)  $(LIBS_COMMON)
+
+LIBS_TELEOP_NAO = $(LIBS_COMMON) $(LIBS_NAO) $(LIBS_YARP) $(LIBS_ACE)
+
+# $(LIBS_GSL)
 
 !ENDIF
 

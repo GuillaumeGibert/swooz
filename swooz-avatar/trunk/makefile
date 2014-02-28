@@ -103,10 +103,6 @@ all:
 
 createAvatar   : $(UI_LIST) $(MOC_LIST) $(BINDIR)/SWCreateAvatar.exe
 		
-launchExp : $(BINDIR)/SWLaunchExp.exe
-
-processExpData : $(BINDIR)/SWProcessExpData.exe
-
 testCodeData   : $(BINDIR)/SWTestCode.exe
 
 clean:

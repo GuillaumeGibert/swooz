@@ -15,6 +15,7 @@ SET ARCH_EXE_toolkit_kinectOnDimenco=x86
 SET ARCH_EXE_3dclient_dummy=x86
 SET ARCH_EXE_3dplayer=x86
 SET ARCH_EXE_manipulation=x86
+set ARCH_EXE_teleoperation_nao=x86
 REM ########################################################################################################################
 
 
@@ -190,6 +191,9 @@ set THIRD_PARTY_POLHEMUS_64=
 REM ##################### HANDTRACKER
 set THIRD_PARTY_HANDTRACKER=
 set THIRD_PARTY_HANDTRACKER_64=%SW_base%\swooz-3rdparty\handTracker\amd64\HandTracker_0.4b_win_x64
+REM ##################### NAOQI
+set THIRD_PARTY_NAOQI=%SW_base%\swooz-3rdparty\naoqi
+set THIRD_PARTY_NAOQI_64=
 REM ########################################################################################################################
 
 
@@ -248,6 +252,7 @@ set PATH=%THIRD_PARTY_ITPP%\lib;%PATH%
 set PATH=%THIRD_PARTY_MKL%\lib;%PATH%
 set PATH=%THIRD_PARTY_POLHEMUS%\lib\Win32;%PATH%
 set PATH=%THIRD_PARTY_FREEGLUT%\bin;%PATH%
+set PATH=%THIRD_PARTY_NAOQI%\bin;%PATH%
 
 goto endSetPath
 
