@@ -22,6 +22,7 @@ SWTeleoperation_iCub::SWTeleoperation_iCub() : m_pIHeadVelocity(NULL), m_pIHeadE
 SWTeleoperation_iCub::~SWTeleoperation_iCub()
 {}
 
+
 bool SWTeleoperation_iCub::configure(ResourceFinder &rf)
 {
     // gets the module name which will form the stem of all module port names

@@ -1,19 +1,13 @@
 
 /**
  * \file SWTeleoperation_nao.h
- * \author Emmanuel Body
+ * \author Marwin Sorce / Florian Lance / Emmanuel Body
  * \date 21/01/2014
  * \brief ...
  */
 
 #ifndef _TELEOPERATION_NAO_
 #define _TELEOPERATION_NAO_
-
-//#include "conio.h"
-
-//#include <stdio.h>
-
-//#include <sstream>
 
 // STD
 #include <vector>
@@ -127,40 +121,14 @@ class SWTeleoperation_nao : public RFModule
          */
         double getPeriod();
 
-    private:
-
-        /**
-         * \brief The eyesOpeningCode function transforms a percentage of opening eyelids
-         * into a hexa code ready to send to the iCub.
-         *
-         * This function transforms a command in percentage of eyelid opening form into a hexa code
-         * that can be understood by the iCub.
-         * \param dEyeLids    : the percentage of opening/closing eyelids
-         * \param i32MinValue : the min value accepted by the iCub (30) or by the simulator (24)
-         * \param i32MaxValue : the max value accepted by the iCub (70) or by the simulator (48)
-         * \return a string containing the hexa code
-         */
-        std::string eyesOpeningCode(cdouble dEyeLids, cint i32MinValue, cint i32MaxValue);
-
 
     private:
 
 
         int m_i32Fps;                           /**< fps (define the period for calling updateModule) */
-        int m_i32TimeoutReset;                  /**< timeout reset icub */
-
-
         int m_i32HeadTimeLastBottle;            /**< time elapsed without head bottle command */
-        int m_i32FaceTimeLastBottle;            /**< time elapsed without face bottle command */
-        int m_i32ArmsTimeLastBottle;            /**< time elapsed without arms bottle command */
-        int m_i32GazeTimeLastBottle;            /**< time elapsed without gaze bottle command */
-
-        int m_i32HeadTimeoutReset;              /**< head timeout reset icub */
-        int m_i32FaceTimeoutReset;              /**< face timeout reset icub */
-        int m_i32ArmsTimeoutReset;              /**< arms timeout reset icub */
-        int m_i32GazeTimeoutReset;              /**< gaze timeout reset icub */
-
-        float m_fJointVelocityValue;            /**< iCub velocity value */
+        int m_i32HeadTimeoutReset;              /**< head timeout reset nao */
+        float m_fJointVelocityValue;            /**< ano velocity value */
 
         float m_fHeadMaxValueJoint0;            /**< ... */
         float m_fHeadMinValueJoint0;            /**< ... */

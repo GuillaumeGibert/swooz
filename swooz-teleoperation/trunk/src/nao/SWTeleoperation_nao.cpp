@@ -22,7 +22,7 @@
 #define DEG_TO_RAD PI / 180.f;
 
 
-SWTeleoperation_nao::SWTeleoperation_nao() :  m_i32HeadTimeLastBottle(0), m_i32FaceTimeLastBottle(0), m_i32ArmsTimeLastBottle(0), m_i32GazeTimeLastBottle(0), m_bFastrakCalibrated(false){}
+SWTeleoperation_nao::SWTeleoperation_nao() :  m_i32HeadTimeLastBottle(0), m_bFastrakCalibrated(false){}
 
 SWTeleoperation_nao::~SWTeleoperation_nao()
 {}
@@ -33,93 +33,62 @@ bool SWTeleoperation_nao::configure(ResourceFinder &rf)
     // gets the module name which will form the stem of all module port names
         m_sModuleName   = rf.check("name", Value("teleoperation_nao"), "Teleoperation/nao Module name (string)").asString();
          setName(m_sModuleName.c_str());
-
          m_sRobotAddress = rf.check("IP", Value("169.254.108.110"), "IP Adress of the Nao Robot").asString();
 
-        // acceleration/speeds values for nao
-          m_fJointVelocityValue     = (float)rf.check("jointVelocityValue",      Value(0.1),  "Joint Velocity Value (float)").asDouble();
+    // acceleration/speeds values for nao
+        m_fJointVelocityValue     = (float)rf.check("jointVelocityValue",      Value(0.1),  "Joint Velocity Value (float)").asDouble();
 
-          // min / max values for nao joints
-              m_fHeadMinValueJoint0 = (float)rf.check("minValueJoint0",  Value(-2.f), "Minimum Joint0 Value (float)").asDouble();
-              m_fHeadMaxValueJoint0 = (float)rf.check("maxValueJoint0",  Value( 2.f), "Maximum Joint0 Value (float)").asDouble();
+    // min / max values for nao joints
+        // head
+        //  min
+        m_fHeadMinValueJoint0 = (float)rf.check("headMinValueJoint0",  Value(-2.f), "Minimum Joint0 Value (float)").asDouble();
+        m_fHeadMinValueJoint1 = (float)rf.check("headMinValueJoint1",  Value(-0.5f), "Minimum Joint1 Value (float)").asDouble();
+        //  max
+        m_fHeadMaxValueJoint0 = (float)rf.check("headMaxValueJoint0",  Value( 2.f), "Maximum Joint0 Value (float)").asDouble();
+        m_fHeadMaxValueJoint1 = (float)rf.check("headMaxValueJoint1",  Value( 0.5f), "Maximum Joint1 Value (float)").asDouble();
 
-               m_fHeadMinValueJoint1 = (float)rf.check("minValueJoint1",  Value(-0.5f), "Minimum Joint1 Value (float)").asDouble();
-               m_fHeadMaxValueJoint1 = (float)rf.check("maxValueJoint1",  Value( 0.5f), "Maximum Joint1 Value (float)").asDouble();
+        // left arm
+        //  min
+        m_fLeftArmMinValueJoint0 = (float)rf.check("leftArmMinValueJoint0",  Value(-2.0f), "Minimum Joint0 Value (float)").asDouble();
+        m_fLeftArmMinValueJoint1 = (float)rf.check("leftArmMinValueJoint1",  Value(-0.31f),"Minimum Joint1 Value (float)").asDouble();
+        m_fLeftArmMinValueJoint2 = (float)rf.check("leftArmMinValueJoint2",  Value(-2.0f), "Minimum Joint2 Value (float)").asDouble();
+        m_fLeftArmMinValueJoint3 = (float)rf.check("leftArmMinValueJoint3",  Value(-1.5f), "Minimum Joint3 Value (float)").asDouble();
+        m_fLeftArmMinValueJoint4 = (float)rf.check("leftArmMinValueJoint4",  Value(-1.8f), "Minimum Joint4 Value (float)").asDouble();
+        m_fLeftArmMinValueJoint5 = (float)rf.check("leftArmMinValueJoint5",  Value(  0.f), "Minimum Joint5 Value (float)").asDouble();
+        //  max
+        m_fLeftArmMaxValueJoint0 = (float)rf.check("leftArmMaxValueJoint0",  Value( 1.9f), "Maximum Joint0 Value (float)").asDouble();
+        m_fLeftArmMaxValueJoint1 = (float)rf.check("leftArmMaxValueJoint1",  Value( 1.3f), "Maximum Joint1 Value (float)").asDouble();
+        m_fLeftArmMaxValueJoint2 = (float)rf.check("leftArmMaxValueJoint2",  Value( 2.0f), "Maximum Joint2 Value (float)").asDouble();
+        m_fLeftArmMaxValueJoint3 = (float)rf.check("leftArmMaxValueJoint3",  Value( 0.0f), "Maximum Joint3 Value (float)").asDouble();
+        m_fLeftArmMaxValueJoint4 = (float)rf.check("leftArmMaxValueJoint4",  Value( 1.8f), "Maximum Joint4 Value (float)").asDouble();
+        m_fLeftArmMaxValueJoint5 = (float)rf.check("leftArmMaxValueJoint5",  Value( 1.0f), "Maximum Joint5 Value (float)").asDouble();
 
+        // rigth arm
+        //  min
+        m_fRightArmMinValueJoint0 = (float)rf.check("rightArmMinValueJoint0",  Value(-2.0f), "Minimum Joint0 Value (float)").asDouble();
+        m_fRightArmMinValueJoint1 = (float)rf.check("rightArmMinValueJoint1",  Value(-1.3f), "Minimum Joint1 Value (float)").asDouble();
+        m_fRightArmMinValueJoint2 = (float)rf.check("rightArmMinValueJoint2",  Value(-2.0f), "Minimum Joint2 Value (float)").asDouble();
+        m_fRightArmMinValueJoint3 = (float)rf.check("rightArmMinValueJoint3",  Value( 0.0f), "Minimum Joint3 Value (float)").asDouble();
+        m_fRightArmMinValueJoint4 = (float)rf.check("rightArmMinValueJoint4",  Value(-1.8f), "Minimum Joint4 Value (float)").asDouble();
+        m_fRightArmMinValueJoint5 = (float)rf.check("rightArmMinValueJoint5",  Value(  0.f), "Minimum Joint5 Value (float)").asDouble();
+        //  max
+        m_fRightArmMaxValueJoint0 = (float)rf.check("rightArmMaxValueJoint0",  Value( 1.9f), "Maximum Joint0 Value (float)").asDouble();
+        m_fRightArmMaxValueJoint1 = (float)rf.check("rightArmMaxValueJoint1",  Value( 0.31f),"Maximum Joint1 Value (float)").asDouble();
+        m_fRightArmMaxValueJoint2 = (float)rf.check("rightArmMaxValueJoint2",  Value( 2.0f), "Maximum Joint2 Value (float)").asDouble();
+        m_fRightArmMaxValueJoint3 = (float)rf.check("rightArmMaxValueJoint3",  Value( 1.5f), "Maximum Joint3 Value (float)").asDouble();
+        m_fRightArmMaxValueJoint4 = (float)rf.check("rightArmMaxValueJoint4",  Value( 1.8f), "Maximum Joint4 Value (float)").asDouble();
+        m_fRightArmMaxValueJoint5 = (float)rf.check("rightArmMaxValueJoint5",  Value( 1.0f), "Maximum Joint5 Value (float)").asDouble();
 
-               m_fLeftArmMinValueJoint0 = (float)rf.check("xxx",  Value(-2.0f), "Minimum Joint0 Value (float)").asDouble();
-               m_fLeftArmMinValueJoint1 = (float)rf.check("xxx",  Value(-0.31f), "Minimum Joint1 Value (float)").asDouble();
-               m_fLeftArmMinValueJoint2 = (float)rf.check("xxx",  Value(-2.0f), "Minimum Joint2 Value (float)").asDouble();
-               m_fLeftArmMinValueJoint3 = (float)rf.check("xxx",  Value(-1.5f), "Minimum Joint3 Value (float)").asDouble();
-               m_fLeftArmMinValueJoint4 = (float)rf.check("xxx",  Value(-1.8f), "Minimum Joint4 Value (float)").asDouble();
-               m_fLeftArmMinValueJoint5 = (float)rf.check("xxx",  Value(  0.f), "Minimum Joint5 Value (float)").asDouble();
-
-               m_fLeftArmMaxValueJoint0 = (float)rf.check("xxx",  Value( 1.9f), "Maximum Joint0 Value (float)").asDouble();
-               m_fLeftArmMaxValueJoint1 = (float)rf.check("xxx",  Value( 1.3f), "Maximum Joint1 Value (float)").asDouble();
-               m_fLeftArmMaxValueJoint2 = (float)rf.check("xxx",  Value( 2.0f), "Maximum Joint2 Value (float)").asDouble();
-               m_fLeftArmMaxValueJoint3 = (float)rf.check("xxx",  Value( 0.0f), "Maximum Joint3 Value (float)").asDouble();
-               m_fLeftArmMaxValueJoint4 = (float)rf.check("xxx",  Value( 1.8f), "Maximum Joint4 Value (float)").asDouble();
-               m_fLeftArmMaxValueJoint5 = (float)rf.check("xxx",  Value( 1.0f), "Maximum Joint5 Value (float)").asDouble();
-
-
-
-              m_fRightArmMinValueJoint0 = (float)rf.check("xxx",  Value(-2.0f), "Minimum Joint0 Value (float)").asDouble();
-              m_fRightArmMinValueJoint1 = (float)rf.check("xxx",  Value(-1.3f), "Minimum Joint1 Value (float)").asDouble();
-              m_fRightArmMinValueJoint2 = (float)rf.check("xxx",  Value(-2.0f), "Minimum Joint2 Value (float)").asDouble();
-              m_fRightArmMinValueJoint3 = (float)rf.check("xxx",  Value( 0.0f), "Minimum Joint3 Value (float)").asDouble();
-              m_fRightArmMinValueJoint4 = (float)rf.check("xxx",  Value(-1.8f), "Minimum Joint4 Value (float)").asDouble();
-              m_fRightArmMinValueJoint5 = (float)rf.check("xxx",  Value(  0.f), "Minimum Joint5 Value (float)").asDouble();
-
-              m_fRightArmMaxValueJoint0 = (float)rf.check("xxx",  Value( 1.9f), "Maximum Joint0 Value (float)").asDouble();
-              m_fRightArmMaxValueJoint1 = (float)rf.check("xxx",  Value( 0.31f), "Maximum Joint1 Value (float)").asDouble();
-              m_fRightArmMaxValueJoint2 = (float)rf.check("xxx",  Value( 2.0f), "Maximum Joint2 Value (float)").asDouble();
-              m_fRightArmMaxValueJoint3 = (float)rf.check("xxx",  Value( 1.5f), "Maximum Joint3 Value (float)").asDouble();
-              m_fRightArmMaxValueJoint4 = (float)rf.check("xxx",  Value( 1.8f), "Maximum Joint4 Value (float)").asDouble();
-              m_fRightArmMaxValueJoint5 = (float)rf.check("xxx",  Value( 1.0f), "Maximum Joint5 Value (float)").asDouble();
-
-
-             /*m_fLeftLegMinValueJoint0 = rf.check("xxx",  Value(-1.5f), "Minimum Joint0 Value (float)").asDouble();
-             m_fLeftLegMinValueJoint1 = rf.check("xxx",  Value(  0.f), "Minimum Joint1 Value (float)").asDouble();
-             m_fLeftLegMinValueJoint2 = rf.check("xxx",  Value(-1.5f), "Minimum Joint2 Value (float)").asDouble();
-             m_fLeftLegMinValueJoint3 = rf.check("xxx",  Value(-2.0f), "Minimum Joint3 Value (float)").asDouble();
-             m_fLeftLegMinValueJoint4 = rf.check("xxx",  Value(-1.7f), "Minimum Joint4 Value (float)").asDouble();
-             m_fLeftLegMinValueJoint5 = rf.check("xxx",  Value(  0.f), "Minimum Joint5 Value (float)").asDouble();
-
-             m_fLeftLegMaxValueJoint0 = rf.check("xxx",  Value( 1.5f), "Maximum Joint0 Value (float)").asDouble();
-             m_fLeftLegMaxValueJoint1 = rf.check("xxx",  Value( 1.1f), "Maximum Joint1 Value (float)").asDouble();
-             m_fLeftLegMaxValueJoint2 = rf.check("xxx",  Value(-0.1f), "Maximum Joint2 Value (float)").asDouble();
-             m_fLeftLegMaxValueJoint3 = rf.check("xxx",  Value( 2.0f), "Maximum Joint3 Value (float)").asDouble();
-             m_fLeftLegMaxValueJoint4 = rf.check("xxx",  Value( 1.7f), "Maximum Joint4 Value (float)").asDouble();
-             m_fLeftLegMaxValueJoint5 = rf.check("xxx",  Value( 1.0f), "Maximum Joint5 Value (float)").asDouble();
-
-
-
-            m_fRightLegMinValueJoint0 = rf.check("xxx",  Value(-1.5f), "Minimum Joint0 Value (float)").asDouble();
-            m_fRightLegMinValueJoint1 = rf.check("xxx",  Value(  0.f), "Minimum Joint1 Value (float)").asDouble();
-            m_fRightLegMinValueJoint2 = rf.check("xxx",  Value(-1.5f), "Minimum Joint2 Value (float)").asDouble();
-            m_fRightLegMinValueJoint3 = rf.check("xxx",  Value(-2.0f), "Minimum Joint3 Value (float)").asDouble();
-            m_fRightLegMinValueJoint4 = rf.check("xxx",  Value(-1.7f), "Minimum Joint4 Value (float)").asDouble();
-            m_fRightLegMinValueJoint5 = rf.check("xxx",  Value(  0.f), "Minimum Joint5 Value (float)").asDouble();
-
-            m_fRightLegMaxValueJoint0 = rf.check("xxx",  Value( 1.5f), "Maximum Joint0 Value (float)").asDouble();
-            m_fRightLegMaxValueJoint1 = rf.check("xxx",  Value( 1.1f), "Maximum Joint1 Value (float)").asDouble();
-            m_fRightLegMaxValueJoint2 = rf.check("xxx",  Value(-0.1f), "Maximum Joint2 Value (float)").asDouble();
-            m_fRightLegMaxValueJoint3 = rf.check("xxx",  Value( 2.0f), "Maximum Joint3 Value (float)").asDouble();
-            m_fRightLegMaxValueJoint4 = rf.check("xxx",  Value( 1.7f), "Maximum Joint4 Value (float)").asDouble();
-            m_fRightLegMaxValueJoint5 = rf.check("xxx",  Value( 1.0f), "Maximum Joint5 Value (float)").asDouble();*/
-
-            m_fTorsoMinValueJoint0 = (float)rf.check("xxx",  Value(-1.0f), "Minimum Joint0 Value (float)").asDouble();
-            m_fTorsoMaxValueJoint0 = (float)rf.check("xxx",  Value(-0.45f), "Maximum Joint1 Value (float)").asDouble();
-
-
+        // torso
+        //  min
+        m_fTorsoMinValueJoint0 = (float)rf.check("torsoMinValueJoint0",  Value(-1.0f), "Minimum Joint0 Value (float)").asDouble();
+        //  max
+        m_fTorsoMaxValueJoint0 = (float)rf.check("torsoMaxValueJoint0",  Value(-0.45f), "Maximum Joint1 Value (float)").asDouble();
 
 
     // miscellaneous
         m_i32Fps                    = rf.check("fps",                   Value(100),  "Frame per second (int)").asInt();
         m_i32HeadTimeoutReset       = rf.check("headTimeoutReset",      Value(3000), "Head gaze timeout reset iCub (int)").asInt();
-        m_i32FaceTimeoutReset       = rf.check("faceTimeoutReset",      Value(3000), "Face gaze timeout reset iCub (int)").asInt();
-        m_i32ArmsTimeoutReset       = rf.check("armsTimeoutReset",      Value(3000), "Arms timeout reset iCub (int)").asInt();
-        m_i32GazeTimeoutReset       = rf.check("gazeTimeoutReset",      Value(3000), "Gaze timeout reset iCub (int)").asInt();
 
 
         m_aHeadAngles.arraySetSize(2);
@@ -130,18 +99,17 @@ bool SWTeleoperation_nao::configure(ResourceFinder &rf)
         m_aRLegAngles.arraySetSize(6);
 
 
-
     // init ports
-        m_sHeadTrackerPortName       = "/teleoperation/nao/head";
-        m_sTorsoTrackerPortName       = "/teleoperation/nao/torso";
+        m_sHeadTrackerPortName          = "/teleoperation/nao/head";
+        m_sTorsoTrackerPortName         = "/teleoperation/nao/torso";
 
-        m_sLeftArmTrackerPortName	= "/teleoperation/nao/left_arm/arm";
-        m_sLeftHandTrackerPortName   = "/teleoperation/nao/left_arm/hand";
+        m_sLeftArmTrackerPortName       = "/teleoperation/nao/left_arm/arm";
+        m_sLeftHandTrackerPortName      = "/teleoperation/nao/left_arm/hand";
         m_sLeftFingersTrackerPortName   = "/teleoperation/nao/left_arm/fingers";
 
-        m_sRightArmTrackerPortName	= "/teleoperation/nao/right_arm/arm";
-        m_sRightHandTrackerPortName   = "/teleoperation/nao/right_arm/hand";
-        m_sRightFingersTrackerPortName   = "/teleoperation/nao/right_arm/fingers";
+        m_sRightArmTrackerPortName      = "/teleoperation/nao/right_arm/arm";
+        m_sRightHandTrackerPortName     = "/teleoperation/nao/right_arm/hand";
+        m_sRightFingersTrackerPortName  = "/teleoperation/nao/right_arm/fingers";
 
         if(!m_oHeadTrackerPort.open(m_sHeadTrackerPortName.c_str()) ||
            //!m_oGazeTrackerPort.open(m_sGazeTrackerPortName.c_str()) ||
@@ -839,21 +807,21 @@ int main(int argc, char* argv[])
     /* prepare and configure the resource finder */
     ResourceFinder rf;
     rf.setVerbose(true);
-    rf.setDefaultConfigFile("teleoperation_iCub.ini"); //overridden by --from parameter
-    rf.setDefaultContext("swooz-teleoperation/conf");   //overridden by --context parameter
-    rf.configure("ICUB_ROOT", argc, argv);
+    rf.setDefaultConfigFile("teleoperation_nao.ini");
+    rf.setDefaultContext("swooz-teleoperation/conf");
+    rf.configure("NAO_ROOT", argc, argv);
 
     /* configure the module */
-    std::cout << "Configuring the iCub Teleoperation module..."<< std::endl;
+    std::cout << "Configuring the nao Teleoperation module..."<< std::endl;
     if (l_oTeleoperation_nao.configure(rf))
     {
         /* run the module */
-        std::cout << "Starting the iCub Teleoperation module..." << std::endl;
+        std::cout << "Starting the nao Teleoperation module..." << std::endl;
         l_oTeleoperation_nao.runModule();
     }
     else
     {
-        std::cerr << "Failed to configure the iCub Teleoperation module!"<< std::endl;
+        std::cerr << "Failed to configure the nao Teleoperation module!"<< std::endl;
     }
 
     return 0;

@@ -1,0 +1,72 @@
+<application>
+
+  <name>SWoOz trackers data saver</name>
+  <description>Save bottles containing SWoOz trackers data </description>
+  
+	<connection>
+		<from>/tracking/rgbd/emicp/head</from>
+		<to>/dump/swooz-emicpHeadTracking</to>
+		<protocol>tcp</protocol>
+	</connection>	
+	
+	<connection>
+		<from>/tracking/rgbd/forest/head</from>
+		<to>/dump/swooz-forestHeadTracking</to>
+		<protocol>tcp</protocol>
+	</connection>
+	
+	<connection>
+		<from>/tracking/facelab/coredata/head</from>
+		<to>/dump/swooz-faceLabTracking/head</to>
+		<protocol>tcp</protocol>
+	</connection>
+	
+	<connection>
+		<from>/tracking/facelab/coredata/face</from>
+		<to>/dump/swooz-faceLabTracking/face</to>
+		<protocol>tcp</protocol>
+	</connection>		
+	
+	<connection>
+		<from>/tracking/facelab/coredata/gaze</from>
+		<to>/dump/swooz-faceLabTracking/gaze</to>
+		<protocol>tcp</protocol>
+	</connection>			
+  
+	<module>
+		<name>dataDumper</name>
+		<parameters>--rxTime --name /dump/swooz-emicpHeadTracking --dir /dump/swooz-emicpHeadTracking --overwrite</parameters>
+		<node>localhost</node>
+		<tag>log</tag>
+	</module>
+	
+	<module>
+		<name>dataDumper</name>
+		<parameters>--rxTime --name /dump/swooz-forestHeadTracking --dir /dump/swooz-forestHeadTracking --overwrite</parameters>
+		<node>localhost</node>
+		<tag>log</tag>
+	</module> 	
+	
+	<module>
+		<name>dataDumper</name>
+		<parameters>--rxTime --name /dump/swooz-faceLabTracking/head --dir /dump/swooz-faceLabTracking/head --overwrite</parameters>
+		<node>localhost</node>
+		<tag>log</tag>
+	</module> 	
+	
+ 	<module>
+		<name>dataDumper</name>
+		<parameters>--rxTime --name /dump/swooz-faceLabTracking/face --dir /dump/swooz-faceLabTracking/face --overwrite</parameters>
+		<node>localhost</node>
+		<tag>log</tag>
+	</module> 	
+	
+	<module>
+		<name>dataDumper</name>
+		<parameters>--rxTime --name /dump/swooz-faceLabTracking/gaze --dir /dump/swooz-faceLabTracking/gaze --overwrite</parameters>
+		<node>localhost</node>
+		<tag>log</tag>
+	</module> 	
+
+</application>
+
