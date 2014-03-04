@@ -484,11 +484,10 @@ SWManipulationInterface::SWManipulationInterface() : m_uiManipulation(new Ui::SW
             m_uiManipulation->setupUi(this);
             this->setWindowTitle(QString("SWoOz : Manipulation"));
             this->setWindowIcon(QIcon(QString("../data/images/logos/icon_swooz.png")));
-            m_uiManipulation->pbHelpNORMAL->setEnabled(true);
-            m_uiManipulation->pbHelpNORMAL->setToolTip("test1");
-            m_uiManipulation->pbHelpMOD->setToolTip("test1");
-            m_uiManipulation->pbHelpRAND->setToolTip("test1");
-            m_uiManipulation->pbHelpSEQ->setToolTip("test1");
+            m_uiManipulation->pbHelpNORMAL->setVisible(false);
+            m_uiManipulation->pbHelpMOD->setVisible(false);
+            m_uiManipulation->pbHelpRAND->setVisible(false);
+            m_uiManipulation->pbHelpSEQ->setVisible(false);
 
         // init new meta types
             qRegisterMetaType<SWBottleContent>("SWBottleContent");

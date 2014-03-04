@@ -53,7 +53,7 @@ inline bool CRForest::loadForest(const char* filename) {
 	char buffer[200];
 	bool success = true;
 	for(unsigned int i=0; i<vTrees.size(); ++i) {
-		sprintf(buffer,"%s%03d.bin",filename,i);
+        sprintf_s(buffer,"%s%03d.bin",filename,i);
 		vTrees[i] = new CRTree();
 		success &= vTrees[i]->loadTree(buffer);
 	}

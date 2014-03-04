@@ -22,6 +22,7 @@
 
 ////////////////////////////////
 // OpenNI
+#undef WIN32_LEAN_AND_MEAN
 #include <XnOS.h>
 #include <XnCppWrapper.h>
 #include <XnCodecIDs.h>
@@ -47,6 +48,7 @@ using namespace yarp::sig;
 
 using namespace std;
 using namespace cv;
+
 
 
 

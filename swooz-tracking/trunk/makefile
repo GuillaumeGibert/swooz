@@ -52,7 +52,7 @@ OBJ_TRACKING_FORTH=\
 ############################################################################## Makefile commands
 
 !if  "$(ARCH)" == "x86"
-all: trackingHeadEmicp trackingHeadForest trackingFaceLab trackingFaceShift trackingOpenNI
+all: trackingHeadForest trackingHeadEmicp trackingHeadForest trackingFaceLab trackingFaceShift trackingOpenNI
 !endif
 
 !if "$(ARCH)" == "amd64"
@@ -74,7 +74,7 @@ clean all:
 ############################################################################## exe files
 
 $(BINDIR)/SWTrackingHeadForest.exe: $(OBJ_TRACKING_HEAD_FOREST)  $(LIBS_HEAD_FOREST)
-        $(LINK) /OUT:$(BINDIR)/SWTrackingHeadForest.exe $(LFLAGS_FOREST_HEAD_TRACKING) $(OBJ_TRACKING_HEAD_FOREST)  $(SETARGV) $(BINMODE) $(LIBS_HEAD_FOREST) $(WINLIBS)
+        $(LINK) /OUT:$(BINDIR)/SWTrackingHeadForest.exe $(LFLAGS_FOREST_HEAD_TRACKING) $(OBJ_TRACKING_HEAD_FOREST) $(SETARGV) $(BINMODE) $(LIBS_HEAD_FOREST) $(WINLIBS)
 
 $(BINDIR)/SWFaceLabTracking.exe: $(OBJ_TRACKING_FACELAB) $(LIBS_FACELAB_TRACK)
         $(LINK) /OUT:$(BINDIR)/SWFaceLabTracking.exe $(LFLAGS) $(OBJ_TRACKING_FACELAB) $(SETARGV) $(BINMODE) $(LIBS_FACELAB_TRACK) $(WINLIBS)

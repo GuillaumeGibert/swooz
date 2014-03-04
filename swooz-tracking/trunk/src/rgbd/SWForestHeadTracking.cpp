@@ -119,6 +119,8 @@ std::vector< Vote > g_votes; //all votes returned by the forest
 
 math_vector_3f g_face_curr_dir, g_face_dir(0,0,-1);
 
+
+
 void drawCylinder( const math_vector_3f& p1, const math_vector_3f& p2 , float radius, GLUquadric *quadric)
 {
     math_vector_3f d = p2 - p1;
@@ -181,7 +183,7 @@ void initialize(){
     Network yarp;
     if (!yarp.checkNetwork())
     {
-        std::cout << "-ERROR: Problem connecting to YARP server" << std::endl;
+        std::cerr << "-ERROR: Problem connecting to YARP server" << std::endl;
         return;
     }
     headTrackingPortName =  "/tracking/" + deviceName + "/"+ libraryName + "/"+ effectorName;
@@ -242,6 +244,7 @@ void loadConfig(const char* filename) {
 
 }
 
+
 bool read_data( ){
 
     // Wait for new data to be available
@@ -255,7 +258,7 @@ bool read_data( ){
     // Take current depth map
     g_DepthGenerator.GetMetaData(g_depthMD);
 
-    float f = g_focal_length/g_pixel_size;
+    float f = (float)(g_focal_length/g_pixel_size);
     int valid_pixels = 0;
 
     //generate 3D image
@@ -329,9 +332,6 @@ bool read_data( ){
 
 bool process() {
 
-    // start timer
-//        clock_t l_oFirstTime = clock();
-
     read_data( );
 
     g_means.clear();
@@ -352,12 +352,11 @@ bool process() {
                             g_th
                         );
 
-    //~ if(g_means.size()>0)
-        //~ cout << g_means[0][0] << " " << g_means[0][1]  << " " <<g_means[0][2]  << " " << g_means[0][3]  << " " <<g_means[0][4] << " " <<g_means[0][5] << endl;
 
-    // compute total delay between the getting of the kinect data and the send of the bottle conainting the rigid motion
-//        float l_fDelay = (float)(clock() - l_oFirstTime) / CLOCKS_PER_SEC;
-//        std::cout << "Delay : " << l_fDelay << std::endl;
+    if(g_means.size() == 0)
+    {
+        return true;
+    }
 
     Bottle &target=headTrackingPort.prepare();
         target.clear();
@@ -368,7 +367,6 @@ bool process() {
     headTrackingPort.write();
 
     return true;
-
 }
 
 // ##############################################################################
@@ -695,20 +693,19 @@ int main(int argc, char* argv[])
     g_Estimate =  new CRForestEstimator();
     if( !g_Estimate->loadForest(g_treepath.c_str(), g_ntrees) ){
 
-        cerr << "could not read forest!" << endl;
+        cerr << "could not read forest data files !" << endl;
         exit(-1);
     }
 
     initialize();
 
-    //
-
     // initialize GLUT
     glutInitWindowSize(800, 800);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
     glutInit(&argc, argv);
+    glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_CONTINUE_EXECUTION);
 
-    glutCreateWindow("HeadPoseDemo (press h for list of available commands)");
+    glutCreateWindow("Forest head tracking (press h for list of available commands)");
     glutDisplayFunc(draw);
     glutMouseFunc(mb);
     glutMotionFunc(mm);
@@ -716,6 +713,9 @@ int main(int argc, char* argv[])
     glutReshapeFunc(resize);
     glutIdleFunc(idle);
     glutMainLoop();
+
+    headTrackingPort.interrupt();
+    headTrackingPort.close();
 
     return 0;
 

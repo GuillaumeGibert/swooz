@@ -71,7 +71,11 @@
             </widget>
            </item>
            <item row="6" column="4">
-            <widget class="QLineEdit" name="leMan4"/>
+            <widget class="QLineEdit" name="leMan4">
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+            </widget>
            </item>
            <item row="4" column="0" alignment="Qt::AlignHCenter">
             <widget class="QLabel" name="laManIn2">
@@ -81,16 +85,32 @@
             </widget>
            </item>
            <item row="2" column="4">
-            <widget class="QLineEdit" name="leMan0"/>
+            <widget class="QLineEdit" name="leMan0">
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+            </widget>
            </item>
            <item row="5" column="4">
-            <widget class="QLineEdit" name="leMan3"/>
+            <widget class="QLineEdit" name="leMan3">
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+            </widget>
            </item>
            <item row="4" column="4">
-            <widget class="QLineEdit" name="leMan2"/>
+            <widget class="QLineEdit" name="leMan2">
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+            </widget>
            </item>
            <item row="3" column="4">
-            <widget class="QLineEdit" name="leMan1"/>
+            <widget class="QLineEdit" name="leMan1">
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+            </widget>
            </item>
            <item row="3" column="6" alignment="Qt::AlignHCenter">
             <widget class="QPushButton" name="pbActive1">

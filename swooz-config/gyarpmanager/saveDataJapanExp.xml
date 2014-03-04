@@ -1,0 +1,34 @@
+<application>
+
+  <name>SWoOz trackers data saver japan experience </name>
+  <description>Save bottles containing SWoOz trackers data </description>
+
+        <connection>
+                <from>/tracking/rgbd/emicp/head</from>
+                <to>/dump/swooz-emicpHeadTracking</to>
+                <protocol>tcp</protocol>
+        </connection>
+
+        <connection>
+                <from>/tracking/rgbd/forest/head</from>
+                <to>/dump/swooz-forestHeadTracking</to>
+                <protocol>tcp</protocol>
+        </connection>
+
+
+        <module>
+                <name>dataDumper</name>
+                <parameters>--rxTime --name /dump/swooz-emicpHeadTracking --dir C:/dump/swooz-emicpHeadTracking-japanExp </parameters>
+                <node>localhost</node>
+                <tag>log</tag>
+        </module>
+
+        <module>
+                <name>dataDumper</name>
+                <parameters>--rxTime --name /dump/swooz-forestHeadTracking --dir C:/dump/swooz-forestHeadTracking-japanExp </parameters>
+                <node>localhost</node>
+                <tag>log</tag>
+        </module>
+
+</application>
+

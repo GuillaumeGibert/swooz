@@ -30,6 +30,8 @@ SWTeleoperation_nao::~SWTeleoperation_nao()
 bool SWTeleoperation_nao::configure(ResourceFinder &rf)
 {
 
+
+
     // gets the module name which will form the stem of all module port names
         m_sModuleName   = rf.check("name", Value("teleoperation_nao"), "Teleoperation/nao Module name (string)").asString();
          setName(m_sModuleName.c_str());
@@ -112,17 +114,14 @@ bool SWTeleoperation_nao::configure(ResourceFinder &rf)
         m_sRightFingersTrackerPortName  = "/teleoperation/nao/right_arm/fingers";
 
         if(!m_oHeadTrackerPort.open(m_sHeadTrackerPortName.c_str()) ||
-           //!m_oGazeTrackerPort.open(m_sGazeTrackerPortName.c_str()) ||
-           //!m_oFaceTrackerPort.open(m_sFaceTrackerPortName.c_str()) ||
-           !m_oTorsoTrackerPort.open(m_sTorsoTrackerPortName.c_str()) ||
-           //!m_oFaceHandlerPort.open(m_sEyelidOutputPortName.c_str()) ||
+            !m_oTorsoTrackerPort.open(m_sTorsoTrackerPortName.c_str()) ||
             !m_oLeftArmTrackerPort.open(m_sLeftArmTrackerPortName.c_str()) ||
             !m_oLeftHandTrackerPort.open(m_sLeftHandTrackerPortName.c_str()) ||
             !m_oLeftFingersTrackerPort.open(m_sLeftFingersTrackerPortName.c_str()) ||
             !m_oRightArmTrackerPort.open(m_sRightArmTrackerPortName.c_str()) ||
             !m_oRightHandTrackerPort.open(m_sRightHandTrackerPortName.c_str()) ||
             !m_oRightFingersTrackerPort.open(m_sRightFingersTrackerPortName.c_str())
-            )
+        )
         {
             std::cerr << "-ERROR: Unable to open ports." << std::endl;
             interruptModule();
@@ -139,21 +138,22 @@ bool SWTeleoperation_nao::configure(ResourceFinder &rf)
             return false;
         }
 
-        m_oRobotMotionProxy->setStiffnesses("Body", 1.0f);
+//        m_oRobotMotionProxy->setStiffnesses("Body", 1.0f);
+        m_oRobotMotionProxy->setStiffnesses("Head", 1.0f);
 
-        try	{
-            ALRobotPostureProxy l_oRobotRobotPosture=  ALRobotPostureProxy(m_sRobotAddress);
-            l_oRobotRobotPosture.goToPosture("Stand", 1.0);
-        }
-        catch (const AL::ALError& e){
-            std::cerr << "-ERROR: " << e.what() << std::endl;
-            return false;
-        }
+//        try	{
+//            ALRobotPostureProxy l_oRobotRobotPosture=  ALRobotPostureProxy(m_sRobotAddress);
+//            l_oRobotRobotPosture.goToPosture("Stand", 1.0);
+//        }
+//        catch (const AL::ALError& e){
+//            std::cerr << "-ERROR: " << e.what() << std::endl;
+//            return false;
+//        }
 
         resetHeadPosition();
-        resetTorsoPosition();
-        resetLeftArmPosition();
-        resetRightArmPosition();
+//        resetTorsoPosition();
+//        resetLeftArmPosition();
+//        resetRightArmPosition();
 
         m_bHeadCapture = m_bTorsoCapture = m_bLeftArmCapture = m_bRightArmCapture = false;
 
@@ -164,22 +164,18 @@ bool SWTeleoperation_nao::configure(ResourceFinder &rf)
 bool SWTeleoperation_nao::interruptModule()
 {
     m_oHeadTrackerPort.interrupt();
-    //m_oGazeTrackerPort.interrupt();
-    //m_oFaceTrackerPort.interrupt();
     m_oTorsoTrackerPort.interrupt();
-    //m_oFaceHandlerPort.interrupt();
     m_oLeftHandTrackerPort.interrupt();
     m_oLeftFingersTrackerPort.interrupt();
     m_oRightHandTrackerPort.interrupt();
     m_oRightFingersTrackerPort.interrupt();
 
-    std::cout << "--Interrupting the iCub Teleoperation module..." << std::endl;
+    std::cout << "--Interrupting the nao Teleoperation module..." << std::endl;
     return true;
 }
 
 void SWTeleoperation_nao::resetHeadPosition()
 {
-    std::cout << "resetH" << std::endl;
     m_aHeadAngles[0] = 0.f;
     m_aHeadAngles[1] = 0.f;
 
@@ -196,8 +192,6 @@ void SWTeleoperation_nao::resetHeadPosition()
 
 void SWTeleoperation_nao::resetTorsoPosition()
 {
-    std::cout << "resetT" << std::endl;
-
     try {
             m_oRobotMotionProxy->setStiffnesses("LLeg",1.0f);
             m_oRobotMotionProxy->setStiffnesses("RLeg",1.0f);
@@ -213,7 +207,6 @@ void SWTeleoperation_nao::resetTorsoPosition()
 
 void SWTeleoperation_nao::resetLeftArmPosition()
 {
-    std::cout << "resetLA" << std::endl;
     m_aLArmAngles[0] = 1.3f;
     m_aLArmAngles[1] = 0.f;
     m_aLArmAngles[2] = 0.f;
@@ -232,7 +225,6 @@ void SWTeleoperation_nao::resetLeftArmPosition()
 
 void SWTeleoperation_nao::resetRightArmPosition()
 {
-    std::cout << "resetRA" << std::endl;
     m_aRArmAngles[0] = 1.3f;
     m_aRArmAngles[1] = 0.f;
     m_aRArmAngles[2] = 0.f;
@@ -252,9 +244,9 @@ void SWTeleoperation_nao::resetRightArmPosition()
 bool SWTeleoperation_nao::close()
 {
     resetHeadPosition();
-    resetTorsoPosition();
-    resetLeftArmPosition();
-    resetRightArmPosition();
+//    resetTorsoPosition();
+//    resetLeftArmPosition();
+//    resetRightArmPosition();
 
     // close ports
     m_oHeadTrackerPort.close();
@@ -325,6 +317,14 @@ bool SWTeleoperation_nao::updateModule()
                         m_aHeadAngles[0] = l_rpyHead[2] * DEG_TO_RAD;
                         m_aHeadAngles[1] = l_rpyHead[1] * DEG_TO_RAD;
                     }
+                break;
+
+
+                case swTracking::FOREST_LIB :
+                {
+                    m_aHeadAngles[0] = (-l_pHeadTarget->get(2).asDouble()+5) * DEG_TO_RAD; //head rotation "yes" [-40 30]
+                    m_aHeadAngles[1] = (l_pHeadTarget->get(1).asDouble()-5) * DEG_TO_RAD; //head rotation [-70 60]
+                }
                 break;
             }
 
@@ -444,7 +444,7 @@ bool SWTeleoperation_nao::updateModule()
     if(l_pRightArmTarget)
     {
         int l_deviceId = l_pRightArmTarget->get(0).asInt();
-        std::cout << "Recieved Right Arm data (device " << l_deviceId << ")" << std::endl;
+//        std::cout << "Recieved Right Arm data (device " << l_deviceId << ")" << std::endl;
 
         switch(l_deviceId)
         {
@@ -575,7 +575,7 @@ bool SWTeleoperation_nao::updateModule()
 //                    m_vLeftArmJoints[5] = l_joints[8];
 //                    m_vLeftArmJoints[6] = l_joints[9];
 
-                std::cout << m_aLArmAngles.toString() << "\t";
+//                std::cout << m_aLArmAngles.toString() << "\t";
 
                 m_bLeftArmCapture = true;
 
