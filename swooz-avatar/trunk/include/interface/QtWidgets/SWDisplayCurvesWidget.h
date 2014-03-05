@@ -1,13 +1,13 @@
 
 /**
- * \file SWDisplayHistogramWidget.h
- * \brief Defines SWDisplayHistogramWidget
+ * \file SWDisplayCurvesWidget.h
+ * \brief Defines SWDisplayCurvesWidget
  * \author Florian Lance
  * \date 28/05/13
  */
 
-#ifndef _SWDISPLAYHISTOGRAMWIDGET_
-#define _SWDISPLAYHISTOGRAMWIDGET_
+#ifndef _SWDISPLAYCURVESWIDGET_
+#define _SWDISPLAYCURVESWIDGET_
 
 #include <QPainter>
 #include <QWidget>
@@ -16,34 +16,34 @@
 #include "commonTypes.h"
 
 /**
- * \class SWDisplayHistogramWidget
- * \brief A qt widget
+ * \class SWDisplayCurvesWidget
+ * \brief A simple Qt widget for displaying curves with legends in real time.
  * \author Florian Lance
  * \date 28/05/13
  */
-class SWDisplayHistogramWidget : public QWidget
+class SWDisplayCurvesWidget : public QWidget
 {
 	Q_OBJECT
 	
 	public:
 		
 		/**
-		* \brief default constructor of SWDisplayHistogramWidget
+        * \brief default constructor of SWDisplayCurvesWidget
 		* \param [in] oParent 	    : parent qt widget 
 		* \param [in] aSCurvesLabel : array of titles of the curves to draw
-		* \param [in] oSize 	    : size of the histogram 
+        * \param [in] oSize 	    : size of the widget
 		* \param [in] fScale 	    : scale value to apply  
-		* \param [in] ui32Xtic 	    : x tic of the histogram  (like xtics for gnuplot)
-		* \param [in] ui32YTic 	    : y tic of the histogram  (like ytics for gnuplot) 
+        * \param [in] ui32Xtic 	    : x tic of the curve (like xtics for gnuplot)
+        * \param [in] ui32YTic 	    : y tic of the curve (like ytics for gnuplot)
 		* \param [in] i32TaitSize   : number of pixel between two inputs to draw
 		*/		
-		SWDisplayHistogramWidget(QWidget* oParent = 0, const std::vector<std::string> &aSCurvesLabel = std::vector<std::string>(), 
+        SWDisplayCurvesWidget(QWidget* oParent = 0, const std::vector<std::string> &aSCurvesLabel = std::vector<std::string>(),
 					 QSize &oSize = QSize(300,200), cfloat fScale = 1.f, cuint ui32Xtic = 5, cuint ui32YTic = 5, cint i32TaitSize = 1);
 
 		/**
-		* \brief destructor of SWDisplayImageWidget
+        * \brief destructor of SWDisplayCurvesWidget
 		*/	    
-        ~SWDisplayHistogramWidget();
+        ~SWDisplayCurvesWidget();
 	
 		/**
 		* \brief Set a new input set of values to draw, the array must have the same size than the title curve array used in the construtor.
@@ -60,14 +60,14 @@ class SWDisplayHistogramWidget : public QWidget
 	
 	private:
 	
-		bool m_bDrawHisto;					/**< draw the histogram ? */
+        bool m_bDrawCurves;					/**< draw the curves ? */
 		bool m_bDrawLines;					/**< draw lines ? or points */
 	
         uint m_ui32NumberOfCurves;          /**< number of curves */
-		uint m_ui32XTic;					/**< x tic of the histogram  (like xtics for gnuplot) */
-		uint m_ui32YTic;					/**< y tic of the histogram  (like ytics for gnuplot)  */
-        uint m_ui32ScrollingOffsetXTic;     /**< ... */
-        uint m_ui32ScrollingOffsetXLegend;  /**< ... */
+        uint m_ui32XTic;					/**< x tic of the curves  (like xtics for gnuplot) */
+        uint m_ui32YTic;					/**< y tic of the curves  (like ytics for gnuplot)  */
+        uint m_ui32ScrollingOffsetXTic;     /**< x tic scrolling offset */
+        uint m_ui32ScrollingOffsetXLegend;  /**< x legend scrolling offset */
 	
         int  m_i32TraitSize;                /**< number of pixel between two inputs to draw */
 	

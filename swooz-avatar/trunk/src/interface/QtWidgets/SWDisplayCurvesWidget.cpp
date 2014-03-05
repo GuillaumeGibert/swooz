@@ -1,16 +1,16 @@
 
 
-#include "SWDisplayHistogramWidget.h"
+#include "SWDisplayCurvesWidget.h"
 #include "SWExceptions.h"
 
-#include "moc_SWDisplayHistogramWidget.cpp"
+#include "moc_SWDisplayCurvesWidget.cpp"
 
 #include <iostream>
 #include <sstream>
 
 using namespace std;
 
-SWDisplayHistogramWidget::SWDisplayHistogramWidget(QWidget* oParent, const std::vector<std::string> &aSCurvesLabel, QSize &oSize, cfloat fScale, cuint ui32Xtic, cuint ui32YTic, cint i32TaitSize) : 
+SWDisplayCurvesWidget::SWDisplayCurvesWidget(QWidget* oParent, const std::vector<std::string> &aSCurvesLabel, QSize &oSize, cfloat fScale, cuint ui32Xtic, cuint ui32YTic, cint i32TaitSize) :
 						   m_ui32NumberOfCurves(aSCurvesLabel.size()), m_oSize(oSize), m_fScaleValue(fScale), m_ui32XTic(ui32Xtic), m_ui32YTic(ui32YTic),
 						   m_i32TraitSize(i32TaitSize)
 {
@@ -18,7 +18,7 @@ SWDisplayHistogramWidget::SWDisplayHistogramWidget(QWidget* oParent, const std::
 	this->setParent(oParent);
 	this->resize(m_oSize);		
 	m_bDrawLines	= true;
-    m_bDrawHisto    = false;
+    m_bDrawCurves    = false;
     m_ui32ScrollingOffsetXTic    = 0;
     m_ui32ScrollingOffsetXLegend = 0;
 
@@ -36,27 +36,27 @@ SWDisplayHistogramWidget::SWDisplayHistogramWidget(QWidget* oParent, const std::
 
     if(m_ui32NumberOfCurves == 0 || m_oSize.width() == 0 || m_oSize.height() == 0 || m_ui32NumberOfCurves > 10)
     {
-        cerr << "Bad input values (constructor SWDisplayHistogramWidget). " << std::endl;
+        cerr << "Bad input values (constructor SWDisplayCurvesWidget). " << std::endl;
         // throw
     }
 }
 
-SWDisplayHistogramWidget::~SWDisplayHistogramWidget()
+SWDisplayCurvesWidget::~SWDisplayCurvesWidget()
 {}
 
-void SWDisplayHistogramWidget::setNewValues(std::vector<float> &aFCurvesValues)
+void SWDisplayCurvesWidget::setNewValues(std::vector<float> &aFCurvesValues)
 {
 
     if(aFCurvesValues.size() != m_ui32NumberOfCurves)
     {
         cerr << "Error, the input values number doesn't match. " << std::endl;
-        m_bDrawHisto = false;
+        m_bDrawCurves = false;
         // throw... TODO
     }
     else
     {
         bool l_bIsSroll = false;
-        m_bDrawHisto = true;
+        m_bDrawCurves = true;
 
         for(uint ii = 0; ii < m_ui32NumberOfCurves; ++ii)
         {
@@ -86,11 +86,14 @@ void SWDisplayHistogramWidget::setNewValues(std::vector<float> &aFCurvesValues)
     update();
 }
 
-void SWDisplayHistogramWidget::paintEvent(QPaintEvent *)
+void SWDisplayCurvesWidget::paintEvent(QPaintEvent *)
 {
     QPainter l_oPainter(this);
 
-    if(m_bDrawHisto)
+    // scale
+    l_oPainter.scale(width()*1.0/m_oSize.width(), height()*1.0/m_oSize.height());
+
+    if(m_bDrawCurves)
     {
         // draw background
         l_oPainter.fillRect(0, 0, m_oSize.width(), m_oSize.height(), Qt::black);

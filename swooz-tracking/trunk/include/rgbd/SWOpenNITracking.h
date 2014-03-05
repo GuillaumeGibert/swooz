@@ -39,39 +39,70 @@
  */
 class SWOpenNITracking : public yarp::os::RFModule
 {
-public:
-	SWOpenNITracking();
+    public:
 
-	bool configure(yarp::os::ResourceFinder &rf);
+        /**
+         * @brief SWOpenNITracking constructor
+         */
+        SWOpenNITracking();
 
-	bool isOpenNIInitialized() const;
+        /**
+         * @brief SWOpenNITracking destructor
+         */
+        ~SWOpenNITracking();
 
-	void initOpenNi();
+        /**
+         * @brief configure
+         * @param [in] rf : resource finder
+         * @return
+         */
+        bool configure(yarp::os::ResourceFinder &rf);
 
-	bool updateModule();
+        /**
+         * @brief isOpenNIInitialized
+         * @return
+         */
+        bool isOpenNIInitialized() const;
 
-	double getPeriod();
+        /**
+         * @brief initOpenNi
+         */
+        void initOpenNi();
 
-	bool interruptModule();
+        /**
+         * @brief updateModule
+         * @return
+         */
+        bool updateModule();
 
-private:
+        /**
+         * @brief getPeriod
+         * @return
+         */
+        double getPeriod();
 
-	bool m_IsOpenNiInitialized;
+        /**
+         * @brief interruptModule
+         * @return
+         */
+        bool interruptModule();
 
-	// port names
-	std::string m_HeadTrackingPortName;
-	std::string m_TorsoTrackingPortName;
-	std::string m_LeftArmTrackingPortName;
-	std::string m_RightArmTrackingPortName;
+    private:
 
+        bool m_IsOpenNiInitialized;
 
-	// buffered ports
-	yarp::os::BufferedPort<yarp::os::Bottle> m_HeadTrackingPort;
-	yarp::os::BufferedPort<yarp::os::Bottle> m_TorsoTrackingPort;
-	yarp::os::BufferedPort<yarp::os::Bottle> m_LeftArmTrackingPort;
-	yarp::os::BufferedPort<yarp::os::Bottle> m_RightArmTrackingPort;
+        std::string m_sHeadTrackingPortName;     /**< head tracking port name */
+        std::string m_sTorsoTrackingPortName;    /**< torso tracking port name */
+        std::string m_sLeftArmTrackingPortName;  /**< left arm trakcing port name */
+        std::string m_sRightArmTrackingPortName; /**< right arm tracking port name */
 
-	boost::scoped_ptr<swDevice::SWKinectSkeleton> m_KinectSkeleton;
+        // buffered ports
+        yarp::os::BufferedPort<yarp::os::Bottle> m_oHeadTrackingPort;        /**< head tracking port */
+        yarp::os::BufferedPort<yarp::os::Bottle> m_oTorsoTrackingPort;       /**< torso tracking port */
+        yarp::os::BufferedPort<yarp::os::Bottle> m_oLeftArmTrackingPort;     /**< left arm tracking port */
+        yarp::os::BufferedPort<yarp::os::Bottle> m_oRightArmTrackingPort;    /**< right arm tracking port */
+
+        boost::scoped_ptr<swDevice::SWKinectSkeleton> m_oKinectSkeleton;     /**< kinect skeleton */
 };
 
 #endif

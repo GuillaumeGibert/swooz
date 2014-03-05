@@ -18,7 +18,7 @@
 // INTERFACES
 #include "interface/QtWidgets/SWGLCloudWidget.h"
 #include "interface/QtWidgets/SWDisplayImageWidget.h"
-#include "interface/QtWidgets/SWDisplayHistogramWidget.h"
+#include "interface/QtWidgets/SWDisplayCurvesWidget.h"
 #include "../genUI/SWUI_WEmicpHeadTracking.h"
 
 
@@ -284,8 +284,8 @@ class SWEmicpHeadTrackingInterface : public QMainWindow
         Ui::SWUI_WEmicpHeadTracking *m_uiMainWindow;            /**< qt main window */
         SWGLCloudWidget             *m_pGLCloudWidget;          /**< opengl cloud widget pointer*/
         SWDisplayImageWidget        *m_pDisplayImageWidget;     /**< image display widget pointer */
-        SWDisplayHistogramWidget    *m_pDisplayHistoRotWidget;  /**< rotations histogram display widget pointer */
-        SWDisplayHistogramWidget    *m_pDisplayHistoTransWidget;/**< translations histogram display widget pointer */
+        SWDisplayCurvesWidget    *m_pDisplayHistoRotWidget;  /**< rotations histogram display widget pointer */
+        SWDisplayCurvesWidget    *m_pDisplayHistoTransWidget;/**< translations histogram display widget pointer */
 
         QReadWriteLock              m_oMutex;                   /**< mutex used for updating data from the worker */
         QBasicTimer *m_oTimer;                                  /**< qt timer */

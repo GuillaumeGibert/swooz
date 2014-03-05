@@ -284,8 +284,8 @@ SWEmicpHeadTrackingInterface::SWEmicpHeadTrackingInterface() : m_uiMainWindow(ne
             l_aSTranslationsLabel.push_back("tX");
             l_aSTranslationsLabel.push_back("tY");
             l_aSTranslationsLabel.push_back("tZ");
-            m_pDisplayHistoRotWidget   = new SWDisplayHistogramWidget(this, l_aSRotationsLabel,    QSize(600, 250), 2.f, 100, 30, 2);
-            m_pDisplayHistoTransWidget = new SWDisplayHistogramWidget(this, l_aSTranslationsLabel, QSize(600, 250), 200.f, 100, 30, 2);
+            m_pDisplayHistoRotWidget   = new SWDisplayCurvesWidget(this, l_aSRotationsLabel,    QSize(600, 250), 2.f, 100, 30, 2);
+            m_pDisplayHistoTransWidget = new SWDisplayCurvesWidget(this, l_aSTranslationsLabel, QSize(600, 250), 200.f, 100, 30, 2);
 
             m_uiMainWindow->hlVideo->addWidget(m_pDisplayImageWidget);
             m_uiMainWindow->hlClouds->addWidget(m_pGLCloudWidget);
@@ -562,9 +562,9 @@ int main(int argc, char* argv[])
     // prepare and configure the resource finder
         ResourceFinder rf;
             rf.setVerbose(true);
-            rf.setDefaultConfigFile("emicpHeadTracking.ini"); //overridden by --from parameter
-            rf.setDefaultContext("swtracking/conf");        //overridden by --context parameter
-            rf.configure("ICUB_ROOT", argc, argv); // TODO : ask guillaume
+            rf.setDefaultConfigFile("emicpHeadTracking.ini");
+            rf.setDefaultContext("swtracking/conf");
+            rf.configure("ICUB_ROOT", argc, argv);
 
     // configure the module
         std::cout << "Configuring the Emicp Head tracking module..."<< std::endl;

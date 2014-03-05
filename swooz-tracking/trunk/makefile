@@ -42,7 +42,7 @@ OBJ_TRACKING_EMCIP=\
         $(DIST_LIB)/SWCaptureHeadMotion.obj $(DIST_LIB)/SWAlignClouds.obj \
         $(DIST_LIB)/SWCloud.obj $(DIST_LIB)/emicp.obj $(DIST_LIB)/findRTfromS.obj\
         $(DIST_LIB)/SWFaceDetection.obj $(DIST_LIB)/SWHaarCascade.obj\
-        $(DIST_LIB)/SWDisplayImageWidget.obj $(DIST_LIB)/SWDisplayHistogramWidget.obj\
+        $(DIST_LIB)/SWDisplayImageWidget.obj $(DIST_LIB)/SWDisplayCurvesWidget.obj\
         $(DIST_LIB)/SWGLCloudWidget.obj $(DIST_LIB)/SWGLWidget.obj $(DIST_LIB)/SWQtCamera.obj \
         $(LIBDIR)/SWEmicpHeadTracking.obj\
 

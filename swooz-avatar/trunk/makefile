@@ -44,7 +44,7 @@ TRACK_LIST_OBJ=\
         $(LIBDIR)/SWTrackFlow.obj $(LIBDIR)/SWTrack.obj\
 	
 QT_INTER_LIST_OBJ=\
-        $(LIBDIR)/SWDisplayImageWidget.obj $(LIBDIR)/SWDisplayHistogramWidget.obj $(LIBDIR)/SWCreateAvatarWorker.obj $(LIBDIR)/SWCreateAvatarInterface.obj\
+        $(LIBDIR)/SWDisplayImageWidget.obj $(LIBDIR)/SWDisplayCurvesWidget.obj $(LIBDIR)/SWCreateAvatarWorker.obj $(LIBDIR)/SWCreateAvatarInterface.obj\
         $(LIBDIR)/SWMorphingWorker.obj $(LIBDIR)/SWMorphingInterface.obj\
 		
 QT_GL_LIST_OBJ=\
@@ -63,7 +63,7 @@ EXP_LIST_OBJ=\
 ############################################################################## MOC LIST
 
 MOC_LIST=\
-        $(MOCDIR)/moc_SWCreateAvatarInterface.cpp $(MOCDIR)/moc_SWMorphingInterface.cpp $(MOCDIR)/moc_SWDisplayImageWidget.cpp $(MOCDIR)/moc_SWDisplayHistogramWidget.cpp \
+        $(MOCDIR)/moc_SWCreateAvatarInterface.cpp $(MOCDIR)/moc_SWMorphingInterface.cpp $(MOCDIR)/moc_SWDisplayImageWidget.cpp $(MOCDIR)/moc_SWDisplayCurvesWidget.cpp \
         $(MOCDIR)/moc_SWGLWidget.cpp $(MOCDIR)/moc_SWGLCloudWidget.cpp $(MOCDIR)/moc_SWGLMeshWidget.cpp $(MOCDIR)/moc_SWCreateAvatarWorker.cpp\
         $(MOCDIR)/moc_SWMorphingWorker.cpp $(MOCDIR)/moc_SWGLOptimalStepNonRigidICP.cpp $(MOCDIR)/moc_SWTestCode.cpp\
 
@@ -156,8 +156,8 @@ $(LIBDIR)/SWQtCamera.obj: ./src/interface/SWQtCamera.cpp
 $(LIBDIR)/SWDisplayImageWidget.obj: $(SRCDIR_QTW)/SWDisplayImageWidget.cpp
         $(CC) -c $(SRCDIR_QTW)/SWDisplayImageWidget.cpp $(CFLAGS_STA) $(SW_DISPLAY_IMAGEW) -Fo"$(LIBDIR)/"
 	
-$(LIBDIR)/SWDisplayHistogramWidget.obj: $(SRCDIR_QTW)/SWDisplayHistogramWidget.cpp
-        $(CC) -c $(SRCDIR_QTW)/SWDisplayHistogramWidget.cpp $(CFLAGS_STA) $(SW_DISPLAY_HISTOW) -Fo"$(LIBDIR)/"
+$(LIBDIR)/SWDisplayCurvesWidget.obj: $(SRCDIR_QTW)/SWDisplayCurvesWidget.cpp
+        $(CC) -c $(SRCDIR_QTW)/SWDisplayCurvesWidget.cpp $(CFLAGS_STA) $(SW_DISPLAY_CURVES) -Fo"$(LIBDIR)/"
 
 #           Opengl
 $(LIBDIR)/SWGLWidget.obj: $(SRCDIR_QTW)/SWGLWidget.cpp
@@ -326,8 +326,8 @@ $(MOCDIR)/moc_SWCreateAvatarInterface.cpp: $(INCDIR_INTERFACE)/SWCreateAvatarInt
 $(MOCDIR)/moc_SWDisplayImageWidget.cpp: $(INCDIR_QTW)/SWDisplayImageWidget.h
          moc  $(INCDIR_QTW)/SWDisplayImageWidget.h -o $@
 
-$(MOCDIR)/moc_SWDisplayHistogramWidget.cpp: $(INCDIR_QTW)/SWDisplayHistogramWidget.h
-         moc  $(INCDIR_QTW)/SWDisplayHistogramWidget.h -o $@
+$(MOCDIR)/moc_SWDisplayCurvesWidget.cpp: $(INCDIR_QTW)/SWDisplayCurvesWidget.h
+         moc  $(INCDIR_QTW)/SWDisplayCurvesWidget.h -o $@
 
 $(MOCDIR)/moc_SWGLWidget.cpp: $(INCDIR_QTW)/SWGLWidget.h
          moc  $(INCDIR_QTW)/SWGLWidget.h -o $@

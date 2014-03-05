@@ -42,25 +42,25 @@ namespace swDevice
 		XnChar m_strPose[20];
 		static const int m_maxNumUsers = 15;
 
-		bool m_verbose;
+        bool m_verbose;
 		SkeletonProfile m_skeletonProfile;
 
-		static SWKinectSkeleton * m_instance;
+        static SWKinectSkeleton * m_instance;
 
 		// New User detected
-		static void XN_CALLBACK_TYPE User_NewUser(xn::UserGenerator& generator, XnUserID nId, void* pCookie);
+        static void XN_CALLBACK_TYPE User_NewUser(xn::UserGenerator& generator, XnUserID nId, void* pCookie);
 
 		// Existing user lost
-		static void XN_CALLBACK_TYPE User_LostUser(xn::UserGenerator& generator, XnUserID nId, void* pCookie);
+        static void XN_CALLBACK_TYPE User_LostUser(xn::UserGenerator& generator, XnUserID nId, void* pCookie);
 
 		// User pose detected
-		static void XN_CALLBACK_TYPE UserPose_PoseDetected(xn::PoseDetectionCapability& capability, const XnChar* strPose, XnUserID nId, void* pCookie);
+        static void XN_CALLBACK_TYPE UserPose_PoseDetected(xn::PoseDetectionCapability& capability, const XnChar* strPose, XnUserID nId, void* pCookie);
 
 		// Calibration started
-		static void XN_CALLBACK_TYPE UserCalibration_CalibrationStart(xn::SkeletonCapability& capability, XnUserID nId, void* pCookie);
+        static void XN_CALLBACK_TYPE UserCalibration_CalibrationStart(xn::SkeletonCapability& capability, XnUserID nId, void* pCookie);
 
 		//Calibration complete
-		static void XN_CALLBACK_TYPE UserCalibration_CalibrationComplete(xn::SkeletonCapability& capability, XnUserID nId, XnCalibrationStatus eStatus, void* pCookie);
+        static void XN_CALLBACK_TYPE UserCalibration_CalibrationComplete(xn::SkeletonCapability& capability, XnUserID nId, XnCalibrationStatus eStatus, void* pCookie);
 
 		XnBool fileExists(const char *fn);
 
@@ -98,7 +98,6 @@ namespace swDevice
 		 * \param [in] profile : static member of SWKinectSkeleton defining a list of joints
 		 */
 		void selectProfile(SkeletonProfile profile);
-
 
 		/*
 		 * /brief Profile listing the useful joints of the upper body
