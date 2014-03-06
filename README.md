@@ -12,6 +12,18 @@ Description :
 
 SWoOZ is a software platform written in C++ used for behavioral experiments based on interactions between people and robots or 3D avatars.
 
+Content :
+---------
+ * A toolkit for working with tracking devices :
+   * [interfaces](https://github.com/GuillaumeGibert/swooz/wiki/toolkit#wiki-devices) (Kinect/Xtion, FaceLab, Fastrak Polhemus, Tobii..)
+   * depth captor data recorder/loader
+ * Modules based on yarp :
+   * [Tracking](https://github.com/GuillaumeGibert/swooz/wiki/tracking) human movements without intrusive devices : head rigid/non-rigid motion, arms, torso
+   * [Teleoperation](https://github.com/GuillaumeGibert/swooz/wiki/teleoperation) for iCub, NAO, 3D Avatars based on the tracking modules
+ * Avatar creation/morphing :
+   * [Creation](https://github.com/GuillaumeGibert/swooz/wiki/avatar#wiki-creation) from depths sensors devices(Kinect/Xtion) data
+   * [Morphing](https://github.com/GuillaumeGibert/swooz/wiki/avatar#wiki-morphing) for fitting references avatars meshes
+
 Research :
 ----------
 
@@ -24,17 +36,6 @@ The project will have two clear phases :
  * during the second phase (year 2 and 3, 2013-2014), a series of behavioural and neuroimaging experiments will be conducted to investigate several aspects of human-machine interaction.
 
 
-Content :
----------
- * A toolkit for working with tracking devices :
-   * [interfaces](https://github.com/GuillaumeGibert/swooz/wiki/toolkit#wiki-devices) (Kinect/Xtion, FaceLab, Fastrak Polhemus, Tobii..)
-   * depth captor data recorder/loader
- * Modules based on yarp :
-   * [Tracking](https://github.com/GuillaumeGibert/swooz/wiki/tracking) human movements without intrusive devices : head rigid/non-rigid motion, arms, torso
-   * [Teleoperation](https://github.com/GuillaumeGibert/swooz/wiki/teleoperation) for iCub, NAO, 3D Avatars based on the tracking modules
- * Avatar creation/morphing :
-   * [Creation](https://github.com/GuillaumeGibert/swooz/wiki/avatar#wiki-creation) from depths sensors devices(Kinect/Xtion) data
-   * [Morphing](https://github.com/GuillaumeGibert/swooz/wiki/avatar#wiki-morphing) for fitting references avatars meshes
- 
+
 
 
