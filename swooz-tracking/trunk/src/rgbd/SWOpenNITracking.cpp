@@ -103,6 +103,11 @@ bool SWOpenNITracking::updateModule()
 		swDevice::SWKinectSkeleton::Coordinates l_pointRHand		= l_values[8];
 
 
+            std::cout << l_pointTorso.X << " " << l_pointTorso.Y << " " << l_pointTorso.Z << " | ";
+
+        std::cout << std::endl;
+
+
         yarp::os::Bottle & l_HeadBottle		= m_oHeadTrackingPort.prepare();
 		l_HeadBottle.clear();
 			l_HeadBottle.addInt(swTracking::OPENNI_LIB);

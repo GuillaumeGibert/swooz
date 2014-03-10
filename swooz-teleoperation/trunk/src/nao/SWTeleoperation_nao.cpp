@@ -29,9 +29,6 @@ SWTeleoperation_nao::~SWTeleoperation_nao()
 
 bool SWTeleoperation_nao::configure(ResourceFinder &rf)
 {
-
-
-
     // gets the module name which will form the stem of all module port names
         m_sModuleName   = rf.check("name", Value("teleoperation_nao"), "Teleoperation/nao Module name (string)").asString();
          setName(m_sModuleName.c_str());
@@ -92,14 +89,12 @@ bool SWTeleoperation_nao::configure(ResourceFinder &rf)
         m_i32Fps                    = rf.check("fps",                   Value(100),  "Frame per second (int)").asInt();
         m_i32HeadTimeoutReset       = rf.check("headTimeoutReset",      Value(3000), "Head gaze timeout reset iCub (int)").asInt();
 
-
         m_aHeadAngles.arraySetSize(2);
         m_aTorsoAngles.arraySetSize(2);
         m_aLArmAngles.arraySetSize(6);
         m_aRArmAngles.arraySetSize(6);
         m_aLLegAngles.arraySetSize(6);
         m_aRLegAngles.arraySetSize(6);
-
 
     // init ports
         m_sHeadTrackerPortName          = "/teleoperation/nao/head";
@@ -276,6 +271,7 @@ bool SWTeleoperation_nao::close()
 
 bool SWTeleoperation_nao::updateModule()
 {
+
 
     Bottle *l_pHeadTarget = NULL, *l_pTorsoTarget = NULL, *l_pLeftArmTarget = NULL, *l_pLeftHandTarget = NULL, *l_pLeftFingersTarget = NULL, *l_pRightArmTarget = NULL, *l_pRightHandTarget = NULL, *l_pRightFingersTarget = NULL;
 

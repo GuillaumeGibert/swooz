@@ -53,7 +53,7 @@ namespace swImage
                 }
             }
 
-//            cv::dilate(l_oMask, l_oMask, cv::Mat(), cv::Point(-1,-1), i32DilatationBackground);
+            cv::dilate(l_oMask, l_oMask, cv::Mat(), cv::Point(-1,-1), i32DilatationBackground);
 
             for(int ii = 0; ii < l_oMask.rows * l_oMask.cols; ++ii)
             {

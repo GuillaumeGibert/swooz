@@ -163,8 +163,9 @@ LIBS_YARP       = $(THIRD_PARTY_YARP)/lib/YARP_OS.lib\
                   $(THIRD_PARTY_YARP)/lib/YARP_dev.lib\
                   $(THIRD_PARTY_YARP)/lib/YARP_math.lib\
                   $(THIRD_PARTY_YARP)/lib/yarpcar.lib\
-                  $(THIRD_PARTY_YARP)/lib/yarpmod.lib\
                   $(THIRD_PARTY_YARP)/lib/yarp_bayer.lib\
+
+# $(THIRD_PARTY_YARP)/lib/yarpmod.lib\
 
 
 LIBS_FACELAB    = $(THIRD_PARTY_FACELAB)/coredata/libshared/win32_ia32sse2_vc90/sm_cd_coredata_3.2.lib $(THIRD_PARTY_FACELAB)/coredata/thirdparty/zlib1.2.3/win_ia32_vc90/libshared/zlib1.lib\
