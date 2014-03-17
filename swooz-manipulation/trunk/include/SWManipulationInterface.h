@@ -389,7 +389,11 @@ class SWManipulationInterface : public QMainWindow
 
         // worker / thread
         SWManipulationWorker *m_pWManipulation;     /**< manipulation worker pointer */
-        QThread               m_TManipulation;      /**< manipulation worker thread */
+        QThread               m_TManipulation;      /**< manipulation worker thread */        
+
+        // styles
+        QString m_sStyleGreenButton;                /**< ... */
+        QString m_sStyleRedButton;                  /**< ... */
 
         // timers
         double m_dTimeLoop;                         /**< time between two time event call */

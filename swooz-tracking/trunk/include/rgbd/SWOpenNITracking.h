@@ -10,6 +10,8 @@
 #define _SWOPENNITRACKING_
 
 
+// kinect thread (for display)
+#include "devices/rgbd/SWKinect_thread.h"
 
 // Kinect Skeleton (OpenNi)
 #include "devices/rgbd/SWKinectSkeleton.h"
@@ -103,6 +105,7 @@ class SWOpenNITracking : public yarp::os::RFModule
         yarp::os::BufferedPort<yarp::os::Bottle> m_oRightArmTrackingPort;    /**< right arm tracking port */
 
         boost::scoped_ptr<swDevice::SWKinectSkeleton> m_oKinectSkeleton;     /**< kinect skeleton */
+
 };
 
 #endif

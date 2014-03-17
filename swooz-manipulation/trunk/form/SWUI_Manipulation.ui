@@ -42,7 +42,7 @@
            <item row="6" column="6" alignment="Qt::AlignHCenter">
             <widget class="QPushButton" name="pbActive4">
              <property name="enabled">
-              <bool>false</bool>
+              <bool>true</bool>
              </property>
              <property name="text">
               <string>Active output</string>
@@ -115,7 +115,7 @@
            <item row="3" column="6" alignment="Qt::AlignHCenter">
             <widget class="QPushButton" name="pbActive1">
              <property name="enabled">
-              <bool>false</bool>
+              <bool>true</bool>
              </property>
              <property name="text">
               <string>Active output</string>
@@ -139,7 +139,7 @@
            <item row="2" column="6" alignment="Qt::AlignHCenter">
             <widget class="QPushButton" name="pbActive0">
              <property name="enabled">
-              <bool>false</bool>
+              <bool>true</bool>
              </property>
              <property name="text">
               <string>Active output</string>
@@ -156,7 +156,7 @@
            <item row="4" column="6" alignment="Qt::AlignHCenter">
             <widget class="QPushButton" name="pbActive2">
              <property name="enabled">
-              <bool>false</bool>
+              <bool>true</bool>
              </property>
              <property name="text">
               <string>Active output</string>
@@ -229,7 +229,7 @@
            <item row="5" column="6" alignment="Qt::AlignHCenter">
             <widget class="QPushButton" name="pbActive3">
              <property name="enabled">
-              <bool>false</bool>
+              <bool>true</bool>
              </property>
              <property name="text">
               <string>Active output</string>

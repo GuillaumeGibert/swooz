@@ -15,6 +15,7 @@
 
 // SWOOZ
 #include "commonTypes.h"
+#include "icub/SWiCubFaceMotion.h"
 
 // YARP
 #include <yarp/os/Network.h>
@@ -146,6 +147,9 @@ class SWTeleoperation_iCub : public RFModule
 
         bool m_bFastrakCalibrated;
         yarp::sig::Vector m_vFastrakOffsets;
+
+        bool m_bFirstLEDCommand;    /**< ... */
+        swIcub::SWIcubFaceLEDCommand m_oIcubFaceLEDCmd; /**< ... */
 
         // timeout
         int m_i32HeadTimeLastBottle;            /**< time elapsed without head bottle command */

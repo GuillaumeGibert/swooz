@@ -200,6 +200,17 @@ bool SWFaceLabTracking::updateModule()
         l_oFaceBottle.addDouble(l_oDataResult.noseCenter.y); //face: noseCenter y / get(62).asDouble()
         l_oFaceBottle.addDouble(l_oDataResult.noseCenter.z); //face: noseCenter z / get(63).asDouble()
 
+        // left eye center
+        l_oFaceBottle.addDouble(l_oDataResult.leftEyeCenter.x); //gaze: leftEyeCenter x / get(64).asDouble()
+        l_oFaceBottle.addDouble(l_oDataResult.leftEyeCenter.y); //gaze: leftEyeCenter y / get(65).asDouble()
+        l_oFaceBottle.addDouble(l_oDataResult.leftEyeCenter.z); //gaze: leftEyeCenter z / get(66).asDouble()
+
+        // right eye center
+        l_oFaceBottle.addDouble(l_oDataResult.rightEyeCenter.x); //gaze: rightEyeCenter x / get(67).asDouble()
+        l_oFaceBottle.addDouble(l_oDataResult.rightEyeCenter.y); //gaze: rightEyeCenter y / get(68).asDouble()
+        l_oFaceBottle.addDouble(l_oDataResult.rightEyeCenter.z); //gaze: rightEyeCenter z / get(69).asDouble()
+
+
      m_oFaceTrackingPort.write();
 
     // gaze bottle
@@ -239,7 +250,6 @@ bool SWFaceLabTracking::updateModule()
 }
 
 
-
 int main(int argc, char* argv[])
 {
     // initialize yarp network
@@ -262,9 +272,9 @@ int main(int argc, char* argv[])
     // prepare and configure the resource finder
     ResourceFinder rf;
         rf.setVerbose(true);
-        rf.setDefaultConfigFile("facelabTracking.ini"); //overridden by --from parameter
-        rf.setDefaultContext("swtracking/conf");        //overridden by --context parameter
-        rf.configure("ICUB_ROOT", argc, argv); // TODO : ask guillaume
+        rf.setDefaultConfigFile("facelabTracking.ini");
+        rf.setDefaultContext("swtracking/conf");
+        rf.configure("ICUB_ROOT", argc, argv);
 
     // configure the module
     std::cout << "Configuring the FaceLab tracking module..."<< std::endl;

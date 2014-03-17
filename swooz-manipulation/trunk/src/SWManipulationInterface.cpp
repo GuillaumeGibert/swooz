@@ -469,8 +469,6 @@ void SWManipulationWorker::updateBottleStart(int i32IndexPort, bool bStart)
     m_oStartBottleMutex.unlock();
 }
 
-
-
 // ########################### SWManipulationInterface
 
 SWManipulationInterface::SWManipulationInterface() : m_uiManipulation(new Ui::SWUI_Manipulation())
@@ -493,6 +491,13 @@ SWManipulationInterface::SWManipulationInterface() : m_uiManipulation(new Ui::SW
             qRegisterMetaType<SWBottleContent>("SWBottleContent");
             qRegisterMetaType<QVector<double> >("QVector<double>");
 
+        // define styles
+            m_sStyleGreenButton = QString("background-color: green; color: white; border-style: outset; border-width: 2px; ") +
+                                  QString("border-radius: 5px; border-color: beige; font : bold 10px; min-width: 5em; padding: 6px");
+
+            m_sStyleRedButton   = QString("background-color: red; color: white; border-style: outset; border-width: 2px; ") +
+                                  QString("border-radius: 5px; border-color: beige; font : bold 10px; min-width: 5em; padding: 6px");
+
         // fill QlistWidget with yarp connect inputs
             QStringList l_slYarpINConnections;
             for(int ii = 0; ii < m_i32YarpConnectNumber; ++ii)
@@ -511,6 +516,12 @@ SWManipulationInterface::SWManipulationInterface() : m_uiManipulation(new Ui::SW
             m_vSourceLabels[3] = m_uiManipulation->laSource3;
             m_vSourceLabels[4] = m_uiManipulation->laSource4;
 
+        // set labels color
+            for(int ii = 0 ; ii < m_vSourceLabels.size(); ++ii)
+            {
+                m_vSourceLabels[ii]->setStyleSheet("color: red");
+            }
+
         // init buttons container
             m_vActiveButtons = QVector<QPushButton*>(m_i32YarpConnectNumber, NULL);
             m_vActiveButtons[0] = m_uiManipulation->pbActive0;
@@ -518,6 +529,12 @@ SWManipulationInterface::SWManipulationInterface() : m_uiManipulation(new Ui::SW
             m_vActiveButtons[2] = m_uiManipulation->pbActive2;
             m_vActiveButtons[3] = m_uiManipulation->pbActive3;
             m_vActiveButtons[4] = m_uiManipulation->pbActive4;
+
+        // set button color
+            for(int ii = 0 ; ii < m_vActiveButtons.size(); ++ii)
+            {
+                m_vActiveButtons[ii]->setStyleSheet(m_sStyleRedButton);
+            }
 
         // init line edit container
             m_vDampingDisplayLineEdit = QVector<QLineEdit*>(m_i32ModifiersNumber, NULL);
@@ -540,15 +557,15 @@ SWManipulationInterface::SWManipulationInterface() : m_uiManipulation(new Ui::SW
             m_vBottleDisplayLineEdit[4] = m_uiManipulation->leMan4;
 
         // init modifiers / planifications containers
-            m_vVDamping    = QVector<QVector<double> >(m_i32YarpConnectNumber, QVector<double>(m_i32ModifiersNumber,1.0));
-            m_vVShift = QVector<QVector<double> >(m_i32YarpConnectNumber, QVector<double>(m_i32ModifiersNumber,0.0));
+            m_vVDamping   = QVector<QVector<double> >(m_i32YarpConnectNumber, QVector<double>(m_i32ModifiersNumber,1.0));
+            m_vVShift     = QVector<QVector<double> >(m_i32YarpConnectNumber, QVector<double>(m_i32ModifiersNumber,0.0));
             m_vDTotalTime = QVector<double>(m_i32YarpConnectNumber, 100.0);
             m_vDBlockTime = QVector<double>(m_i32YarpConnectNumber, 25.0);
             m_vI32ModePlan= QVector<int>(m_i32YarpConnectNumber, 0);
             m_vSSequence  = QVector<QString>(m_i32YarpConnectNumber, g_sDefaultSequence);
 
         // init display timers text vectors
-            m_vSPlanStarted       = QVector<QString>(m_i32YarpConnectNumber, QString("No"));
+            m_vSPlanStarted       = QVector<QString>(m_i32YarpConnectNumber, QString("No"));                        
             m_vSModifiers         = QVector<QString>(m_i32YarpConnectNumber, QString("NO_MODIF"));
             m_vSTimeRemaining     = QVector<QString>(m_i32YarpConnectNumber, QString("0.0"));
 
@@ -585,6 +602,7 @@ SWManipulationInterface::SWManipulationInterface() : m_uiManipulation(new Ui::SW
 
         // init worker
             m_pWManipulation = new SWManipulationWorker();
+
 
         // init connections
         //  loop -> start/stop
@@ -741,14 +759,16 @@ void SWManipulationInterface::timerEvent(QTimerEvent *e)
         {
             m_vDTimeOutINBottles[ii] -= m_dTimeLoop; // display
             m_vSourceLabels[ii]->setText(QString("Active"));
-            m_vActiveButtons[ii]->setEnabled(true);
+            m_vSourceLabels[ii]->setStyleSheet("color: green");
+//            m_vActiveButtons[ii]->setEnabled(true);
         }
         // if timeout
         else if(m_vDTimeOutINBottles[ii] > 0)
         {
             m_vDTimeOutINBottles[ii] -= m_dTimeLoop;
             m_vSourceLabels[ii]->setText(QString("No source."));
-            m_vActiveButtons[ii]->setDisabled(true);
+            m_vSourceLabels[ii]->setStyleSheet("color: red");
+//            m_vActiveButtons[ii]->setDisabled(true);
 
             // disactive output
             if(m_vActiveButtons[ii]->text() == QString("Disactive output"))
@@ -759,8 +779,17 @@ void SWManipulationInterface::timerEvent(QTimerEvent *e)
         }
     }
 
-    // update display timers groupBox elements
+    // update display timers groupBox elements        
         m_uiManipulation->lePlanStarted->setText(m_vSPlanStarted[l_i32Index]);
+        if(m_vSPlanStarted[l_i32Index] == QString("Yes"))
+        {
+            m_uiManipulation->lePlanStarted->setStyleSheet("color: green");
+        }
+        else
+        {
+            m_uiManipulation->lePlanStarted->setStyleSheet("color: red");
+        }
+
         m_uiManipulation->leTimeRemaining->setText(m_vSTimeRemaining[l_i32Index]);
         m_uiManipulation->leCurrentModifier->setText(m_vSModifiers[l_i32Index]);
 }
@@ -768,7 +797,7 @@ void SWManipulationInterface::timerEvent(QTimerEvent *e)
 void SWManipulationInterface::updateBottleContentDisplay(SWBottleContent oBottle, int i32NumBottle)
 {
     // set timeout value
-        m_vDTimeOutINBottles[i32NumBottle] = 5000;
+        m_vDTimeOutINBottles[i32NumBottle] = 3600*1000; // TODO : parametrize the timeout
 
     // set the text to be displayed
         QString l_sTextToDisplay = QString::fromStdString(swTracking::returnStringValue(oBottle.idLib));
@@ -871,11 +900,14 @@ void SWManipulationInterface::toggleActiveText(int i32Index)
 {
     if(m_vActiveButtons[i32Index]->text() == QString("Active output"))
     {
-        m_vActiveButtons[i32Index]->setText(QString("Disactive output"));
+        m_vActiveButtons[i32Index]->setText(QString("Disactive output"));       
+        m_vActiveButtons[i32Index]->setStyleSheet(m_sStyleGreenButton);
+
     }
     else
     {
-        m_vActiveButtons[i32Index]->setText(QString("Active output"));
+        m_vActiveButtons[i32Index]->setText(QString("Active output"));        
+        m_vActiveButtons[i32Index]->setStyleSheet(m_sStyleRedButton);
     }
 }
 

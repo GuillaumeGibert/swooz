@@ -31,6 +31,7 @@ SWOpenNITracking::SWOpenNITracking()
     initOpenNi();
 }
 
+
 SWOpenNITracking::~SWOpenNITracking()
 {
     m_oHeadTrackingPort.close();

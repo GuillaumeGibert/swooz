@@ -6,7 +6,6 @@
  */
 
 #include "icub/SWTeleoperation_iCub.h"
-#include "icub/SWiCubFaceMotion.h"
 
 #include "SWTrackingDevice.h"
 
@@ -15,7 +14,7 @@
 #include "geometryUtility.h"
 //#include <iCub/ctrl/math.h>
 
-SWTeleoperation_iCub::SWTeleoperation_iCub() : m_pIHeadVelocity(NULL), m_pIHeadEncoders(NULL), m_pIHeadPosition(NULL), m_bIsRunning(false),
+SWTeleoperation_iCub::SWTeleoperation_iCub() : m_pIHeadVelocity(NULL), m_pIHeadEncoders(NULL), m_pIHeadPosition(NULL), m_bIsRunning(false), m_bFirstLEDCommand(true),
             m_i32HeadTimeLastBottle(0), m_i32FaceTimeLastBottle(0), m_i32ArmsTimeLastBottle(0), m_i32GazeTimeLastBottle(0)
 {}
 
@@ -580,28 +579,42 @@ bool SWTeleoperation_iCub::updateModule()
                                 l_vInnerLip2.push_back(l_pFaceTarget->get(25+ii).asDouble());
                                 l_vInnerLip6.push_back(l_pFaceTarget->get(37+ii).asDouble());
                             }
-                            l_oFaceMotionBottle.addString(swIcub::lipCommand(l_vInnerLip2, l_vInnerLip6).c_str());
+                            l_oFaceMotionBottle.addString(m_oIcubFaceLEDCmd.lipCommand(l_vInnerLip2, l_vInnerLip6).c_str());
                             m_oFaceHandlerPort.write();
                             Time::delay(0.001);
 
-                        // left eyeBrow
-                            l_oFaceMotionBottle.clear();
-                            std::vector<double> l_vLeftEyeBrow, l_vRightEyeBrow, l_vNoseCenter;
-                            for(int ii = 0; ii < 3; ++ii)
-                            {
-                                l_vLeftEyeBrow.push_back(l_pFaceTarget->get(52+ii).asDouble());
-                                l_vRightEyeBrow.push_back(l_pFaceTarget->get(43+ii).asDouble());
-                                l_vNoseCenter.push_back(l_pFaceTarget->get(61+ii).asDouble());
-                            }
-                            l_oFaceMotionBottle.addString(swIcub::leftEyeBrowCommand(l_vLeftEyeBrow, l_vNoseCenter).c_str());
-                            m_oFaceHandlerPort.write();
-                            Time::delay(0.001);
 
-                            // right eyeBrow
-                            l_oFaceMotionBottle.clear();
-                            l_oFaceMotionBottle.addString(swIcub::rightEyeBrowCommand(l_vRightEyeBrow, l_vNoseCenter).c_str());
-                            m_oFaceHandlerPort.write();
-                            Time::delay(0.001);
+                        // eyebrows
+                            // retrieve values
+                                std::vector<double> l_vLeftEyeBrowPoints, l_vRightEyeBrowPoints, l_vLeftEyeCenter, l_vRightEyeCenter;
+                                for(int ii = 0; ii < 9; ++ii)
+                                {
+                                    l_vLeftEyeBrowPoints.push_back(l_pFaceTarget->get(52+ii).asDouble());
+                                    l_vRightEyeBrowPoints.push_back(l_pFaceTarget->get(43+ii).asDouble());
+
+                                    if(ii < 3)
+                                    {
+                                        l_vLeftEyeCenter.push_back(l_pFaceTarget->get(64+ii).asDouble());
+                                        l_vRightEyeCenter.push_back(l_pFaceTarget->get(67+ii).asDouble());
+                                    }
+                                }
+
+                                if(m_bFirstLEDCommand)
+                                {
+                                    m_oIcubFaceLEDCmd.setNeutralPoints(l_vLeftEyeBrowPoints, l_vRightEyeBrowPoints, l_vLeftEyeCenter, l_vRightEyeCenter);
+                                    m_bFirstLEDCommand = false;
+                                }
+
+                            // left
+                                l_oFaceMotionBottle.clear();
+                                l_oFaceMotionBottle.addString(m_oIcubFaceLEDCmd.leftEyeBrowCommand(l_vLeftEyeBrowPoints, l_vLeftEyeCenter).c_str());
+                                m_oFaceHandlerPort.write();
+                                Time::delay(0.001);
+                            // right
+                                l_oFaceMotionBottle.clear();
+                                l_oFaceMotionBottle.addString(m_oIcubFaceLEDCmd.rightEyeBrowCommand(l_vRightEyeBrowPoints, l_vLeftEyeCenter).c_str());
+                                m_oFaceHandlerPort.write();
+                                Time::delay(0.001);
                     }
                 break;
                 case swTracking::STASM_LIB :
