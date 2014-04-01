@@ -78,10 +78,15 @@ void SWCreateAvatar::resetData()
     m_vUi32CloudNumbersOfPoints.clear();
 
     // stasm
-    m_vP3FStasm3DPoints.     clear();
-    m_vP3FTotalStasm3DPoints.clear();
-    m_vP3FStasm3DPoints.     assign(68, cv::Point3f(0.f,0.f,0.f));
-    m_vP3FTotalStasm3DPoints.assign(68, cv::Point3f(0.f,0.f,0.f));
+    m_vStasm3DPoints.clear();
+    m_vP3FStasm3DPoints.clear();
+    m_vP3FStasm3DPoints.assign(68, cv::Point3f(0.f,0.f,0.f));
+
+//    m_vP3FTotalStasm3DPoints.clear();
+    m_vStasm3DPoints.clear();
+
+
+//    m_vP3FTotalStasm3DPoints.assign(68, cv::Point3f(0.f,0.f,0.f));
 }
 
 void SWCreateAvatar::setHeightRadialProjection(cuint ui32HeightRadialProj)
@@ -124,7 +129,7 @@ void SWCreateAvatar::setUseStasm(cbool bUseStasm)
     m_bDetectStasmPoints = bUseStasm;
 
     m_vP3FStasm3DPoints.clear();
-    m_vP3FTotalStasm3DPoints.clear();
+    m_vStasm3DPoints.clear();
     m_CStasmDetectPtr->resetParams();
 }
 
@@ -188,7 +193,6 @@ void SWCreateAvatar::lastRadialProjection(cv::Mat &oFilteredRadialProj) const
     oFilteredRadialProj = m_oFilteredRadialProjection.clone();
 }
 
-
 bool SWCreateAvatar::addCloudToAvatar(const cv::Mat &oRgb, const cv::Mat &oDepth)
 {
    // copy input data
@@ -249,14 +253,13 @@ bool SWCreateAvatar::addCloudToAvatar(const cv::Mat &oRgb, const cv::Mat &oDepth
 
    // detect stasm features points
         cv::Mat l_oStasmMask;
-
-        if(m_bDetectStasmPoints)
+        if(m_bDetectStasmPoints && m_vStasm3DPoints.size() < 5)
         {
             m_CStasmDetectPtr->resetParams();
             m_CStasmDetectPtr->launchAsmSearch(l_oRgbForeGround, l_oCurrentRectFace);
             m_CStasmDetectPtr->setStasmMask(l_oDepth, l_oStasmMask);
             l_oStasmMask = l_oStasmMask(l_oCurrentRectFace);
-            m_CStasmDetectPtr->compute3DPoints(l_oDepth, m_vP3FStasm3DPoints);
+            m_CStasmDetectPtr->compute3DPoints(l_oDepth, m_vP3FStasm3DPoints);           
         }
 
     // create cloud
@@ -318,13 +321,11 @@ bool SWCreateAvatar::addCloudToAvatar(const cv::Mat &oRgb, const cv::Mat &oDepth
            m_oAccumulatedFaceClouds += l_oFaceCloud;
            m_vUi32CloudNumbersOfPoints.push_back(l_oFaceCloud.size());
 
-//            for(uint ii = 0; ii < m_vP3FStasm3DPoints.size(); ++ii)
-//            {
-//                m_vP3FTotalStasm3DPoints[ii] += m_vP3FStasm3DPoints[ii]; // BUG
-//            }
+           if(m_bDetectStasmPoints && m_vStasm3DPoints.size() < 5)
+           {
+                m_vStasm3DPoints.push_back(m_vP3FStasm3DPoints);
+           }
        }
-
-//    cout << " 7 ]   " << (float)(clock() - m_oProgramTime) / CLOCKS_PER_SEC  << " |" << std::endl;
 
    return true;
 }
@@ -353,7 +354,6 @@ void SWCreateAvatar::constructAvatar()
             // stock current mat image
                 l_vMatProj.push_back(l_oRadialProjMat);
         }
-
 
     // temporal filtering
         uint l_ui32CurrNumberOfPoints;
@@ -451,13 +451,10 @@ void SWCreateAvatar::constructAvatar()
     // compute vertex and faces, and save the obj file
         swCloud::transformRadialProjToMesh(l_oFinalFilteredMat, m_oLastResultFaceMesh, l_oBBox, m_oCloudFaceBBox, m_i32WidthRadialProj, m_i32HeightRadialProj, 0.15f);
 
-
-    // save stasm point correspondence with the cloud
-//        swCloud::SWCloud l_oFinalCloud;
-//        l_oFinalCloud.loadObj(l_sPathObj);
-//            computeStasmCorr(l_oFinalCloud, l_sPathStasmCorr);
-    // save the final radial projection image
-//        cv::imwrite(l_sBasePath + "afterSpatialFiltering.png" ,l_oFinalFilteredMat);
+    if(m_bDetectStasmPoints)
+    {
+        computeSTASMCoords();
+    }
 }
 
 void SWCreateAvatar::totalCloud(swCloud::SWCloud &oTotalCloud)
@@ -468,4 +465,32 @@ void SWCreateAvatar::totalCloud(swCloud::SWCloud &oTotalCloud)
 void SWCreateAvatar::lastResultFaceMesh(swMesh::SWMesh &oResultMesh)
 {
     oResultMesh = m_oLastResultFaceMesh;
+}
+
+void SWCreateAvatar::computeSTASMCoords()
+{
+    m_vMeshIdSTASMPoints.clear();
+
+    std::vector<std::vector<float> >l_vMeanSTASMPoint(m_vStasm3DPoints[0].size(),std::vector<float>(3,0.f));
+
+    for(uint ii = 0; ii < m_vStasm3DPoints.size(); ++ii) // 0 - 5
+    {
+        for(uint jj = 0; jj < m_vStasm3DPoints[ii].size(); ++jj) // 0 - 68
+        {
+            l_vMeanSTASMPoint[jj][0] += m_vStasm3DPoints[ii][jj].x;
+            l_vMeanSTASMPoint[jj][1] += m_vStasm3DPoints[ii][jj].y;
+            l_vMeanSTASMPoint[jj][2] += m_vStasm3DPoints[ii][jj].z;
+        }
+    }
+
+    for(uint ii = 0; ii < l_vMeanSTASMPoint.size(); ++ii)
+    {
+        std::vector<float> l_vCurrPoint = swUtil::mul(l_vMeanSTASMPoint[ii], 1.f /  m_vStasm3DPoints.size());
+        m_vMeshIdSTASMPoints.push_back(m_oLastResultFaceMesh.cloud()->idNearestPoint(l_vCurrPoint));
+    }
+}
+
+std::vector<int> SWCreateAvatar::mesh_stasm_points_index() const
+{
+    return m_vMeshIdSTASMPoints;
 }

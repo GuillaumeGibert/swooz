@@ -271,9 +271,9 @@ bool SWTeleoperation_iCub::configure(ResourceFinder &rf)
 
     // reset position
         resetHeadPosition();
-        resetTorsoPosition();
-        resetLeftArmPosition();
-        resetRightArmPosition();
+//        resetTorsoPosition();
+//        resetLeftArmPosition();
+//        resetRightArmPosition();
 
         m_bTorsoCapture = m_bLeftArmCapture = m_bRightArmCapture = false;
 
@@ -385,9 +385,9 @@ bool SWTeleoperation_iCub::close()
 {
     // reset position
         resetHeadPosition();
-        resetTorsoPosition();
-        resetLeftArmPosition();
-        resetRightArmPosition();
+//        resetTorsoPosition();
+//        resetLeftArmPosition();
+//        resetRightArmPosition();
 
     // close ports
         m_oHeadTrackerPort.close();
@@ -605,6 +605,7 @@ bool SWTeleoperation_iCub::updateModule()
                                     m_bFirstLEDCommand = false;
                                 }
 
+                                // TO BE TESTED
                             // left
                                 l_oFaceMotionBottle.clear();
                                 l_oFaceMotionBottle.addString(m_oIcubFaceLEDCmd.leftEyeBrowCommand(l_vLeftEyeBrowPoints, l_vLeftEyeCenter).c_str());
@@ -612,7 +613,7 @@ bool SWTeleoperation_iCub::updateModule()
                                 Time::delay(0.001);
                             // right
                                 l_oFaceMotionBottle.clear();
-                                l_oFaceMotionBottle.addString(m_oIcubFaceLEDCmd.rightEyeBrowCommand(l_vRightEyeBrowPoints, l_vLeftEyeCenter).c_str());
+                                l_oFaceMotionBottle.addString(m_oIcubFaceLEDCmd.rightEyeBrowCommand(l_vRightEyeBrowPoints, l_vRightEyeCenter).c_str());
                                 m_oFaceHandlerPort.write();
                                 Time::delay(0.001);
                     }
@@ -688,6 +689,7 @@ bool SWTeleoperation_iCub::updateModule()
                     }
                 break;
             }
+
 
             m_i32GazeTimeLastBottle = 0;
         }
@@ -1233,7 +1235,7 @@ double SWTeleoperation_iCub::getPeriod()
 
 std::string SWTeleoperation_iCub::eyesOpeningCode(cdouble dEyeLids, cint i32MinValue, cint i32MaxValue)
 {
-    int l_i32ScaledValue = (int)(i32MinValue + (i32MaxValue - i32MinValue) * dEyeLids);
+    int l_i32ScaledValue = static_cast<int>((i32MinValue + (i32MaxValue - i32MinValue) * dEyeLids));
 
     std::ostringstream l_osCodeValue;
     l_osCodeValue << 'S';

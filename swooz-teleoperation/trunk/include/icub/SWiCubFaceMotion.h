@@ -134,7 +134,7 @@ namespace swIcub
 
             std::string leftEyeBrowCommand(const std::vector<double> &a3DLeftEyeBrow, const std::vector<double> &a3DLeftEyeCenter)
             {
-                if(a3DLeftEyeBrow.size() != a3DLeftEyeCenter.size() && a3DLeftEyeCenter.size() != 9)
+                if(a3DLeftEyeBrow.size() != 9 && a3DLeftEyeCenter.size() != 3)
                 {
                     std::cerr << "Error size input vectors : leftEyeBrowCommand. " << std::endl;
                     return std::string("");
@@ -152,7 +152,7 @@ namespace swIcub
 
              std::string rightEyeBrowCommand(const std::vector<double> &a3DRightEyeBrow, const std::vector<double> &a3DRightEyeCenter)
             {
-                if(a3DRightEyeBrow.size() != a3DRightEyeCenter.size() && a3DRightEyeCenter.size() != 9)
+                if(a3DRightEyeBrow.size() != 9 && a3DRightEyeCenter.size() != 3)
                 {
                     std::cerr << "Error size input vectors : rightEyeBrowCommand. " << std::endl;
                     return std::string("");

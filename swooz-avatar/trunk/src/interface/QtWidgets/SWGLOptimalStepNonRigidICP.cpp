@@ -27,7 +27,7 @@ using namespace swExcept;
 
 SWGLOptimalStepNonRigidICP::SWGLOptimalStepNonRigidICP(QGLContext *context, QWidget* parent) : SWGLWidget(context, parent),
      m_vertexBuffer(QGLBuffer::VertexBuffer), m_indexBuffer(QGLBuffer::IndexBuffer), m_colorBuffer(QGLBuffer::VertexBuffer),
-     m_normalBuffer(QGLBuffer::VertexBuffer)
+     m_normalBuffer(QGLBuffer::VertexBuffer), m_textureBuffer(QGLBuffer::VertexBuffer)
 {       
     // set default parameters values
         // display
@@ -435,17 +435,22 @@ void SWGLOptimalStepNonRigidICP::initializeGL()
 
     // set transparency
         glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+//        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // do not use, make the mesh invisible( todo : check why)
+
+        // enable texture
+//            glEnable(GL_TEXTURE_2D);
 
     // init buffers
         m_indexBuffer.create();
         m_vertexBuffer.create();
         m_colorBuffer.create();
         m_normalBuffer.create();
-        m_indexBuffer.setUsagePattern( QGLBuffer::DynamicDraw);
-        m_vertexBuffer.setUsagePattern(QGLBuffer::DynamicDraw);
-        m_colorBuffer.setUsagePattern( QGLBuffer::DynamicDraw);
-        m_normalBuffer.setUsagePattern( QGLBuffer::DynamicDraw);
+        m_textureBuffer.create();
+//        m_indexBuffer.setUsagePattern( QGLBuffer::DynamicDraw);
+//        m_vertexBuffer.setUsagePattern(QGLBuffer::DynamicDraw);
+//        m_colorBuffer.setUsagePattern( QGLBuffer::DynamicDraw);
+//        m_normalBuffer.setUsagePattern( QGLBuffer::DynamicDraw);
+//        m_textureBuffer.setUsagePattern( QGLBuffer::DynamicDraw);
 }
 
 void SWGLOptimalStepNonRigidICP::paintGL()
@@ -981,6 +986,55 @@ void SWGLOptimalStepNonRigidICP::drawSourceCloud(QGLShaderProgram &oShader, cons
     }
 }
 
+void SWGLOptimalStepNonRigidICP::drawMeshTriangles(QGLShaderProgram &oShader, swMesh::SWMesh &oMesh, QMatrix4x4 &mvpMatrix,
+                          cfloat fR, cfloat fG, cfloat fB, cfloat fOpacity)
+{
+    // bind shader
+    if(!oShader.bind())
+    {
+        throw swExcept::swShaderGLError();
+    }
+
+    // set mode
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+    // release buffers
+    QGLBuffer::release(QGLBuffer::VertexBuffer);
+    QGLBuffer::release(QGLBuffer::IndexBuffer);
+
+    // allocate buffers
+    float  *l_aFVertexBuffer   = oMesh.vertexBuffer();
+    uint32 *l_aUI32IndexBuffer = oMesh.indexVertexTriangleBuffer();
+    float  *l_aFNormalBuffer   = oMesh.normalBuffer();
+    float  *l_aFTextureBuffer  = oMesh.textureBuffer();
+
+    // allocate QGL buffers
+    allocateBuffer(m_vertexBuffer,  l_aFVertexBuffer,   oMesh.pointsNumber() *     3 * sizeof(float) );
+    allocateBuffer(m_indexBuffer,   l_aUI32IndexBuffer, oMesh.trianglesNumber() *  3 * sizeof(GLuint) );
+    allocateBuffer(m_normalBuffer,  l_aFNormalBuffer,   oMesh.pointsNumber() *     3 * sizeof(float) );
+    allocateBuffer(m_textureBuffer, l_aFTextureBuffer,  oMesh.pointsNumber() *     2 * sizeof(float) );
+
+    // set uniform values parameters
+    oShader.setUniformValue("mvpMatrix",    mvpMatrix);
+    oShader.setUniformValue("opacity",      fOpacity);
+    oShader.setUniformValue("applyTexture", false);
+
+    // draw primitives
+//    GLenum l_glError = drawBuffer(m_indexBuffer, m_vertexBuffer, m_normalBuffer, oShader, GL_TRIANGLES);
+    GLenum l_glError =drawBufferWithTexture(m_indexBuffer, m_vertexBuffer, m_textureBuffer, m_normalBuffer, oShader, GL_TRIANGLES);
+
+    delete[] l_aFVertexBuffer;
+    delete[] l_aUI32IndexBuffer;
+    delete[] l_aFNormalBuffer;
+    delete[] l_aFTextureBuffer;
+
+    if(l_glError)
+    {
+        qWarning() << "drawMeshTriangles GLError : " << l_glError;
+    }
+}
+
+
 void SWGLOptimalStepNonRigidICP::drawMeshLines(QGLShaderProgram &oShader, SWMesh &oMesh, QMatrix4x4 &mvpMatrix, cfloat r, cfloat g, cfloat b, cfloat fOpacity)
 {
     // bind shader
@@ -1164,52 +1218,7 @@ void SWGLOptimalStepNonRigidICP::drawMeshTrianglesNormals(QGLShaderProgram &oSha
     }
 }
 
-void SWGLOptimalStepNonRigidICP::drawMeshTriangles(QGLShaderProgram &oShader, swMesh::SWMesh &oMesh, QMatrix4x4 &mvpMatrix,
-                          cfloat fR, cfloat fG, cfloat fB, cfloat fOpacity)
-{
-    // bind shader
-    if(!oShader.bind())
-    {
-        throw swShaderGLError();
-    }
 
-    // set mode
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-    // release buffers
-    QGLBuffer::release(QGLBuffer::VertexBuffer);
-    QGLBuffer::release(QGLBuffer::IndexBuffer);
-
-    // allocate buffers
-    int l_i32SizeFaceIndex  = sizeof(GLuint) * 3;
-    int l_i32SizeVertex     = sizeof(float) * 3;
-    uint32 *l_aFaceI        = oMesh.indexVertexTriangleBuffer();
-    float  *l_aCloudV       = oMesh.cloud()->vertexBuffer();
-    float  *l_aNormalV      = oMesh.normalBuffer();
-
-    allocateBuffer(m_indexBuffer,  l_aFaceI,  oMesh.trianglesNumber() * l_i32SizeFaceIndex);
-    allocateBuffer(m_vertexBuffer, l_aCloudV, oMesh.cloud()->size()   * l_i32SizeVertex);
-    allocateBuffer(m_normalBuffer, l_aNormalV,oMesh.cloud()->size()   * l_i32SizeVertex);
-
-    // set uniform values parameters
-//    oShader.setUniformValue("eyePosition",  m_CCamera->m_oLookAt);
-//    oShader.setUniformValue("eyePosition",  m_CCamera->eyePosition());
-    oShader.setUniformValue("uniColor",     fR, fG, fB);
-    oShader.setUniformValue("mvpMatrix",    mvpMatrix);
-    oShader.setUniformValue("opacity",      fOpacity);
-
-    // draw primitives
-    GLenum l_glError = drawBuffer(m_indexBuffer, m_vertexBuffer, m_normalBuffer, oShader, GL_TRIANGLES);
-
-    delete[] l_aFaceI;
-    delete[] l_aCloudV;
-    delete[] l_aNormalV;
-
-    if(l_glError)
-    {
-        qWarning() << "drawMeshTriangles GLError : " << l_glError;
-    }
-}
 
 
 

@@ -98,6 +98,9 @@ SWMorphingInterface::SWMorphingInterface()
                     l_vQSTargetCorrItems.push_back(l_sBaseCorr + "target_corr.txt");
                     l_vQSTargetCorrItems.push_back(l_sBaseCorr + "target_openMouth.txt");
 
+
+//                    QFileDialog::getOpenFileName(this,
+
             // fill qlistWidget
                 for(uint ii = 0; ii < l_vQSSourceMeshItems.size(); ++ii)
                 {

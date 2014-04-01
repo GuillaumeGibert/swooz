@@ -23,7 +23,8 @@ uniform vec3 lAmbiant  = vec3(0.3,0.3,0.3);
 uniform vec3 lDiffus   = vec3(1.0,1.0,1.0);
 uniform vec3 lSpecular = vec3(1.0,1.0,1.0);
 //  sources
-uniform vec3 lSourcePos     = vec3(0.1,0.1,0);
+//uniform vec3 lSourcePos     = vec3(0.1,0.1,0); // createavatar
+uniform vec3 lSourcePos     = vec3(0.0,0.0,-1.0); // morphing avatar
 
 // texture
 uniform bool applyTexture = false;
@@ -31,6 +32,7 @@ uniform sampler2D texture2d;
 
 // camera
 //uniform vec3 eyePosition;
+
 
 void main(void)
 {
@@ -49,6 +51,7 @@ void main(void)
     //  texture
         vec4 textureColor = texture2D(texture2d, TextureCoord);
 
+
     //  set pixel color
         if(applyTexture)
         {
@@ -58,6 +61,7 @@ void main(void)
         {
             fragColor = defaultColor * vec4(ambiantLight + diffusLight , opacity); // + specularLight
         }
+
 }
 
 ////Calculate the half vector between the light vector and the view vector.

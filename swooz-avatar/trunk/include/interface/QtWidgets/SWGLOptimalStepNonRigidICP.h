@@ -403,6 +403,7 @@ class SWGLOptimalStepNonRigidICP : public SWGLWidget
         QGLBuffer m_indexBuffer;            /**< opengl index buffer */
         QGLBuffer m_colorBuffer;            /**< opengl color buffer */
         QGLBuffer m_normalBuffer;           /**< opengl normal buffer */
+        QGLBuffer m_textureBuffer;           /**< opengl normal buffer */
 
         QGLShaderProgram m_oShaderPoints;   /**< shader program to render points */
         QGLShaderProgram m_oShaderLines;    /**< shader program to render lines */

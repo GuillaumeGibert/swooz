@@ -182,6 +182,18 @@ class SWCreateAvatar
         void resetDeletedPointsRadialProj();
 
 
+        /**
+         * @brief computeSTASMCoords
+         */
+        void computeSTASMCoords();
+
+
+        /**
+         * @brief mesh_stasm_points_index
+         * @return
+         */
+        std::vector<int> mesh_stasm_points_index() const;
+
     private:
 
         // parameters
@@ -233,7 +245,9 @@ class SWCreateAvatar
         SWFaceDetectionPtr m_CFaceDetectPtr;                /**< detect face pointer */
         //  stasm
         std::vector<cv::Point3f> m_vP3FStasm3DPoints;       /**< array of stasms 3D points*/
-        std::vector<cv::Point3f> m_vP3FTotalStasm3DPoints;  /**< sum of array of stasms 3D points*/
+//        std::vector<cv::Point3f> m_vP3FTotalStasm3DPoints;  /**< sum of array of stasms 3D points*/
+        std::vector<std::vector<cv::Point3f> > m_vStasm3DPoints;  /**< sum of array of stasms 3D points*/
+        std::vector<int> m_vMeshIdSTASMPoints;              /**< ... */
 
 
     public:

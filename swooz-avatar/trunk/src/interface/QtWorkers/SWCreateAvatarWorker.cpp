@@ -266,20 +266,42 @@ void SWCreateAvatarWorker::saveMeshFile(QString sPath)
 
         QString l_sNameOBJ(l_sName);
         l_sName.remove(l_sName.size()-3, l_sName.size());
+
         QString l_sNameTexture(l_sName);
         l_sNameTexture.append("png");
-        l_sName.append("mtl");
+
         QString l_sNameMTL(l_sName);
+        l_sNameMTL.append("mtl");
+
+        QString l_sNameSTASM(l_sName);
+        l_sNameSTASM.append("stasm");
 
         QString l_sPath(sPath);
         l_sPath.remove(l_sPath.size() - l_sNameOBJ.size(), l_sNameOBJ.size());
 
-        qDebug() << "Path : " << l_sPath;
-        qDebug() << "Save OBJ file : " << l_sNameOBJ;
-        qDebug() << "Save texture file : " << l_sNameTexture;
+        qDebug() << "Path : "               << l_sPath;
+        qDebug() << "Save OBJ file : "      << l_sNameOBJ;
+        qDebug() << "Save texture file : "  << l_sNameTexture;
         qDebug() << "Save Material file : " << l_sNameMTL;
 
         m_pFaceMeshResult->saveToObj(l_sPath.toStdString(), l_sNameOBJ.toStdString(), l_sNameMTL.toStdString(), l_sNameTexture.toStdString());
+
+        std::vector<int> l_vMesh_STASM_points_index = m_CAvatarPtr->mesh_stasm_points_index();
+        if(l_vMesh_STASM_points_index.size() > 0)
+        {
+            qDebug() << "Save STASM file : " << l_sNameSTASM;
+
+            std::ofstream l_oFlowSTASM;
+            l_oFlowSTASM.open(l_sPath.toStdString() + l_sNameSTASM.toStdString());
+            l_oFlowSTASM << "# STASM file created with SWoOZ plateform (https://github.com/GuillaumeGibert/swooz)" << std::endl;
+
+            for(uint ii = 0; ii < l_vMesh_STASM_points_index.size(); ++ii)
+            {
+                l_oFlowSTASM << ii << " " << l_vMesh_STASM_points_index[ii] << std::endl;
+            }
+
+            l_oFlowSTASM.close();
+        }
 
         cv::imwrite((l_sPath + l_sNameTexture).toStdString() , *m_pFaceTexture);
     }

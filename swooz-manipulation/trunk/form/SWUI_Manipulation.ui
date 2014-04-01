@@ -45,7 +45,7 @@
               <bool>true</bool>
              </property>
              <property name="text">
-              <string>Active output</string>
+              <string>Activate output</string>
              </property>
             </widget>
            </item>
@@ -118,7 +118,7 @@
               <bool>true</bool>
              </property>
              <property name="text">
-              <string>Active output</string>
+              <string>Activate output</string>
              </property>
             </widget>
            </item>
@@ -142,7 +142,7 @@
               <bool>true</bool>
              </property>
              <property name="text">
-              <string>Active output</string>
+              <string>Activate output</string>
              </property>
             </widget>
            </item>
@@ -159,7 +159,7 @@
               <bool>true</bool>
              </property>
              <property name="text">
-              <string>Active output</string>
+              <string>Activate output</string>
              </property>
             </widget>
            </item>
@@ -232,7 +232,7 @@
               <bool>true</bool>
              </property>
              <property name="text">
-              <string>Active output</string>
+              <string>Activate output</string>
              </property>
             </widget>
            </item>

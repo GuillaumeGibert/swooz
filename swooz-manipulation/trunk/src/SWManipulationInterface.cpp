@@ -898,7 +898,7 @@ void SWManipulationInterface::checkActiveClick()
 
 void SWManipulationInterface::toggleActiveText(int i32Index)
 {
-    if(m_vActiveButtons[i32Index]->text() == QString("Active output"))
+    if(m_vActiveButtons[i32Index]->text() == QString("Activate output"))
     {
         m_vActiveButtons[i32Index]->setText(QString("Disactive output"));       
         m_vActiveButtons[i32Index]->setStyleSheet(m_sStyleGreenButton);
@@ -906,7 +906,7 @@ void SWManipulationInterface::toggleActiveText(int i32Index)
     }
     else
     {
-        m_vActiveButtons[i32Index]->setText(QString("Active output"));        
+        m_vActiveButtons[i32Index]->setText(QString("Activate output"));
         m_vActiveButtons[i32Index]->setStyleSheet(m_sStyleRedButton);
     }
 }
