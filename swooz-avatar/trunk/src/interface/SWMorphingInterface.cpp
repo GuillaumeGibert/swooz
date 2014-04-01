@@ -310,3 +310,17 @@ void SWMorphingInterface::saveMeshFile()
     QString l_sPathFileToSave = QFileDialog::getSaveFileName(this, "Save mesh file", QString(), "Mesh file (*.obj)");
     emit saveMeshFileSignal(l_sPathFileToSave);
 }
+
+
+int main(int argc, char* argv[])
+{
+    QApplication l_oApp(argc, argv);
+
+    SWMorphingInterface l_oMorphingInterface;
+    l_oMorphingInterface.resize(1800, 900);
+    l_oMorphingInterface.move(50,50);
+    l_oMorphingInterface.show();
+
+    return l_oApp.exec();
+}
+

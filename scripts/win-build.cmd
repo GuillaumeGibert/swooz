@@ -134,18 +134,18 @@ echo call win-clean-env_command.cmd							>> %target_dist%\swooz-createAvatar.cm
 echo cd ../dist										>> %target_dist%\swooz-createAvatar.cmd
 REM echo pause 										>> %target_dist%\swooz-createAvatar.cmd
 REM #######################################################################################
-REM ### Test code
-echo @echo off                                               				>  %target_dist%\swooz-testCode.cmd
-echo %SystemRoot%\system32\xcopy /q /e /y %saved_directory%\..\swooz-config %saved_directory%\%target_dist%\data >> %target_dist%\swooz-testCode.cmd
-echo pushd ..\scripts                                        				>> %target_dist%\swooz-testCode.cmd
-echo call win-init_env_command.cmd %ARCH_EXE_testCode%                                >> %target_dist%\swooz-testCode.cmd
-echo popd                                                    				>> %target_dist%\swooz-testCode.cmd
-echo cd bin										>> %target_dist%\swooz-testCode.cmd
-echo SWTestCode.exe %1 %2 %3 %PARAMS_EXEC%						>> %target_dist%\swooz-testCode.cmd 
-echo cd ../../scripts									>> %target_dist%\swooz-testCode.cmd
-echo call win-clean-env_command.cmd							>> %target_dist%\swooz-testCode.cmd
-echo cd ../dist										>> %target_dist%\swooz-testCode.cmd
-REM echo pause 										>> %target_dist%\swooz-testCode.cmd
+REM ### Morphing
+echo @echo off                                               				>  %target_dist%\swooz-morphing.cmd
+echo %SystemRoot%\system32\xcopy /q /e /y %saved_directory%\..\swooz-config %saved_directory%\%target_dist%\data >> %target_dist%\swooz-morphing.cmd
+echo pushd ..\scripts                                        				>> %target_dist%\swooz-morphing.cmd
+echo call win-init_env_command.cmd %ARCH_EXE_morphing%                                >> %target_dist%\swooz-morphing.cmd
+echo popd                                                    				>> %target_dist%\swooz-morphing.cmd
+echo cd bin										>> %target_dist%\swooz-morphing.cmd
+echo SWMorphing.exe %1 %2 %3 %PARAMS_EXEC%						>> %target_dist%\swooz-morphing.cmd
+echo cd ../../scripts									>> %target_dist%\swooz-morphing.cmd
+echo call win-clean-env_command.cmd							>> %target_dist%\swooz-morphing.cmd
+echo cd ../dist										>> %target_dist%\swooz-morphing.cmd
+REM echo pause 										>> %target_dist%\swooz-morphing.cmd
 REM #######################################################################################
 REM ### Head Tracking Forest
 echo @echo off                                                                          >  %target_dist%\swooz-trackingHeadForest.cmd

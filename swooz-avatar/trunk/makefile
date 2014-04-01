@@ -39,13 +39,11 @@ EMICP_LIST_OBJ=\
 GPUMAT_LIST_OBJ=\
         $(LIBDIR)/gpuMat.obj\
 
-
 TRACK_LIST_OBJ=\
         $(LIBDIR)/SWTrackFlow.obj $(LIBDIR)/SWTrack.obj\
 	
 QT_INTER_LIST_OBJ=\
-        $(LIBDIR)/SWDisplayImageWidget.obj $(LIBDIR)/SWDisplayCurvesWidget.obj $(LIBDIR)/SWCreateAvatarWorker.obj $(LIBDIR)/SWCreateAvatarInterface.obj\
-        $(LIBDIR)/SWMorphingWorker.obj $(LIBDIR)/SWMorphingInterface.obj\
+    $(LIBDIR)/SWDisplayImageWidget.obj $(LIBDIR)/SWDisplayCurvesWidget.obj\
 		
 QT_GL_LIST_OBJ=\
         $(LIBDIR)/SWQtCamera.obj $(LIBDIR)/SWGLWidget.obj $(LIBDIR)/SWGLCloudWidget.obj $(LIBDIR)/SWGLMeshWidget.obj\
@@ -65,7 +63,7 @@ EXP_LIST_OBJ=\
 MOC_LIST=\
         $(MOCDIR)/moc_SWCreateAvatarInterface.cpp $(MOCDIR)/moc_SWMorphingInterface.cpp $(MOCDIR)/moc_SWDisplayImageWidget.cpp $(MOCDIR)/moc_SWDisplayCurvesWidget.cpp \
         $(MOCDIR)/moc_SWGLWidget.cpp $(MOCDIR)/moc_SWGLCloudWidget.cpp $(MOCDIR)/moc_SWGLMeshWidget.cpp $(MOCDIR)/moc_SWCreateAvatarWorker.cpp\
-        $(MOCDIR)/moc_SWMorphingWorker.cpp $(MOCDIR)/moc_SWGLOptimalStepNonRigidICP.cpp $(MOCDIR)/moc_SWTestCode.cpp\
+        $(MOCDIR)/moc_SWMorphingWorker.cpp $(MOCDIR)/moc_SWGLOptimalStepNonRigidICP.cpp\
 
 ############################################################################## UI LIST
 
@@ -77,24 +75,16 @@ UI_LIST=\
 
 CREATE_AVATAR_OBJ=\
         $(EMICP_LIST_OBJ) $(STASM_LIST_OBJ) $(CLOUD_LIST_OBJ) $(MESH_LIST_OBJ) $(GPUMAT_LIST_OBJ) $(DETECT_LIST_OBJ) $(TRACK_LIST_OBJ) $(CV_INTER_LIST_OBJ) $(QT_INTER_LIST_OBJ) $(QT_GL_LIST_OBJ)\
-        $(LIBDIR)/SWCreateAvatar.obj\
+        $(LIBDIR)/SWCreateAvatarWorker.obj $(LIBDIR)/SWCreateAvatarInterface.obj $(LIBDIR)/SWCreateAvatar.obj\
 
-PROCESS_EXP_DATA_OBJ=\
-        $(EMICP_LIST_OBJ) $(GPUMAT_LIST_OBJ) $(STASM_LIST_OBJ) $(CLOUD_LIST_OBJ) $(DETECT_LIST_OBJ) $(MESH_LIST_OBJ) $(TRACK_LIST_OBJ) $(QT_GL_LIST_OBJ) $(QT_INTER_LIST_OBJ)\
-        $(LIBDIR)/SWProcessExpData.obj $(LIBDIR)/SWCreateAvatar.obj\
-
-LAUNCH_EXP_OBJ=\
-        $(FACELAB_LIST_OBJ) $(EXP_LIST_OBJ)\
-        $(LIBDIR)/SWLaunchExp.obj\
-
-TEST_CODE_OBJ=\
+MORPHING_OBJ=\
        $(EMICP_LIST_OBJ) $(GPUMAT_LIST_OBJ) $(STASM_LIST_OBJ) $(DETECT_LIST_OBJ) $(TRACK_LIST_OBJ) $(CLOUD_LIST_OBJ) $(MESH_LIST_OBJ) $(QT_GL_LIST_OBJ)\
-       $(LIBDIR)/SWMorphingWorker.obj $(LIBDIR)/SWMorphingInterface.obj $(LIBDIR)/SWTestCode.obj\
+       $(LIBDIR)/SWMorphingWorker.obj $(LIBDIR)/SWMorphingInterface.obj \
 
 ############################################################################## Makefile commands  $(QT_INTER_LIST_OBJ)
 
 !if  "$(ARCH)" == "x86"
-all: createAvatar testCodeData
+all: createAvatar morphing
 !endif
 
 !if "$(ARCH)" == "amd64"
@@ -103,7 +93,7 @@ all:
 
 createAvatar   : $(UI_LIST) $(MOC_LIST) $(BINDIR)/SWCreateAvatar.exe
 		
-testCodeData   : $(BINDIR)/SWTestCode.exe
+morphing   : $(BINDIR)/SWMorphing.exe
 
 clean:
 
@@ -114,14 +104,8 @@ clean all:
 $(BINDIR)/SWCreateAvatar.exe: $(CREATE_AVATAR_OBJ) $(LIBS_CA)
 	$(LINK) /OUT:$(BINDIR)/SWCreateAvatar.exe $(LFLAGS) $(CREATE_AVATAR_OBJ) $(SETARGV) $(BINMODE) $(LIBS_CA) $(WINLIBS)
 
-#$(BINDIR)/SWLaunchExp.exe: $(LAUNCH_EXP_OBJ) $(LIBS_SK)
-#       $(LINK)	/OUT:$(BINDIR)/SWLaunchExp.exe $(LFLAGS_SK) $(LAUNCH_EXP_OBJ) $(SETARGV) $(BINMODE) $(LIBS_SK) $(WINLIBS)
-
-$(BINDIR)/SWProcessExpData.exe: $(PROCESS_EXP_DATA_OBJ) $(LIBS_CA)
-        $(LINK)	/OUT:$(BINDIR)/SWProcessExpData.exe $(LFLAGS) $(PROCESS_EXP_DATA_OBJ) $(SETARGV) $(BINMODE) $(LIBS_CA) $(WINLIBS)
-
-$(BINDIR)/SWTestCode.exe: $(TEST_CODE_OBJ) $(LIBS_CA)
-        $(LINK) /OUT:$(BINDIR)/SWTestCode.exe $(LFLAGS) $(TEST_CODE_OBJ) $(SETARGV) $(BINMODE) $(LIBS_CA) $(WINLIBS)
+$(BINDIR)/SWMorphing.exe: $(MORPHING_OBJ) $(LIBS_CA)
+        $(LINK) /OUT:$(BINDIR)/SWMorphing.exe $(LFLAGS) $(MORPHING_OBJ) $(SETARGV) $(BINMODE) $(LIBS_CA) $(WINLIBS)
 
 ############################################################################## SW Files
 
@@ -133,9 +117,6 @@ $(LIBDIR)/SWLaunchExp.obj: ./src/SWLaunchExp.cpp
 
 $(LIBDIR)/SWProcessExpData.obj: ./src/SWProcessExpData.cpp
         $(CC) -c ./src/SWProcessExpData.cpp $(CFLAGS_STA) $(SW_PROCESS_EXP_DATA) -Fo"$(LIBDIR)/"
-	
-$(LIBDIR)/SWTestCode.obj: ./src/SWTestCode.cpp
-	$(CC) -c ./src/SWTestCode.cpp $(CFLAGS_STA) $(SW_TEST_CODE) -Fo"$(LIBDIR)/"	
 
 ############################################################################## experiences
 
