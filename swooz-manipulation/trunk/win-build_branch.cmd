@@ -9,6 +9,21 @@ if not exist ./lib/nul (
     mkdir lib
 )
 
+if not exist ./lib/amd64/nul (
+    cd lib
+    mkdir amd64
+    cd amd64
+    mkdir Release
+    mkdir Debug
+    cd ..
+    mkdir x86
+    cd x86
+    mkdir Release
+    mkdir Debug
+    cd ..
+    cd ..
+)
+
 if not exist ./moc/nul (
     mkdir moc
 )

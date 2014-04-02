@@ -20,7 +20,6 @@
 #include "gpuMat/gpuMatUtility.h"
 #include "geometryUtility.h"
 
-
 // OPENCV
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/highgui/highgui.hpp"

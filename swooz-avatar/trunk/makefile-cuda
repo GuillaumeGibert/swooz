@@ -2,10 +2,14 @@
 # Florian Lance
 # lyon sept 2013
 
-!IF "$(CFG)" != "Release" &&  "$(CFG)" != "Debug" 
+
+!IF "$(CFG)" != "Release" &&  "$(CFG)" != "Debug"
 !ERROR Invalid CFG "($CFG)
 !ENDIF
 
+!IF "$(ARCH)" != "x86" &&  "$(ARCH)" != "amd64"
+!ERROR Invalid ARCH "($ARCH)
+!ENDIF
 
 
 
@@ -52,20 +56,20 @@ all:  $(LIBDIR)/emicp.obj $(LIBDIR)/findRTfromS.obj $(LIBDIR)/gpuMat.obj \
 !ENDIF
 
 !IF "$(ARCH)" == "amd64"
-all:
+all: $(LIBDIR)/emicp.obj $(LIBDIR)/findRTfromS.obj $(LIBDIR)/gpuMat.obj \
 !ENDIF
 
 ################################################ EMCIP
 
 $(LIBDIR)/emicp.obj: ./src/emicp/emicp.cu
-        $(CUDA) -c ./src/emicp/emicp.cu $(CFLAGS_CUDA_EMICP)
+        $(CUDA) -c ./src/emicp/emicp.cu $(CFLAGS_CUDA_EMICP) -o "$(LIBDIR)/emicp.obj"
 
 $(LIBDIR)/findRTfromS.obj: ./src/emicp/findRTfromS.cpp
-        $(CUDA) -c ./src/emicp/findRTfromS.cpp $(CFLAGS_CUDA_EMICP)
+        $(CUDA) -c ./src/emicp/findRTfromS.cpp $(CFLAGS_CUDA_EMICP) -o "$(LIBDIR)/findRTfromS.obj"
 
 
 ################################################ GPUMAT
 
 $(LIBDIR)/gpuMat.obj: ./src/gpuMat/gpuMat.cu
-    $(CUDA) -c ./src/gpuMat/gpuMat.cu $(CFLAGS_CUDA_GPUMAT)
+    $(CUDA) -c ./src/gpuMat/gpuMat.cu $(CFLAGS_CUDA_GPUMAT) -o "$(LIBDIR)/gpuMat.obj
 

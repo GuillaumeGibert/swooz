@@ -12,8 +12,8 @@
 
 #include "cloud/SWAlignClouds.h"
 #include "mesh/SWMesh.h"
-#include "cloud/SWUtilityCloud.h"
 
+#include "opencv2/imgproc/imgproc.hpp"
 
 namespace swMesh
 {

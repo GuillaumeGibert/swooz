@@ -16,6 +16,7 @@ LINK=link
 
 !INCLUDE <./makefile-include>
 
+
 ############################################################################## OBJ LIST
 
 STASM_LIST_OBJ=\
@@ -25,7 +26,7 @@ STASM_LIST_OBJ=\
         $(LIBDIR)/rgbimutil.obj $(LIBDIR)/asmsearch.obj\
 
 CLOUD_LIST_OBJ=\
-        $(LIBDIR)/SWCloud.obj $(LIBDIR)/SWMaskCloud.obj $(LIBDIR)/SWAlignClouds.obj $(LIBDIR)/SWCaptureHeadMotion.obj\
+        $(LIBDIR)/SWCloud.obj $(LIBDIR)/SWMaskCloud.obj $(LIBDIR)/SWAlignClouds.obj \
 
 MESH_LIST_OBJ=\
         $(LIBDIR)/SWMesh.obj $(LIBDIR)/SWOptimalStepNonRigidICP.obj\
@@ -75,10 +76,10 @@ UI_LIST=\
 
 CREATE_AVATAR_OBJ=\
         $(EMICP_LIST_OBJ) $(STASM_LIST_OBJ) $(CLOUD_LIST_OBJ) $(MESH_LIST_OBJ) $(GPUMAT_LIST_OBJ) $(DETECT_LIST_OBJ) $(TRACK_LIST_OBJ) $(CV_INTER_LIST_OBJ) $(QT_INTER_LIST_OBJ) $(QT_GL_LIST_OBJ)\
-        $(LIBDIR)/SWCreateAvatarWorker.obj $(LIBDIR)/SWCreateAvatarInterface.obj $(LIBDIR)/SWCreateAvatar.obj\
+        $(LIBDIR)/SWCaptureHeadMotion.obj $(LIBDIR)/SWCreateAvatarWorker.obj $(LIBDIR)/SWCreateAvatarInterface.obj $(LIBDIR)/SWCreateAvatar.obj\
 
 MORPHING_OBJ=\
-       $(EMICP_LIST_OBJ) $(GPUMAT_LIST_OBJ) $(STASM_LIST_OBJ) $(DETECT_LIST_OBJ) $(TRACK_LIST_OBJ) $(CLOUD_LIST_OBJ) $(MESH_LIST_OBJ) $(QT_GL_LIST_OBJ)\
+       $(EMICP_LIST_OBJ) $(GPUMAT_LIST_OBJ) $(CLOUD_LIST_OBJ) $(MESH_LIST_OBJ) $(QT_GL_LIST_OBJ)\
        $(LIBDIR)/SWMorphingWorker.obj $(LIBDIR)/SWMorphingInterface.obj \
 
 ############################################################################## Makefile commands  $(QT_INTER_LIST_OBJ)
@@ -88,12 +89,12 @@ all: createAvatar morphing
 !endif
 
 !if "$(ARCH)" == "amd64"
-all:
+all: morphing
 !endif
 
 createAvatar   : $(UI_LIST) $(MOC_LIST) $(BINDIR)/SWCreateAvatar.exe
 		
-morphing   : $(BINDIR)/SWMorphing.exe
+morphing   : $(UI_LIST) $(MOC_LIST) $(BINDIR)/SWMorphing.exe
 
 clean:
 
@@ -110,7 +111,7 @@ $(BINDIR)/SWMorphing.exe: $(MORPHING_OBJ) $(LIBS_CA)
 ############################################################################## SW Files
 
 $(LIBDIR)/SWCreateAvatar.obj: ./src/SWCreateAvatar.cpp
-	$(CC) -c ./src/SWCreateAvatar.cpp $(CFLAGS_STA) $(SW_CREATE_AVATAR) -Fo"$(LIBDIR)/"
+        $(CC) -c ./src/SWCreateAvatar.cpp $(CFLAGS_STA) $(SW_CREATE_AVATAR) -Fo"$(LIBDIR)/"
 
 $(LIBDIR)/SWLaunchExp.obj: ./src/SWLaunchExp.cpp
         $(CC) -c ./src/SWLaunchExp.cpp $(CFLAGS_DYN) $(SW_LAUNCH_EXP) -Fo"$(LIBDIR)/"

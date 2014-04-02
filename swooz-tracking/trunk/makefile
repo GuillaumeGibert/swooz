@@ -15,6 +15,7 @@ LINK=link
 
 !INCLUDE <./makefile-include>
 
+
 ############################################################################## OBJ PROGRAMS
 
 OBJ_TRACKING_HEAD_FOREST=\
@@ -24,26 +25,26 @@ OBJ_TRACKING_HEAD_FOREST=\
         $(LIBDIR)/SWForestHeadTracking.obj\
 
 OBJ_TRACKING_OPENNI=\
-        $(DIST_LIB)/SWKinectSkeleton_dynamic.obj\
+        $(DIST_LIBDIR)/SWKinectSkeleton_dynamic.obj\
         $(LIBDIR)/SWOpenNITracking.obj\
 
 
 OBJ_TRACKING_FACELAB=\
         $(LIBDIR)/SWFaceLabTracking_dynamic.obj\
-        $(DIST_LIB)/SWFaceLab_dynamic.obj\
-        $(DIST_LIB)/FaceLab_dynamic.obj\
+        $(DIST_LIBDIR)/SWFaceLab_dynamic.obj\
+        $(DIST_LIBDIR)/FaceLab_dynamic.obj\
 
 OBJ_TRACKING_FACESHIFT=\
         $(LIBDIR)/fsbinarystream.obj\
         $(LIBDIR)/SWFaceShiftTracking.obj\
 
 OBJ_TRACKING_EMCIP=\
-        $(DIST_LIB)/SWKinect_thread.obj $(DIST_LIB)/SWKinect.obj\
-        $(DIST_LIB)/SWCaptureHeadMotion.obj $(DIST_LIB)/SWAlignClouds.obj \
-        $(DIST_LIB)/SWCloud.obj $(DIST_LIB)/emicp.obj $(DIST_LIB)/findRTfromS.obj\
-        $(DIST_LIB)/SWFaceDetection.obj $(DIST_LIB)/SWHaarCascade.obj\
-        $(DIST_LIB)/SWDisplayImageWidget.obj $(DIST_LIB)/SWDisplayCurvesWidget.obj\
-        $(DIST_LIB)/SWGLCloudWidget.obj $(DIST_LIB)/SWGLWidget.obj $(DIST_LIB)/SWQtCamera.obj \
+        $(DIST_LIBDIR)/SWKinect_thread.obj $(DIST_LIBDIR)/SWKinect.obj\
+        $(DIST_LIBDIR)/SWCaptureHeadMotion.obj $(DIST_LIBDIR)/SWAlignClouds.obj \
+        $(DIST_LIBDIR)/SWCloud.obj $(DIST_LIBDIR)/emicp.obj $(DIST_LIBDIR)/findRTfromS.obj\
+        $(DIST_LIBDIR)/SWFaceDetection.obj $(DIST_LIBDIR)/SWHaarCascade.obj\
+        $(DIST_LIBDIR)/SWDisplayImageWidget.obj $(DIST_LIBDIR)/SWDisplayCurvesWidget.obj\
+        $(DIST_LIBDIR)/SWGLCloudWidget.obj $(DIST_LIBDIR)/SWGLWidget.obj $(DIST_LIBDIR)/SWQtCamera.obj \
         $(LIBDIR)/SWEmicpHeadTracking.obj\
 
 OBJ_TRACKING_FORTH=\

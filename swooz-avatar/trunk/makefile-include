@@ -32,7 +32,33 @@ WINLIBS=advapi32.lib comctl32.lib comdlg32.lib gdi32.lib shell32.lib user32.lib 
 
 ############################ DIRECTORIES
 
-LIBDIR	     	 =./lib
+# define lib dir
+
+LIBDIR  =./lib
+DIST_LIBDIR = $(SW_DIST)/lib
+
+!if  "$(ARCH)" == "x86"
+LIBDIR= $(LIBDIR)/x86
+DIST_LIBDIR = $(DIST_LIBDIR)/x86
+!endif
+
+!if  "$(ARCH)" == "amd64"
+LIBDIR= $(LIBDIR)/amd64
+DIST_LIBDIR = $(DIST_LIBDIR)/amd64
+!endif
+
+!if  "$(CFG)" == "Release"
+LIBDIR= $(LIBDIR)/Release
+DIST_LIBDIR = $(DIST_LIBDIR)/Release
+!endif
+
+!if  "$(CFG)" == "Debug"
+LIBDIR= $(LIBDIR)/Debug
+DIST_LIBDIR = $(DIST_LIBDIR)/Debug
+!endif
+
+# others dir
+
 INCDIR_INTERFACE =./include/interface
 INCDIR_QTW       =./include/interface/QtWidgets
 INCDIR_QTWORKERS =./include/interface/QtWorkers
@@ -65,6 +91,9 @@ THIRD_PARTY_OPENCV      = $(THIRD_PARTY_OPENCV_64)
 THIRD_PARTY_POLHEMUS    = $(THIRD_PARTY_POLHEMUS_64)
 THIRD_PARTY_BOOST       = $(THIRD_PARTY_BOOST_64)
 THIRD_PARTY_FACELAB     = $(THIRD_PARTY_FACELAB_64)
+THIRD_PARTY_CULA        = $(THIRD_PARTY_CULA_64)
+THIRD_PARTY_QT          = $(THIRD_PARTY_QT_64)
+
 # ...
 !ENDIF
 
@@ -111,7 +140,7 @@ INC_YARP	= -I"$(THIRD_PARTY_YARP)"/include\
 
 COMMON	 	    = $(INC_VS) $(INC_SW) $(INC_OTHERS)
 #	avatar
-SW_CREATE_AVATAR    = $(COMMON) $(INC_BOOST) $(INC_PCL) $(INC_OPENCV) $(INC_GSL) $(INC_STASM)
+SW_CREATE_AVATAR    = $(COMMON) $(INC_BOOST) $(INC_OPENCV) $(INC_GSL) $(INC_STASM)
 #	detect
 SW_HAAR_CASCADE     = $(COMMON) $(INC_OPENCV)
 SW_FACE_DETECTION   = $(COMMON) $(INC_BOOST) $(INC_OPENCV)
@@ -121,7 +150,7 @@ SW_TRACK_FLOW       = $(COMMON) $(INC_OPENCV)
 SW_TRACK            = $(COMMON) $(INC_BOOST) $(INC_OPENCV)
 #	cloud
 SW_CLOUD            = $(COMMON)
-SW_VISUALIZE_CLOUD  = $(COMMON) $(INC_BOOST) $(INC_PCL) $(INC_OPENCV)
+SW_VISUALIZE_CLOUD  = $(COMMON) $(INC_BOOST) $(INC_OPENCV)
 SW_ALIGN_CLOUDS     = $(COMMON) $(INC_BOOST) $(INC_OPENCV)
 SW_CAPTURE_HEAD_M   = $(COMMON) $(INC_BOOST) $(INC_OPENCV) $(INC_GSL) $(INC_STASM)
 #       mesh
@@ -141,17 +170,17 @@ SW_CREATEAVATAR_WORKER= $(COMMON) $(INC_BOOST) $(INC_QT) $(INC_OPENCV) $(INC_MOC
 SW_MORPHING_WORKER  = $(COMMON) $(SW_GL_OSNRI_WIDGET)
 SW_QT_CAMERA	    = $(COMMON) $(INC_QT)
 #	interface
-SW_CREATEAVATAR_INTERFACE     = $(COMMON) $(INC_BOOST) $(INC_PCL) $(INC_OPENCV) $(INC_QT) $(INC_MOC) $(INC_QTWIDGETS) $(INC_GSL) $(INC_STASM)
+SW_CREATEAVATAR_INTERFACE     = $(COMMON) $(INC_BOOST) $(INC_OPENCV) $(INC_QT) $(INC_MOC) $(INC_QTWIDGETS) $(INC_GSL) $(INC_STASM)
 SW_MORPH_INTERFACE  = $(SW_MORPHING_WORKER)
 
 ############################ COMMON DEBUG/RELEASE LIBS
 
 LIBS_COMMON	= "$(PROGRAMFILES)\Microsoft SDKs\Windows\v7.0A\Lib/ws2_32.lib"\
 
-LIBS_SW		= $(SW_DIST)/lib/SWKinect.obj $(SW_DIST)/lib/SWKinect_thread.obj $(SW_DIST)/lib/SWSaveKinectData.obj $(SW_DIST)/lib/SWLoadKinectData.obj\
+LIBS_SW		= $(DIST_LIBDIR)/SWKinect.obj $(DIST_LIBDIR)/SWKinect_thread.obj $(DIST_LIBDIR)/SWSaveKinectData.obj $(DIST_LIBDIR)/SWLoadKinectData.obj\
 
-LIBS_SW_DYN     = $(SW_DIST)/lib/SWKinect_dynamic.obj  $(SW_DIST)/lib/SWKinect_thread_dynamic.obj  $(LIBDIR)/SWMaskCloud_dynamic.obj $(LIBDIR)/SWCloud_dynamic.obj\
-                  $(SW_DIST)/lib/SWFastrak_dynamic.obj $(SW_DIST)/lib/SWFastrak_thread_dynamic.obj $(SW_DIST)/lib/SWSaveKinectData_dynamic.obj $(SW_DIST)/lib/SWLoadKinectData_dynamic.obj\
+LIBS_SW_DYN     = $(DIST_LIBDIR)/SWKinect_dynamic.obj  $(DIST_LIBDIR)/SWKinect_thread_dynamic.obj  $(LIBDIR)/SWMaskCloud_dynamic.obj $(LIBDIR)/SWCloud_dynamic.obj\
+                  $(DIST_LIBDIR)/SWFastrak_dynamic.obj $(DIST_LIBDIR)/SWFastrak_thread_dynamic.obj $(DIST_LIBDIR)/SWSaveKinectData_dynamic.obj $(DIST_LIBDIR)/SWLoadKinectData_dynamic.obj\
 
 ################################################################################################################# RELEASE MODE
 
@@ -197,7 +226,7 @@ LIBS_BOOST_S	= $(THIRD_PARTY_BOOST)/lib/libboost_date_time-vc100-mt-s-1_49.lib $
 	
 LIBS_FL		= $(THIRD_PARTY_FACELAB)/coredata/libshared/win32_ia32sse2_vc90/sm_cd_coredata_3.2.lib $(THIRD_PARTY_FACELAB)/coredata/thirdparty/zlib1.2.3/win_ia32_vc90/libshared/zlib1.lib\
 		  $(THIRD_PARTY_FACELAB)/coredata/thirdparty/libvpx0.9.5\libstatic\win_ia32_vc90\vpxmt.lib\
-                  $(SW_DIST)/lib/SWFaceLab_dynamic.obj\
+                  $(DIST_LIBDIR)/SWFaceLab_dynamic.obj\
 	
 LIBS_ITPP	= $(THIRD_PARTY_MKL)\tools\builder\lib\mkl_cdll_ia32.lib $(THIRD_PARTY_ITPP)/lib/itpp.lib $(THIRD_PARTY_MKL)\lib\ia32\mkl_intel_c_dll.lib\
 		  $(THIRD_PARTY_MKL)\lib\ia32\mkl_intel_c.lib $(THIRD_PARTY_MKL)\lib\ia32\mkl_core.lib $(THIRD_PARTY_MKL)\lib\ia32\mkl_intel_thread_dll.lib\

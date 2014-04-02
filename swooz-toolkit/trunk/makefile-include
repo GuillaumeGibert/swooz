@@ -32,7 +32,28 @@ WINLIBS=advapi32.lib comctl32.lib comdlg32.lib gdi32.lib shell32.lib user32.lib 
 
 ############################ DIRECTORIES
 
-LIBDIR=./lib
+# define lib dir
+
+LIBDIR  =./lib
+
+!if  "$(ARCH)" == "x86"
+LIBDIR= $(LIBDIR)/x86
+!endif
+
+!if  "$(ARCH)" == "amd64"
+LIBDIR= $(LIBDIR)/amd64
+!endif
+
+!if  "$(CFG)" == "Release"
+LIBDIR= $(LIBDIR)/Release
+!endif
+
+!if  "$(CFG)" == "Debug"
+LIBDIR= $(LIBDIR)/Debug
+!endif
+
+# others dir
+
 BINDIR=./bin
 
 
