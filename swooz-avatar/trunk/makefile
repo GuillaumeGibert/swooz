@@ -56,8 +56,6 @@ FACELAB_LIST_OBJ=\
 DYNAMIC_LIST_OBJ=\
         $(LIBDIR)/SWCloud_dynamic.obj $(LIBDIR)/SWMaskCloud_dynamic.obj\
 
-EXP_LIST_OBJ=\
-        $(LIBDIR)/SWSaveMultiRigidMotionData.obj \
 	
 ############################################################################## MOC LIST
 
@@ -89,24 +87,26 @@ all: createAvatar morphing
 !endif
 
 !if "$(ARCH)" == "amd64"
-all: morphing
+all: morphing64
 !endif
 
 createAvatar   : $(UI_LIST) $(MOC_LIST) $(BINDIR)/SWCreateAvatar.exe
 		
 morphing   : $(UI_LIST) $(MOC_LIST) $(BINDIR)/SWMorphing.exe
 
-clean:
+morphing64 : $(UI_LIST) $(MOC_LIST) $(BINDIR)/SWMorphing-x64.exe
 
-clean all:	
 
 ############################################################################## exe files
 
-$(BINDIR)/SWCreateAvatar.exe: $(CREATE_AVATAR_OBJ) $(LIBS_CA)
-	$(LINK) /OUT:$(BINDIR)/SWCreateAvatar.exe $(LFLAGS) $(CREATE_AVATAR_OBJ) $(SETARGV) $(BINMODE) $(LIBS_CA) $(WINLIBS)
+$(BINDIR)/SWCreateAvatar.exe: $(CREATE_AVATAR_OBJ) $(LIBS_AVATAR)
+        $(LINK) /OUT:$(BINDIR)/SWCreateAvatar.exe $(LFLAGS) $(CREATE_AVATAR_OBJ) $(SETARGV) $(BINMODE) $(LIBS_AVATAR) $(WINLIBS)
 
-$(BINDIR)/SWMorphing.exe: $(MORPHING_OBJ) $(LIBS_CA)
-        $(LINK) /OUT:$(BINDIR)/SWMorphing.exe $(LFLAGS) $(MORPHING_OBJ) $(SETARGV) $(BINMODE) $(LIBS_CA) $(WINLIBS)
+$(BINDIR)/SWMorphing.exe: $(MORPHING_OBJ) $(LIBS_MORPHING)
+        $(LINK) /OUT:$(BINDIR)/SWMorphing.exe $(LFLAGS_MORPHING) $(MORPHING_OBJ) $(SETARGV) $(BINMODE) $(LIBS_MORPHING) $(WINLIBS)
+
+$(BINDIR)/SWMorphing-x64.exe: $(MORPHING_OBJ) $(LIBS_MORPHING)
+        $(LINK) /OUT:$(BINDIR)/SWMorphing-x64.exe $(LFLAGS_MORPHING) $(MORPHING_OBJ) $(SETARGV) $(BINMODE) $(LIBS_MORPHING) $(WINLIBS)
 
 ############################################################################## SW Files
 

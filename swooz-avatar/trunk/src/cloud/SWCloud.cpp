@@ -321,7 +321,7 @@ SWCloud::SWCloud(const std::vector<float> &vPX, const std::vector<float> &vPY, c
 	
 	if(vPX.size() > 0 && vPX.size() == vPY.size() && vPY.size() == vPZ.size())
 	{
-		m_ui32NumberOfPoints = vPX.size();
+        m_ui32NumberOfPoints = static_cast<uint>(vPX.size());
 		m_ui32ArraySize      = m_ui32NumberOfPoints * 3;
 		
 		m_aFCoords   = new float[m_ui32ArraySize];
@@ -367,7 +367,7 @@ SWCloud::SWCloud(const std::vector<float> &vPX, const std::vector<float> &vPY, c
 	
 	if(vPX.size() > 0 && vPX.size() == vPY.size() && vPY.size() == vPZ.size() && vPZ.size() == vR.size() && vR.size() == vG.size() && vG.size() == vB.size())
 	{
-		m_ui32NumberOfPoints = vPX.size();
+        m_ui32NumberOfPoints = static_cast<uint>(vPX.size());
 		m_ui32ArraySize      = m_ui32NumberOfPoints * 3;
 		
 		m_aFCoords   = new float[m_ui32ArraySize];
@@ -657,7 +657,7 @@ void SWCloud::set(const std::vector<float> &vPX, const std::vector<float> &vPY, 
 	{			
 		erase(); // delete current data
 		
-		m_ui32NumberOfPoints = vPX.size();
+        m_ui32NumberOfPoints = static_cast<uint>(vPX.size());
 		m_ui32ArraySize      = m_ui32NumberOfPoints * 3;
 		
 		m_aFCoords   = new float[m_ui32ArraySize];

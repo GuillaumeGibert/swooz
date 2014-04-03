@@ -68,7 +68,7 @@ SRCDIR  	 =./src/
 SRCDIR_QTWORKERS =./src/interface/QtWorkers
 FORMDIR		 =./form
 MOCDIR		 =./moc
-BINDIR=./bin
+BINDIR           =./bin
 
 
 ############################ SET UP FOR THE WANTED ARCH
@@ -89,10 +89,12 @@ BINMODE = "$(VS100COMNTOOLS)/../../VC/lib/amd64/binmode.obj"
 THIRD_PARTY_OPENNI      = $(THIRD_PARTY_OPENNI_64)
 THIRD_PARTY_OPENCV      = $(THIRD_PARTY_OPENCV_64)
 THIRD_PARTY_POLHEMUS    = $(THIRD_PARTY_POLHEMUS_64)
-THIRD_PARTY_BOOST       = $(THIRD_PARTY_BOOST_64)
 THIRD_PARTY_FACELAB     = $(THIRD_PARTY_FACELAB_64)
 THIRD_PARTY_CULA        = $(THIRD_PARTY_CULA_64)
+THIRD_PARTY_CUDA        = $(THIRD_PARTY_CUDA_64)
 THIRD_PARTY_QT          = $(THIRD_PARTY_QT_64)
+THIRD_PARTY_CLAPACK     = $(THIRD_PARTY_CLAPACK_64)
+#THIRD_PARTY_BOOST       = $(THIRD_PARTY_BOOST_64)
 
 # ...
 !ENDIF
@@ -171,11 +173,16 @@ SW_MORPHING_WORKER  = $(COMMON) $(SW_GL_OSNRI_WIDGET)
 SW_QT_CAMERA	    = $(COMMON) $(INC_QT)
 #	interface
 SW_CREATEAVATAR_INTERFACE     = $(COMMON) $(INC_BOOST) $(INC_OPENCV) $(INC_QT) $(INC_MOC) $(INC_QTWIDGETS) $(INC_GSL) $(INC_STASM)
+
 SW_MORPH_INTERFACE  = $(SW_MORPHING_WORKER)
+
+
 
 ############################ COMMON DEBUG/RELEASE LIBS
 
-LIBS_COMMON	= "$(PROGRAMFILES)\Microsoft SDKs\Windows\v7.0A\Lib/ws2_32.lib"\
+LIBS_COMMON	=
+
+#"$(PROGRAMFILES)\Microsoft SDKs\Windows\v7.0A\Lib/ws2_32.lib"\
 
 LIBS_SW		= $(DIST_LIBDIR)/SWKinect.obj $(DIST_LIBDIR)/SWKinect_thread.obj $(DIST_LIBDIR)/SWSaveKinectData.obj $(DIST_LIBDIR)/SWLoadKinectData.obj\
 
@@ -198,12 +205,20 @@ CFLAGS_CUDA_GPUMAT = $(INC_CUDA) $(INC_CULA) $(INC_CUDACONFIG) $(COMMON_CUDA_FLA
 CFLAGS_PLY         = $(INC_CUDA) -Fo"$(LIBDIR)/
 
 LFLAGS=-nologo -nodefaultlib:LIBCMT -nodefaultlib:LIBC -nodefaultlib:MSVCPRT
-LFLAGS_SK=-nologo
 
+LFLAGS_MORPHING = -nologo
+
+!IF "$(ARCH)" == "x86"
+
+LFLAGS_MORPHING = -nologo -nodefaultlib:LIBCMT
+
+!ENDIF
  
 ############################ LIBS
 
-LIBS_CV		= $(THIRD_PARTY_OPENNI)/Lib/openNI.lib $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_highgui245.lib $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_core245.lib\
+LIBS_OPENNI     = $(THIRD_PARTY_OPENNI)/Lib/openNI.lib\
+
+LIBS_CV		= $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_highgui245.lib $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_core245.lib\
 		  $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_imgproc245.lib $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_objdetect245.lib $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_video245.lib\
 
 #		  $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_gpu245.lib\
@@ -211,8 +226,12 @@ LIBS_CV		= $(THIRD_PARTY_OPENNI)/Lib/openNI.lib $(THIRD_PARTY_OPENCV)/build/lib/
 LIBS_QT 	= $(THIRD_PARTY_QT)/lib/QtOpenGL4.lib $(THIRD_PARTY_QT)/lib/QtCore4.lib $(THIRD_PARTY_QT)/lib/QtGui4.lib $(THIRD_PARTY_QT)/lib/qtmain.lib\
 
 LIBS_CLA	= $(THIRD_PARTY_CLAPACK)/lib/lapack.lib $(THIRD_PARTY_CLAPACK)/lib/blas.lib $(THIRD_PARTY_CLAPACK)/lib/libf2c.lib\
+
+#$(THIRD_PARTY_CLAPACK)/lib/libf2c.lib\
 	
-LIBS_CUDA	= $(THIRD_PARTY_CUDA)/lib/cuda.lib $(THIRD_PARTY_CUDA)/lib/cublas.lib $(THIRD_PARTY_CUDA)/lib/cudart.lib $(THIRD_PARTY_CUDA)/lib/cutil32.lib\
+LIBS_CUDA	= $(THIRD_PARTY_CUDA)/lib/cuda.lib $(THIRD_PARTY_CUDA)/lib/cublas.lib $(THIRD_PARTY_CUDA)/lib/cudart.lib\
+
+# $(THIRD_PARTY_CUDA)/lib/cutil32.lib
 
 LIBS_CULA       = $(THIRD_PARTY_CULA)\lib\cula_lapack_basic.lib\
 
@@ -236,10 +255,13 @@ LIBS_PH		= $(THIRD_PARTY_POLHEMUS)/lib/Win32/PDI.lib\
 
 LIBS_YARP	= $(THIRD_PARTY_YARP)/lib/YARP_sig.lib $(THIRD_PARTY_YARP)/lib/YARP_OS.lib $(THIRD_PARTY_YARP)/lib/YARP_dev.lib $(THIRD_PARTY_YARP)/lib/YARP_init.lib\
 
-LIBS_CA		= $(LIBS_COMMON) $(LIBS_SW) $(LIBS_BOOST_S) $(LIBS_CV) $(LIBS_QT) $(LIBS_CLA) $(LIBS_CUDA) $(LIBS_GSL) $(LIBS_SPARSELM) $(LIBS_CULA)\
+LIBS_AVATAR     = $(LIBS_COMMON) $(LIBS_SW) $(LIBS_BOOST_S) $(LIBS_OPENNI) $(LIBS_CV) $(LIBS_QT) $(LIBS_CLA) $(LIBS_CUDA) $(LIBS_GSL) $(LIBS_CULA)\
 	
-LIBS_SK		= $(LIBS_COMMON) $(LIBS_SW_DYN) $(LIBS_CV) $(LIBS_BOOST) $(LIBS_PH) $(LIBS_FL) $(LIBS_YARP)\
 
+LIBS_MORPHING   = $(LIBS_CV) $(LIBS_QT) $(LIBS_CUDA) $(LIBS_CULA) $(LIBS_CLA)\
+
+
+#$(LIBS_QT) $(LIBS_CV) $(LIBS_CLA) $(LIBS_CUDA) $(LIBS_CULA) $(LIBS_GSL)\
 
 !ENDIF
 
@@ -253,7 +275,7 @@ CFLAGS_STA= -nologo -Zi -W2 -MTd -EHsc -DWIN32 $(COMPILE_NUMPROC) -D_ALLOW_ITERA
 CFLAGS_DYN= -nologo -Zi -W2 -MDd -EHsc -DWIN32 $(COMPILE_NUMPROC) -D_ALLOW_ITERATOR_DEBUG_LEVEL_MISMATCH
 
 LFLAGS=-nologo -nodefaultlib:LIBCMT -nodefaultlib:MSVCRT 
-LFLAGS_SK=-nologo
+LFLAGS_MORPHING = -nologo
 
 CXXWARN_CUDA_FLAGS=  -W0
 COMMON_CUDA_FLAGS= 
@@ -264,7 +286,9 @@ CFLAGS_PLY= $(INC_CUDA) -Fo"$(LIBDIR)/
 
 ############################ LIBS
 
-LIBS_CV		= $(THIRD_PARTY_OPENNI)/Lib/openNI.lib $(THIRD_PARTY_OPENCV)/build/lib/Debug/opencv_highgui245d.lib $(THIRD_PARTY_OPENCV)/build/lib/Debug/opencv_core245d.lib\
+LIBS_OPENNI     = $(THIRD_PARTY_OPENNI)/Lib/openNI.lib
+
+LIBS_CV		= $(THIRD_PARTY_OPENCV)/build/lib/Debug/opencv_highgui245d.lib $(THIRD_PARTY_OPENCV)/build/lib/Debug/opencv_core245d.lib\
 		  $(THIRD_PARTY_OPENCV)/build/lib/Debug/opencv_imgproc245d.lib $(THIRD_PARTY_OPENCV)/build/lib/Debug/opencv_objdetect245d.lib $(THIRD_PARTY_OPENCV)/build/lib/Debug/opencv_video245d.lib\
 		 
 LIBS_QT 	= $(THIRD_PARTY_QT)/lib/QtOpenGLd4.lib $(THIRD_PARTY_QT)/lib/QtCored4.lib $(THIRD_PARTY_QT)/lib/QtGuid4.lib $(THIRD_PARTY_QT)/lib/qtmaind.lib\
@@ -292,9 +316,8 @@ LIBS_ITPP	= $(THIRD_PARTY_MKL)\tools\builder\lib\mkl_cdll_ia32.lib $(THIRD_PARTY
 
 LIBS_PH		= $(THIRD_PARTY_POLHEMUS)/lib/Win32/PDI.lib
 
-LIBS_CA		= $(LIBS_COMMON) $(LIBS_SW) $(LIBS_BOOST_S) $(LIBS_CV) $(LIBS_QT) $(LIBS_PCL) $(LIBS_CLA) $(LIBS_CUDA) $(LIBS_GSL) $(LIBS_ITPP)\
+LIBS_AVATAR     = $(LIBS_COMMON) $(LIBS_SW) $(LIBS_BOOST_S) $(LIBS_OPENNI) $(LIBS_CV) $(LIBS_QT) $(LIBS_PCL) $(LIBS_CLA) $(LIBS_CUDA) $(LIBS_GSL) $(LIBS_ITPP)\
 	
-LIBS_SK		= $(LIBS_COMMON) $(LIBS_SW_DYN) $(LIBS_CV) $(LIBS_BOOST) $(LIBS_FL)\
 
 #Debug Single-threaded (libcd.lib) 	libc.lib, libcmt.lib, msvcrt.lib, libcmtd.lib, msvcrtd.lib
 

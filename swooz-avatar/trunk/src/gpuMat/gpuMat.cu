@@ -10,7 +10,7 @@
 void cudaDummyCall(int argc, char **argv)
 {
     // init CUDA
-    CUT_DEVICE_INIT(argc, argv);
+    //CUT_DEVICE_INIT(argc, argv);
     cudaFree(0);
 }
 

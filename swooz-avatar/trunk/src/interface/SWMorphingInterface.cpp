@@ -14,7 +14,6 @@
 
 #include "interface/QtWidgets/SWGLOptimalStepNonRigidICP.h"
 
-
 SWMorphingInterface::SWMorphingInterface()
 {
     // set default values
@@ -117,7 +116,7 @@ SWMorphingInterface::SWMorphingInterface()
                 for(uint ii = 0; ii < l_vQSTargetCorrItems.size(); ++ii)
                 {
                     m_pUi_WMeshCorr->lWTargetCorr->addItem(l_vQSTargetCorrItems[ii]);
-                }                              
+                }
 
     // right container
         QGridLayout *l_pRightContainerLayout = new QGridLayout();
@@ -270,7 +269,6 @@ void SWMorphingInterface::resetAllParameters()
     m_pGLOSNRICP->setDiffMax(m_dDiffMaxDefaultValue); m_pGLOSNRICP->setBeta(m_dBetaDefaultValue);
     m_pGLOSNRICP->setCoeffAlpha(m_dCoeffValueDefaultValue); m_pGLOSNRICP->setAngleMax(m_dAngleMaxDefaultValue);
     m_pGLOSNRICP->setGama(m_dGamaDefaultValue);
-
 }
 
 void SWMorphingInterface::lockInterface()
@@ -286,8 +284,9 @@ void SWMorphingInterface::lockInterface()
     m_pUi_WTTransf->gbTargetMeshRot->setEnabled(false);
     m_pUi_WTTransf->gbTargetMeshScale->setEnabled(false);
 
-    m_pPBStop->setEnabled(true);    
+    m_pPBStop->setEnabled(true);
 }
+
 
 void SWMorphingInterface::unlockInterface()
 {
@@ -302,7 +301,7 @@ void SWMorphingInterface::unlockInterface()
     m_pUi_WTTransf->gbTargetMeshRot->setEnabled(true);
     m_pUi_WTTransf->gbTargetMeshScale->setEnabled(true);
 
-    m_pPBStop->setEnabled(false);        
+    m_pPBStop->setEnabled(false);
 }
 
 void SWMorphingInterface::saveMeshFile()
@@ -314,8 +313,8 @@ void SWMorphingInterface::saveMeshFile()
 
 int main(int argc, char* argv[])
 {
-    QApplication l_oApp(argc, argv);
 
+    QApplication l_oApp(argc, argv);
     SWMorphingInterface l_oMorphingInterface;
     l_oMorphingInterface.resize(1800, 900);
     l_oMorphingInterface.move(50,50);
@@ -323,4 +322,5 @@ int main(int argc, char* argv[])
 
     return l_oApp.exec();
 }
+
 

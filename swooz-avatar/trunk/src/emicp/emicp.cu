@@ -365,31 +365,31 @@ bool emicp(int Xsize, int Ysize,
 	// timer
 	//
 
-	#define START_TIMER(timer) \
-		if(!param.notimer){ \
-			CUDA_SAFE_CALL( cudaThreadSynchronize() );\
-			CUT_SAFE_CALL(cutStartTimer(timer)); \
-		}
-	#define STOP_TIMER(timer) \
-		if(!param.notimer){ \
-		CUDA_SAFE_CALL( cudaThreadSynchronize() );\
-		CUT_SAFE_CALL(cutStopTimer(timer)); \
-		}
+//	#define START_TIMER(timer) \
+//		if(!param.notimer){ \
+//			CUDA_SAFE_CALL( cudaThreadSynchronize() );\
+//			CUT_SAFE_CALL(cutStartTimer(timer)); \
+//		}
+//	#define STOP_TIMER(timer) \
+//		if(!param.notimer){ \
+//		CUDA_SAFE_CALL( cudaThreadSynchronize() );\
+//		CUT_SAFE_CALL(cutStopTimer(timer)); \
+//		}
 
 	// timers
-	unsigned int timerTotal, timerUpdateA, timerAfterSVD, timerRT;
+//	unsigned int timerTotal, timerUpdateA, timerAfterSVD, timerRT;
 
 	if(!param.notimer)
 	{
-		CUT_SAFE_CALL(cutCreateTimer(&timerUpdateA));
-		CUT_SAFE_CALL(cutCreateTimer(&timerAfterSVD));
-		CUT_SAFE_CALL(cutCreateTimer(&timerRT));
+//		CUT_SAFE_CALL(cutCreateTimer(&timerUpdateA));
+//		CUT_SAFE_CALL(cutCreateTimer(&timerAfterSVD));
+//        CUT_SAFE_CALL(cutCreateTimer(&timerRT));
 	}
 
 
-	CUT_SAFE_CALL(cutCreateTimer(&timerTotal));
+//	CUT_SAFE_CALL(cutCreateTimer(&timerTotal));
 	CUDA_SAFE_CALL( cudaThreadSynchronize() );
-	CUT_SAFE_CALL(cutStartTimer(timerTotal));
+//	CUT_SAFE_CALL(cutStartTimer(timerTotal));
 
 	//
 	// initializing cublas
@@ -421,7 +421,7 @@ bool emicp(int Xsize, int Ysize,
 		// UpdateA
 		//
 
-		START_TIMER(timerUpdateA);
+//		START_TIMER(timerUpdateA);
 
 		updateA <<< dimGridForA, dimBlockForA >>>
 			(rowsA, colsA, pitchA,
@@ -430,7 +430,7 @@ bool emicp(int Xsize, int Ysize,
 			d_R, d_t, 
 			d_A, sigma_p2);
 
-		STOP_TIMER(timerUpdateA);
+//		STOP_TIMER(timerUpdateA);
 		
 		//
 		// Normalization of A
@@ -647,22 +647,22 @@ bool emicp(int Xsize, int Ysize,
 
 		// find RT from S
 
-		START_TIMER(timerAfterSVD);
+//		START_TIMER(timerAfterSVD);
 
 		findRTfromS(h_Xc, h_Yc, h_S, h_R, h_t);
 
-		STOP_TIMER(timerAfterSVD);
+//		STOP_TIMER(timerAfterSVD);
 
 		///////////////////////////////////////////////////////////////////////////////////// 
 
 		// copy R,t to device
 
-		START_TIMER(timerRT);
+//		START_TIMER(timerRT);
 
 		CUDA_SAFE_CALL(cudaMemcpy(d_R, h_R, sizeof(float)*3*3, cudaMemcpyHostToDevice));
 		CUDA_SAFE_CALL(cudaMemcpy(d_t, h_t, sizeof(float)*3,   cudaMemcpyHostToDevice));
 
-		STOP_TIMER(timerRT);
+//		STOP_TIMER(timerRT);
 
 		///////////////////////////////////////////////////////////////////////////////////// 
 
@@ -679,7 +679,7 @@ bool emicp(int Xsize, int Ysize,
 //     fprintf(stderr, "Final time %.10f [s]\n\n", cutGetTimerValue(timerTotal) / 1000.0f);
 
 	CUDA_SAFE_CALL( cudaThreadSynchronize() );
-	CUT_SAFE_CALL(cutStopTimer(timerTotal));
+//    CUT_SAFE_CALL(cutStopTimer(timerTotal));
 
     // fprintf(stderr, "Emicp computing time: %.10f [s]\n", cutGetTimerValue(timerTotal) / 1000.0f);
 
@@ -689,10 +689,10 @@ bool emicp(int Xsize, int Ysize,
         //fprintf(stderr, "Average %.10f [s] for %s\n", cutGetAverageTimerValue(timerAfterSVD) / 1000.0f, "afterSVD");
         //fprintf(stderr, "Average %.10f [s] for %s\n", cutGetAverageTimerValue(timerRT) / 1000.0f, "RT");
 
-		CUT_SAFE_CALL(cutDeleteTimer(timerTotal));
-		CUT_SAFE_CALL(cutDeleteTimer(timerUpdateA));
-		CUT_SAFE_CALL(cutDeleteTimer(timerAfterSVD));
-		CUT_SAFE_CALL(cutDeleteTimer(timerRT));
+//		CUT_SAFE_CALL(cutDeleteTimer(timerTotal));
+//		CUT_SAFE_CALL(cutDeleteTimer(timerUpdateA));
+//		CUT_SAFE_CALL(cutDeleteTimer(timerAfterSVD));
+//		CUT_SAFE_CALL(cutDeleteTimer(timerRT));
 	}
 	
 

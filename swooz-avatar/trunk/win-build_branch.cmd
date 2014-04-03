@@ -34,7 +34,7 @@ if not exist ./doc/nul (
 )
 
 if not exist ./genUI/nul (
-        mkdir genUI
+    mkdir genUI
 )
 
 @nmake -nologo CFG=%1 ARCH=%2 -f makefile-cuda

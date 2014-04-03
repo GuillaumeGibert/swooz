@@ -710,8 +710,8 @@ void SWGLOptimalStepNonRigidICP::drawLandMarksPoints(QGLShaderProgram &oShader, 
         l_aPointV[3*ii+2] = oSource.coord(2)[l_ui32TemplateId];
     }
 
-    allocateBuffer(m_indexBuffer,  l_aPointI, mLandMarkCorr.size()  * l_i32SizeIndex);
-    allocateBuffer(m_vertexBuffer, l_aPointV, mLandMarkCorr.size()  * l_i32SizeVertex);
+    allocateBuffer(m_indexBuffer,  l_aPointI, static_cast<int>(mLandMarkCorr.size())  * l_i32SizeIndex);
+    allocateBuffer(m_vertexBuffer, l_aPointV, static_cast<int>(mLandMarkCorr.size())  * l_i32SizeVertex);
 
     // set shaders parameters
     oShader.setUniformValue("uniColor", 1.f, 0.f, 0.f);
@@ -730,7 +730,7 @@ void SWGLOptimalStepNonRigidICP::drawLandMarksPoints(QGLShaderProgram &oShader, 
         l_aPointV[3*ii+2] = oTarget.coord(2)[l_ui32TargetId];
     }
 
-    allocateBuffer(m_vertexBuffer, l_aPointV, mLandMarkCorr.size()  * l_i32SizeVertex);
+    allocateBuffer(m_vertexBuffer, l_aPointV, static_cast<int>(mLandMarkCorr.size())  * l_i32SizeVertex);
 
     // set shaders parameters
     oShader.setUniformValue("uniColor", 0.0f, 1.f, 0.f);
@@ -799,8 +799,8 @@ void SWGLOptimalStepNonRigidICP::drawLandMarksCorr(QGLShaderProgram &oShader, co
     }
 //    cout << endl;
 
-    allocateBuffer(m_indexBuffer,  l_aCorrLineI, mLandMarkCorr.size() * 2 * l_i32SizeIndex);
-    allocateBuffer(m_vertexBuffer, l_aCorrLineV, mLandMarkCorr.size() * 2 * l_i32SizeVertex);
+    allocateBuffer(m_indexBuffer,  l_aCorrLineI, static_cast<int>(mLandMarkCorr.size()) * 2 * l_i32SizeIndex);
+    allocateBuffer(m_vertexBuffer, l_aCorrLineV, static_cast<int>(mLandMarkCorr.size()) * 2 * l_i32SizeVertex);
 
     // set shaders parameters
     oShader.setUniformValue("uniColor", r, g, b);
@@ -1300,12 +1300,20 @@ void SWGLOptimalStepNonRigidICP::resetMorphingWithNewMeshes()
 
 void SWGLOptimalStepNonRigidICP::setSourceMesh(const QString &sPathSource)
 {
+    std::cout << " setSourceMesh ";
+
     m_sPathSourceMesh = sPathSource.toStdString();
+
+    std::cout << m_sPathSourceMesh << std::endl;
 }
 
 void SWGLOptimalStepNonRigidICP::setTargetMesh(const QString &sPathTarget)
 {
+    std::cout << " setTargetMesh ";
+
     m_sPathTargetMesh = sPathTarget.toStdString();
+
+    std::cout << m_sPathTargetMesh << std::endl;
 }
 
 void SWGLOptimalStepNonRigidICP::setSourceCorr(const QString &sPathSource)

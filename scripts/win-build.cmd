@@ -29,7 +29,7 @@ REM call "win-clean.cmd"
 
 REM #######################################################################################
 
-call "win-init_env_command.cmd" noPath
+call "win-init_env_command.cmd" noPath %ARCH%
 
 REM #######################################################################################
 
@@ -138,7 +138,7 @@ REM ### Morphing
 echo @echo off                                               				>  %target_dist%\swooz-morphing.cmd
 echo %SystemRoot%\system32\xcopy /q /e /y %saved_directory%\..\swooz-config %saved_directory%\%target_dist%\data >> %target_dist%\swooz-morphing.cmd
 echo pushd ..\scripts                                        				>> %target_dist%\swooz-morphing.cmd
-echo call win-init_env_command.cmd %ARCH_EXE_morphing%                                >> %target_dist%\swooz-morphing.cmd
+echo call win-init_env_command.cmd x86                                                  >> %target_dist%\swooz-morphing.cmd
 echo popd                                                    				>> %target_dist%\swooz-morphing.cmd
 echo cd bin										>> %target_dist%\swooz-morphing.cmd
 echo SWMorphing.exe %1 %2 %3 %PARAMS_EXEC%						>> %target_dist%\swooz-morphing.cmd
@@ -146,6 +146,19 @@ echo cd ../../scripts									>> %target_dist%\swooz-morphing.cmd
 echo call win-clean-env_command.cmd							>> %target_dist%\swooz-morphing.cmd
 echo cd ../dist										>> %target_dist%\swooz-morphing.cmd
 REM echo pause 										>> %target_dist%\swooz-morphing.cmd
+REM #######################################################################################
+REM ### Morphing x64
+echo @echo off                                               				>  %target_dist%\swooz-morphing-x64.cmd
+echo %SystemRoot%\system32\xcopy /q /e /y %saved_directory%\..\swooz-config %saved_directory%\%target_dist%\data >> %target_dist%\swooz-morphing-x64.cmd
+echo pushd ..\scripts                                        				>> %target_dist%\swooz-morphing-x64.cmd
+echo call win-init_env_command.cmd amd64                                >> %target_dist%\swooz-morphing-x64.cmd
+echo popd                                                    				>> %target_dist%\swooz-morphing-x64.cmd
+echo cd bin										>> %target_dist%\swooz-morphing-x64.cmd
+echo SWMorphing-x64.exe %1 %2 %3 %PARAMS_EXEC%						>> %target_dist%\swooz-morphing-x64.cmd
+echo cd ../../scripts									>> %target_dist%\swooz-morphing-x64.cmd
+echo call win-clean-env_command.cmd							>> %target_dist%\swooz-morphing-x64.cmd
+echo cd ../dist										>> %target_dist%\swooz-morphing-x64.cmd
+REM echo pause 										>> %target_dist%\swooz-morphing-x64.cmd
 REM #######################################################################################
 REM ### Head Tracking Forest
 echo @echo off                                                                          >  %target_dist%\swooz-trackingHeadForest.cmd
