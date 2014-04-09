@@ -72,14 +72,9 @@ BINMODE = "$(VS100COMNTOOLS)/../../VC/lib/binmode.obj"
 SETARGV = "$(VS100COMNTOOLS)/../../VC/lib/amd64/setargv.obj"
 BINMODE = "$(VS100COMNTOOLS)/../../VC/lib/amd64/binmode.obj"
 
-THIRD_PARTY_OPENNI      = $(THIRD_PARTY_OPENNI_64)
 THIRD_PARTY_OPENCV      = $(THIRD_PARTY_OPENCV_64)
-THIRD_PARTY_POLHEMUS    = $(THIRD_PARTY_POLHEMUS_64)
-THIRD_PARTY_TOBII       = $(THIRD_PARTY_TOBII_64)
-THIRD_PARTY_BOOST       = $(THIRD_PARTY_BOOST_64)
-THIRD_PARTY_FACELAB     = $(THIRD_PARTY_FACELAB_64)
-!ENDIF
 
+!ENDIF
 
 ############################ INCLUDES
 
@@ -152,31 +147,31 @@ LFLAGS=-nologo -nodefaultlib:MSVCPRT
 LIBS_COMMON=\
 #    "$(PROGRAMFILES)\Microsoft SDKs\Windows\v7.0A\Lib/ws2_32.lib"\
 
-LIBS_OPENNI=\
-    $(THIRD_PARTY_OPENNI)/Lib/openNI.lib\
-
 LIBS_OPENCV=\
     $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_highgui245.lib\
     $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_core245.lib\
     $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_imgproc245.lib\
 
-LIBS_FACELAB=\
-    $(THIRD_PARTY_FACELAB)/coredata/libshared/win32_ia32sse2_vc90/sm_cd_coredata_3.2.lib \
-    $(THIRD_PARTY_FACELAB)/coredata/thirdparty/zlib1.2.3/win_ia32_vc90/libshared/zlib1.lib\
-    $(THIRD_PARTY_FACELAB)/coredata/thirdparty/libvpx0.9.5\libstatic\win_ia32_vc90\vpxmt.lib\
+#LIBS_OPENNI=\
+#    $(THIRD_PARTY_OPENNI)/Lib/openNI.lib\
 
-LIBS_POLHEMUS=\
-    $(THIRD_PARTY_POLHEMUS)/lib/Win32/PDI.lib\
-
-LBIS_BOOST=\
-    "$(THIRD_PARTY_BOOST)/lib/libboost_thread-vc100-mt-1_49.lib"\
-    "$(THIRD_PARTY_BOOST)/lib/libboost_date_time-vc100-mt-1_49.lib"\
-    "$(THIRD_PARTY_BOOST)/lib/libboost_iostreams-vc100-mt-1_49.lib"\
-
-LIBS_BOOST_S=\
-    $(THIRD_PARTY_BOOST)/lib/libboost_date_time-vc100-mt-s-1_49.lib\
-    $(THIRD_PARTY_BOOST)/lib/libboost_iostreams-vc100-mt-s-1_49.lib\
-    $(THIRD_PARTY_BOOST)/lib/libboost_thread-vc100-mt-s-1_49.lib\
+#LIBS_FACELAB=\
+#    $(THIRD_PARTY_FACELAB)/coredata/libshared/win32_ia32sse2_vc90/sm_cd_coredata_3.2.lib \
+#    $(THIRD_PARTY_FACELAB)/coredata/thirdparty/zlib1.2.3/win_ia32_vc90/libshared/zlib1.lib\
+#    $(THIRD_PARTY_FACELAB)/coredata/thirdparty/libvpx0.9.5\libstatic\win_ia32_vc90\vpxmt.lib\
+#
+#LIBS_POLHEMUS=\
+#    $(THIRD_PARTY_POLHEMUS)/lib/Win32/PDI.lib\
+#
+#LBIS_BOOST=\
+#    "$(THIRD_PARTY_BOOST)/lib/libboost_thread-vc100-mt-1_49.lib"\
+#    "$(THIRD_PARTY_BOOST)/lib/libboost_date_time-vc100-mt-1_49.lib"\
+#    "$(THIRD_PARTY_BOOST)/lib/libboost_iostreams-vc100-mt-1_49.lib"\
+#
+#LIBS_BOOST_S=\
+#    $(THIRD_PARTY_BOOST)/lib/libboost_date_time-vc100-mt-s-1_49.lib\
+#    $(THIRD_PARTY_BOOST)/lib/libboost_iostreams-vc100-mt-s-1_49.lib\
+#    $(THIRD_PARTY_BOOST)/lib/libboost_thread-vc100-mt-s-1_49.lib\
 
 LIBS_DIMENCO = $(LIBS_COMMON) $(LIBS_OPENCV)\
 
@@ -196,33 +191,33 @@ LFLAGS=-nologo -nodefaultlib:MSVCPRT
 ############################ LIBS
 
 LIBS_COMMON=\
-    "$(PROGRAMFILES)\Microsoft SDKs\Windows\v7.0A\Lib/ws2_32.lib"\
-
-LIBS_OPENNI=\
-    $(THIRD_PARTY_OPENNI)/Lib/openNI.lib\
+#    "$(PROGRAMFILES)\Microsoft SDKs\Windows\v7.0A\Lib/ws2_32.lib"\
 
 LIBS_OPENCV=\
     $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_highgui245d.lib\
     $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_core245d.lib\
     $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_imgproc245d.lib\
 
-LIBS_FACELAB=\
-    $(THIRD_PARTY_FACELAB)/coredata/libshared/win32_ia32sse2_vc90/sm_cd_coredata_3.2.lib \
-    $(THIRD_PARTY_FACELAB)/coredata/thirdparty/zlib1.2.3/win_ia32_vc90/libshared/zlib1.lib\
-    $(THIRD_PARTY_FACELAB)/coredata/thirdparty/libvpx0.9.5\libstatic\win_ia32_vc90\vpxmt.lib\
+#LIBS_OPENNI=\
+#    $(THIRD_PARTY_OPENNI)/Lib/openNI.lib\
 
-LIBS_POLHEMUS=\
-    $(THIRD_PARTY_POLHEMUS)/lib/Win32/PDI.lib\
-
-LBIS_BOOST=\
-    "$(THIRD_PARTY_BOOST)/lib/libboost_thread-vc100-mt-gd-1_49.lib"\
-    "$(THIRD_PARTY_BOOST)/lib/libboost_date_time-vc100-mt-gd-1_49.lib"\
-    "$(THIRD_PARTY_BOOST)/lib/libboost_iostreams-vc100-mt-gd-1_49.lib"\
-
-LIBS_BOOST_S=\
-    $(THIRD_PARTY_BOOST)/lib/libboost_date_time-vc100-mt-sgd-1_49.lib\
-    $(THIRD_PARTY_BOOST)/lib/libboost_iostreams-vc100-mt-sgd-1_49.lib\
-    $(THIRD_PARTY_BOOST)/lib/libboost_thread-vc100-mt-sgd-1_49.lib\
+#LIBS_FACELAB=\
+#    $(THIRD_PARTY_FACELAB)/coredata/libshared/win32_ia32sse2_vc90/sm_cd_coredata_3.2.lib \
+#    $(THIRD_PARTY_FACELAB)/coredata/thirdparty/zlib1.2.3/win_ia32_vc90/libshared/zlib1.lib\
+#    $(THIRD_PARTY_FACELAB)/coredata/thirdparty/libvpx0.9.5\libstatic\win_ia32_vc90\vpxmt.lib\
+#
+#LIBS_POLHEMUS=\
+#    $(THIRD_PARTY_POLHEMUS)/lib/Win32/PDI.lib\
+#
+#LBIS_BOOST=\
+#    "$(THIRD_PARTY_BOOST)/lib/libboost_thread-vc100-mt-gd-1_49.lib"\
+#    "$(THIRD_PARTY_BOOST)/lib/libboost_date_time-vc100-mt-gd-1_49.lib"\
+#    "$(THIRD_PARTY_BOOST)/lib/libboost_iostreams-vc100-mt-gd-1_49.lib"\
+#
+#LIBS_BOOST_S=\
+#    $(THIRD_PARTY_BOOST)/lib/libboost_date_time-vc100-mt-sgd-1_49.lib\
+#    $(THIRD_PARTY_BOOST)/lib/libboost_iostreams-vc100-mt-sgd-1_49.lib\
+#    $(THIRD_PARTY_BOOST)/lib/libboost_thread-vc100-mt-sgd-1_49.lib\
 
 LIBS_DIMENCO = $(LIBS_COMMON) $(LIBS_OPENCV)\
 

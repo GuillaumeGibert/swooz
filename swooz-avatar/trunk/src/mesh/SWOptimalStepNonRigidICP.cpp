@@ -94,7 +94,7 @@ SWOptimalStepNonRigidICP::SWOptimalStepNonRigidICP(const SWMesh &oSource, const 
             uint l_ui32TemplateId = it->first;
             uint l_ui32TargetId   = it->second;
 
-            cout << "m_l : " << l_ui32TemplateId << " " << l_ui32TargetId << endl;
+//            cout << "m_l : " << l_ui32TemplateId << " " << l_ui32TargetId << endl;
         }
 
 
@@ -304,6 +304,7 @@ void SWOptimalStepNonRigidICP::buildMG(cv::SparseMat_<double> &oMG, cdouble dAlp
     // build alpha * Kronecker product(M, G)) with G = diag(1,1,1, gama) and M node-arc incidence matrix (edge, vertex)
         int l_aMGSize[] = {4 * m_pSourceMeshC->edgesNumber(), 4 * m_pSourceMeshC->pointsNumber()};
         oMG = cv::SparseMat_<double> (2, l_aMGSize);
+
         for(uint ii = 0, l_EdgeId = 0; ii < m_pSourceMeshC->pointsNumber(); ++ii)
         {
             vector<uint> l_aVertexLinks = m_pSourceMeshC->vertexLinks(ii);
@@ -375,6 +376,7 @@ void SWOptimalStepNonRigidICP::buildA(cv::SparseMat_<double> &oMG, cv::SparseMat
     //      | MG1 ... MGn | with MGi i-col of MG, and WDi i-col of WD
     // A =  | WD1 ... WDn |
     int l_aASize[] = { oMG.size(0) + oWD.size(0), oMG.size(1)};
+
     oA = cv::SparseMat_<double>(2, l_aASize);
 
     for(int jj = 0; jj < l_aASize[1]; ++jj)
@@ -648,16 +650,18 @@ double SWOptimalStepNonRigidICP::resolve(cdouble dAlpha, cdouble dBeta, cdouble 
         }
 
     // DEBUG
-//        cout << "MG : " << sMG.size(0) << " " << sMG.size(1) << endl;
-//        cout << "A  : " << sA.size(0) << " " << sA.size(1) << endl;
-//        cout << "B  : " << sB.size(0) << " " << sB.size(1) << endl;
-//        cout << "TA : " << sTA.size(0) << " " << sTA.size(1) << endl;
-//        cout << "TAAInv: " << TAAInv.rows << " " << TAAInv.cols << endl;
-//        cout << "TAB: " << TAB.rows << " " << TAB.cols << endl;
-//        cout << "X  : " << newX.rows << " " << newX.cols << endl;
-//        cout << "AX : " << AX.rows << " " << AX.cols << endl << endl;
+        cout << "MG : " << sMG.size(0) << " " << sMG.size(1) << endl;
+        cout << "A  : " << sA.size(0) << " " << sA.size(1) << endl;
+        cout << "B  : " << sB.size(0) << " " << sB.size(1) << endl;
+        cout << "TA : " << sTA.size(0) << " " << sTA.size(1) << endl;
+        cout << "TAAInv: " << TAAInv.rows << " " << TAAInv.cols << endl;
+        cout << "TAB: " << TAB.rows << " " << TAB.cols << endl;
+        cout << "X  : " << newX.rows << " " << newX.cols << endl;
+        cout << "AX : " << AX.rows << " " << AX.cols << endl << endl;
+        cout << " applyDef   " << (float)(clock() - m_oProgramTime) / CLOCKS_PER_SEC  << " |";
 
-   cout << " applyDef   " << (float)(clock() - m_oProgramTime) / CLOCKS_PER_SEC  << " |";
+//    sMG.clear(), sWD.clear(), sWU.clear(), sA.clear(), sB.clear(), sTA.clear(), sTAA.clear();
+
 
     return l_dDiff;
 }
@@ -717,6 +721,7 @@ void SWOptimalStepNonRigidICP::readStasmCorrFile(const std::string &oPathCorrSta
             l_sType = "";
             l_fsCorrFile >> l_i32CorrLine;
             vI32CorrStasmTarget.push_back(l_i32CorrLine);
+            std::cout <<  vI32CorrStasmTarget.back() << " | ";
             getline(l_fsCorrFile, l_sType);
         }
         else

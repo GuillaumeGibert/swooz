@@ -293,7 +293,7 @@ void SWCreateAvatarWorker::saveMeshFile(QString sPath)
 
             std::ofstream l_oFlowSTASM;
             l_oFlowSTASM.open(l_sPath.toStdString() + l_sNameSTASM.toStdString());
-            l_oFlowSTASM << "# STASM file created with SWoOZ plateform (https://github.com/GuillaumeGibert/swooz)" << std::endl;
+//            l_oFlowSTASM << "# STASM file created with SWoOZ plateform (https://github.com/GuillaumeGibert/swooz)" << std::endl;
 
             for(uint ii = 0; ii < l_vMesh_STASM_points_index.size(); ++ii)
             {

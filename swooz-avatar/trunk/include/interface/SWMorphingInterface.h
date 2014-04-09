@@ -13,14 +13,17 @@
 
 #include "QtWorkers/SWMorphingWorker.h"
 
-#include "SWUI_WMeshCorr.h"
-#include "SWUI_WParamsDisplay.h"
-#include "SWUI_WTargetTransfo.h"
+//#include "SWUI_WMeshCorr.h"
+//#include "SWUI_WParamsDisplay.h"
+//#include "SWUI_WTargetTransfo.h"
+
+#include "SWUI_Morphing.h"
 
 namespace Ui {
-    class SWUI_WMeshCorr;
-    class SWUI_WParamsDisplay;
-    class SWUI_WTargetTransfo;
+//    class SWUI_WMeshCorr;
+//    class SWUI_WParamsDisplay;
+//    class SWUI_WTargetTransfo;
+    class SWUI_Morphing;
 }
 
 /**
@@ -67,6 +70,17 @@ class SWMorphingInterface : public QMainWindow
          */
         void saveMeshFile();
 
+
+        /**
+         * @brief setTemplateMeshPath
+         */
+        void setTemplateMeshPath();
+
+        /**
+         * @brief setTargetMeshPath
+         */
+        void setTargetMeshPath();
+
         /**
          * \brief Reset all parameters with default values
          */
@@ -74,15 +88,15 @@ class SWMorphingInterface : public QMainWindow
 
     signals:
 
-        /**
-         * \brief Signal for starting the morphing in the worker
-         */
-        void startMorphingSignal();
+//        /**
+//         * \brief Signal for starting the morphing in the worker
+//         */
+//        void startMorphingSignal();
 
-        /**
-         * \brief Signal for stoping the morphing in the worker
-         */
-        void stopMorphingSignal();
+//        /**
+//         * \brief Signal for stoping the morphing in the worker
+//         */
+//        void stopMorphingSignal();
 
         /**
          * \brief Signal for save the current source mesh in the worker
@@ -90,6 +104,10 @@ class SWMorphingInterface : public QMainWindow
         void saveMeshFileSignal(QString);
 
     private :
+
+        bool m_bTemplateDefined;
+        bool m_bTargetDefined;
+
 
         int m_i32RotXDefaultValue;
         int m_i32RotYDefaultValue;
@@ -108,17 +126,22 @@ class SWMorphingInterface : public QMainWindow
         double m_dAngleMaxDefaultValue;
 
         // widgets
-        QPushButton *m_pPBStart;
-        QPushButton *m_pPBStop;
-        QPushButton *m_pPBReset;
-        QPushButton *m_pPBSaveMesh;
-        QPushButton *m_pPBComputeCorr;
-        QPushButton *m_pPBResetParameters;
+//        QPushButton *m_pPBStart;
+//        QPushButton *m_pPBStop;
+//        QPushButton *m_pPBReset;
+//        QPushButton *m_pPBSaveMesh;
+//        QPushButton *m_pPBComputeCorr;
+//        QPushButton *m_pPBResetParameters;
 
 
-        Ui::SWUI_WParamsDisplay    *m_pUi_WParamsDispl;
-        Ui::SWUI_WMeshCorr         *m_pUi_WMeshCorr;
-        Ui::SWUI_WTargetTransfo    *m_pUi_WTTransf;
+//        Ui::SWUI_WParamsDisplay    *m_pUi_WParamsDispl;
+//        Ui::SWUI_WMeshCorr         *m_pUi_WMeshCorr;
+//        Ui::SWUI_WTargetTransfo    *m_pUi_WTTransf;
+
+
+        // widgets & ui
+        Ui::SWUI_Morphing* m_uiMorphing;   /**< qt main window */
+
 
         SWGLOptimalStepNonRigidICP *m_pGLOSNRICP;
 

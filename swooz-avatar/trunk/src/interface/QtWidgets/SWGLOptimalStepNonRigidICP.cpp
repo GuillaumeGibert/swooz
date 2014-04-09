@@ -25,6 +25,8 @@ using namespace swExcept;
 #include "time.h"
 
 
+#include <QtGui>
+
 SWGLOptimalStepNonRigidICP::SWGLOptimalStepNonRigidICP(QGLContext *context, QWidget* parent) : SWGLWidget(context, parent),
      m_vertexBuffer(QGLBuffer::VertexBuffer), m_indexBuffer(QGLBuffer::IndexBuffer), m_colorBuffer(QGLBuffer::VertexBuffer),
      m_normalBuffer(QGLBuffer::VertexBuffer), m_textureBuffer(QGLBuffer::VertexBuffer)
@@ -32,35 +34,32 @@ SWGLOptimalStepNonRigidICP::SWGLOptimalStepNonRigidICP(QGLContext *context, QWid
     // set default parameters values
         // display
             m_bMeshSDisplay = m_bMeshTDisplay = m_bCorrDisplay = m_bDisplayLandMarks = true;
-            m_bPointsTDisplay = m_bPointsSDisplay = false;
-            m_bVerticesNormalsSDisplay = m_bTrianglesNormalsSDisplay = m_bVerticesNormalsTDisplay  = m_bTrianglesNormalsTDisplay = false;
+            m_bPointsTDisplay = m_bPointsSDisplay = m_bVerticesNormalsSDisplay = m_bTrianglesNormalsSDisplay = m_bVerticesNormalsTDisplay  = m_bTrianglesNormalsTDisplay = false;
+            m_bFillS = m_bFillT = false;
+
+        // OptimalStepNonRigidICP
+            m_bUseLandMarks = true;
+
         // translations
             m_fXTransTarget = m_fYTransTarget = m_fZTransTarget = 0.f;
         // rotations
             m_fXRotTarget = m_fYRotTarget = m_fZRotTarget = 0.f;
         // scaling
-            m_fTargetScaling = 0.f;
-        // OptimalStepNonRigidICP
-            m_dStartAlpha   = 1.0;
-            m_dMinAlpha     = 0.2;
-            m_dDiffMax      = 100.0;
-            m_dBeta         = 0.4;
-            m_dCoeffAlpha   = 0.8;
-            m_dGama         = 100.0;
-            m_bUseLandMarks = false;
+            m_fTargetScaling = 1.f;//0.f;
+
         // paths files
-            m_sPathSourceMesh = "";
-            m_sPathTargetMesh = "";
+            m_sPathSourceMesh   = "";
+            m_sPathTargetMesh   = "";
+            m_sPathStasmSource  = "";
+            m_sPathStasmTarget  = "";
 
     // set parameters values
         // display
             m_fDefaultOpacity         = 1.f;
             m_fOpacitySourceMeshLines = 1.f;
             m_fOpacityTargetMeshLines = 0.3f;                                    
-
-        // paths files
-            m_sPathStasmFileSource = ""; //../data/meshes/avatars/genericMeshstasmLandMarks.txt";
-            m_sPathStasmFileTarget = ""; //"../data/meshes/avatars/faceshiftMeshstasmLandMarks.txt";
+            m_fOpacitySourceMesh      = 0.5f;
+            m_fOpacityTargetMesh      = 0.5f;
 
     // init mutex
         m_pParamMutex       = new QMutex();
@@ -156,6 +155,8 @@ void SWGLOptimalStepNonRigidICP::initResolve()
 
 double SWGLOptimalStepNonRigidICP::morph(cdouble dAlpha)
 {
+    qDebug() << "morph -> " << dAlpha;
+
     if(!m_pOSNRICP)
     {
         qWarning() << "Set meshes before starting morphing. ";
@@ -167,14 +168,30 @@ double SWGLOptimalStepNonRigidICP::morph(cdouble dAlpha)
     double l_dBeta        = m_dBeta;
     double l_dGama        = m_dGama;
     double l_dUseLandmarks= m_bUseLandMarks;
+
+    qDebug() << "Start alpha : " << m_dStartAlpha << "\nAlpha : " << dAlpha << "\nBeta : " << m_dBeta << "\nGama : " << m_dGama << "\nUse landmarks : " << m_bUseLandMarks;
+    qDebug() << "Min Alpha : " << m_dMinAlpha << "\nCoeff : " << m_dCoeffAlpha;
+
     m_pParamMutex->unlock();
 
     initResolve();
-    double l_dDiff = m_pOSNRICP->resolve(dAlpha, l_dBeta, l_dGama, l_dUseLandmarks);
+    double l_dDiff;
+
+    try
+    {
+        l_dDiff = m_pOSNRICP->resolve(dAlpha, l_dBeta, l_dGama, l_dUseLandmarks);
+    }
+    catch (const cv::Exception &e)
+    {
+        std::cerr << e.what() << std::endl;
+
+    }
 
     m_pSourceMeshMutex->lockForWrite();
         m_pOSNRICP->updateSourceMeshWithMorphModification();
     m_pSourceMeshMutex->unlock();
+
+    qDebug() << " end morph ->  " << dAlpha;
 
     return l_dDiff;
 }
@@ -210,12 +227,11 @@ void SWGLOptimalStepNonRigidICP::saveCurrentMeshToObj(const QString &sPath)
     QString l_sPath(sPath);
     l_sPath.remove(l_sPath.size() - l_sNameOBJ.size(), l_sNameOBJ.size());
 
-    qDebug() << "Path : " << l_sPath;
-    qDebug() << "Save OBJ file : " << l_sNameOBJ;
-    qDebug() << "Save Material file : " << l_sNameMTL;
+    qDebug() << "Path : " << l_sPath.toUtf8().constData();
+    qDebug() << "Save OBJ file : " << l_sNameOBJ.toUtf8().constData();
+    qDebug() << "Save Material file : " << l_sNameMTL.toUtf8().constData();
 
-    m_pOSNRICP->m_oSourceMesh.saveToObj(sPath.toStdString(), l_sNameOBJ.toStdString(), l_sNameMTL.toStdString());
-//    m_pOSNRICP->m_oSourceMesh.saveToObj(sPath.toStdString());
+    m_pOSNRICP->m_oSourceMesh.saveToObj(l_sPath.toUtf8().constData(), l_sNameOBJ.toUtf8().constData(), l_sNameMTL.toUtf8().constData());
 }
 
 void SWGLOptimalStepNonRigidICP::setCloudSDisplay(bool bVal)
@@ -432,25 +448,17 @@ void SWGLOptimalStepNonRigidICP::initializeGL()
     // enable depth buffer
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_LINE_SMOOTH);
+//        glEnable(GL_CULL_FACE);
 
-    // set transparency
+    // enable blending
         glEnable(GL_BLEND);
-//        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // do not use, make the mesh invisible( todo : check why)
+//        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-        // enable texture
-//            glEnable(GL_TEXTURE_2D);
-
-    // init buffers
         m_indexBuffer.create();
         m_vertexBuffer.create();
         m_colorBuffer.create();
         m_normalBuffer.create();
         m_textureBuffer.create();
-//        m_indexBuffer.setUsagePattern( QGLBuffer::DynamicDraw);
-//        m_vertexBuffer.setUsagePattern(QGLBuffer::DynamicDraw);
-//        m_colorBuffer.setUsagePattern( QGLBuffer::DynamicDraw);
-//        m_normalBuffer.setUsagePattern( QGLBuffer::DynamicDraw);
-//        m_textureBuffer.setUsagePattern( QGLBuffer::DynamicDraw);
 }
 
 void SWGLOptimalStepNonRigidICP::paintGL()
@@ -485,10 +493,10 @@ void SWGLOptimalStepNonRigidICP::drawScene()
     // draw axe
         drawAxes(m_oShaderLines, m_oMVPMatrix, 0.02f);
 
-    if(!m_pOSNRICP)
+    if(!m_pOSNRICP.get())
     {
         return;
-    }    
+    }
 
     // draw cloud
         // source
@@ -549,7 +557,7 @@ void SWGLOptimalStepNonRigidICP::drawScene()
 
                 if(m_bFillS)
                 {
-                    drawMeshTriangles(m_oShaderTriangles, m_pOSNRICP->m_oSourceMesh, m_oMVPMatrix, 0.5f, 0.5f, 1.f, m_fOpacitySourceMeshLines);
+                    drawMeshTriangles(m_oShaderTriangles, m_pOSNRICP->m_oSourceMesh, m_oMVPMatrix, 0.5f, 0.5f, 1.f, m_fOpacitySourceMesh);
                 }
                 else
                 {
@@ -569,12 +577,11 @@ void SWGLOptimalStepNonRigidICP::drawScene()
         {
             try
             {
-
                 m_pTargetMeshMutex->lockForRead();
 
                 if(m_bFillT)
                 {
-                    drawMeshTriangles(m_oShaderTriangles, m_pOSNRICP->m_oTargetMesh, m_oMVPMatrix, 0.5f, 1.0f, 0.5f, m_fOpacitySourceMeshLines);
+                    drawMeshTriangles(m_oShaderTriangles, m_pOSNRICP->m_oTargetMesh, m_oMVPMatrix, 0.5f, 1.0f, 0.5f, m_fOpacityTargetMesh);
                 }
                 else
                 {
@@ -839,38 +846,79 @@ void SWGLOptimalStepNonRigidICP::drawCorrLines(QGLShaderProgram &oShader, const 
     int l_i32SizeIndex      = sizeof(GLuint);
     int l_i32SizeVertex     = sizeof(float) * 3;
 
-    uint32 *l_aNormalI      = new uint32[oSource.size()*2];
-    float  *l_aNormalV      = new float[oSource.size()*2 * 3];
+    uint32 *l_aLinesCorrI      = new uint32[oSource.size()*2];
+    float  *l_aLinesCorrV      = new float[oSource.size()*2 * 3];
+    float  *l_aLinesCorrC      = new float[oSource.size()*2 * 3];
+
+    float l_fMaxDist = 0.f;
+    std::vector<float> l_vDist;
 
     for(uint ii = 0; ii < oSource.size(); ++ii)
     {
         // fill index buffer
-        l_aNormalI[2*ii]   = 2*ii;
-        l_aNormalI[2*ii+1] = 2*ii+1;
+        l_aLinesCorrI[2*ii]   = 2*ii;
+        l_aLinesCorrI[2*ii+1] = 2*ii+1;
 
         // fill vertex buffer
-        l_aNormalV[6*ii]   = oSource.coord(0)[ii];
-        l_aNormalV[6*ii+1] = oSource.coord(1)[ii];
-        l_aNormalV[6*ii+2] = oSource.coord(2)[ii];
+        l_aLinesCorrV[6*ii]   = oSource.coord(0)[ii];
+        l_aLinesCorrV[6*ii+1] = oSource.coord(1)[ii];
+        l_aLinesCorrV[6*ii+2] = oSource.coord(2)[ii];
+        l_aLinesCorrV[6*ii+3] = oTarget.coord(0)[vU[ii]];
+        l_aLinesCorrV[6*ii+4] = oTarget.coord(1)[vU[ii]];
+        l_aLinesCorrV[6*ii+5] = oTarget.coord(2)[vU[ii]];
 
-        l_aNormalV[6*ii+3] = oTarget.coord(0)[vU[ii]];
-        l_aNormalV[6*ii+4] = oTarget.coord(1)[vU[ii]];
-        l_aNormalV[6*ii+5] = oTarget.coord(2)[vU[ii]];
+        // compute distances
+        std::vector<float> l_vP1, l_vP2;
+        l_vP1.push_back(l_aLinesCorrV[6*ii]);
+        l_vP1.push_back(l_aLinesCorrV[6*ii+1]);
+        l_vP1.push_back(l_aLinesCorrV[6*ii+2]);
+
+        l_vP2.push_back(l_aLinesCorrV[6*ii+3]);
+        l_vP2.push_back(l_aLinesCorrV[6*ii+4]);
+        l_vP2.push_back(l_aLinesCorrV[6*ii+5]);
+
+        l_vDist.push_back(swUtil::norm(swUtil::vec(l_vP1, l_vP2)));
+        if(l_vDist.back() > l_fMaxDist)
+        {
+            l_fMaxDist = l_vDist.back();
+        }
     }
 
-    allocateBuffer(m_indexBuffer, l_aNormalI, oSource.size() * 2 * l_i32SizeIndex);
-    allocateBuffer(m_vertexBuffer, l_aNormalV, oSource.size() * 2 * l_i32SizeVertex);
+    for(uint ii = 0; ii < oSource.size(); ++ii)
+    {
+        // fill color buffer
+        float l_fGreen = 1.f - (2*l_vDist[ii])/l_fMaxDist;
+        if(l_fGreen > 1.f)
+        {
+            l_fGreen = 1.f;
+        }
+
+        float l_fCol[3] = {l_vDist[ii]/l_fMaxDist, l_fGreen, 0.f};
+
+        l_aLinesCorrC[6*ii]   = l_fCol[0];
+        l_aLinesCorrC[6*ii+1] = l_fCol[1];
+        l_aLinesCorrC[6*ii+2] = l_fCol[2];
+
+        l_aLinesCorrC[6*ii+3] = l_fCol[0];
+        l_aLinesCorrC[6*ii+4] = l_fCol[1];
+        l_aLinesCorrC[6*ii+5] = l_fCol[2];
+    }
+
+    allocateBuffer(m_indexBuffer, l_aLinesCorrI, oSource.size() * 2 * l_i32SizeIndex);
+    allocateBuffer(m_vertexBuffer,l_aLinesCorrV, oSource.size() * 2 * l_i32SizeVertex);
+    allocateBuffer(m_colorBuffer, l_aLinesCorrC, oSource.size() * 2 * l_i32SizeVertex);
 
     // set shaders parameters
-    oShader.setUniformValue("uniColor", r, g, b);
+    oShader.setUniformValue("uniColor", -1, -1, -1);
     oShader.setUniformValue("mvpMatrix", mvpMatrix);
     oShader.setUniformValue("opacity", m_fDefaultOpacity);
 
     // draw primitives
-    GLenum l_glError = drawBuffer(m_indexBuffer, m_vertexBuffer, oShader, GL_LINES);
+    GLenum l_glError = drawBufferWithColor(m_indexBuffer, m_vertexBuffer, m_colorBuffer, oShader, GL_LINES);
 
-    delete[] l_aNormalI;
-    delete[] l_aNormalV;
+    delete[] l_aLinesCorrI;
+    delete[] l_aLinesCorrV;
+    delete[] l_aLinesCorrC;
 
     if(l_glError)
     {
@@ -922,7 +970,7 @@ void SWGLOptimalStepNonRigidICP::drawCloud(QGLShaderProgram &oShader, const swCl
     }
 }
 
-void SWGLOptimalStepNonRigidICP::drawSourceCloud(QGLShaderProgram &oShader, const swCloud::SWCloud &oCloud, cfloat fSizePoint, QMatrix4x4 &mvpMatrix, cfloat r, cfloat g, cfloat b)
+void SWGLOptimalStepNonRigidICP::drawSourceCloud(QGLShaderProgram &oShader, const swCloud::SWCloud &oCloud, cfloat fSizePoint, QMatrix4x4 &mvpMatrix)
 {
     // bind shader
     if(!oShader.bind())
@@ -969,7 +1017,7 @@ void SWGLOptimalStepNonRigidICP::drawSourceCloud(QGLShaderProgram &oShader, cons
     glPointSize(fSizePoint);
 
     // set uniform values parameters
-    oShader.setUniformValue("uniColor", r, g, b);
+    oShader.setUniformValue("uniColor", -1, -1, -1); // do not use unicolor
     oShader.setUniformValue("mvpMatrix", mvpMatrix);
     oShader.setUniformValue("opacity", m_fDefaultOpacity);
 
@@ -1006,13 +1054,13 @@ void SWGLOptimalStepNonRigidICP::drawMeshTriangles(QGLShaderProgram &oShader, sw
     float  *l_aFVertexBuffer   = oMesh.vertexBuffer();
     uint32 *l_aUI32IndexBuffer = oMesh.indexVertexTriangleBuffer();
     float  *l_aFNormalBuffer   = oMesh.normalBuffer();
-    float  *l_aFTextureBuffer  = oMesh.textureBuffer();
+//    float  *l_aFTextureBuffer  = oMesh.textureBuffer();
 
     // allocate QGL buffers
     allocateBuffer(m_vertexBuffer,  l_aFVertexBuffer,   oMesh.pointsNumber() *     3 * sizeof(float) );
     allocateBuffer(m_indexBuffer,   l_aUI32IndexBuffer, oMesh.trianglesNumber() *  3 * sizeof(GLuint) );
     allocateBuffer(m_normalBuffer,  l_aFNormalBuffer,   oMesh.pointsNumber() *     3 * sizeof(float) );
-    allocateBuffer(m_textureBuffer, l_aFTextureBuffer,  oMesh.pointsNumber() *     2 * sizeof(float) );
+//    allocateBuffer(m_textureBuffer, l_aFTextureBuffer,  oMesh.pointsNumber() *     2 * sizeof(float) );
 
     // set uniform values parameters
     oShader.setUniformValue("mvpMatrix",    mvpMatrix);
@@ -1021,12 +1069,13 @@ void SWGLOptimalStepNonRigidICP::drawMeshTriangles(QGLShaderProgram &oShader, sw
 
     // draw primitives
 //    GLenum l_glError = drawBuffer(m_indexBuffer, m_vertexBuffer, m_normalBuffer, oShader, GL_TRIANGLES);
-    GLenum l_glError =drawBufferWithTexture(m_indexBuffer, m_vertexBuffer, m_textureBuffer, m_normalBuffer, oShader, GL_TRIANGLES);
+//    GLenum l_glError =drawBufferWithTexture(m_indexBuffer, m_vertexBuffer, m_textureBuffer, m_normalBuffer, oShader, GL_TRIANGLES);
+    GLenum l_glError =drawBuffer(m_indexBuffer, m_vertexBuffer, m_normalBuffer, oShader, GL_TRIANGLES);
 
     delete[] l_aFVertexBuffer;
     delete[] l_aUI32IndexBuffer;
     delete[] l_aFNormalBuffer;
-    delete[] l_aFTextureBuffer;
+//    delete[] l_aFTextureBuffer;
 
     if(l_glError)
     {
@@ -1224,10 +1273,20 @@ void SWGLOptimalStepNonRigidICP::drawMeshTrianglesNormals(QGLShaderProgram &oSha
 
 void SWGLOptimalStepNonRigidICP::resetMorphing()
 {
-    if(m_pSourceMesh && m_pTargetMesh)
+    if(m_pSourceMesh.get() && m_pTargetMesh.get())
     {
         m_pOSNRICP.reset();
-        m_pOSNRICP = SWOptimalStepNonRigidICPPtr(new SWOptimalStepNonRigidICP(*m_pSourceMesh.get(), *m_pTargetMesh.get(), m_sPathStasmFileSource, m_sPathStasmFileTarget));
+
+        QFileInfo l_oFile1(m_sPathStasmSource), l_oFile2(m_sPathStasmTarget);
+        if(l_oFile1.exists() && l_oFile2.exists())
+        {
+            m_pOSNRICP = SWOptimalStepNonRigidICPPtr(new SWOptimalStepNonRigidICP(*m_pSourceMesh.get(), *m_pTargetMesh.get(),
+                                                    m_sPathStasmSource.toUtf8().constData(), m_sPathStasmTarget.toUtf8().constData()));
+        }
+        else
+        {
+            m_pOSNRICP = SWOptimalStepNonRigidICPPtr(new SWOptimalStepNonRigidICP(*m_pSourceMesh.get(), *m_pTargetMesh.get()));
+        }
 
         // apply transformation
             transformTarget(false);
@@ -1255,14 +1314,51 @@ void SWGLOptimalStepNonRigidICP::refreshDisplay()
 
 void SWGLOptimalStepNonRigidICP::resetMorphingWithNewMeshes()
 {
-    // delete data
-        m_pOSNRICP.reset();
+    if(m_sPathSourceMesh == "" || m_sPathTargetMesh == "")
+    {
+        std::cerr << "Defines meshes before reset. " << std::endl;
+        return;
+    }
+
+    // reset meshes data
         m_pSourceMesh.reset();
         m_pTargetMesh.reset();
-
-    // load new meshes
         m_pSourceMesh = SWMeshPtr(new swMesh::SWMesh(m_sPathSourceMesh));
         m_pTargetMesh = SWMeshPtr(new swMesh::SWMesh(m_sPathTargetMesh));
+
+    // init source meshes infos to send
+        QString l_sSourceMeshInfos(getInfoMesh(*m_pSourceMesh));
+
+    // check stasm file existence
+        QFileInfo l_oFileInfos1(m_sPathStasmSource);
+
+        if(l_oFileInfos1.exists())
+        {
+            l_sSourceMeshInfos += QString("STASM path : ") + m_sPathStasmSource;
+        }
+        else
+        {
+            l_sSourceMeshInfos  += QString("STASM path : file not found");
+        }
+
+        emit sendSourceMeshInfos(l_sSourceMeshInfos);
+
+    // init target meshes infos to send
+        QString l_sTargetMeshInfos(getInfoMesh(*m_pTargetMesh));
+
+    // check stasm file existence
+        QFileInfo l_oFileInfo2(m_sPathStasmTarget);
+
+        if(l_oFileInfo2.exists())
+        {
+            l_sTargetMeshInfos += QString("STASM path : ") + m_sPathStasmTarget;
+        }
+        else
+        {
+            l_sTargetMeshInfos += QString("STASM path : file not found");
+        }
+
+        emit sendTargetMeshInfos(l_sTargetMeshInfos);
 
     // find scaling value
         swCloud::SWCloudBBox l_oSourceCloudBBox = m_pSourceMesh->cloud()->bBox();
@@ -1300,29 +1396,102 @@ void SWGLOptimalStepNonRigidICP::resetMorphingWithNewMeshes()
 
 void SWGLOptimalStepNonRigidICP::setSourceMesh(const QString &sPathSource)
 {
-    std::cout << " setSourceMesh ";
+    // set the source mesh
+        m_sPathSourceMesh = sPathSource.toUtf8().constData(); // BUG : Qt version not compiled with std support, so toStdString crash, use toUtf8 instead
+        m_pOSNRICP.reset();
+        m_pSourceMesh.reset();
+        m_pSourceMesh = SWMeshPtr(new swMesh::SWMesh(m_sPathSourceMesh));
 
-    m_sPathSourceMesh = sPathSource.toStdString();
+    // check if the mesh is too huge
+        if(m_pSourceMesh->pointsNumber() > 10000)
+        {
+            m_pSourceMesh.reset();
 
-    std::cout << m_sPathSourceMesh << std::endl;
+            std::cerr << "Template mesh too huge for morphing computing. " << std::endl;
+
+            return;
+        }
+
+    // set the source stasm file path
+        m_sPathStasmSource = sPathSource;
+        for(int ii = 0; ii < 3; ++ii)
+        {
+            m_sPathStasmSource.remove(m_sPathStasmSource.size()-1,1);
+        }
+        m_sPathStasmSource += "stasm";
+
+    // send meshes infos to the interface
+        QString l_sSourceMeshInfos(getInfoMesh(*m_pSourceMesh));
+
+    // check stasm file existence
+        QFileInfo l_oFileInfo(m_sPathStasmSource);
+
+        if(l_oFileInfo.exists())
+        {
+             l_sSourceMeshInfos += QString("STASM path : ") + m_sPathStasmSource;
+        }
+        else
+        {
+            l_sSourceMeshInfos  += QString("STASM path : file not found");
+        }
+
+
+        emit sendSourceMeshInfos(l_sSourceMeshInfos);
+
+    // launch the reset if source mesh and target mesh are defined
+        if(m_pSourceMesh.get() && m_pTargetMesh.get())
+        {
+            resetMorphingWithNewMeshes();
+        }
 }
 
 void SWGLOptimalStepNonRigidICP::setTargetMesh(const QString &sPathTarget)
 {
-    std::cout << " setTargetMesh ";
+    // set the target mesh
+        m_sPathTargetMesh = sPathTarget.toUtf8().constData(); // BUG : Qt version not compiled with std support, so toStdString crash, use toUtf8 instead
+        m_pOSNRICP.reset();
+        m_pTargetMesh.reset();
+        m_pTargetMesh = SWMeshPtr(new swMesh::SWMesh(m_sPathTargetMesh));
 
-    m_sPathTargetMesh = sPathTarget.toStdString();
+    // set the target stasm file path
+        m_sPathStasmTarget = sPathTarget;
+        for(int ii = 0; ii < 3; ++ii)
+        {
+            m_sPathStasmTarget.remove(m_sPathStasmTarget.size()-1,1);
+        }
+        m_sPathStasmTarget += "stasm";
 
-    std::cout << m_sPathTargetMesh << std::endl;
+        QString l_sTargetMeshInfos(getInfoMesh(*m_pTargetMesh));
+
+
+    // check stasm file existence
+        QFileInfo l_oFileInfo(m_sPathStasmTarget);
+
+        if(l_oFileInfo.exists())
+        {
+            l_sTargetMeshInfos += QString("STASM path : ") + m_sPathStasmTarget;
+        }
+        else
+        {
+            l_sTargetMeshInfos += QString("STASM path : file not found");
+        }
+
+    // send meshes infos to the interface
+        emit sendTargetMeshInfos(l_sTargetMeshInfos);
+
+// launch the reset if source mesh and target mesh are defined
+    if(m_pSourceMesh.get() && m_pTargetMesh.get())
+    {
+        resetMorphingWithNewMeshes();
+    }
 }
 
-void SWGLOptimalStepNonRigidICP::setSourceCorr(const QString &sPathSource)
-{
-    m_sPathStasmFileSource = sPathSource.toStdString();
-}
 
-void SWGLOptimalStepNonRigidICP::setTargetCorr(const QString &sPathTarget)
+QString SWGLOptimalStepNonRigidICP::getInfoMesh(const swMesh::SWMesh &oMesh)
 {
-    m_sPathStasmFileTarget = sPathTarget.toStdString();
+    QString l_sInfo(QString("Points     : ") + QString::number(oMesh.pointsNumber()) + QString("\n"));
+    l_sInfo +=      QString("Triangles : ") + QString::number(oMesh.trianglesNumber()) + QString("\n");
+    l_sInfo +=      QString("Edges     : ") + QString::number(oMesh.edgesNumber()) + QString("\n");       
+    return l_sInfo;
 }
 

@@ -104,7 +104,7 @@ SWMesh::SWMesh(const std::string &sPathObjFile) : m_ui32TrianglesNumber(0), m_ui
                         m_aIdFaces.push_back(l_ui32V1-1);
                         l_aIdTriangle.push_back(l_ui32V1-1);
 
-                        m_vVertexIdTriangle[l_ui32V1-1].push_back(m_aIdTriangles.size());
+                        m_vVertexIdTriangle[l_ui32V1-1].push_back(static_cast<uint>(m_aIdTriangles.size()));
 
                         if(l_bIsNormal && !l_bIsTexture) // f v//vn
                         {
@@ -146,7 +146,7 @@ SWMesh::SWMesh(const std::string &sPathObjFile) : m_ui32TrianglesNumber(0), m_ui
         cerr << "Error SWMesh constructor (bad parameter). " << endl;
     }
 
-    m_ui32TrianglesNumber = m_aIdFaces.size() / 3;
+    m_ui32TrianglesNumber = static_cast<uint>(m_aIdFaces.size()) / 3;
 
     // build links data
         buildEdgeVertexGraph();
@@ -225,13 +225,14 @@ void SWMesh::set(const std::vector<std::vector<float> > &v3FPoints,
             m_aIdFaces[ii*3+1]= l_ui32V2;
             m_aIdFaces[ii*3+2]= l_ui32V3;
 
-            m_vVertexIdTriangle[l_ui32V1].push_back(m_aIdTriangles.size());
-            m_vVertexIdTriangle[l_ui32V2].push_back(m_aIdTriangles.size());
-            m_vVertexIdTriangle[l_ui32V3].push_back(m_aIdTriangles.size());
+            uint l_ui32SizeIdTriangle = static_cast<uint>(m_aIdTriangles.size());
+            m_vVertexIdTriangle[l_ui32V1].push_back(l_ui32SizeIdTriangle);
+            m_vVertexIdTriangle[l_ui32V2].push_back(l_ui32SizeIdTriangle);
+            m_vVertexIdTriangle[l_ui32V3].push_back(l_ui32SizeIdTriangle);
 
             m_aIdTriangles.push_back(l_v3UIFaces);
         }
-        m_ui32TrianglesNumber = m_aIdFaces.size() / 3;
+        m_ui32TrianglesNumber = static_cast<uint>(m_aIdFaces.size()) / 3;
 
     // set texture
         m_aIdTextures.assign(m_aIdFaces.cbegin(), m_aIdFaces.cend());

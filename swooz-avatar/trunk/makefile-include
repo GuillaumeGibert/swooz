@@ -130,6 +130,10 @@ INC_OPENCV      = -I"$(THIRD_PARTY_OPENCV)"\modules/core/include -I"$(THIRD_PART
                   -I"$(THIRD_PARTY_OPENCV)"\modules/features2d/include -I"$(THIRD_PARTY_OPENCV)"\modules/flann/include\
                   -I"$(THIRD_PARTY_OPENCV)"\modules/highgui/include -I"$(THIRD_PARTY_OPENCV)"\modules/video/include\
 
+INC_OPENCV_2    =  -I"$(THIRD_PARTY_OPENCV)"\modules/core/include -I"$(THIRD_PARTY_OPENCV)"\modules/imgproc/include\
+                   -I"$(THIRD_PARTY_OPENCV)"\modules/flann/include\
+                   -I"$(THIRD_PARTY_OPENCV)"\modules/highgui/include -I"$(THIRD_PARTY_OPENCV)"\modules/video/include\
+
 INC_MOC		= -I$(MOCDIR)\
 
 INC_QTWIDGETS	= -I./include/interface/QtWidgets -I"$(INCDIR_QTGENW)"\
@@ -157,7 +161,7 @@ SW_ALIGN_CLOUDS     = $(COMMON) $(INC_BOOST) $(INC_OPENCV)
 SW_CAPTURE_HEAD_M   = $(COMMON) $(INC_BOOST) $(INC_OPENCV) $(INC_GSL) $(INC_STASM)
 #       mesh
 SW_MESH             = $(SW_CLOUD)
-SW_OSNRICP          = $(SW_MESH) $(INC_OPENCV) $(SW_ALIGN_CLOUDS)
+SW_OSNRICP          = $(SW_MESH) $(INC_OPENCV_2) $(SW_ALIGN_CLOUDS)
 #	stasm
 STASM		    = $(COMMON) $(INC_GSL) $(INC_STASM) $(INC_OPENCV)
 
@@ -219,7 +223,16 @@ LFLAGS_MORPHING = -nologo -nodefaultlib:LIBCMT
 LIBS_OPENNI     = $(THIRD_PARTY_OPENNI)/Lib/openNI.lib\
 
 LIBS_CV		= $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_highgui245.lib $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_core245.lib\
-		  $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_imgproc245.lib $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_objdetect245.lib $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_video245.lib\
+                  $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_imgproc245.lib $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_objdetect245.lib $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_video245.lib\
+
+#!IF "$(ARCH)" != "x86"
+#
+#LIBS_CV         = $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_highgui248.lib $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_core248.lib\
+#                  $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_imgproc248.lib\
+#
+#!ENDIF
+
+
 
 #		  $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_gpu245.lib\
 
@@ -256,11 +269,10 @@ LIBS_PH		= $(THIRD_PARTY_POLHEMUS)/lib/Win32/PDI.lib\
 LIBS_YARP	= $(THIRD_PARTY_YARP)/lib/YARP_sig.lib $(THIRD_PARTY_YARP)/lib/YARP_OS.lib $(THIRD_PARTY_YARP)/lib/YARP_dev.lib $(THIRD_PARTY_YARP)/lib/YARP_init.lib\
 
 LIBS_AVATAR     = $(LIBS_COMMON) $(LIBS_SW) $(LIBS_BOOST_S) $(LIBS_OPENNI) $(LIBS_CV) $(LIBS_QT) $(LIBS_CLA) $(LIBS_CUDA) $(LIBS_GSL) $(LIBS_CULA)\
-	
 
-LIBS_MORPHING   = $(LIBS_CV) $(LIBS_QT) $(LIBS_CUDA) $(LIBS_CULA) $(LIBS_CLA)\
+LIBS_MORPHING   = $(LIBS_QT) $(LIBS_CUDA) $(LIBS_CULA) $(LIBS_CLA) $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_core245.lib\
 
-
+#$(LIBS_CV)
 #$(LIBS_QT) $(LIBS_CV) $(LIBS_CLA) $(LIBS_CUDA) $(LIBS_CULA) $(LIBS_GSL)\
 
 !ENDIF

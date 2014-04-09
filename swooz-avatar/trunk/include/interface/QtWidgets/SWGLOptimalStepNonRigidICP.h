@@ -8,10 +8,15 @@
  * \date 26/09/13
  */
 
+
+//#include <QtGui>
+
 #include "SWGLWidget.h"
 #include "mesh/SWOptimalStepNonRigidICP.h"
 #include "mesh/SWMesh.h"
 #include "boost/shared_ptr.hpp"
+
+
 
 typedef boost::shared_ptr<swMesh::SWMesh> SWMeshPtr; /**< boost shared pointer for SWMesh */
 typedef boost::shared_ptr<swMesh::SWOptimalStepNonRigidICP> SWOptimalStepNonRigidICPPtr; /**< boost shared pointer for SWOptimalStepNonRigidICP */
@@ -176,17 +181,6 @@ class SWGLOptimalStepNonRigidICP : public SWGLWidget
          */
         void setTargetMesh(const QString &sPathTarget);
 
-        /**
-         * \brief Set the source stasm correspondance path file
-         * \param [in] sPathSource : path of the file
-         */
-        void setSourceCorr(const QString &sPathSource);
-
-        /**
-         * \brief Set the target stasm correspondance path file
-         * \param [in] sPathTarget : path of the file
-         */
-        void setTargetCorr(const QString &sPathTarget);
 
         /**
          * \brief Set angle max between correspondance vertices
@@ -309,6 +303,18 @@ class SWGLOptimalStepNonRigidICP : public SWGLWidget
          */
         void refreshDisplay();
 
+    signals :
+
+        /**
+         * @brief sendSourceMeshInfos
+         */
+        void sendSourceMeshInfos(QString);
+
+        /**
+         * @brief sendTargetMeshInfos
+         */
+        void sendTargetMeshInfos(QString);
+
     private :
 
         /**
@@ -332,8 +338,7 @@ class SWGLOptimalStepNonRigidICP : public SWGLWidget
         void drawCloud(QGLShaderProgram &oShader, const swCloud::SWCloud &oCloud, cfloat fSizePoint,
                         QMatrix4x4 &mvpMatrix, cfloat r, cfloat g, cfloat b);
 
-        void drawSourceCloud(QGLShaderProgram &oShader, const swCloud::SWCloud &oCloud, cfloat fSizePoint, QMatrix4x4 &mvpMatrix,
-                             cfloat r = -1, cfloat g = -1, cfloat b = -1);
+        void drawSourceCloud(QGLShaderProgram &oShader, const swCloud::SWCloud &oCloud, cfloat fSizePoint, QMatrix4x4 &mvpMatrix);
 
         void drawMeshLines(QGLShaderProgram &oShader, swMesh::SWMesh &oMesh, QMatrix4x4 &mvpMatrix,
                            cfloat r = -1, cfloat g = -1, cfloat b = -1, cfloat fOpacity = 1.f);
@@ -355,6 +360,13 @@ class SWGLOptimalStepNonRigidICP : public SWGLWidget
 
         void drawMeshTriangles(QGLShaderProgram &oShader, swMesh::SWMesh &oMesh, QMatrix4x4 &mvpMatrix,
                                   cfloat fR = -1, cfloat fG = -1, cfloat fB = -1, cfloat fOpacity = 1.f);
+
+        /**
+         * @brief getInfoMesh
+         * @param oMesh
+         * @return
+         */
+        QString getInfoMesh(const swMesh::SWMesh &oMesh);
 
     private :
 
@@ -384,6 +396,8 @@ class SWGLOptimalStepNonRigidICP : public SWGLWidget
         float m_fDefaultOpacity;            /**< default opengl opacity value */
         float m_fOpacitySourceMeshLines;    /**< opengl opacity value sent to fragment shader for the mesh lines source */
         float m_fOpacityTargetMeshLines;    /**< opengl opacity value sent to fragment shader for the mesh lines target */
+        float m_fOpacitySourceMesh;         /**< opengl opacity for the source mesh */
+        float m_fOpacityTargetMesh;         /**< opengl opacity fot the target mesh*/
 
         double m_dStartAlpha;               /**< start alpha */
         double m_dMinAlpha;                 /**< minimum alpha  */
@@ -392,10 +406,11 @@ class SWGLOptimalStepNonRigidICP : public SWGLWidget
         double m_dGama;                     /**< gama : neighbours value */
         double m_dCoeffAlpha;               /**< alpha coeff to be used */
 
-        std::string m_sPathStasmFileSource; /**< stasm correspondance source file path */
-        std::string m_sPathStasmFileTarget; /**< stasm correspondance target file path */
         std::string m_sPathSourceMesh;      /**< mesh source obj file path */
         std::string m_sPathTargetMesh;      /**< mesh target obj file path */
+
+        QString m_sPathStasmTarget;
+        QString m_sPathStasmSource;
 
         QMatrix4x4 m_oMVPMatrix;            /**< mvp matrix for opengl scene */
 

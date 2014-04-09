@@ -11,11 +11,6 @@
 
 #include "moc_SWMorphingWorker.cpp"
 
-//#include <QTime>
-//#include <QApplication>
-//#include <QVector3D>
-//#include <QVector2D>
-//#include <QWidget>
 
 SWMorphingWorker::SWMorphingWorker(SWGLOptimalStepNonRigidICP *pGLOSNRICP) : m_pGLOSNRICP(pGLOSNRICP), m_bDoMorphing(false)
 {}
@@ -27,7 +22,6 @@ void SWMorphingWorker::startMorphing()
 {
     emit startMorphingSignal();
 
-//    qDebug() << "SWMorphingWorker::startMorphing";
     m_oMutex.lockForWrite();
         m_bDoMorphing = true;
     m_oMutex.unlock();
@@ -99,14 +93,11 @@ void SWMorphingWorker::startMorphing()
         m_bDoMorphing = false;
     m_oMutex.unlock();
 
-//    qDebug() << "SWMorphingWorker::end";
-
     emit endMorphingSignal();
 }
 
 void SWMorphingWorker::stopMorphing()
 {
-//    qDebug() << "SWMorphingWorker::stopMorphing";
     m_oMutex.lockForWrite();
         m_bDoMorphing = false;
     m_oMutex.unlock();

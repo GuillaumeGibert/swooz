@@ -68,7 +68,7 @@ MOC_LIST=\
 
 UI_LIST=\
         $(INCDIR_QTGENW)/SWMainWindow.h $(INCDIR_QTGENW)/SWUI_WMeshCorr.h $(INCDIR_QTGENW)/SWUI_WParamsDisplay.h $(INCDIR_QTGENW)/SWUI_WTargetTransfo.h\
-        $(INCDIR_QTGENW)/SWUI_WCreateAvatar.h\
+         $(INCDIR_QTGENW)/SWUI_Morphing.h $(INCDIR_QTGENW)/SWUI_WCreateAvatar.h\
 
 ############################################################################## OBJ PROGRAMS
 
@@ -293,6 +293,9 @@ $(INCDIR_QTGENW)/SWUI_WTargetTransfo.h: $(FORMDIR)/SWUI_WTargetTransfo.ui
 
 $(INCDIR_QTGENW)/SWUI_WCreateAvatar.h: $(FORMDIR)/SWUI_CreateAvatar.ui
         uic $(FORMDIR)/SWUI_CreateAvatar.ui -o $@
+
+$(INCDIR_QTGENW)/SWUI_Morphing.h: $(FORMDIR)/SWUI_Morphing.ui
+        uic $(FORMDIR)/SWUI_Morphing.ui -o $@
 
 ############################################################################## Qt moc files
 
