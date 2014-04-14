@@ -149,6 +149,9 @@ class SWMorphingInterface : public QMainWindow
         // threads & workers
         SWMorphingWorker  *m_pWMorphing;    /**< morphing worker */
         QThread            m_TMorphing;		/**< morphing thread */
+
+
+//        double *test;
 };
 
 

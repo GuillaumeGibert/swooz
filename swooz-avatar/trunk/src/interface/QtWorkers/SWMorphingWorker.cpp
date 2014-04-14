@@ -44,7 +44,7 @@ void SWMorphingWorker::startMorphing()
         {
             // resolve
             l_dDiff = m_pGLOSNRICP->morph(l_dAlpha);
-            if(l_dDiff < 0)
+            if(l_dDiff < 0 || l_i32Iteration > 20)
             {
                 l_bEscapeLoop = true;
                 break;
@@ -65,7 +65,7 @@ void SWMorphingWorker::startMorphing()
             QTime l_oDieTime = QTime::currentTime().addMSecs(5);
             while( QTime::currentTime() < l_oDieTime)
             {
-                QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+                QCoreApplication::processEvents(QEventLoop::AllEvents, 5);
             }
 
             // check if stopMorphing has been sent

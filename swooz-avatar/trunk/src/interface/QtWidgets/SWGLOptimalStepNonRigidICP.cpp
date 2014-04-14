@@ -27,6 +27,7 @@ using namespace swExcept;
 
 #include <QtGui>
 
+
 SWGLOptimalStepNonRigidICP::SWGLOptimalStepNonRigidICP(QGLContext *context, QWidget* parent) : SWGLWidget(context, parent),
      m_vertexBuffer(QGLBuffer::VertexBuffer), m_indexBuffer(QGLBuffer::IndexBuffer), m_colorBuffer(QGLBuffer::VertexBuffer),
      m_normalBuffer(QGLBuffer::VertexBuffer), m_textureBuffer(QGLBuffer::VertexBuffer)
@@ -109,6 +110,8 @@ double SWGLOptimalStepNonRigidICP::coeffAlpha() const
 
 void SWGLOptimalStepNonRigidICP::alignWithNose(swMesh::SWMesh &oSourceMesh, swMesh::SWMesh &oTargetMesh)
 {
+    clock_t l_oProgramTime = clock();
+
     swCloud::SWCloud *l_oSource = oSourceMesh.cloud(), *l_oTarget = oTargetMesh.cloud();
 
     vector<float> l_A3FSourceMeanPoint = l_oSource->meanPoint();
@@ -130,6 +133,8 @@ void SWGLOptimalStepNonRigidICP::alignWithNose(swMesh::SWMesh &oSourceMesh, swMe
 
 void SWGLOptimalStepNonRigidICP::initResolve()
 {
+    clock_t l_oProgramTime = clock();
+
     m_pSourceMeshMutex->lockForWrite();
         m_pOSNRICP->updateSourceMeshNormals();
     m_pSourceMeshMutex->unlock();
@@ -155,6 +160,7 @@ void SWGLOptimalStepNonRigidICP::initResolve()
 
 double SWGLOptimalStepNonRigidICP::morph(cdouble dAlpha)
 {
+    clock_t l_oProgramTime = clock();
     qDebug() << "morph -> " << dAlpha;
 
     if(!m_pOSNRICP)
@@ -179,19 +185,18 @@ double SWGLOptimalStepNonRigidICP::morph(cdouble dAlpha)
 
     try
     {
-        l_dDiff = m_pOSNRICP->resolve(dAlpha, l_dBeta, l_dGama, l_dUseLandmarks);
+        l_dDiff = m_pOSNRICP->resolve(static_cast<float>(dAlpha), static_cast<float>(l_dBeta), static_cast<float>(l_dGama), l_dUseLandmarks);
     }
     catch (const cv::Exception &e)
     {
         std::cerr << e.what() << std::endl;
-
     }
 
     m_pSourceMeshMutex->lockForWrite();
         m_pOSNRICP->updateSourceMeshWithMorphModification();
     m_pSourceMeshMutex->unlock();
 
-    qDebug() << " end morph ->  " << dAlpha;
+    qDebug() << " end morph ->  " << dAlpha << " time : " << ((float)(clock() - l_oProgramTime) / CLOCKS_PER_SEC);
 
     return l_dDiff;
 }
@@ -316,7 +321,8 @@ void SWGLOptimalStepNonRigidICP::setAngleMax(double dVal) // TODO : complete
 {
     if(m_pOSNRICP)
     {
-        m_pOSNRICP->m_dAngleMax = dVal;
+//        m_pOSNRICP->m_dAngleMax = dVal;
+        m_pOSNRICP->m_fAngleMax = static_cast<float>(dVal);
     }
 }
 
@@ -400,6 +406,7 @@ void SWGLOptimalStepNonRigidICP::setCoeffAlpha(double dVal)
 
 void SWGLOptimalStepNonRigidICP::computeDistWAndCorr()
 {
+    clock_t l_oProgramTime = clock();
     m_pOSNRICP->computeCorrespondences();
     m_pOSNRICP->computeDistanceWeights();
     updateGL();
@@ -407,6 +414,9 @@ void SWGLOptimalStepNonRigidICP::computeDistWAndCorr()
 
 void SWGLOptimalStepNonRigidICP::transformTarget(cbool bUpdateDisplay)
 {
+//    clock_t l_oProgramTime = clock();
+//    std::cout << "transformTarget : " << std::endl;
+
     if(m_pOSNRICP)
     {
         m_pTargetMeshMutex->lockForWrite();
@@ -432,6 +442,8 @@ void SWGLOptimalStepNonRigidICP::transformTarget(cbool bUpdateDisplay)
             updateGL();
         }
     }
+
+//    cout << " end transformTarget : " << (float)(clock() - l_oProgramTime) / CLOCKS_PER_SEC  << std::endl;
 }
 
 
@@ -488,6 +500,7 @@ void SWGLOptimalStepNonRigidICP::paintGL()
 
 void SWGLOptimalStepNonRigidICP::drawScene()
 {
+
     makeCurrent();
 
     // draw axe
@@ -997,7 +1010,8 @@ void SWGLOptimalStepNonRigidICP::drawSourceCloud(QGLShaderProgram &oShader, cons
         {
             float l_fCol[3] = {1.f, 0.f, 0.f};
 
-            if(m_pOSNRICP->m_w[ii] > 0.0)
+//            if(m_pOSNRICP->m_w[ii] > 0.0)
+            if(m_pOSNRICP->m_fw[ii] > 0.0)
             {
                 l_fCol[0] = 1.f;
                 l_fCol[1] = 1.f;

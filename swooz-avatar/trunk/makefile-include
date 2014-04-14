@@ -142,6 +142,7 @@ INC_QT		= -I"$(THIRD_PARTY_QT)"/include/QtOpenGL -I"$(THIRD_PARTY_QT)"/include/Q
 		
 INC_YARP	= -I"$(THIRD_PARTY_YARP)"/include\
 
+
 ############################ DEPENDENCIES
 
 COMMON	 	    = $(INC_VS) $(INC_SW) $(INC_OTHERS)
@@ -179,7 +180,6 @@ SW_QT_CAMERA	    = $(COMMON) $(INC_QT)
 SW_CREATEAVATAR_INTERFACE     = $(COMMON) $(INC_BOOST) $(INC_OPENCV) $(INC_QT) $(INC_MOC) $(INC_QTWIDGETS) $(INC_GSL) $(INC_STASM)
 
 SW_MORPH_INTERFACE  = $(SW_MORPHING_WORKER)
-
 
 
 ############################ COMMON DEBUG/RELEASE LIBS
@@ -225,12 +225,12 @@ LIBS_OPENNI     = $(THIRD_PARTY_OPENNI)/Lib/openNI.lib\
 LIBS_CV		= $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_highgui245.lib $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_core245.lib\
                   $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_imgproc245.lib $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_objdetect245.lib $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_video245.lib\
 
-#!IF "$(ARCH)" != "x86"
-#
-#LIBS_CV         = $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_highgui248.lib $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_core248.lib\
-#                  $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_imgproc248.lib\
-#
-#!ENDIF
+!IF "$(ARCH)" != "x86"
+
+LIBS_CV         = $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_highgui248.lib $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_core248.lib\
+                  $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_imgproc248.lib\
+
+!ENDIF
 
 
 
@@ -270,7 +270,9 @@ LIBS_YARP	= $(THIRD_PARTY_YARP)/lib/YARP_sig.lib $(THIRD_PARTY_YARP)/lib/YARP_OS
 
 LIBS_AVATAR     = $(LIBS_COMMON) $(LIBS_SW) $(LIBS_BOOST_S) $(LIBS_OPENNI) $(LIBS_CV) $(LIBS_QT) $(LIBS_CLA) $(LIBS_CUDA) $(LIBS_GSL) $(LIBS_CULA)\
 
-LIBS_MORPHING   = $(LIBS_QT) $(LIBS_CUDA) $(LIBS_CULA) $(LIBS_CLA) $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_core245.lib\
+LIBS_MORPHING   = $(LIBS_QT) $(LIBS_CUDA) $(LIBS_CULA) $(LIBS_CLA) $(LIBS_CV)
+
+#$(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_core248.lib\
 
 #$(LIBS_CV)
 #$(LIBS_QT) $(LIBS_CV) $(LIBS_CLA) $(LIBS_CUDA) $(LIBS_CULA) $(LIBS_GSL)\

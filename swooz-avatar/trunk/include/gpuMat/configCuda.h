@@ -17,7 +17,8 @@
     #define USELOOPUNROLLING 1
     #define AVOIDBANKCONFLICTS 0  
 
-
+    #define RADIX_BASE 10
+    #define RADIX_BITS 32
 
     // Matrices are stored in row-major order:
     // M(row, col) = *(M.elements + row * M.width + col)

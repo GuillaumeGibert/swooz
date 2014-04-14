@@ -132,6 +132,11 @@ namespace swCloud
              */
             void display();
 
+            /**
+             * @brief displayRotMatrix
+             */
+            void displayRotMatrix();
+
 
             float m_aFRotation[9];    /**< rotation matrix  R: Rx(th1)*Ry(th2)*Rz(th3) */
 

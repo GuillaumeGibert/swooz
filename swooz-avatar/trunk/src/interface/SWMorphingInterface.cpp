@@ -15,35 +15,112 @@
 #include "interface/QtWidgets/SWGLOptimalStepNonRigidICP.h"
 
 
-
 #include <cloud/SWAlignClouds.h>
 
+
+#include "gpuMat/gpuMatUtility.h"
+
+#include <time.h>
+
 SWMorphingInterface::SWMorphingInterface() : m_uiMorphing(new Ui::SWUI_Morphing)
-{
+{    
+//    {
+//        clock_t m_oProgramTime = clock();
+
+//        int l_i32Size1 = 10000;
+//        int l_i32Size2 = 10000;
+//        int l_fI32Size1[] = {l_i32Size1, l_i32Size2};
+//        int l_fI32Size2[] = {l_i32Size2, l_i32Size1};
+//    //    cv::SparseMat_<double> sm1(2, l_fI32Size1);
+//    //    cv::SparseMat_<double> sm2(2, l_fI32Size2);
+//    //    cv::SparseMat_<double> sm3;
+//        cv::Mat m1(l_i32Size1,l_i32Size2, CV_32FC1);
+//        cv::Mat m2(l_i32Size2,l_i32Size1, CV_32FC1);
+//        cv::Mat m3, m4;
+
+//        for(int ii = 0; ii < l_i32Size1;++ii)
+//        {
+//            for(int jj = 0; jj < l_i32Size2; ++jj)
+//            {
+//                int v1 = rand()%100;
+//                int v2 = rand()%100;
+
+//                m1.at<float>(ii,jj) = v1;
+//                m2.at<float>(jj,ii) = v2;
+
+//    //            sm1.ref(ii,jj) = v1;
+//    //            sm2.ref(jj,ii) = v2;
+
+//            }
+//        }
+
+//        m_oProgramTime = clock();
+//    //    swUtil::swCuda::blockMatrixMultiplication(sm1, sm2, sm3);
+//        swUtil::swCuda::blockMatrixMultiplication(m1, m2, m4, 4);
+//        std::cout << "cuda : " << (float)(clock() - m_oProgramTime) / CLOCKS_PER_SEC << std::endl;
+
+
+//    //    m_oProgramTime = clock();
+//    //    m3 = m1 * m2;
+//    //    std::cout << "opencv : " << (float)(clock() - m_oProgramTime) / CLOCKS_PER_SEC << std::endl;
+//    //    std::cout << m3 << " ";
+
+//        int error = 0;
+
+//    //    for(int ii = 0; ii < l_i32Size1;++ii)
+//    //    {
+//    //        for(int jj = 0; jj < l_i32Size1; ++jj)
+//    //        {
+
+//    //            if(rand()%10000 == 0)
+//    //            {
+//    //                std::cout << m3.at<float>(ii,jj) << " " << m4.at<float>(ii,jj) << " | ";
+//    //            }
+
+//    //            if(m3.at<float>(ii,jj)* m3.at<float>(ii,jj) - m4.at<float>(ii,jj)* m4.at<float>(ii,jj) > 0.01f)
+//    //            {
+//    //                error++;
+//    //            }
+//    //        }
+//    //    }
+//        std::cout << "errors : " << error << std::endl;
+
+//    //    int width  = 1000;
+//    //    int height = 1000;
+//    //    cv::Mat l_oM1(height,width, CV_32FC1), l_oM2(width,height, CV_32FC1);
+
+//    //    for(int ii = 0; ii < width*height;++ii)
+//    //    {
+//    //        l_oM1.at<float>(ii) = rand()%100;
+//    //        l_oM2.at<float>(ii) = rand()%100;
+//    //    }
+
+
+//    //    m_oProgramTime = clock();
+//    //    cv::Mat l_oRes;
+//    //    swUtil::swCuda::matrixMultiplication(l_oM1, l_oM2, l_oRes);
+//    //    std::cout << "cuda : " << (float)(clock() - m_oProgramTime) / CLOCKS_PER_SEC << std::endl;
+
+//    //    m_oProgramTime = clock();
+//    //    cv::Mat l_oRes2 = l_oM1 * l_oM2;
+//    //    std::cout << "opencv : " << (float)(clock() - m_oProgramTime) / CLOCKS_PER_SEC << std::endl;
+
+//    //    std::cout << "Res :" << std::endl;
+//    //    for(int ii = 0; ii < height*height;++ii)
+//    //    {
+//    //        if(rand()%10000 == 0)
+//    //        {
+//    //            if(l_oRes.at<float>(ii)*l_oRes.at<float>(ii) - l_oRes2.at<float>(ii)*l_oRes2.at<float>(ii) > 0.001f)
+//    //            {
+//    //                std::cerr << "Error computing : " << l_oRes.at<float>(ii) << " " << l_oRes2.at<float>(ii) << " " << ii << std::endl;
+//    //                break;
+//    //            }
+//    //        }
+//    //    }
+//    }
+
     m_bTemplateDefined  = false;
     m_bTargetDefined    = false;
-
-//    int l_aTAASize[] = {1000, 1000};
-//    cv::SparseMat_<float> *oTAA = new cv::SparseMat_<float>(2, l_aTAASize);
-//    cv::SparseMat_<uint> test(2,l_aTAASize);
-//    oTAA->clear();
-////    oTAA->release();
-////    cv::SparseMat mat(2, l_aTAASize, 6);
-//    cv::SparseMat mat;
-//    mat.release();
-////    mat.clear();
-////    delete oTAA;
-
-//////    for(int ii = 0; ii < oTAA.size(1); ++ii)
-//////    {
-//////        for(int jj = 0; jj < oTAA.size(0); ++jj)
-//////        {
-//////            if(rand()%100 == 0)
-//////            {
-//////                oTAA.ref(jj,ii) = 10;
-//////            }
-//////        }
-//////    }
 
     // init main widget
     m_uiMorphing->setupUi(this);
@@ -102,7 +179,6 @@ SWMorphingInterface::SWMorphingInterface() : m_uiMorphing(new Ui::SWUI_Morphing)
         QObject::connect(m_pWMorphing,  SIGNAL(endMorphingSignal()),            this,                       SLOT(unlockInterface()));
 
         // m_pGLOSNRICP
-//        QObject::connect(m_pGLOSNRICP,  SIGNAL(sendSourceMeshInfos(QString)), this, SLOT(update()));
         QObject::connect(m_pGLOSNRICP,  SIGNAL(sendSourceMeshInfos(QString)), m_uiMorphing->tbInfosTemplate,SLOT(setText(QString)));
         QObject::connect(m_pGLOSNRICP,  SIGNAL(sendTargetMeshInfos(QString)), m_uiMorphing->tbInfosTarget,  SLOT(setText(QString)));
 
@@ -166,6 +242,8 @@ SWMorphingInterface::~SWMorphingInterface()
     m_TMorphing.wait();
 
     deleteAndNullify(m_pWMorphing);
+
+//    delete[] test;
 }
 
 

@@ -57,9 +57,9 @@ all: trackingHeadForest trackingHeadEmicp trackingHeadForest trackingFaceLab tra
 !endif
 
 !if "$(ARCH)" == "amd64"
-all: trackingForth
+all:
 !endif
-
+#trackingForth
 
 trackingHeadForest : $(BINDIR)/SWTrackingHeadForest.exe
 trackingFaceLab    : $(BINDIR)/SWFaceLabTracking.exe

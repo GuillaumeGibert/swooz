@@ -300,6 +300,19 @@ void SWRigidMotion::display()
     std::cout << l_sToDiplay <<  std::endl;
 }
 
+void SWRigidMotion::displayRotMatrix()
+{
+    std::cout << "Rot matrix : " << std::endl;
+    for(int ii = 0; ii < 9; ++ii)
+    {
+        if(ii%3 == 0 && ii != 0)
+        {
+            std::cout << std::endl;
+        }
+        std::cout << m_aFRotation[ii] << " ";
+    }
+}
+
 
 // ############################################# CONSTRUCTORS / DESTRUCTORS - SWCloud
 

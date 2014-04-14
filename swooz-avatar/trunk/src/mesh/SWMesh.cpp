@@ -336,7 +336,7 @@ bool SWMesh::saveToObj(const std::string &sPath, const std::string &sNameObj, co
     if(l_oFlowOBJ)
     {
         // save vertices
-            std::vector<double> l_a3FPoint;
+            std::vector<float> l_a3FPoint;
             for(uint ii = 0; ii < pointsNumber(); ++ii)
             {
                 std::ostringstream l_osV1, l_osV2, l_osV3;
@@ -480,13 +480,11 @@ uint SWMesh::pointsNumber() const
 
 bool SWMesh::isVerticesNormals() const
 {
-    cout << m_a3FNonOrientedVerticesNormals.size() << " " << pointsNumber() << endl;
     return (m_a3FNonOrientedVerticesNormals.size() > 0 && m_a3FNonOrientedVerticesNormals.size() == pointsNumber());
 }
 
 bool SWMesh::isTrianglesNormals() const
 {
-    cout << m_a3FNonOrientedTrianglesNormals.size() << " " << trianglesNumber() << endl;
     return (m_a3FNonOrientedTrianglesNormals.size() > 0 && m_a3FNonOrientedTrianglesNormals.size() == trianglesNumber());
 }
 

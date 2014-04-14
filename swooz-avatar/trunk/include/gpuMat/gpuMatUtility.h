@@ -15,7 +15,7 @@ int inverseMatSgesv(float *aFInputMat, float *aFOutputInvMat, int i32SizeSquareM
 
 void transpose(float *idata, float *odata, int size_x, int size_y);
 
-void matMult(const Matrix A, const Matrix B, Matrix C);
+void matMult(const Matrix A, const Matrix B, Matrix C, const int blockSize = 16);
 
 void cudaDummyCall(int argc, char **argv);
 
@@ -29,7 +29,7 @@ namespace swUtil
          * \param [in]  oInput   : input square matrix
          * \param [out] oResult  : output inverse matrix
          */
-        static void matrixInversion(const cv::SparseMat_<double> &oInput, cv::Mat &oResult)
+        static void matrixInversion(const cv::SparseMat_<float> &oInput, cv::Mat &oResult)
         {
             float *l_aFDataIn  = new float[oInput.size(0) * oInput.size(1)];
             float *l_aFDataOut = new float[oInput.size(0) * oInput.size(1)];
@@ -39,7 +39,7 @@ namespace swUtil
             // input input/output array datas
             for(int ii = 0; ii < oInput.size(0) * oInput.size(1); ++ii)
             {
-                l_aFDataIn[ii] = (float)oInput( (ii/oInput.size(0)), (ii%oInput.size(0)));
+                l_aFDataIn[ii] = oInput( (ii/oInput.size(0)), (ii%oInput.size(0)));
 
                 if(ii == l_i32CurrentIndexDiag) // init output array with id matrix
                 {
@@ -55,10 +55,10 @@ namespace swUtil
             // compute inverse mat
             inverseMatSgesv(l_aFDataIn, l_aFDataOut, oInput.size(0));
 
-            oResult = cv::Mat(oInput.size(0), oInput.size(0), CV_64FC1);
+            oResult = cv::Mat(oInput.size(0), oInput.size(0), CV_32FC1);
             for(int ii = 0; ii < oInput.size(0) * oInput.size(0); ++ii)
             {
-                oResult.at<double>(ii) = (double)(l_aFDataOut[ii]);
+                oResult.at<float>(ii) = (l_aFDataOut[ii]);
             }
 
             delete[] l_aFDataIn;
@@ -67,7 +67,7 @@ namespace swUtil
 
         /**
          * \brief GPU matrix inversion.
-         * \param [in]  oInput   : input square matrix
+         * \param [in]  oInput   : float input square matrix
          * \param [out] oResult  : output inverse matrix
          */
         static void matrixInversion(const cv::Mat &oInput, cv::Mat &oResult)
@@ -80,7 +80,7 @@ namespace swUtil
             // input input/output array datas
             for(int ii = 0; ii < oInput.rows * oInput.cols; ++ii)
             {
-                l_aFDataIn[ii] = (float)(oInput.at<double>(ii));
+                l_aFDataIn[ii] = (oInput.at<float>(ii));
 
                 if(ii == l_i32CurrentIndexDiag) // init output array with id matrix
                 {
@@ -95,15 +95,15 @@ namespace swUtil
 
             // compute inverse mat
             inverseMatSgesv(l_aFDataIn, l_aFDataOut, oInput.rows);
+            delete[] l_aFDataIn;
 
             // fill result mat
-            oResult = cv::Mat(oInput.rows,oInput.rows, CV_64FC1);
+            oResult = cv::Mat(oInput.rows,oInput.rows, CV_32FC1);
             for(int ii = 0; ii < oInput.rows*oInput.rows; ++ii)
             {
-                oResult.at<double>(ii) = (double)(l_aFDataOut[ii]);
+                oResult.at<float>(ii) = (l_aFDataOut[ii]);
             }
 
-            delete[] l_aFDataIn;
             delete[] l_aFDataOut;
         }
 
@@ -113,7 +113,8 @@ namespace swUtil
          * \param [in]  oSMatB    : input B matrix
          * \param [out] oSMatRes  : res C matrix
          */
-        static void matrixMultiplication( cv::SparseMat_<double> &oSMatA,  cv::SparseMat_<double> &oSMatB,  cv::SparseMat_<double> &oSMatRes)
+//        static void matrixMultiplication( cv::SparseMat_<double> &oSMatA,  cv::SparseMat_<double> &oSMatB,  cv::SparseMat_<double> &oSMatRes)
+        static void matrixMultiplication( cv::SparseMat_<float> &oSMatA,  cv::SparseMat_<float> &oSMatB,  cv::SparseMat_<float> &oSMatRes)
         {
             // Padd matrix offset
             int l_i32PaddOffsetRowsA = (BLOCKSIZE - (oSMatA.size(0) % BLOCKSIZE))% BLOCKSIZE;
@@ -142,7 +143,7 @@ namespace swUtil
                     {
                         if(oSMatA.ptr(ii,jj, false))
                         {
-                            A.elements[ii*A.width + jj] = (float) oSMatA(ii,jj);
+                            A.elements[ii*A.width + jj] = oSMatA(ii,jj);
                         }
                         else
                         {
@@ -164,7 +165,7 @@ namespace swUtil
                     {
                         if(oSMatB.ptr(ii,jj, false))
                         {
-                            B.elements[ii*B.width + jj] = (float)oSMatB(ii,jj);
+                            B.elements[ii*B.width + jj] = oSMatB(ii,jj);
                         }
                         else
                         {
@@ -188,15 +189,15 @@ namespace swUtil
 
             int size[] = {l_i32ResHeight, l_i32ResWidth};
 
-            oSMatRes = cv::SparseMat_<double>(2, size);
+            oSMatRes = cv::SparseMat_<float>(2, size);
 
             for(int ii = 0; ii < oSMatRes.size(0); ++ii)
             {
                 for(int jj = 0; jj < oSMatRes.size(1); ++jj)
                 {
-                    if((double)C.elements[ii*C.width + jj] != 0.0)
+                    if(C.elements[ii*C.width + jj] != 0.0)
                     {
-                        oSMatRes.ref(ii, jj) = (double)C.elements[ii*C.width + jj];
+                        oSMatRes.ref(ii, jj) = C.elements[ii*C.width + jj];
                     }
                 }
             }
@@ -212,24 +213,33 @@ namespace swUtil
          */
         static void matrixMultiplication(const cv::Mat &oMatA, const cv::Mat &oMatB, cv::Mat &oMatRes)
         {
+            int l_i32BlockSize = 16;
+
+//            printf("start matrix multiplication\n");
             // Padd matrix offset
-            int l_i32PaddOffsetRowsA = (BLOCKSIZE - (oMatA.rows % BLOCKSIZE))% BLOCKSIZE;
-            int l_i32PaddOffsetColsA = (BLOCKSIZE - (oMatA.cols % BLOCKSIZE))% BLOCKSIZE;
-            int l_i32PaddOffsetRowsB = (BLOCKSIZE - (oMatB.rows % BLOCKSIZE))% BLOCKSIZE;
-            int l_i32PaddOffsetColsB = (BLOCKSIZE - (oMatB.cols % BLOCKSIZE))% BLOCKSIZE;
+            int l_i32PaddOffsetRowsA = (l_i32BlockSize - (oMatA.rows % l_i32BlockSize))% l_i32BlockSize;
+            int l_i32PaddOffsetColsA = (l_i32BlockSize - (oMatA.cols % l_i32BlockSize))% l_i32BlockSize;
+            int l_i32PaddOffsetRowsB = (l_i32BlockSize - (oMatB.rows % l_i32BlockSize))% l_i32BlockSize;
+            int l_i32PaddOffsetColsB = (l_i32BlockSize - (oMatB.cols % l_i32BlockSize))% l_i32BlockSize;
 
             Matrix A, B, C;
             A.height = oMatA.rows + l_i32PaddOffsetRowsA;
             A.width  = oMatA.cols + l_i32PaddOffsetColsA;
             A.elements = new float[A.width * A.height];
 
+//            printf("allocation A\n");
+
             B.height = oMatB.rows + l_i32PaddOffsetRowsB;
             B.width  = oMatB.cols + l_i32PaddOffsetColsB;
             B.elements = new float[B.width * B.height];
 
+//            printf("allocation B\n");
+
             C.height = A.height;
             C.width  = B.width;
             C.elements = new float[C.width * C.height];
+
+//            printf("allocation C\n");
 
             bool l_bA32 = false, l_bA64 = false;
             if(oMatA.depth() == CV_32F)
@@ -253,11 +263,11 @@ namespace swUtil
                         }
                         else if(l_bA64)
                         {
-                            A.elements[ii*A.width + jj] = (float)oMatA.at<double>(ii,jj);
+                            A.elements[ii*A.width + jj] = static_cast<float>(oMatA.at<double>(ii,jj));
                         }
                         else
                         {
-                            A.elements[ii*A.width + jj] = (float)oMatA.at<int>(ii,jj);
+                            A.elements[ii*A.width + jj] = static_cast<float>(oMatA.at<int>(ii,jj));
                         }
                     }
                     else
@@ -266,6 +276,9 @@ namespace swUtil
                     }
                 }
             }
+
+//            printf("fill A\n");
+
 
             bool l_bB32 = false, l_bB64 = false;
 
@@ -290,11 +303,11 @@ namespace swUtil
                         }
                         else if(l_bB64)
                         {
-                            B.elements[ii*B.width + jj] = (float)oMatB.at<double>(ii,jj);
+                            B.elements[ii*B.width + jj] = static_cast<float>(oMatB.at<double>(ii,jj));
                         }
                         else
                         {
-                            B.elements[ii*B.width + jj] = (float)oMatB.at<int>(ii,jj);
+                            B.elements[ii*B.width + jj] = static_cast<float>(oMatB.at<int>(ii,jj));
                         }
                     }
                     else
@@ -304,10 +317,19 @@ namespace swUtil
                 }
             }
 
-            matMult(A, B, C);
+//            printf("fill B\n");
+
+
+            matMult(A, B, C, l_i32BlockSize);
+
+//            printf("multiplication \n");
+
 
             delete[] A.elements;
             delete[] B.elements;
+
+//            printf("delete A & B\n");
+
 
             int l_i32ResHeight = C.height- l_i32PaddOffsetRowsA;
             int l_i32ResWidth  = C.width - l_i32PaddOffsetColsB;
@@ -339,17 +361,155 @@ namespace swUtil
                     }
                     else if(l_bC64)
                     {
-                        oMatRes.at<double>(ii,jj) = (double)C.elements[ii*C.width + jj];
+                        oMatRes.at<double>(ii,jj) = static_cast<double>(C.elements[ii*C.width + jj]);
                     }
                     else
                     {
-                        oMatRes.at<int>(ii,jj) = (int)C.elements[ii*C.width + jj];
+                        oMatRes.at<int>(ii,jj) = static_cast<int>(C.elements[ii*C.width + jj]);
                     }
                 }
             }
 
+//            printf("fill Res \n");
+
+
             delete[] C.elements;
         }
+
+
+
+
+        static void block(cv::Mat &oMat, float *aFBlock, cuint ui32X, cuint ui32Y, cuint ui32HeightBlock, cuint ui32WidthBlock)
+        {
+            for(uint ii = 0; ii < ui32HeightBlock; ++ii)
+            {
+                for(uint jj = 0; jj < ui32WidthBlock; ++jj)
+                {
+                    int l_i32MatII = ui32X * ui32HeightBlock + ii;
+                    int l_i32MatJJ = ui32Y * ui32WidthBlock  + jj;
+
+                    if(l_i32MatII < oMat.rows && l_i32MatJJ < oMat.cols)
+                    {
+//                        if(oMat.ptr(l_i32MatII, l_i32MatJJ, false))
+//                        {
+                            aFBlock[ii * ui32WidthBlock + jj] = oMat.at<float>(l_i32MatII, l_i32MatJJ);
+//                        }
+//                        else
+//                        {
+//                            aFBlock[ii * ui32WidthBlock + jj] = 0.f;
+//                        }
+                    }
+                    else // case where the block contains a padded part of the matrix
+                    {
+                        aFBlock[ii * ui32WidthBlock + jj] = 0.f;
+                    }
+                }
+            }
+        }
+
+        static void updateMatWithBlock(cv::Mat &oMat, float *aFBlock, cuint ui32X, cuint ui32Y, cuint ui32HeightBlock, cuint ui32WidthBlock)
+        {
+             for(uint ii = 0; ii < ui32HeightBlock; ++ii)
+             {
+                 for(uint jj = 0; jj < ui32WidthBlock; ++jj)
+                 {
+                     int l_i32MatII = ui32X * ui32HeightBlock + ii;
+                     int l_i32MatJJ = ui32Y * ui32WidthBlock  + jj;
+
+                     if(l_i32MatII < oMat.rows && l_i32MatJJ < oMat.cols)
+                     {
+                         if(aFBlock[ii * ui32WidthBlock + jj] != 0.f)
+                         {
+                             oMat.at<float>(l_i32MatII, l_i32MatJJ) = aFBlock[ii * ui32WidthBlock + jj];
+                         }
+                     }
+                 }
+             }
+        }
+
+        static void blockMatrixMultiplication(cv::Mat &oMatA, cv::Mat &oMatB, cv::Mat &oMatRes, cint i32SizeMatBlock = 2)
+        {
+            int l_i32SizeMatBlock    = i32SizeMatBlock; // l_i32SizeMatBlock must be a multiple of BLOCKSIZE
+            int l_i32SizeMatDivBlock = l_i32SizeMatBlock * BLOCKSIZE;
+
+            // Padd matrix offset
+                int l_i32PaddOffsetRowsA = (l_i32SizeMatDivBlock - (oMatA.rows % l_i32SizeMatDivBlock)) % l_i32SizeMatDivBlock;
+                int l_i32PaddOffsetColsA = (l_i32SizeMatDivBlock - (oMatA.cols % l_i32SizeMatDivBlock)) % l_i32SizeMatDivBlock;
+                int l_i32PaddOffsetRowsB = (l_i32SizeMatDivBlock - (oMatB.rows % l_i32SizeMatDivBlock)) % l_i32SizeMatDivBlock;
+                int l_i32PaddOffsetColsB = (l_i32SizeMatDivBlock - (oMatB.cols % l_i32SizeMatDivBlock)) % l_i32SizeMatDivBlock;
+
+            // Init A,B,C sizes
+                Matrix A, B, C;
+                A.height = oMatA.rows + l_i32PaddOffsetRowsA;
+                A.width  = oMatA.cols + l_i32PaddOffsetColsA;
+                B.height = oMatB.rows + l_i32PaddOffsetRowsB;
+                B.width  = oMatB.cols + l_i32PaddOffsetColsB;
+                C.height = A.height;
+                C.width  = B.width;
+
+            // Init subA, suB, subC
+                Matrix subA, subB, subC;
+                subA.height   = A.height / l_i32SizeMatBlock;
+                subA.width    = A.width  / l_i32SizeMatBlock;
+                subA.elements = new float[subA.height*subA.width];
+                subB.height   = B.height / l_i32SizeMatBlock;
+                subB.width    = B.width  / l_i32SizeMatBlock;
+                subB.elements = new float[subB.height*subB.width];
+                subC.height   = subA.height;
+                subC.width    = subB.width;
+                subC.elements = new float[subC.height*subC.width];
+
+                float *l_fSubCCopy = new float[subC.height*subC.width];
+
+                int l_i32ResHeight = C.height- l_i32PaddOffsetRowsA;
+                int l_i32ResWidth  = C.width - l_i32PaddOffsetColsB;
+//                int l_fI32Size[] = {l_i32ResHeight, l_i32ResWidth};
+                oMatRes = cv::Mat(l_i32ResHeight,l_i32ResWidth, CV_32FC1);
+
+                for(int ii = 0; ii < l_i32SizeMatBlock; ++ii) // C ii ..
+                {
+                    for(int jj = 0; jj < l_i32SizeMatBlock; ++jj) // C .. jj
+                    {
+                        std::fill_n(l_fSubCCopy, subC.height * subC.width, 0.f);
+
+                        // compute Cij
+                        for(int kk = 0; kk < l_i32SizeMatBlock; ++kk)
+                        {
+                            block(oMatA, subA.elements, ii, kk, subA.height, subA.width);
+
+                            block(oMatB, subB.elements, kk, jj, subB.height, subB.width);
+
+                            matMult(subA, subB, subC);
+
+                            for(int ll = 0; ll < subC.height* subC.width; ++ll)
+                            {
+                                l_fSubCCopy[ll] += subC.elements[ll];
+                            }
+                        }
+
+                        updateMatWithBlock(oMatRes, l_fSubCCopy, ii, jj, subC.height, subC.width);
+                    }
+                }
+
+            delete[] subA.elements;
+            delete[] subB.elements;
+            delete[] subC.elements;
+            delete[] l_fSubCCopy;
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
         /**
@@ -361,7 +521,7 @@ namespace swUtil
          * \param [in]      ui32HeightBlock : ...
          * \param [in]      ui32WidthBlock  : ...
          */
-        static void block(cv::SparseMat_<double> &oMat, float *aFBlock, cuint ui32X, cuint ui32Y, cuint ui32HeightBlock, cuint ui32WidthBlock)
+        static void block(cv::SparseMat_<float> &oMat, float *aFBlock, cuint ui32X, cuint ui32Y, cuint ui32HeightBlock, cuint ui32WidthBlock)
         {
             for(uint ii = 0; ii < ui32HeightBlock; ++ii)
             {
@@ -374,7 +534,7 @@ namespace swUtil
                     {
                         if(oMat.ptr(l_i32MatII, l_i32MatJJ, false))
                         {
-                            aFBlock[ii * ui32WidthBlock + jj] = (float)oMat(l_i32MatII, l_i32MatJJ);
+                            aFBlock[ii * ui32WidthBlock + jj] = oMat(l_i32MatII, l_i32MatJJ);
                         }
                         else
                         {
@@ -398,7 +558,7 @@ namespace swUtil
          * \param [in]      ui32HeightBlock : ...
          * \param [in]      ui32WidthBlock  : ...
          */
-        static void updateMatWithBlock(cv::SparseMat_<double> &oMat, float *aFBlock, cuint ui32X, cuint ui32Y, cuint ui32HeightBlock, cuint ui32WidthBlock)
+        static void updateMatWithBlock(cv::SparseMat_<float> &oMat, float *aFBlock, cuint ui32X, cuint ui32Y, cuint ui32HeightBlock, cuint ui32WidthBlock)
         {
              for(uint ii = 0; ii < ui32HeightBlock; ++ii)
              {
@@ -409,14 +569,22 @@ namespace swUtil
 
                      if(l_i32MatII < oMat.size(0) && l_i32MatJJ < oMat.size(1))
                      {
-                         if(aFBlock[ii * ui32WidthBlock + jj] != 0.0)
+                         if(aFBlock[ii * ui32WidthBlock + jj] != 0.f)
                          {
-                             oMat.ref(l_i32MatII, l_i32MatJJ) = (double)aFBlock[ii * ui32WidthBlock + jj];
+                             oMat.ref(l_i32MatII, l_i32MatJJ) = aFBlock[ii * ui32WidthBlock + jj];
                          }
                      }
                  }
              }
         }
+
+
+
+
+
+
+
+
 
         /**
          * \brief ...
@@ -425,7 +593,8 @@ namespace swUtil
          * \param [out] oSMatRes : ...
          * \param [in] i32SizeMatBlock : ...
          */
-        static void blockMatrixMultiplication( cv::SparseMat_<double> &oSMatA,  cv::SparseMat_<double> &oSMatB,  cv::SparseMat_<double> &oSMatRes, cint i32SizeMatBlock = 2)
+//        static void blockMatrixMultiplication( cv::SparseMat_<double> &oSMatA,  cv::SparseMat_<double> &oSMatB,  cv::SparseMat_<double> &oSMatRes, cint i32SizeMatBlock = 2)
+        static void blockMatrixMultiplication( cv::SparseMat_<float> &oSMatA,  cv::SparseMat_<float> &oSMatB,  cv::SparseMat_<float> &oSMatRes, cint i32SizeMatBlock = 2)
         {
             int l_i32SizeMatBlock    = i32SizeMatBlock; // l_i32SizeMatBlock must be a multiple of BLOCKSIZE
             int l_i32SizeMatDivBlock = l_i32SizeMatBlock * BLOCKSIZE;
@@ -462,7 +631,7 @@ namespace swUtil
             int l_i32ResHeight = C.height- l_i32PaddOffsetRowsA;
             int l_i32ResWidth  = C.width - l_i32PaddOffsetColsB;
             int l_fI32Size[] = {l_i32ResHeight, l_i32ResWidth};
-            oSMatRes = cv::SparseMat_<double>(2, l_fI32Size);
+            oSMatRes = cv::SparseMat_<float>(2, l_fI32Size);
 
             for(int ii = 0; ii < l_i32SizeMatBlock; ++ii) // C ii ..
             {

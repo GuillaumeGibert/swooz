@@ -32,7 +32,7 @@ SWOptimalStepNonRigidICP::SWOptimalStepNonRigidICP(const SWMesh &oSource, const 
                                                    const string &sPathSourceStasmCorr, const string &sPathTargetStasmCorr):
                                                    m_oSourceMesh(oSource), m_oTargetMesh(oTarget), m_oOriginalTargetMesh(oTarget),
                                                    m_pSourceMeshC(NULL), m_pTargetMeshC(NULL)
-{
+{        
     vector<float> l_A3FTargetMeanPoint = m_oTargetMesh.cloud()->meanPoint();
     l_A3FTargetMeanPoint[2] -= 10.f;
 
@@ -54,21 +54,21 @@ SWOptimalStepNonRigidICP::SWOptimalStepNonRigidICP(const SWMesh &oSource, const 
     (*m_oOriginalTargetMesh.cloud()) += l_v3FOffset;
 
     // init deformation arrays
-        m_X  = new cv::Mat(4 * oSource.pointsNumber(), 3, CV_64FC1, cv::Scalar(0.0));
-        m_pX = new cv::Mat(4 * oSource.pointsNumber(), 3, CV_64FC1, cv::Scalar(0.0));
+        m_X  = new cv::Mat(4 * oSource.pointsNumber(), 3, CV_32FC1, cv::Scalar(0.f));
+        m_pX = new cv::Mat(4 * oSource.pointsNumber(), 3, CV_32FC1, cv::Scalar(0.f));
 
     // init distance weights array
-        m_w.assign(oSource.pointsNumber(), 1.0);
-        m_w1.assign(oSource.pointsNumber(), 1.0);
-        m_w2.assign(oSource.pointsNumber(), 1.0);
-        m_w3.assign(oSource.pointsNumber(), 1.0);
+        m_w.assign(oSource.pointsNumber(), 1.f);
+        m_w1.assign(oSource.pointsNumber(), 1.f);
+        m_w2.assign(oSource.pointsNumber(), 1.f);
+        m_w3.assign(oSource.pointsNumber(), 1.f);
 
     // init correspondances array
         m_u.assign(oSource.pointsNumber(), 0);
 
     // set initial parameters
-        m_dAngleMax = 50.0;
-        m_dLastComputedCost = -1.0;
+        m_fAngleMax = 50.f;
+        m_fLastComputedCost = -1.f;
         m_fWeightVectorDistMax = 0.08f;
 
     // read stasm correspondance files
@@ -89,22 +89,31 @@ SWOptimalStepNonRigidICP::SWOptimalStepNonRigidICP(const SWMesh &oSource, const 
         }
 
         // DEBUG
-        for (std::map<uint,uint>::const_iterator it = m_l.cbegin(); it != m_l.cend(); ++it)
-        {
-            uint l_ui32TemplateId = it->first;
-            uint l_ui32TargetId   = it->second;
-
+//        for (std::map<uint,uint>::const_iterator it = m_l.cbegin(); it != m_l.cend(); ++it)
+//        {
+//            uint l_ui32TemplateId = it->first;
+//            uint l_ui32TargetId   = it->second;
 //            cout << "m_l : " << l_ui32TemplateId << " " << l_ui32TargetId << endl;
-        }
+//        }
+
+    clock_t l_oProgramTime = clock();
 
 
     //  update triangles normals
         m_oTargetMesh.updateNonOrientedTrianglesNormals();
+        // DEBUG
+        cout << "Target normals1 : " << (float)(clock() - l_oProgramTime) / CLOCKS_PER_SEC  << std::endl;
         m_oSourceMesh.updateNonOrientedTrianglesNormals();
+        // DEBUG
+        cout << "Source normals1 : " << (float)(clock() - l_oProgramTime) / CLOCKS_PER_SEC  << std::endl;
 
     // update vertices normals
         m_oTargetMesh.updateNonOrientedVerticesNormals();
+        // DEBUG
+        cout << "Target normals2 : " << (float)(clock() - l_oProgramTime) / CLOCKS_PER_SEC  << std::endl;
         m_oSourceMesh.updateNonOrientedVerticesNormals();
+        // DEBUG
+        cout << "Source normals2 : " << (float)(clock() - l_oProgramTime) / CLOCKS_PER_SEC  << std::endl;
 }
 
 
@@ -144,112 +153,141 @@ void SWOptimalStepNonRigidICP::updateSourceMeshNormals()
 
 void SWOptimalStepNonRigidICP::computeCorrespondences()
 {
+    // DEBUG
+    clock_t l_oProgramTime = clock();
+
+    m_fMaxTemplateTargetDistance = 0.f;
+
     for(uint ii = 0; ii < m_oSourceMesh.pointsNumber(); ++ii)
     {
         m_u[ii] = m_oSourceMesh.idNearestPoint(ii, m_oTargetMesh);
+
+        std::vector<float> l_vPtTemplate, l_vPtTarget;
+        m_oSourceMesh.point(l_vPtTemplate, ii);
+        m_oTargetMesh.point(l_vPtTarget, m_u[ii]);
+
+        float l_fDist = swUtil::norm(swUtil::vec(l_vPtTemplate, l_vPtTarget));
+
+        if(l_fDist > m_fMaxTemplateTargetDistance)
+        {
+            m_fMaxTemplateTargetDistance = l_fDist;
+        }
     }
+
+    // DEBUG
+    cout << " end  computeCorrespondences " << (float)(clock() - l_oProgramTime) / CLOCKS_PER_SEC << std::endl;
 }
 
 
 void SWOptimalStepNonRigidICP::computeDistanceWeights()
 {
+    // DEBUG
     clock_t m_oProgramTime = clock();
 
     // set to 1 all the weights
-        m_w.assign(m_oSourceMesh.pointsNumber(), 1.0);
-        m_w1.assign(m_oSourceMesh.pointsNumber(), 1.0);
-        m_w2.assign(m_oSourceMesh.pointsNumber(), 1.0);
-        m_w3.assign(m_oSourceMesh.pointsNumber(), 1.0);
+        m_w.assign(m_oSourceMesh.pointsNumber(), 1.f);
+        m_w1.assign(m_oSourceMesh.pointsNumber(), 1.f);
+        m_w2.assign(m_oSourceMesh.pointsNumber(), 1.f);
+        m_w3.assign(m_oSourceMesh.pointsNumber(), 1.f);
 
     // 1) ui lies on a border of the target mesh
         for(uint ii = 0; ii < m_oSourceMesh.pointsNumber(); ++ii)
         {
             if(m_oTargetMesh.vertexOnBorder(m_u[ii]))
             {
-                m_w[ii] = 0.0;
-                m_w1[ii] = 0.0;
+                m_w[ii] = 0.f;
+                m_w1[ii] = 0.f;
             }
         }
 
+        // DEBUG
         cout << " [1 " << (float)(clock() - m_oProgramTime) / CLOCKS_PER_SEC << " ] ";
         m_oProgramTime = clock();
 
     // 2) the angle between the normals of the meshes at Xivi and ui is larger than a fixed threshold
         for(uint ii = 0; ii < m_oSourceMesh.pointsNumber(); ++ii)
         {
-//            if(m_w[ii] == 1.0)
-//            {
-                vector<double> l_vXiViNormal;
-                m_oSourceMesh.vertexNormal(l_vXiViNormal , ii);
+            if(m_w[ii] == 0.f)
+            {
+                continue;
+            }
 
-                vector<double> l_vUiNormal;
-                m_oTargetMesh.vertexNormal(l_vUiNormal, m_u[ii]);
+            vector<float> l_vXiViNormal;
+            m_oSourceMesh.vertexNormal(l_vXiViNormal , ii);
 
-                double l_dAngle = swUtil::vectorAngle(l_vXiViNormal, l_vUiNormal);
+            vector<float> l_vUiNormal;
+            m_oTargetMesh.vertexNormal(l_vUiNormal, m_u[ii]);
 
-                if(l_dAngle > m_dAngleMax)
-                {
-                    m_w[ii] = 0.0;
-                    m_w2[ii] = 0.0;
-                }
-//            }
+            float l_fAngle = static_cast<float>(swUtil::vectorAngle(l_vXiViNormal, l_vUiNormal));
+
+            if(l_fAngle > m_fAngleMax)
+            {
+                m_w[ii] = 0.f;
+                m_w2[ii] = 0.f;
+            }
         }
 
+        // DEBUG
         cout << " [2 " << (float)(clock() - m_oProgramTime) / CLOCKS_PER_SEC << " ] ";
         m_oProgramTime = clock();
+
+        clock_t test3 = clock();
 
     // 3) the line segment Xivi to ui intersects the deformed template
         for(uint ii = 0; ii < m_oSourceMesh.pointsNumber(); ++ii)
         {
-//            if(m_w[ii] == 1.0)
-//            {
-                std::vector<double> l_vP, l_vD;
-                m_oSourceMesh.point(l_vP, ii);
-                m_oTargetMesh.point(l_vD, m_u[ii]);
+            if(m_w[ii] == 0.f)
+            {
+                continue;
+            }
 
-                bool l_bIntersect = false;
+            std::vector<float> l_vP, l_vD;
+            m_oSourceMesh.point(l_vP, ii);
+            m_oTargetMesh.point(l_vD, m_u[ii]);
 
-                for(uint jj = 0; jj < m_oSourceMesh.trianglesNumber(); ++jj)
+            bool l_bIntersect = false;
+
+            for(uint jj = 0; jj < m_oSourceMesh.trianglesNumber(); ++jj)
+            {
+                std::vector<float> l_vV1, l_vV2, l_vV3;
+                m_oSourceMesh.trianglePoints(l_vV1, l_vV2, l_vV3, jj);
+
+                std::vector<float> m_vTriMiddle(3,0.f);
+                m_vTriMiddle[0] = (l_vV1[0] + l_vV2[0] + l_vV3[0])/3.f;
+                m_vTriMiddle[1] = (l_vV1[1] + l_vV2[1] + l_vV3[1])/3.f;
+                m_vTriMiddle[2] = (l_vV1[2] + l_vV2[2] + l_vV3[2])/3.f;
+
+                if(swUtil::norm(swUtil::vec(l_vP,m_vTriMiddle)) > m_fWeightVectorDistMax && swUtil::norm(swUtil::vec(m_vTriMiddle,l_vD)) > m_fWeightVectorDistMax)
                 {
-                    std::vector<double> l_vV1, l_vV2, l_vV3;
-                    m_oSourceMesh.trianglePoints(l_vV1, l_vV2, l_vV3, jj);
-
-                    std::vector<double> m_vTriMiddle(3,0.0);
-                    m_vTriMiddle[0] = (l_vV1[0] + l_vV2[0] + l_vV3[0])/3.0;
-                    m_vTriMiddle[1] = (l_vV1[1] + l_vV2[1] + l_vV3[1])/3.0;
-                    m_vTriMiddle[2] = (l_vV1[2] + l_vV2[2] + l_vV3[2])/3.0;
-
-                    if(swUtil::norm(swUtil::vec(l_vP,m_vTriMiddle)) > m_fWeightVectorDistMax && swUtil::norm(swUtil::vec(m_vTriMiddle,l_vD)) > m_fWeightVectorDistMax)
-                    {
-                        continue;
-                    }
-
-
-                    if(swUtil::segmentTriangleIntersect(l_vP, l_vD, l_vV1, l_vV2, l_vV3) == 1)
-                    {
-                        l_bIntersect = true;
-                        break;
-                    }
+                    continue;
                 }
 
-                if(l_bIntersect)
+                if(swUtil::segmentTriangleIntersect(l_vP, l_vD, l_vV1, l_vV2, l_vV3) == 1)
                 {
-                    m_w[ii]  = 0.0;
-                    m_w3[ii] = 0.0;
+                    l_bIntersect = true;
+                    break;
                 }
-//            }
+            }
+
+            if(l_bIntersect)
+            {
+                cout << "a";
+                m_w[ii]  = 0.f;
+                m_w3[ii] = 0.f;
+            }
+
         }
 
+        // DEBUG
         cout << " [3 " << (float)(clock() - m_oProgramTime) / CLOCKS_PER_SEC << " ] ";
 }
 
-double SWOptimalStepNonRigidICP::totalEnergy() const
+float SWOptimalStepNonRigidICP::totalEnergy() const
 {
-    return m_dLastComputedCost;
+    return m_fLastComputedCost;
 }
 
-
-void SWOptimalStepNonRigidICP::displaySparseMatrix(cv::SparseMat_<double> &oSparseMat)
+void SWOptimalStepNonRigidICP::displaySparseMatrix(cv::SparseMat_<float> &oSparseMat)
 {
     const int *l_aSize = oSparseMat.size();
 
@@ -272,20 +310,20 @@ void SWOptimalStepNonRigidICP::displayDenseMatrix(cv::Mat &oMat)
     {
         for(int jj = 0; jj < oMat.cols; ++jj)
         {
-            if(oMat.at<double>(ii,jj) != 0.0)
+            if(oMat.at<float>(ii,jj) != 0.0)
             {
-                cout << oMat.at<double>(ii,jj) << " ";
+                cout << oMat.at<float>(ii,jj) << " ";
             }
         }
     }
     cout << endl;
 }
 
-void SWOptimalStepNonRigidICP::buildWD(cv::SparseMat_<double> &oWD)
+void SWOptimalStepNonRigidICP::buildWD(cv::SparseMat_<float> &oWD)
 {
     // build W * D
     int l_aWDSize[] = {m_pSourceMeshC->pointsNumber(), 4*m_pSourceMeshC->pointsNumber()};
-    oWD = cv::SparseMat_<double> (2, l_aWDSize);
+    oWD = cv::SparseMat_<float> (2, l_aWDSize);
 
     for(int ii = 0; ii < oWD.size(0); ++ii)
     {
@@ -299,11 +337,11 @@ void SWOptimalStepNonRigidICP::buildWD(cv::SparseMat_<double> &oWD)
     }
 }
 
-void SWOptimalStepNonRigidICP::buildMG(cv::SparseMat_<double> &oMG, cdouble dAlpha, cdouble dGama)
+void SWOptimalStepNonRigidICP::buildMG(cv::SparseMat_<float> &oMG, cfloat fAlpha, cfloat fGama)
 {
     // build alpha * Kronecker product(M, G)) with G = diag(1,1,1, gama) and M node-arc incidence matrix (edge, vertex)
         int l_aMGSize[] = {4 * m_pSourceMeshC->edgesNumber(), 4 * m_pSourceMeshC->pointsNumber()};
-        oMG = cv::SparseMat_<double> (2, l_aMGSize);
+        oMG = cv::SparseMat_<float> (2, l_aMGSize);
 
         for(uint ii = 0, l_EdgeId = 0; ii < m_pSourceMeshC->pointsNumber(); ++ii)
         {
@@ -311,41 +349,39 @@ void SWOptimalStepNonRigidICP::buildMG(cv::SparseMat_<double> &oMG, cdouble dAlp
 
             for(uint jj = 0; jj < l_aVertexLinks.size(); ++jj, ++l_EdgeId)
             {
-                oMG.ref(4 * l_EdgeId,     4 * ii)     = -1.0     * dAlpha;
-                oMG.ref(4 * l_EdgeId + 1, 4 * ii + 1) = -1.0     * dAlpha;
-                oMG.ref(4 * l_EdgeId + 2, 4 * ii + 2) = -1.0     * dAlpha;
-                oMG.ref(4 * l_EdgeId + 3, 4 * ii + 3) = -dGama   * dAlpha;
+                oMG.ref(4 * l_EdgeId,     4 * ii)     = -1.f     * fAlpha;
+                oMG.ref(4 * l_EdgeId + 1, 4 * ii + 1) = -1.f     * fAlpha;
+                oMG.ref(4 * l_EdgeId + 2, 4 * ii + 2) = -1.f     * fAlpha;
+                oMG.ref(4 * l_EdgeId + 3, 4 * ii + 3) = -fGama   * fAlpha;
 
-                oMG.ref(4 * l_EdgeId,     4 * l_aVertexLinks[jj])     = 1.0     * dAlpha;
-                oMG.ref(4 * l_EdgeId + 1, 4 * l_aVertexLinks[jj] + 1) = 1.0     * dAlpha;
-                oMG.ref(4 * l_EdgeId + 2, 4 * l_aVertexLinks[jj] + 2) = 1.0     * dAlpha;
-                oMG.ref(4 * l_EdgeId + 3, 4 * l_aVertexLinks[jj] + 3) = dGama   * dAlpha;
+                oMG.ref(4 * l_EdgeId,     4 * l_aVertexLinks[jj])     = 1.f     * fAlpha;
+                oMG.ref(4 * l_EdgeId + 1, 4 * l_aVertexLinks[jj] + 1) = 1.f     * fAlpha;
+                oMG.ref(4 * l_EdgeId + 2, 4 * l_aVertexLinks[jj] + 2) = 1.f     * fAlpha;
+                oMG.ref(4 * l_EdgeId + 3, 4 * l_aVertexLinks[jj] + 3) = fGama   * fAlpha;
             }
         }
 }
 
-void SWOptimalStepNonRigidICP::buildWU(cv::SparseMat_<double> &oWU)
+//void SWOptimalStepNonRigidICP::buildWU(cv::SparseMat_<double> &oWU)
+void SWOptimalStepNonRigidICP::buildWU(cv::SparseMat_<float> &oWU)
 {
     // build W * U
     int l_aWUSize[] = {m_oSourceMesh.pointsNumber(), 3};
-    oWU = cv::SparseMat_<double> (2, l_aWUSize);
+    oWU = cv::SparseMat_<float> (2, l_aWUSize);
 
     for(int ii = 0; ii < oWU.size(0); ++ii)
     {
         float l_aFXYZ[3];
         m_oTargetMesh.point(l_aFXYZ, m_u[ii]);
-
         oWU.ref(ii, 0) = m_w[ii] * l_aFXYZ[0];
         oWU.ref(ii, 1) = m_w[ii] * l_aFXYZ[1];
         oWU.ref(ii, 2) = m_w[ii] * l_aFXYZ[2];
     }
 }
 
-
-
-void SWOptimalStepNonRigidICP::addLandMarks(cdouble dBeta, cv::SparseMat_<double> &oMG, cv::SparseMat_<double> &oA, cv::SparseMat_<double> &oB)
+void SWOptimalStepNonRigidICP::addLandMarks(cfloat fBeta, cv::SparseMat_<float> &oMG, cv::SparseMat_<float> &oA, cv::SparseMat_<float> &oB)
 {
-    vector<double> l_a3DSourcePt, l_a3DTargetPt;
+    std::vector<float> l_a3DSourcePt, l_a3DTargetPt;
 
     for (std::map<uint,uint>::const_iterator it = m_l.cbegin(); it != m_l.cend(); ++it)
     {
@@ -353,12 +389,11 @@ void SWOptimalStepNonRigidICP::addLandMarks(cdouble dBeta, cv::SparseMat_<double
         uint l_ui32TargetId = it->second;
         m_oSourceMesh.point(l_a3DSourcePt, l_ui32SourceId);
         m_oTargetMesh.point(l_a3DTargetPt, l_ui32TargetId);
-//        cout << swUtil::norm(swUtil::vec(l_a3DSourcePt, l_a3DTargetPt)) << " ";
 
-        oA.ref(oMG.size(0)+l_ui32SourceId, l_ui32SourceId * 4)      = l_a3DSourcePt[0] * dBeta;
-        oA.ref(oMG.size(0)+l_ui32SourceId, l_ui32SourceId * 4 + 1)  = l_a3DSourcePt[1] * dBeta;
-        oA.ref(oMG.size(0)+l_ui32SourceId, l_ui32SourceId * 4 + 2)  = l_a3DSourcePt[2] * dBeta;
-        oA.ref(oMG.size(0)+l_ui32SourceId, l_ui32SourceId * 4 + 3)  = dBeta;
+        oA.ref(oMG.size(0)+l_ui32SourceId, l_ui32SourceId * 4)      = l_a3DSourcePt[0] * fBeta;
+        oA.ref(oMG.size(0)+l_ui32SourceId, l_ui32SourceId * 4 + 1)  = l_a3DSourcePt[1] * fBeta;
+        oA.ref(oMG.size(0)+l_ui32SourceId, l_ui32SourceId * 4 + 2)  = l_a3DSourcePt[2] * fBeta;
+        oA.ref(oMG.size(0)+l_ui32SourceId, l_ui32SourceId * 4 + 3)  = fBeta;
 
 //        oB.ref(oMG.size(0)+l_ui32TargetId, 0) = l_a3DTargetPt[0];
 //        oB.ref(oMG.size(0)+l_ui32TargetId, 1) = l_a3DTargetPt[1];
@@ -370,14 +405,14 @@ void SWOptimalStepNonRigidICP::addLandMarks(cdouble dBeta, cv::SparseMat_<double
     }
 }
 
-void SWOptimalStepNonRigidICP::buildA(cv::SparseMat_<double> &oMG, cv::SparseMat_<double> &oWD, cv::SparseMat_<double> &oA)
+void SWOptimalStepNonRigidICP::buildA(cv::SparseMat_<float> &oMG, cv::SparseMat_<float> &oWD, cv::SparseMat_<float> &oA)
 {
     // build A sparse matrix
     //      | MG1 ... MGn | with MGi i-col of MG, and WDi i-col of WD
     // A =  | WD1 ... WDn |
     int l_aASize[] = { oMG.size(0) + oWD.size(0), oMG.size(1)};
 
-    oA = cv::SparseMat_<double>(2, l_aASize);
+    oA = cv::SparseMat_<float>(2, l_aASize);
 
     for(int jj = 0; jj < l_aASize[1]; ++jj)
     {
@@ -401,13 +436,13 @@ void SWOptimalStepNonRigidICP::buildA(cv::SparseMat_<double> &oMG, cv::SparseMat
     }
 }
 
-void SWOptimalStepNonRigidICP::buildB(cv::SparseMat_<double> &oMG, cv::SparseMat_<double> &oWU, cv::SparseMat_<double> &oB)
+void SWOptimalStepNonRigidICP::buildB(cv::SparseMat_<float> &oMG, cv::SparseMat_<float> &oWU, cv::SparseMat_<float> &oB)
 {
     // build B sparse matrix
     //      | c01 ... c03 | with c0i i-col of 0 (same number of rows than MG), and WUi i-col of WU
     // B =  | WU1 ... WU3 |
     int l_aBSize[] = { oMG.size(0) + oWU.size(0), oWU.size(1)};
-    oB = cv::SparseMat_<double>(2, l_aBSize);
+    oB = cv::SparseMat_<float>(2, l_aBSize);
 
     for(int ii = 0; ii < oWU.size(0); ++ii)
     {
@@ -421,11 +456,11 @@ void SWOptimalStepNonRigidICP::buildB(cv::SparseMat_<double> &oMG, cv::SparseMat
     }
 }
 
-void SWOptimalStepNonRigidICP::buildTAA(cv::SparseMat_<double> &oA, cv::SparseMat_<double> &oTAA)
+void SWOptimalStepNonRigidICP::buildTAA(cv::SparseMat_<float> &oA, cv::SparseMat_<float> &oTAA)
 {
     // build TA * A
     int l_aTAASize[] = {oA.size(1), oA.size(1)};
-    oTAA = cv::SparseMat_<double>(2, l_aTAASize);
+    oTAA = cv::SparseMat_<float>(2, l_aTAASize);
 
     for(int ii = 0; ii < oA.size(1); ++ii)
     {
@@ -445,10 +480,10 @@ void SWOptimalStepNonRigidICP::buildTAA(cv::SparseMat_<double> &oA, cv::SparseMa
     }
 }
 
-void SWOptimalStepNonRigidICP::buildTAB(cv::SparseMat_<double> &oA, cv::SparseMat_<double> &oB, cv::Mat &oTAB)
+void SWOptimalStepNonRigidICP::buildTAB(cv::SparseMat_<float> &oA, cv::SparseMat_<float> &oB, cv::Mat &oTAB)
 {
     // build TA * B
-    oTAB = cv::Mat(oA.size(1), oB.size(1), CV_64FC1, cv::Scalar(0.0));
+    oTAB = cv::Mat(oA.size(1), oB.size(1), CV_32FC1, cv::Scalar(0.f));
 
     for(int ii = 0; ii < oA.size(1); ++ii)
     {
@@ -460,7 +495,7 @@ void SWOptimalStepNonRigidICP::buildTAB(cv::SparseMat_<double> &oA, cv::SparseMa
                 {
                     if(oB.ptr(jj,kk, false))
                     {
-                        oTAB.at<double>(ii, kk) += oA.ref(jj,ii) * oB.ref(jj,kk);
+                        oTAB.at<float>(ii, kk) += oA.ref(jj,ii) * oB.ref(jj,kk);
                     }
                 }
             }
@@ -468,10 +503,10 @@ void SWOptimalStepNonRigidICP::buildTAB(cv::SparseMat_<double> &oA, cv::SparseMa
     }
 }
 
-void SWOptimalStepNonRigidICP::buildAX(cv::SparseMat_<double> &oA, cv::Mat &oX, cv::Mat &oAX)
+void SWOptimalStepNonRigidICP::buildAX(cv::SparseMat_<float> &oA, cv::Mat &oX, cv::Mat &oAX)
 {
     // build A*X
-    oAX = cv::Mat(oA.size(0), oX.cols, CV_64FC1, cv::Scalar(0.0));
+    oAX = cv::Mat(oA.size(0), oX.cols, CV_32FC1, cv::Scalar(0.f));
 
     for(int ii = 0; ii < oA.size(0); ++ii)
     {
@@ -483,7 +518,7 @@ void SWOptimalStepNonRigidICP::buildAX(cv::SparseMat_<double> &oA, cv::Mat &oX, 
                 {
                     if(oA.ptr(ii,jj, false))
                     {
-                        oAX.at<double>(ii,kk) += oA.ref(ii,jj) * oX.at<double>(jj,kk);
+                        oAX.at<float>(ii,kk) += oA.ref(ii,jj) * oX.at<float>(jj,kk);
                     }
                 }
             }
@@ -491,25 +526,23 @@ void SWOptimalStepNonRigidICP::buildAX(cv::SparseMat_<double> &oA, cv::Mat &oX, 
     }
 }
 
-double SWOptimalStepNonRigidICP::computeDiff(cv::Mat &newX)
+float SWOptimalStepNonRigidICP::computeDiff(cv::Mat &newX)
 {
-    cv::Mat l_oDiff(newX.rows, newX.cols, CV_64FC1);
+    cv::Mat l_oDiff(newX.rows, newX.cols, CV_32FC1);
 
     // update m_X and m_pX and compute the normed difference
         for(int ii = 0; ii < newX.rows; ++ii)
         {
             for(int jj = 0; jj < newX.cols; ++jj)
             {
-                m_pX->at<double>(ii,jj) = m_X->at<double>(ii,jj);
-                m_X->at<double>(ii,jj) = newX.at<double>(ii,jj);
-
-                l_oDiff.at<double>(ii,jj) = m_X->at<double>(ii,jj) - m_pX->at<double>(ii,jj);
+                m_pX->at<float>(ii,jj) = m_X->at<float>(ii,jj);
+                m_X->at<float>(ii,jj) = newX.at<float>(ii,jj);
+                l_oDiff.at<float>(ii,jj) = m_X->at<float>(ii,jj) - m_pX->at<float>(ii,jj);
             }
         }
 
-    return cv::norm(l_oDiff);
+    return static_cast<float>(cv::norm(l_oDiff));
 }
-
 
 void SWOptimalStepNonRigidICP::copyDataForResolving()
 {
@@ -524,146 +557,125 @@ void SWOptimalStepNonRigidICP::copyDataForResolving()
         m_uC = m_u;
 }
 
-
-double SWOptimalStepNonRigidICP::resolve(cdouble dAlpha, cdouble dBeta, cdouble dGama, cbool bUseLandMarks)
+float SWOptimalStepNonRigidICP::resolve(cfloat fAlpha, cfloat fBeta, cfloat fGama, cbool bUseLandMarks)
 {
     clock_t m_oProgramTime;
-//    m_oProgramTime = clock(); initResolve(); cout << " initStep " << (float)(clock() - m_oProgramTime) / CLOCKS_PER_SEC  << " |";
-    cv::SparseMat_<double> sMG, sWD, sWU, sA, sB, sTA, sTAA;
-    cv::Mat TAB, TAAInv, newX, AX;
-    m_oProgramTime = clock(); buildMG(sMG, dAlpha, dGama);  cout << " sMG " << (float)(clock() - m_oProgramTime) / CLOCKS_PER_SEC  << " |";
-    m_oProgramTime = clock(); buildWD(sWD);                 cout << " sWD " << (float)(clock() - m_oProgramTime) / CLOCKS_PER_SEC  << " |";
-    m_oProgramTime = clock(); buildWU(sWU);                 cout << " sWU " << (float)(clock() - m_oProgramTime) / CLOCKS_PER_SEC  << " |";
-    m_oProgramTime = clock(); buildA(sMG, sWD, sA);         cout << " A   " << (float)(clock() - m_oProgramTime) / CLOCKS_PER_SEC  << " |";
-    m_oProgramTime = clock(); buildB(sMG, sWU, sB);         cout << " B   " << (float)(clock() - m_oProgramTime) / CLOCKS_PER_SEC  << " |";
 
+    cv::Mat MG, WD, A, B, TAA, TAB, TAAInv, newX;
+
+    std::cout << " Start resolving. " << std::endl;
+
+    // #### MG
+    m_oProgramTime = clock();
+    buildMG(MG, fAlpha, fGama);
+    cout << " MG " << (float)(clock() - m_oProgramTime) / CLOCKS_PER_SEC  << std::endl;
+
+    // #### WD
+    m_oProgramTime = clock();
+    buildWD(WD);
+    cout << " WD " << (float)(clock() - m_oProgramTime) / CLOCKS_PER_SEC  << std::endl;
+
+    // #### A
+    m_oProgramTime = clock();
+    buildA(MG,WD,A);
+    int l_i32MGRow = MG.rows;
+    MG.release();
+    WD.release();
+    cout << " A " << (float)(clock() - m_oProgramTime) / CLOCKS_PER_SEC  << std::endl;
+
+    // #### B
+    m_oProgramTime = clock();
+    buildB(l_i32MGRow,B);
+    cout << " B " << (float)(clock() - m_oProgramTime) / CLOCKS_PER_SEC  << std::endl;
+
+    // #### landmarks
     if(bUseLandMarks)
     {
-         m_oProgramTime = clock(); addLandMarks(dBeta,sMG,sA,sB); cout << " addL " << (float)(clock() - m_oProgramTime) / CLOCKS_PER_SEC  << " |";
+        m_oProgramTime = clock();
+        addLandMarks(fBeta, l_i32MGRow, A, B);
     }
 
-    m_oProgramTime = clock(); buildTAA(sA, sTAA);           cout << " TAA " << (float)(clock() - m_oProgramTime) / CLOCKS_PER_SEC  << " |";
-    m_oProgramTime = clock(); buildTAB(sA, sB, TAB);        cout << " TAB " << (float)(clock() - m_oProgramTime) / CLOCKS_PER_SEC  << " |";
+    // #### TAA
+    m_oProgramTime = clock();
+    buildTAA(A, TAA);
+    cout << " TAA " << (float)(clock() - m_oProgramTime) / CLOCKS_PER_SEC  << std::endl;
 
-    m_oProgramTime = clock(); swUtil::swCuda::matrixInversion(sTAA, TAAInv); cout << " TAAInv " << (float)(clock() - m_oProgramTime) / CLOCKS_PER_SEC  << " |";
-    m_oProgramTime = clock(); newX = (TAAInv * TAB);                         cout << " newX   " << (float)(clock() - m_oProgramTime) / CLOCKS_PER_SEC  << " |";
+    // #### TAAInv
+    m_oProgramTime = clock();
+    swUtil::swCuda::matrixInversion(TAA, TAAInv);
+    cout << " TAAInv " << (float)(clock() - m_oProgramTime) / CLOCKS_PER_SEC  << std::endl;
+    TAA.release();
 
-    // DEBUG
-//    buildAX(sA, newX, AX);
+    // #### TAB
+    m_oProgramTime = clock();
+    buildTAB(A, B, TAB);
+//    cv::transpose(A, TA);
+//    swUtil::swCuda::blockMatrixMultiplication(TA, B, TAB2);
+    cout << " TAB " << (float)(clock() - m_oProgramTime) / CLOCKS_PER_SEC  << std::endl;
+    A.release();
+    B.release();
 
-//    // build AX - B
-//    cv::Mat AX_B(AX.rows, AX.cols, CV_64FC1);
-//    for(int ii = 0; ii < AX.rows; ++ii)
-//    {
-//        for(int jj = 0; jj < AX.cols; ++jj)
-//        {
-//            AX_B.at<double>(ii,jj) = AX.at<double>(ii,jj) - sB.ref(ii,jj);
-//        }
-//    }
-
-//    m_dLastComputedCost = cv::norm(AX_B);
-//    m_dLastComputedCost *= m_dLastComputedCost;
-//    cout << "Result cost function :  " << m_dLastComputedCost << endl;
-
-    m_oProgramTime = clock(); double l_dDiff = computeDiff(newX); cout << " diffX   " << (float)(clock() - m_oProgramTime) / CLOCKS_PER_SEC  << " |";
+    // #### newX
+    m_oProgramTime = clock();
+    swUtil::swCuda::matrixMultiplication(TAAInv, TAB, newX);
+//    swUtil::swCuda::blockMatrixMultiplication(TAAInv2, TAB2, newX2, 2);
+    cout << " newX " << (float)(clock() - m_oProgramTime) / CLOCKS_PER_SEC  << std::endl;
+    TAAInv.release();
+    TAB.release();
 
 
     m_oProgramTime = clock();
+    float l_fDiff = computeDiff(newX);
+
     // apply deformation to the source cloud)
         swCloud::SWCloud *l_oSourceCloud = m_pSourceMeshC->cloud();
         swCloud::SWCloud *l_oTargetCloud = m_pTargetMeshC->cloud();
 
         for(uint ii = 0; ii < l_oSourceCloud->size(); ++ii)
         {
-//            cv::Vec3f l_oPt(l_oSourceCloud->coord(0)[ii], l_oSourceCloud->coord(1)[ii], l_oSourceCloud->coord(2)[ii]);
-
-            std::vector<float> l_vPt(3,0);
+            std::vector<float> l_vPt(3,0.f);
             l_vPt[0] = l_oSourceCloud->coord(0)[ii];
             l_vPt[1] = l_oSourceCloud->coord(1)[ii];
             l_vPt[2] = l_oSourceCloud->coord(2)[ii];
 
-//            std::vector<float> l_vMeanPoint(3,0);
-//            l_vMeanPoint.push_back(l_oTargetCloud->coord(0)[m_i32IdCloseTarget]);
-//            l_vMeanPoint.push_back(l_oTargetCloud->coord(1)[m_i32IdCloseTarget]);
-//            l_vMeanPoint.push_back(l_oTargetCloud->coord(2)[m_i32IdCloseTarget]);
 
+            float l_fCoeffReduc = 1.f;
 
-//            int l_i32IdNearestPoint = l_oTargetCloud->idNearestPoint(l_vPt);
-            std::vector<float> l_vNearestPoint(3,0);
-            l_vNearestPoint[0] = l_oTargetCloud->coord(0)[m_u[ii]];
-            l_vNearestPoint[1] = l_oTargetCloud->coord(1)[m_u[ii]];
-            l_vNearestPoint[2] = l_oTargetCloud->coord(2)[m_u[ii]];
-//            l_vNearestPoint[0] = l_oTargetCloud->coord(0)[l_i32IdNearestPoint];
-//            l_vNearestPoint[1] = l_oTargetCloud->coord(1)[l_i32IdNearestPoint];
-//            l_vNearestPoint[2] = l_oTargetCloud->coord(2)[l_i32IdNearestPoint];
+            // test in order to limit back head deformation
+            {
+                std::vector<float> l_vNearestPoint(3,0.f);
+                l_vNearestPoint[0] = l_oTargetCloud->coord(0)[m_u[ii]];
+                l_vNearestPoint[1] = l_oTargetCloud->coord(1)[m_u[ii]];
+                l_vNearestPoint[2] = l_oTargetCloud->coord(2)[m_u[ii]];
 
-//            float l_fDistNearestPoint = swUtil::norm(swUtil::vec(l_vPt,l_vNearestPoint));
+                float l_fDistNearestPoint = swUtil::norm(swUtil::vec(l_vPt,l_vNearestPoint));
 
-
-//            float l_fDistMeanPoint = swUtil::norm(swUtil::vec(l_vPt, l_vMeanPoint));
-
-
-            float l_fCoeffReduc = 1.f;//1.f;
-
-
-//            cout << l_i32IdNearestPoint << " - " << l_fDistNearestPoint << " | ";
-//            if(l_fDistNearestPoint > 0.05f )
-//            {
-//                if(m_w3[ii] == 1.0)
-//                {
-//                    l_fCoeffReduc = 0.f;
-//                }
-////                cout << m_w1[ii] << " " << m_w2[ii] << " " << m_w3[ii] << " | ";
-
-//            }
+                l_fCoeffReduc = 1.f - (l_fDistNearestPoint*l_fDistNearestPoint)/(m_fMaxTemplateTargetDistance*m_fMaxTemplateTargetDistance);
+            }
 
             cv::Mat l_oTr(X(ii));
 
-//            float l_fNewX = (float)(l_oTr.at<double>(0,0) * l_oPt(0) +  l_oTr.at<double>(0,1) * l_oPt(1) + l_oTr.at<double>(0,2) * l_oPt(2) + l_oTr.at<double>(0,3));
-//            float l_fNewY = (float)(l_oTr.at<double>(1,0) * l_oPt(0) +  l_oTr.at<double>(1,1) * l_oPt(1) + l_oTr.at<double>(1,2) * l_oPt(2) + l_oTr.at<double>(1,3));
-//            float l_fNewZ = (float)(l_oTr.at<double>(2,0) * l_oPt(0) +  l_oTr.at<double>(2,1) * l_oPt(1) + l_oTr.at<double>(2,2) * l_oPt(2) + l_oTr.at<double>(2,3));
+            float l_fNewX =     l_oTr.at<float>(0,0) * l_vPt[0] +
+                                l_oTr.at<float>(1,0) * l_vPt[1] +
+                                l_oTr.at<float>(2,0) * l_vPt[2] +
+                                l_oTr.at<float>(3,0);
 
-//            cout << l_oTr << endl;
+            float l_fNewY =     l_oTr.at<float>(0,1) * l_vPt[0] +
+                                l_oTr.at<float>(1,1) * l_vPt[1] +
+                                l_oTr.at<float>(2,1) * l_vPt[2] +
+                                l_oTr.at<float>(3,1);
 
-            float l_fNewX = (float)(l_oTr.at<double>(0,0) * l_vPt[0] +
-                                    l_oTr.at<double>(1,0) * l_vPt[1] +
-                                    l_oTr.at<double>(2,0) * l_vPt[2] +
-                                    l_oTr.at<double>(3,0));
+            float l_fNewZ =     l_oTr.at<float>(0,2) * l_vPt[0] +
+                                l_oTr.at<float>(1,2) * l_vPt[1] +
+                                l_oTr.at<float>(2,2) * l_vPt[2] +
+                                l_oTr.at<float>(3,2);
 
-            float l_fNewY = (float)(l_oTr.at<double>(0,1) * l_vPt[0] +
-                                    l_oTr.at<double>(1,1) * l_vPt[1] +
-                                    l_oTr.at<double>(2,1) * l_vPt[2] +
-                                    l_oTr.at<double>(3,1));
+            l_oSourceCloud->coord(0)[ii] = (1.f - l_fCoeffReduc) *l_oSourceCloud->coord(0)[ii] + l_fCoeffReduc * l_fNewX;
+            l_oSourceCloud->coord(1)[ii] = (1.f - l_fCoeffReduc) *l_oSourceCloud->coord(1)[ii] + l_fCoeffReduc * l_fNewY;
+            l_oSourceCloud->coord(2)[ii] = (1.f - l_fCoeffReduc) *l_oSourceCloud->coord(2)[ii] + l_fCoeffReduc * l_fNewZ;
 
-            float l_fNewZ = (float)(l_oTr.at<double>(0,2) * l_vPt[0] +
-                                    l_oTr.at<double>(1,2) * l_vPt[1] +
-                                    l_oTr.at<double>(2,2) * l_vPt[2] +
-                                    l_oTr.at<double>(3,2));
-
-            l_oSourceCloud->coord(0)[ii] = (1 - l_fCoeffReduc) *l_oSourceCloud->coord(0)[ii] + l_fCoeffReduc * l_fNewX;
-            l_oSourceCloud->coord(1)[ii] = (1 - l_fCoeffReduc) *l_oSourceCloud->coord(1)[ii] + l_fCoeffReduc * l_fNewY;
-            l_oSourceCloud->coord(2)[ii] = (1 - l_fCoeffReduc) *l_oSourceCloud->coord(2)[ii] + l_fCoeffReduc * l_fNewZ;
-
-//            l_oSourceCloud->coord(0)[ii] = l_fNewX;
-//            l_oSourceCloud->coord(1)[ii] = l_fNewY;
-//            l_oSourceCloud->coord(2)[ii] = l_fNewZ;
         }
-
-    // DEBUG
-        cout << "MG : " << sMG.size(0) << " " << sMG.size(1) << endl;
-        cout << "A  : " << sA.size(0) << " " << sA.size(1) << endl;
-        cout << "B  : " << sB.size(0) << " " << sB.size(1) << endl;
-        cout << "TA : " << sTA.size(0) << " " << sTA.size(1) << endl;
-        cout << "TAAInv: " << TAAInv.rows << " " << TAAInv.cols << endl;
-        cout << "TAB: " << TAB.rows << " " << TAB.cols << endl;
-        cout << "X  : " << newX.rows << " " << newX.cols << endl;
-        cout << "AX : " << AX.rows << " " << AX.cols << endl << endl;
-        cout << " applyDef   " << (float)(clock() - m_oProgramTime) / CLOCKS_PER_SEC  << " |";
-
-//    sMG.clear(), sWD.clear(), sWU.clear(), sA.clear(), sB.clear(), sTA.clear(), sTAA.clear();
-
-
-    return l_dDiff;
+    return l_fDiff;
 }
 
 
@@ -674,7 +686,7 @@ void SWOptimalStepNonRigidICP::updateSourceMeshWithMorphModification()
 
 cv::Mat SWOptimalStepNonRigidICP::X(cuint ii) const
 {
-    cv::Mat l_oMat(4, 3, CV_64FC1);
+    cv::Mat l_oMat(4, 3, CV_32FC1);
 
     m_X->row(4*ii)  .copyTo(l_oMat.row(0));
     m_X->row(4*ii+1).copyTo(l_oMat.row(1));
@@ -686,7 +698,7 @@ cv::Mat SWOptimalStepNonRigidICP::X(cuint ii) const
 
 cv::Mat SWOptimalStepNonRigidICP::pX(cuint ii) const
 {
-    cv::Mat l_oMat(4, 3, CV_64FC1);
+    cv::Mat l_oMat(4, 3, CV_32FC1);
 
     m_pX->row(4*ii)  .copyTo(l_oMat.row(0));
     m_pX->row(4*ii+1).copyTo(l_oMat.row(1));
@@ -721,7 +733,6 @@ void SWOptimalStepNonRigidICP::readStasmCorrFile(const std::string &oPathCorrSta
             l_sType = "";
             l_fsCorrFile >> l_i32CorrLine;
             vI32CorrStasmTarget.push_back(l_i32CorrLine);
-            std::cout <<  vI32CorrStasmTarget.back() << " | ";
             getline(l_fsCorrFile, l_sType);
         }
         else
@@ -738,806 +749,299 @@ void SWOptimalStepNonRigidICP::readStasmCorrFile(const std::string &oPathCorrSta
 
 
 
-//    swCloud::SWCloud *l_oSourceCloud = m_oSourceMesh.cloud();
-//    swCloud::SWCloud *l_oTargetCloud = m_oTargetMesh.cloud();
-
-//    std::vector<float> l_vFNearPointsX, l_vFNearPointsY, l_vFNearPointsZ;
-//    for(uint ii = 0; ii < l_oSourceCloud->size(); ++ii)
-//    {
-//        cv::Vec3f l_oPt(l_oSourceCloud->coord(0)[ii], l_oSourceCloud->coord(1)[ii], l_oSourceCloud->coord(2)[ii]);
-
-//        std::vector<float> l_vPt(3,0);
-//        l_vPt.push_back(l_oPt[0]);
-//        l_vPt.push_back(l_oPt[1]);
-//        l_vPt.push_back(l_oPt[2]);
-
-//        int l_i32IdNearestPoint = l_oTargetCloud->idNearestPoint(l_vPt);
-//        std::vector<float> l_vNearestPoint(3,0);
-//        l_vNearestPoint.push_back(l_oTargetCloud->coord(0)[l_i32IdNearestPoint]);
-//        l_vNearestPoint.push_back(l_oTargetCloud->coord(1)[l_i32IdNearestPoint]);
-//        l_vNearestPoint.push_back(l_oTargetCloud->coord(2)[l_i32IdNearestPoint]);
-
-//        if(swUtil::norm(swUtil::vec(l_vPt,l_vNearestPoint)) < 0.12f)
-//        {
-//            l_vFNearPointsX.push_back(l_oPt[0]);
-//            l_vFNearPointsY.push_back(l_oPt[1]);
-//            l_vFNearPointsZ.push_back(l_oPt[2]);
-//        }
-//    }
-
-
-//    swCloud::SWCloud test(l_vFNearPointsX, l_vFNearPointsY, l_vFNearPointsZ);
-//    cout << "test " << test.size() << " " << l_oSourceCloud->size() << endl;
-
-//    // set clouds alignment params
-////        m_oAlignClouds.setClouds(*m_oTargetMesh.cloud() ,*m_oSourceMesh.cloud());
-//        m_oAlignClouds.setClouds(*m_oTargetMesh.cloud() ,test);
-//        m_oAlignClouds.setReduction(5, 100);
-
-//    // align the source cloud with the target cloud for the first iteration
-//        m_oAlignClouds.alignClouds();
-
-//    // retrieve the rigid motion
-//        swCloud::SWRigidMotion l_oR = m_oAlignClouds.rigidMotion();
-
-//    // init X^0 with the rigid motion
-//        cv::Mat l_oX(3, 4, CV_64FC1, cv::Scalar(0.0));
-//        for(uint ii = 0; ii < m_oSourceMesh.pointsNumber(); ++ii)
-//        {
-//            l_oX.at<double>(0,0) = l_oR.m_aFRotation[0]; l_oX.at<double>(0,1) = l_oR.m_aFRotation[1]; l_oX.at<double>(0,2) = l_oR.m_aFRotation[2]; l_oX.at<double>(0,3) = l_oR.m_aFTranslation[0];
-//            l_oX.at<double>(1,0) = l_oR.m_aFRotation[3]; l_oX.at<double>(1,1) = l_oR.m_aFRotation[4]; l_oX.at<double>(1,2) = l_oR.m_aFRotation[5]; l_oX.at<double>(1,3) = l_oR.m_aFTranslation[1];
-//            l_oX.at<double>(2,0) = l_oR.m_aFRotation[6]; l_oX.at<double>(2,1) = l_oR.m_aFRotation[7]; l_oX.at<double>(2,2) = l_oR.m_aFRotation[8]; l_oX.at<double>(2,3) = l_oR.m_aFTranslation[2];
-
-//            setX(ii, l_oX);
-//        }
-// apply the first transformation to the source cloud
-//        m_oAlignClouds.transformedCloud(*m_oSourceMesh.cloud());
-
-
-
-//void SWOptimalStepNonRigidICP::setX(cuint ii, cv::Mat &oX)
-//{
-//    oX.row(0).copyTo(m_X->row(4*ii));
-//    oX.row(1).copyTo(m_X->row(4*ii+1));
-//    oX.row(2).copyTo(m_X->row(4*ii+2));
-//    oX.row(3).copyTo(m_X->row(4*ii+3));
-//}
-
-//void SWOptimalStepNonRigidICP::setPX(cuint ii, cv::Mat &oPX)
-//{
-//    oPX.row(0).copyTo(m_pX->row(4*ii));
-//    oPX.row(1).copyTo(m_pX->row(4*ii+1));
-//    oPX.row(2).copyTo(m_pX->row(4*ii+2));
-//    oPX.row(3).copyTo(m_pX->row(4*ii+3));
-//}
-
-//void SWOptimalStepNonRigidICP::buildDL_UL(cv::SparseMat_<double> &oDL, cv::SparseMat_<double> &oUL, cdouble dBeta)
-//{
-//    // build beta * DL
-//    int l_aDLSize[] = {m_l.size(), m_oSourceMesh.pointsNumber()};
-//    oDL = cv::SparseMat_<double> (2, l_aDLSize);
-
-//    int l_aULSize[] = {m_l.size(), 3};
-//    oUL = cv::SparseMat_<double> (2, l_aULSize);
-
-//    vector<double> l_a3DSourcePt, l_a3DTargetPt;
-
-//    int ii = 0;
-//    for (std::map<uint,uint>::const_iterator it = m_l.cbegin(); it != m_l.cend(); ++it, ++ii)
-//    {
-//        uint l_ui32SourceId = it->first;
-//        uint l_ui32TargetId = it->second;
-//        m_oSourceMesh.point(l_a3DSourcePt, l_ui32SourceId);
-//        m_oTargetMesh.point(l_a3DTargetPt, l_ui32TargetId);
-
-//        oDL.ref(ii, l_ui32SourceId*4)   = dBeta * l_a3DSourcePt[0];
-//        oDL.ref(ii, l_ui32SourceId*4+1) = dBeta * l_a3DSourcePt[1];
-//        oDL.ref(ii, l_ui32SourceId*4+2) = dBeta * l_a3DSourcePt[2];
-//        oDL.ref(ii, l_ui32SourceId*4+3) = dBeta;
-
-//        oUL.ref(ii, 0) = l_a3DTargetPt[0];
-//        oUL.ref(ii, 1) = l_a3DTargetPt[1];
-//        oUL.ref(ii, 2) = l_a3DTargetPt[2];
-//    }
-//}
-
-//void SWOptimalStepNonRigidICP::buildAWithLandMarks(cv::SparseMat_<double> &oMG, cv::SparseMat_<double> &oWD, cv::SparseMat_<double> &oDL, cv::SparseMat_<double> &oA)
-//{
-//    // build A sparse matrix
-//    //      | MG1 ... MGn | with MGi i-col of MG, and WDi i-col of WD
-//    // A =  | WD1 ... WDn |
-//    //      | beta*DL1... beta*DLl|
-//    int l_aASize[] = { oMG.size(0) + oWD.size(0) + oDL.size(0), oWD.size(1)};
-//    oA = cv::SparseMat_<double>(2, l_aASize);
-
-//    for(int jj = 0; jj < l_aASize[1]; ++jj)
-//    {
-//        for(int ii = 0; ii < l_aASize[0]; ++ii)
-//        {
-//            if(ii <  oMG.size(0))
-//            {
-//                if(oMG.ptr(ii,jj, false))
-//                {
-//                    oA.ref(ii,jj) = oMG.ref(ii,jj);
-//                }
-//            }
-//            else if(ii < oMG.size(0) + oWD.size(0))
-//            {
-//                if(oWD.ptr(ii - oMG.size(0),jj, false))
-//                {
-//                    oA.ref(ii, jj) = oWD.ref(ii - oMG.size(0),jj);
-//                }
-//            }
-//            else
-//            {
-//                if(oDL.ptr(ii - oMG.size(0) - oWD.size(0),jj, false))
-//                {
-//                    oA.ref(ii, jj) = oDL.ref(ii - oMG.size(0) - oWD.size(0),jj);
-//                }
-//            }
-//        }
-//    }
-//}
-
-//void SWOptimalStepNonRigidICP::buildBWithLandMarks(cv::SparseMat_<double> &oMG, cv::SparseMat_<double> &oWU, cv::SparseMat_<double> &oUL, cv::SparseMat_<double> &oB)
-//{
-//    // build B sparse matrix
-//    //      | c01 ... c03 | with c0i i-col of 0 (same number of rows than MG), and WUi i-col of WU
-//    // B =  | WU1 ... WU3 |
-//    //      | UL1 ... UL3 |
-//    int l_aBSize[] = { oMG.size(0) + oWU.size(0) + oUL.size(0), oWU.size(1)};
-//    oB = cv::SparseMat_<double>(2, l_aBSize);
-
-//    for(int ii = 0; ii < oWU.size(0) + oUL.size(0); ++ii)
-//    {
-//        for(int jj = 0; jj < l_aBSize[1]; ++jj)
-//        {
-//            if(ii < oWU.size(0))
-//            {
-//                if(oWU.ptr(ii,jj, false))
-//                {
-//                    oB.ref(ii + oMG.size(0), jj) = oWU.ref(ii,jj);
-//                }
-//            }
-//            else
-//            {
-//                if(oUL.ptr(ii-oWU.size(0),jj, false))
-//                {
-//                    oB.ref(ii + oMG.size(0), jj) = oUL.ref(ii-oWU.size(0),jj);
-//                }
-//            }
-//        }
-//    }
-//}
-
-//void SWOptimalStepNonRigidICP::buildTA(cv::SparseMat_<double> &oA, cv::SparseMat_<double> &oTA)
-//{
-//    // build transposate A sparse matrix
-//    int l_aTASize[] = {oA.size(1), oA.size(0)};
-//    oTA = cv::SparseMat_<double>(2, l_aTASize);
-
-//    for(int ii = 0; ii < oA.size(0); ++ii)
-//    {
-//        for(int jj = 0; jj < oA.size(1); ++jj)
-//        {
-//            if(oA.ptr(ii,jj, false))
-//            {
-//                oTA.ref(jj,ii) = oA.ref(ii,jj);
-//            }
-//        }
-//    }
-//}
-
-//void SWOptimalStepNonRigidICP::buildTAA(cv::SparseMat_<double> &oA, cv::SparseMat_<double> &oTA, cv::SparseMat_<double> &oTAA)
-//{
-//    // build TA * A
-//    int l_aTAASize[] = {oTA.size(0), oTA.size(0)};
-//    oTAA = cv::SparseMat_<double>(2, l_aTAASize);
-
-//    for(int ii = 0; ii < oTA.size(0); ++ii)
-//    {
-//        for(int jj = 0; jj < oTA.size(1); ++jj)
-//        {
-//            if(oTA.ptr(ii,jj, false))
-//            {
-//                for(int kk = 0; kk < oA.size(1); ++kk)
-//                {
-//                    if(oA.ptr(jj,kk, false))
-//                    {
-//                        oTAA.ref(ii,kk) += oTA.ref(ii,jj) * oA.ref(jj,kk);
-//                    }
-//                }
-//            }
-//        }
-//    }
-//}
-
-
-
-//double SWOptimalStepNonRigidICP::distanceEnergy() const
-//{
-//    double l_dEnergy = 0.0;
-
-////    vector<double> l_a3DPoint;
-
-////    for(uint ii = 0; ii < m_oSourceMesh.pointsNumber(); ++ii)
-////    {
-////        m_oSourceMesh.point(l_a3DPoint, ii);
-////        l_dEnergy += m_w[ii] * squareMinDistTargetFromMesh(cv::Mat(l_a3DPoint), 30);
-////    }
-
-////    cout << "l_dEnergy first method : " << l_dEnergy << endl;
-////    l_dEnergy = 0;
-
-//    vector<double> l_a3DPointSource;
-//    vector<double> l_a3DPointTarget;
-
-//    for(uint ii = 0; ii < m_oSourceMesh.pointsNumber(); ++ii)
-//    {
-//        m_oSourceMesh.point(l_a3DPointSource, ii);
-//        m_oTargetMesh.point(l_a3DPointTarget, m_u[ii]);
-//        double l_dDistance = swUtil::norm(swUtil::vec(l_a3DPointSource, l_a3DPointTarget));
-//        l_dEnergy += m_w[ii] * l_dDistance * l_dDistance;
-//    }
-//    cout << "l_dEnergy second method : " << l_dEnergy << endl;
-
-//    return l_dEnergy;
-//}
-
-//double SWOptimalStepNonRigidICP::stiffnessEnergy() const
-//{
-//    double l_dEnergy = 0.0;
-
-//    cv::Mat l_oDiag = cv::Mat::eye(4,4, CV_64FC1);
-//    l_oDiag.at<double>(15) = m_dGama;
-
-//    for(uint ii = 0; ii < m_oSourceMesh.pointsNumber(); ++ii)
-//    {
-//        double l_dValue = cv::norm(l_oDiag * (X(ii) - pX(ii)));
-//        l_dEnergy += l_dValue *l_dValue;
-//    }
-
-//    return l_dEnergy;
-//}
-
-
-//double SWOptimalStepNonRigidICP::landmarksEnergy() const // TODO : test
-//{
-//    double l_dEnergy = 0.0;
-
-//    vector<double> l_a3DTemplatePt, l_a3DTargetPt;
-
-//    for (std::map<uint,uint>::const_iterator it = m_l.cbegin(); it != m_l.cend(); ++it)
-//    {
-//        uint l_ui32TemplateId = it->first;
-//        uint l_ui32TargetId   = it->second;
-
-//        m_oSourceMesh.point(l_a3DTemplatePt, l_ui32TemplateId);
-//        m_oTargetMesh.point(l_a3DTargetPt, l_ui32TargetId);
-
-//        l_dEnergy += swUtil::norm(swUtil::vec(l_a3DTemplatePt, l_a3DTargetPt));
-//    }
-
-//    return l_dEnergy;
-//}
-
-
-
-//double SWOptimalStepNonRigidICP::totalEnergy(cdouble dAlpha, cdouble dBeta, cbool bUseLandMarks) const
-//{
-//    double l_dDistanceEnergy    =          distanceEnergy(); cout << " stiffnessEnergy " << endl;
-//    double l_dStiffnessEnergy   = dAlpha * stiffnessEnergy(); cout << " end stiffnessEnergy " << endl;
-
-//    double l_dLandMarkEnergy = 0;
-
-//    if(bUseLandMarks)
-//    {
-//        l_dLandMarkEnergy = dBeta * landmarksEnergy();
-//    }
-
-//    double l_dTotal = l_dDistanceEnergy + l_dStiffnessEnergy + l_dLandMarkEnergy;
-
-//    cout << "Energies -> DE : " << l_dDistanceEnergy << " SE : " << l_dStiffnessEnergy << " LE : " << l_dLandMarkEnergy <<  " Total : " << l_dTotal << endl;
-
-//    return l_dTotal;
-//}
-
-
-
-//double SWOptimalStepNonRigidICP::squareMinDistTargetFromMesh(const cv::Vec3d &oPt, cint i32Rand) const
-//{
-//    double l_dMin = DBL_MAX;
-
-//    for(uint ii = 0; ii < m_oTargetMesh.pointsNumber(); ++ii)
-//    {
-//        if(rand()%i32Rand == 0)
-//        {
-//            float l_a9FCoords[9];
-//            m_oTargetMesh.trianglePoints(l_a9FCoords,ii);
-//            cv::Vec3f l_vV1(l_a9FCoords[0],l_a9FCoords[1],l_a9FCoords[2]);
-//            cv::Vec3f l_vV2(l_a9FCoords[3],l_a9FCoords[4],l_a9FCoords[5]);
-//            cv::Vec3f l_vV3(l_a9FCoords[6],l_a9FCoords[7],l_a9FCoords[8]);
-
-//            double l_dCurrDist = swCloud::squareDistancePoint2Triangle(l_vV1, l_vV2, l_vV3, oPt);
-
-//            if(l_dCurrDist < l_dMin)
-//            {
-//                l_dMin = l_dCurrDist;
-//            }
-//        }
-//    }
-
-//    return l_dMin;
-//}
-
-
-
-
-
-
-//void SWOptimalStepNonRigidICP::buildTAA(cv::SparseMat_<double> &oA, cv::SparseMat_<double> &oTA, cv::Mat &oTAA)
-//{
-//    // build TA * A
-//    int l_aTAASize = oTA.size(0);
-//    oTAA = cv::Mat(l_aTAASize, l_aTAASize, CV_64FC1, cv::Scalar(0.0));
-
-//    for(int ii = 0; ii < oTA.size(0); ++ii)
-//    {
-//        for(int jj = 0; jj < oTA.size(1); ++jj)
-//        {
-//            if(oTA.ptr(ii,jj, false))
-//            {
-//                for(int kk = 0; kk < oA.size(1); ++kk)
-//                {
-//                    if(oA.ptr(jj,kk, false))
-//                    {
-//                        oTAA.at<double>(ii, kk) += oTA.ref(ii,jj) * oA.ref(jj,kk);
-//                    }
-//                }
-//            }
-//        }
-//    }
-//}
-
-
-//void SWOptimalStepNonRigidICP::buildDL_UL(cv::SparseMat_<double> &oWD, cv::SparseMat_<double> &oDL, cv::SparseMat_<double> &oUL, cdouble dBeta)
-//{
-//    // build beta * DL
-//    int l_aDLSize[] = {m_l.size(), oWD.size(1)};
-//    oDL = cv::SparseMat_<double> (2, l_aDLSize);
-
-//    int l_aULSize[] = {m_l.size(), 4};
-//    oUL = cv::SparseMat_<double> (2, l_aULSize);
-
-//    vector<double> l_a3DSourcePt, l_a3DTargetPt;
-
-//    int ii = 0;
-//    for (std::map<uint,uint>::const_iterator it = m_l.cbegin(); it != m_l.cend(); ++it, ++ii)
-//    {
-//        uint l_ui32SourceId = it->first;
-//        uint l_ui32TargetId = it->second;
-//        m_oTargetMesh.point(l_a3DSourcePt, l_ui32SourceId);
-//        m_oTargetMesh.point(l_a3DTargetPt, l_ui32TargetId);
-
-//        oDL.ref(ii, l_ui32SourceId*4)   = dBeta * l_a3DSourcePt[0];
-//        oDL.ref(ii, l_ui32SourceId*4+1) = dBeta * l_a3DSourcePt[1];
-//        oDL.ref(ii, l_ui32SourceId*4+2) = dBeta * l_a3DSourcePt[2];
-//        oDL.ref(ii, l_ui32SourceId*4+2) = dBeta;
-
-//        oUL.ref(ii, 0) = l_a3DTargetPt[0];
-//        oUL.ref(ii, 1) = l_a3DTargetPt[1];
-//        oUL.ref(ii, 2) = l_a3DTargetPt[2];
-//        oUL.ref(ii, 3) = 1;
-//    }
-//}
-
-//void SWOptimalStepNonRigidICP::buildWU(cv::SparseMat_<double> &oW, cv::Mat &oU, cv::SparseMat_<double> &oWU)
-//{
-//    // build W * U
-//    int l_aWUSize[] = {oW.size(0), oU.cols};
-//    oWU = cv::SparseMat_<double> (2, l_aWUSize);
-
-//    for(int ii = 0; ii < oW.size(0); ++ii)
-//    {
-//        for(int jj = 0; jj < oW.size(1); ++jj)
-//        {
-//            if(oW.ptr(ii,jj, false))
-//            {
-//                for(int kk = 0; kk < oU.cols; ++kk)
-//                {
-//                    if(oU.ptr(jj,kk, false))
-//                    {
-//                        oWU.ref(ii, kk) += oW.ref(ii,jj) * oU.at<double>(jj,kk);
-//                    }
-//                }
-//            }
-//        }
-//    }
-//}
-
-
-//void SWOptimalStepNonRigidICP::buildW(cv::SparseMat_<double> &oW)
-//{
-//    // compute W matrix,  W = diag(w1, ... , wn)
-//        int l_aWSize[] = {m_oSourceMesh.pointsNumber(), m_oSourceMesh.pointsNumber()};
-//        oW = cv::SparseMat_<double>(2, l_aWSize);
-
-//        for(uint ii = 0; ii < m_oSourceMesh.pointsNumber(); ++ii)
-//        {
-//            if(m_w[ii] > 0)
-//            {
-//                oW.ref(ii,ii) = m_w[ii];
-//            }
-//        }
-//}
-
-//void SWOptimalStepNonRigidICP::buildD(cv::SparseMat_<double> &oD)
-//{
-//    // compute D matrix
-//    // D = |v1^t             |  vi   = [xi, yi, zi, 1]^T
-//    //     |    v2^t         |  vi^t = [xi, yi, zi, 1]
-//    //     |         ...     |
-//    //     |             vn^t|
-//    int l_aDSize[] = {m_oSourceMesh.pointsNumber(),4 * m_oSourceMesh.pointsNumber()};
-//    oD = cv::SparseMat_<double>(2, l_aDSize);
-
-//    for(uint ii = 0; ii < m_oSourceMesh.pointsNumber(); ++ii)
-//    {
-//        float l_aFXYZ[3];
-//        m_oSourceMesh.point(l_aFXYZ, ii);
-
-//        oD.ref(ii, ii * 4)      = l_aFXYZ[0];
-//        oD.ref(ii, ii * 4 + 1)  = l_aFXYZ[1];
-//        oD.ref(ii, ii * 4 + 2)  = l_aFXYZ[2];
-//        oD.ref(ii, ii * 4 + 3)  = 1.0;
-//    }
-//}
-
-
-
-
-
-//void SWOptimalStepNonRigidICP::buildWD(cv::SparseMat_<double> &oW, cv::SparseMat_<double> &oD, cv::SparseMat_<double> &oWD)
-//    {
-// build W * D
-//    int l_aWDSize[] = {oW.size(0), oD.size(1)};
-//    oWD = cv::SparseMat_<double> (2, l_aWDSize);
-
-//    for(int ii = 0; ii < oW.size(0); ++ii)
-//    {
-//        for(int jj = 0; jj < oW.size(1); ++jj)
-//        {
-//            if(oW.ptr(ii,jj, false))
-//            {
-//                for(int kk = 0; kk < oD.size(1); ++kk)
-//                {
-//                    if(oD.ptr(jj,kk, false))
-//                    {
-//                        oWD.ref(ii, kk) += oW.ref(ii,jj) * oD.ref(jj,kk);
-//                    }
-//                }
-//            }
-//        }
-//    }
-//}
-
-
-//void SWOptimalStepNonRigidICP::buildW(cv::Mat &oW)
-//{
-//    // compute W matrix,  W = diag(w1, ... , wn)
-//        oW = cv::Mat(m_oSourceMesh.pointsNumber(), m_oSourceMesh.pointsNumber(), CV_64FC1, cv::Scalar(0.0));
-//        for(uint ii = 0; ii < m_oSourceMesh.pointsNumber(); ++ii)
-//        {
-//            oW.at<double>(ii,ii) = m_w[ii];
-//        }
-//}
-
-
-
-//void SWOptimalStepNonRigidICP::buildD(cv::Mat &oD)
-//{
-//    // compute D matrix
-//    // D = |v1^t             |  vi = [xi, yi, zi, 1]^T
-//    //     |    v2^t         |
-//    //     |         ...     |
-//    //     |             vn^t|
-//        oD = cv::Mat(m_oSourceMesh.pointsNumber(), 4 * m_oSourceMesh.pointsNumber(), CV_64FC1, cv::Scalar(0.0));
-
-//        for(uint ii = 0; ii < m_oSourceMesh.pointsNumber(); ++ii)
-//        {
-//            vector<double> l_oPt;
-//            m_oSourceMesh.point(l_oPt, ii);
-
-//            oD.at<double>(ii, ii * 4)        = l_oPt[0];
-//            oD.at<double>(ii, ii * 4 + 1)    = l_oPt[1];
-//            oD.at<double>(ii, ii * 4 + 2)    = l_oPt[2];
-//            oD.at<double>(ii, ii * 4 + 3)    = 1.0;
-//        }
-//}
-
-
-
-
-
-
-//void SWOptimalStepNonRigidICP::buildU(cv::Mat &oU)
-//{
-//    // compute U matrix, U = [u1, ..., un]^T
-//        oU = cv::Mat(m_oSourceMesh.pointsNumber(), 3, CV_64FC1);
-//        for(uint ii = 0; ii < m_oSourceMesh.pointsNumber(); ++ii)
-//        {
-//            vector<double> l_oPt;
-//            m_oTargetMesh.point(l_oPt, m_u[ii]);
-
-//            oU.at<double>(ii, 0) = l_oPt[0];
-//            oU.at<double>(ii, 1) = l_oPt[1];
-//            oU.at<double>(ii, 2) = l_oPt[2];
-//        }
-//}
-
-
-
-
-
-
-
-
-
-//void SWOptimalStepNonRigidICP::buildA(cv::SparseMat_<double> &oMG, cv::Mat &oWD, cv::SparseMat_<double> &oA)
-//{
-//    // build A sparse matrix
-//    //      | MG1 ... MGn | with MGi i-col of MG, and WDi i-col of WD
-//    // A =  | WD1 ... WDn |
-//    int l_aASize[] = { oMG.size(0) + oWD.rows, oWD.cols};
-//    oA = cv::SparseMat_<double>(2, l_aASize);
-
-//    for(int jj = 0; jj < l_aASize[1]; ++jj)
-//    {
-//        for(int ii = 0; ii < l_aASize[0]; ++ii)
-//        {
-//            if(ii <  oMG.size(0))
-//            {
-//                if(oMG.ptr(ii,jj, false))
-//                {
-//                    oA.ref(ii,jj) = oMG.ref(ii,jj);
-//                }
-//            }
-//            else
-//            {
-//                if(oWD.at<double>(ii - oMG.size(0),jj) != 0.0)
-//                {
-//                    oA.ref(ii, jj) = oWD.at<double>(ii - oMG.size(0),jj);
-//                }
-//            }
-//        }
-//    }
-//}
-
-
-
-
-
-
-
-
-
-//void SWOptimalStepNonRigidICP::mult(cv::SparseMat_<double> &oM, cv::SparseMat_<double> &oN, cv::SparseMat_<double> &oMN)
-//{
-//    if(oM.size(1) != oN.size(0)) // TODO : throw
-//    {
-//        cerr << "Error SWOptimalStepNonRigidICP mult, input matrix have invalid size. " << endl;
-//        return;
-//    }
-
-//    // build M * N
-//    int l_aMNSize[] = {oM.size(0), oN.size(1)};
-//    oMN = cv::SparseMat_<double>(2, l_aMNSize);
-
-//    for(int ii = 0; ii < oM.size(0); ++ii)
-//    {
-//        for(int jj = 0; jj < oM.size(1); ++jj)
-//        {
-//            if(oM.ptr(ii,jj, false))
-//            {
-//                for(int kk = 0; kk < oN.size(1); ++kk)
-//                {
-//                    if(oN.ptr(jj,kk, false))
-//                    {
-//                        oMN.ref(ii,kk) += oM(ii,jj) * oN(jj,kk);
-//                    }
-//                }
-//            }
-//        }
-//    }
-//}
-
-//void SWOptimalStepNonRigidICP::trans(cv::SparseMat_<double> &oA, cv::SparseMat_<double> &oTA)
-//{
-//    // build transposate A sparse matrix
-//    int l_aTASize[] = {oA.size(1), oA.size(0)};
-//    oTA = cv::SparseMat_<double>(2, l_aTASize);
-
-//    for(int ii = 0; ii < oA.size(0); ++ii)
-//    {
-//        for(int jj = 0; jj < oA.size(1); ++jj)
-//        {
-//            if(oA.ptr(ii,jj, false))
-//            {
-//                oTA.ref(jj,ii) = oA(ii,jj);
-//            }
-//        }
-//    }
-//}
-
-
-
-
-//vector<int> l_vI32CorrStasmTarget;
-
-//if(sPathSourceStasmCorr.size() > 0 && sPathTargetStasmCorr.size() > 0)
-//{
-//    ifstream  l_fsSource(sPathSourceStasmCorr);
-//    ifstream  l_fsTarget(sPathTargetStasmCorr);
-
-//    bool l_bContinue = true;
-//    while(l_bContinue)
-//    {
-//        string l_sType, l_sLine;
-//        l_fsSource >> l_sType;
-
-//        if(l_sType.size() == 0)
-//        {
-//            l_bContinue = false;
-//            break;
-//        }
-
-//        if(l_sType.at(0) == '#')
-//        {
-//            getline(l_fsSource, l_sLine);
-//        }
-//        else
-//        {
-//            int l_i32IndexCorr;
-//            l_fsSource >> l_i32IndexCorr;
-//            l_vI32CorrStasmSource.push_back(l_i32IndexCorr);
-//            l_sType = "";
-//            l_fsSource >> l_sType;
-
-//             if(l_sType.at(0) == '#')
-//             {
-//                 getline(l_fsSource, l_sLine);
-//             }
-//        }
-
-//        l_sType = "";
-//        l_fsTarget >> l_sType;
-
-//        if(l_sType.at(0) == '#')
-//        {
-//            getline(l_fsTarget, l_sLine);
-//        }
-//        else
-//        {
-//            int l_i32IndexCorr;
-//            l_fsTarget >> l_i32IndexCorr;
-//            l_vI32CorrStasmTarget.push_back(l_i32IndexCorr);
-//        }
-//    }
-//}
-
-
-
-//    m_oProgramTime = clock();
-//        buildW(W);
-////        displayDenseMatrix(W);
-//    cout << "Build W : " << (float)(clock() - m_oProgramTime) / CLOCKS_PER_SEC << endl;
-
-//    m_oProgramTime = clock();
-
-//        displaySparseMatrix(sW);
-//    cout << "Build sW : " << (float)(clock() - m_oProgramTime) / CLOCKS_PER_SEC << endl;
-
-//    m_oProgramTime = clock();
-//        buildD(D);
-////        displayDenseMatrix(D);
-//    cout << "Build D : " << (float)(clock() - m_oProgramTime) / CLOCKS_PER_SEC << endl;
-
-//    m_oProgramTime = clock();
-
-////        displaySparseMatrix(sD);
-//    cout << "Build sD : " << (float)(clock() - m_oProgramTime) / CLOCKS_PER_SEC << endl;
-
-//    m_oProgramTime = clock();
-
-//    cout << "Build U : " << (float)(clock() - m_oProgramTime) / CLOCKS_PER_SEC << endl;
-
-//    m_oProgramTime = clock();
-
-//    cout << "Build sMG : " << (float)(clock() - m_oProgramTime) / CLOCKS_PER_SEC << endl;
-
-//    m_oProgramTime = clock();
-
-//        displaySparseMatrix(sDL);
-
-//    cout << "Build DL_UL : " << (float)(clock() - m_oProgramTime) / CLOCKS_PER_SEC << endl;
-//        displaySparseMatrix(sUL);
-
-
-//    m_oProgramTime = clock();
-//        matrixMultiplication(W, D, WD);
-//        // WD = W * D;
-////        displayDenseMatrix(WD);
-//    cout << "Build WD : " << (float)(clock() - m_oProgramTime) / CLOCKS_PER_SEC << endl;
-
-//    m_oProgramTime = clock();
-//        buildWD(sW, sD, sWD);
-
-//        swUtil::swCuda::blockMatrixMultiplication(sW, sD, sWD, 4);
-//        displaySparseMatrix(sWD);
-//    cout << "Build sWD : " << (float)(clock() - m_oProgramTime) / CLOCKS_PER_SEC << endl;
-
-////    m_oProgramTime = clock();
-////        matrixMultiplication(W, U, WU);
-//////        WU = W * U;
-//////        displayDenseMatrix(WU);
-////    cout << "Build WU : " << (float)(clock() - m_oProgramTime) / CLOCKS_PER_SEC << endl;
-
-//    m_oProgramTime = clock();
-
-////        displaySparseMatrix(sWU);
-//    cout << "Build sWU : " << (float)(clock() - m_oProgramTime) / CLOCKS_PER_SEC << endl;
-
-////    m_oProgramTime = clock();
-////        addLandmarkData(sWD, sWU);
-////    cout << "Add landmark data : " << (float)(clock() - m_oProgramTime) / CLOCKS_PER_SEC << endl;
-
-//    m_oProgramTime = clock();
-////        buildA(sMG, WD, sA);
-////        buildA(sMG, sWD, sA);
-
-////        displaySparseMatrix(sA);
-//    cout << "Build sA : " << (float)(clock() - m_oProgramTime) / CLOCKS_PER_SEC << endl;
-
-//    m_oProgramTime = clock();
-////        buildB(sMG, sWU, sB);
-
-////        displaySparseMatrix(sB);
-//    cout << "Build sB : " << (float)(clock() - m_oProgramTime) / CLOCKS_PER_SEC << endl;
-
-//    m_oProgramTime = clock();
-
-////        displaySparseMatrix(sTA);
-//    cout << "Build sTA : " << (float)(clock() - m_oProgramTime) / CLOCKS_PER_SEC << endl;
-
-////     m_oProgramTime = clock();
-//        buildTAA(sA, sTA, TAA);
-//        displayDenseMatrix(TAA);
-//     cout << "Build TAA : " << (float)(clock() - m_oProgramTime) / CLOCKS_PER_SEC << endl;
-
-//     m_oProgramTime = clock();
-//        swUtil::swCuda::matrixMultiplication(sA, sTA, sTAA);
-//     cout << "Build block mult sTAA : " << (float)(clock() - m_oProgramTime) / CLOCKS_PER_SEC << endl;
-
-//     m_oProgramTime = clock();
-
-////        displaySparseMatrix(sTAA);
-//     cout << "Build sTAA : " << (float)(clock() - m_oProgramTime) / CLOCKS_PER_SEC << endl;
-
-
-
-//        cout << "Build TAB : " << (float)(clock() - m_oProgramTime) / CLOCKS_PER_SEC << endl;
-
-////    m_oProgramTime = clock();
-////        matrixInversion(TAA, TAAInv);
-////        TAAInv = TAA.inv();
-////    cout << "Build TAAInv : " << (float)(clock() - m_oProgramTime) / CLOCKS_PER_SEC << endl;
-
-//    m_oProgramTime = clock();
-
-//    cout << "Build sTAAInv : " << (float)(clock() - m_oProgramTime) / CLOCKS_PER_SEC << endl;
-
-//    m_oProgramTime = clock();
-////        cv::Mat newX = (TAA.inv() * TAB).t();
-
-
-//    cout << "Build newX : " << (float)(clock() - m_oProgramTime) / CLOCKS_PER_SEC << endl;
+void SWOptimalStepNonRigidICP::buildW(cv::Mat &oW)
+{
+    // compute W matrix,  W = diag(w1, ... , wn)
+        oW = cv::Mat(m_oSourceMesh.pointsNumber(), m_oSourceMesh.pointsNumber(), CV_32FC1, cv::Scalar(0.f));
+        for(uint ii = 0; ii < m_oSourceMesh.pointsNumber(); ++ii)
+        {
+//            oW.at<float>(ii,ii) = static_cast<float>(m_w[ii]);
+            oW.at<float>(ii,ii) = m_w[ii];
+        }
+}
+
+
+void SWOptimalStepNonRigidICP::buildD(cv::Mat &oD)
+{
+    // compute D matrix
+    // D = |v1^t             |  vi = [xi, yi, zi, 1]^T
+    //     |    v2^t         |
+    //     |         ...     |
+    //     |             vn^t|
+        oD = cv::Mat(m_oSourceMesh.pointsNumber(), 4 * m_oSourceMesh.pointsNumber(), CV_32FC1, cv::Scalar(0.f));
+
+        for(uint ii = 0; ii < m_oSourceMesh.pointsNumber(); ++ii)
+        {
+            vector<float> l_oPt;
+            m_oSourceMesh.point(l_oPt, ii);
+
+            oD.at<float>(ii, ii * 4)        = l_oPt[0];
+            oD.at<float>(ii, ii * 4 + 1)    = l_oPt[1];
+            oD.at<float>(ii, ii * 4 + 2)    = l_oPt[2];
+            oD.at<float>(ii, ii * 4 + 3)    = 1.0;
+        }
+}
+
+
+void SWOptimalStepNonRigidICP::buildU(cv::Mat &oU)
+{
+    // compute U matrix, U = [u1, ..., un]^T
+        oU = cv::Mat(m_oSourceMesh.pointsNumber(), 3, CV_32FC1, cv::Scalar(0.f));
+        for(uint ii = 0; ii < m_oSourceMesh.pointsNumber(); ++ii)
+        {
+            vector<float> l_oPt;
+            m_oTargetMesh.point(l_oPt, m_u[ii]);
+
+            oU.at<float>(ii, 0) = l_oPt[0];
+            oU.at<float>(ii, 1) = l_oPt[1];
+            oU.at<float>(ii, 2) = l_oPt[2];
+        }
+}
+
+//void SWOptimalStepNonRigidICP::buildMG(cv::Mat &oMG, cdouble dAlpha, cdouble dGama)
+void SWOptimalStepNonRigidICP::buildMG(cv::Mat &oMG, cfloat fAlpha, cfloat fGama)
+{
+    // build alpha * Kronecker product(M, G)) with G = diag(1,1,1, gama) and M node-arc incidence matrix (edge, vertex)
+        int l_aMGSize[] = {4 * m_pSourceMeshC->edgesNumber(), 4 * m_pSourceMeshC->pointsNumber()};
+        oMG = cv::Mat(l_aMGSize[0], l_aMGSize[1], CV_32FC1, cv::Scalar(0.f));
+
+        for(uint ii = 0, l_EdgeId = 0; ii < m_pSourceMeshC->pointsNumber(); ++ii)
+        {
+            vector<uint> l_aVertexLinks = m_pSourceMeshC->vertexLinks(ii);
+
+            for(uint jj = 0; jj < l_aVertexLinks.size(); ++jj, ++l_EdgeId)
+            {
+                oMG.at<float>(4 * l_EdgeId,     4 * ii)     = -1.f     * fAlpha;
+                oMG.at<float>(4 * l_EdgeId + 1, 4 * ii + 1) = -1.f     * fAlpha;
+                oMG.at<float>(4 * l_EdgeId + 2, 4 * ii + 2) = -1.f     * fAlpha;
+                oMG.at<float>(4 * l_EdgeId + 3, 4 * ii + 3) = -fGama   * fAlpha;
+
+                oMG.at<float>(4 * l_EdgeId,     4 * l_aVertexLinks[jj])     = 1.f     * fAlpha;
+                oMG.at<float>(4 * l_EdgeId + 1, 4 * l_aVertexLinks[jj] + 1) = 1.f     * fAlpha;
+                oMG.at<float>(4 * l_EdgeId + 2, 4 * l_aVertexLinks[jj] + 2) = 1.f     * fAlpha;
+                oMG.at<float>(4 * l_EdgeId + 3, 4 * l_aVertexLinks[jj] + 3) = fGama   * fAlpha;
+            }
+        }
+}
+
+void SWOptimalStepNonRigidICP::buildWD(cv::Mat &oWD)
+{
+    // build W * D
+    int l_aWDSize[] = {m_pSourceMeshC->pointsNumber(), 4*m_pSourceMeshC->pointsNumber()};
+    oWD = cv::Mat (l_aWDSize[0], l_aWDSize[1], CV_32FC1, cv::Scalar(0.f));
+
+    for(int ii = 0; ii < oWD.rows; ++ii)
+    {
+        float l_aFXYZ[3];
+        m_pSourceMeshC->point(l_aFXYZ, ii);
+
+        oWD.at<float>(ii, ii*4)   = m_wC[ii] * l_aFXYZ[0];
+        oWD.at<float>(ii, ii*4+1) = m_wC[ii] * l_aFXYZ[1];
+        oWD.at<float>(ii, ii*4+2) = m_wC[ii] * l_aFXYZ[2];
+        oWD.at<float>(ii, ii*4+3) = m_wC[ii];
+    }
+}
+
+void SWOptimalStepNonRigidICP::buildWU(cv::Mat &oWU)
+{
+    // build W * U
+    int l_aWUSize[] = {m_oSourceMesh.pointsNumber(), 3};
+    oWU = cv::Mat (l_aWUSize[0], l_aWUSize[1], CV_32FC1, cv::Scalar(0.f));
+
+    for(int ii = 0; ii < oWU.rows; ++ii)
+    {
+        float l_aFXYZ[3];
+        m_oTargetMesh.point(l_aFXYZ, m_u[ii]);
+
+        oWU.at<float>(ii, 0) = m_w[ii] * l_aFXYZ[0];
+        oWU.at<float>(ii, 1) = m_w[ii] * l_aFXYZ[1];
+        oWU.at<float>(ii, 2) = m_w[ii] * l_aFXYZ[2];
+    }
+}
+
+void SWOptimalStepNonRigidICP::buildA(cv::Mat &oMG, cv::Mat &oWD, cv::Mat &oA)
+{
+    // build A sparse matrix
+    //      | MG1 ... MGn | with MGi i-col of MG, and WDi i-col of WD
+    // A =  | WD1 ... WDn |
+    int l_aASize[] = { oMG.rows + oWD.rows, oMG.cols};
+
+    oA = cv::Mat(l_aASize[0], l_aASize[1], CV_32FC1, cv::Scalar(0.f));
+
+    for(int jj = 0; jj < l_aASize[1]; ++jj)
+    {
+        for(int ii = 0; ii < l_aASize[0]; ++ii)
+        {
+            if(ii <  oMG.rows)
+            {
+                oA.at<float>(ii,jj) = oMG.at<float>(ii,jj);
+            }
+            else
+            {
+                oA.at<float>(ii,jj) = oWD.at<float>(ii - oMG.rows,jj);
+            }
+        }
+    }
+}
+
+void SWOptimalStepNonRigidICP::buildB(cint i32MGRows, cv::Mat &oB)
+{
+    // build W * U
+    int l_aWUSize[] = {m_oSourceMesh.pointsNumber(), 3};
+    cv::Mat oWU(l_aWUSize[0], l_aWUSize[1], CV_32FC1, cv::Scalar(0.f));
+
+    for(int ii = 0; ii < oWU.rows; ++ii)
+    {
+        float l_aFXYZ[3];
+        m_oTargetMesh.point(l_aFXYZ, m_u[ii]);
+
+        oWU.at<float>(ii, 0) = m_w[ii] * l_aFXYZ[0];
+        oWU.at<float>(ii, 1) = m_w[ii] * l_aFXYZ[1];
+        oWU.at<float>(ii, 2) = m_w[ii] * l_aFXYZ[2];
+    }
+
+    // build B sparse matrix
+    //      | c01 ... c03 | with c0i i-col of 0 (same number of rows than MG), and WUi i-col of WU
+    // B =  | WU1 ... WU3 |
+    int l_aBSize[] = { i32MGRows + oWU.rows, oWU.cols};
+    oB = cv::Mat(l_aBSize[0], l_aBSize[1], CV_32FC1, cv::Scalar(0.f));
+
+    for(int ii = 0; ii < oWU.rows; ++ii)
+    {
+        for(int jj = 0; jj < l_aBSize[1]; ++jj)
+        {
+            oB.at<float>(ii + i32MGRows, jj) = oWU.at<float>(ii,jj);
+        }
+    }
+}
+
+//bool SWOptimalStepNonRigidICP::checkDiff(cv::Mat &oMatrix, cv::SparseMat_<double> &oSparseMatrix)
+bool SWOptimalStepNonRigidICP::checkDiff(cv::Mat &oMatrix, cv::SparseMat_<float> &oSparseMatrix)
+{
+    if(oMatrix.rows != oSparseMatrix.size(0) && oMatrix.cols != oSparseMatrix.size(1))
+    {
+        std::cerr << "Wrong sizes. " << std::endl;
+        return false;
+    }
+
+    for(int ii = 0; ii < oMatrix.rows; ++ii)
+    {
+        for(int jj = 0; jj < oMatrix.cols; ++jj)
+        {
+            if(oSparseMatrix.ptr(ii,jj, false))
+            {
+                float l_fV1 = oMatrix.at<float>(ii,jj);
+                float l_fV2 = oSparseMatrix.ref(ii,jj);
+                if(sqrt(l_fV1*l_fV1) - sqrt(l_fV2*l_fV2) > 0.01f)
+                {
+                    std::cerr << "Differents Values.  ["  << ii << " " << jj <<"] -> " << l_fV1 << " " << l_fV2 << std::endl;
+                    return false;
+                }
+
+//                if(rand()%1000 == 0)
+//                    std::cout << ii << " "  << jj << " " << sqrt(l_fV1*l_fV1) << " " << sqrt(l_fV2*l_fV2) <<   " | ";
+            }
+        }
+    }
+
+    return true;
+}
+
+bool SWOptimalStepNonRigidICP::checkDiff(cv::Mat &oMatrix1, cv::Mat &oMatrix2)
+{
+    if(oMatrix1.rows != oMatrix2.rows && oMatrix1.cols != oMatrix2.cols)
+    {
+        std::cerr << "Wrong sizes. " << std::endl;
+        return false;
+    }
+
+    for(int ii = 0; ii < oMatrix1.rows; ++ii)
+    {
+        for(int jj = 0; jj < oMatrix1.cols; ++jj)
+        {
+            float l_fV1 = oMatrix1.at<float>(ii,jj);
+            float l_fV2 = oMatrix2.at<float>(ii,jj);
+            if(sqrt(l_fV1*l_fV1) - sqrt(l_fV2*l_fV2) > 0.01f)
+            {
+                std::cerr << "Differents Values.  ["  << ii << " " << jj <<"] -> " << l_fV1 << " " << l_fV2 << std::endl;
+                return false;
+            }
+//            if(rand()%1000 == 0)
+//                std::cout << ii << " "  << jj << " " << sqrt(l_fV1*l_fV1) << " " << sqrt(l_fV2*l_fV2) <<   " | ";
+        }
+    }
+
+    return true;
+}
+
+
+void SWOptimalStepNonRigidICP::buildTAA(cv::Mat &oA, cv::Mat &oTAA)
+{
+    // build TA * A
+    int l_aTAASize[] = {oA.cols, oA.cols};
+    oTAA = cv::Mat(l_aTAASize[0], l_aTAASize[1], CV_32FC1, cv::Scalar(0.f));
+
+    for(int ii = 0; ii < oA.cols; ++ii)
+    {
+        for(int jj = 0; jj < oA.rows; ++jj)
+        {
+            if(oA.at<float>(jj,ii) != 0.f)
+            {
+                for(int kk = 0; kk < oA.cols; ++kk)
+                {
+                    if(oA.at<float>(jj,kk) != 0.f)
+                    {
+                        oTAA.at<float>(ii,kk) += oA.at<float>(jj,ii) * oA.at<float>(jj,kk);
+                    }
+                }
+            }
+        }
+    }
+}
+
+void SWOptimalStepNonRigidICP::buildTAB(cv::Mat &oA, cv::Mat &oB, cv::Mat &oTAB)
+{
+    // build TA * B
+    oTAB = cv::Mat(oA.cols, oB.cols, CV_32FC1, cv::Scalar(0.f));
+
+    for(int ii = 0; ii < oA.cols; ++ii)
+    {
+        for(int jj = 0; jj < oA.rows; ++jj)
+        {
+            if(oA.at<float>(jj,ii) != 0.f)
+            {
+                for(int kk = 0; kk < oB.cols; ++kk)
+                {
+                    if(oB.at<float>(jj,kk) != 0.f)
+                    {
+                        oTAB.at<float>(ii, kk) += oA.at<float>(jj,ii) * oB.at<float>(jj,kk);
+                    }
+                }
+            }
+        }
+    }
+}
+
+//void SWOptimalStepNonRigidICP::addLandMarks(cfloat fBeta, cv::Mat &oMG, cv::Mat &oA, cv::Mat &oB)
+void SWOptimalStepNonRigidICP::addLandMarks(cfloat fBeta, cint i32MGRows, cv::Mat &oA, cv::Mat &oB)
+{
+    std::vector<float> l_a3DSourcePt, l_a3DTargetPt;
+
+    for (std::map<uint,uint>::const_iterator it = m_l.cbegin(); it != m_l.cend(); ++it)
+    {
+        uint l_ui32SourceId = it->first;
+        uint l_ui32TargetId = it->second;
+        m_oSourceMesh.point(l_a3DSourcePt, l_ui32SourceId);
+        m_oTargetMesh.point(l_a3DTargetPt, l_ui32TargetId);
+
+        oA.at<float>(i32MGRows+l_ui32SourceId, l_ui32SourceId * 4)      = l_a3DSourcePt[0] * fBeta;
+        oA.at<float>(i32MGRows+l_ui32SourceId, l_ui32SourceId * 4 + 1)  = l_a3DSourcePt[1] * fBeta;
+        oA.at<float>(i32MGRows+l_ui32SourceId, l_ui32SourceId * 4 + 2)  = l_a3DSourcePt[2] * fBeta;
+        oA.at<float>(i32MGRows+l_ui32SourceId, l_ui32SourceId * 4 + 3)  = fBeta;
+
+        oB.at<float>(i32MGRows+l_ui32SourceId, 0) = l_a3DTargetPt[0];
+        oB.at<float>(i32MGRows+l_ui32SourceId, 1) = l_a3DTargetPt[1];
+        oB.at<float>(i32MGRows+l_ui32SourceId, 2) = l_a3DTargetPt[2];
+    }
+}
+
