@@ -11,14 +11,17 @@
 // OPENCV
 #include "opencv2/imgproc/imgproc.hpp"
 
-int inverseMatSgesv(float *aFInputMat, float *aFOutputInvMat, int i32SizeSquareMat);
+
+int doCulaSgesv(float *aFInputMat, float *aFOutputInvMat, int i32SizeSquareMat);
+//int doCulaSgesv(float *aFInputMat, float *aFOutputInvMat, int i32N, int i32NRHS);
 
 void transpose(float *idata, float *odata, int size_x, int size_y);
 
 void matMult(const Matrix A, const Matrix B, Matrix C, const int blockSize = 16);
 
-void cudaDummyCall(int argc, char **argv);
+void cudaDummyCall();
 
+int LUDecomposition(float *aFMat, int i32SizeSquareMat);
 
 namespace swUtil
 {
@@ -26,52 +29,13 @@ namespace swUtil
     {
         /**
          * \brief GPU matrix inversion.
-         * \param [in]  oInput   : input square matrix
-         * \param [out] oResult  : output inverse matrix
-         */
-        static void matrixInversion(const cv::SparseMat_<float> &oInput, cv::Mat &oResult)
-        {
-            float *l_aFDataIn  = new float[oInput.size(0) * oInput.size(1)];
-            float *l_aFDataOut = new float[oInput.size(0) * oInput.size(1)];
-
-            int l_i32CurrentIndexDiag = 0;
-
-            // input input/output array datas
-            for(int ii = 0; ii < oInput.size(0) * oInput.size(1); ++ii)
-            {
-                l_aFDataIn[ii] = oInput( (ii/oInput.size(0)), (ii%oInput.size(0)));
-
-                if(ii == l_i32CurrentIndexDiag) // init output array with id matrix
-                {
-                    l_aFDataOut[ii] = 1;
-                    l_i32CurrentIndexDiag += oInput.size(0) + 1;
-                }
-                else
-                {
-                    l_aFDataOut[ii] = 0;
-                }
-            }
-
-            // compute inverse mat
-            inverseMatSgesv(l_aFDataIn, l_aFDataOut, oInput.size(0));
-
-            oResult = cv::Mat(oInput.size(0), oInput.size(0), CV_32FC1);
-            for(int ii = 0; ii < oInput.size(0) * oInput.size(0); ++ii)
-            {
-                oResult.at<float>(ii) = (l_aFDataOut[ii]);
-            }
-
-            delete[] l_aFDataIn;
-            delete[] l_aFDataOut;
-        }
-
-        /**
-         * \brief GPU matrix inversion.
          * \param [in]  oInput   : float input square matrix
          * \param [out] oResult  : output inverse matrix
          */
         static void matrixInversion(const cv::Mat &oInput, cv::Mat &oResult)
         {
+//            cudaDummyCall();
+
             float *l_aFDataIn  = new float[oInput.rows * oInput.cols];
             float *l_aFDataOut = new float[oInput.rows * oInput.cols];
 
@@ -93,8 +57,8 @@ namespace swUtil
                 }
             }
 
-            // compute inverse mat
-            inverseMatSgesv(l_aFDataIn, l_aFDataOut, oInput.rows);
+            // compute inverse mat            
+            doCulaSgesv(l_aFDataIn, l_aFDataOut, oInput.rows);
             delete[] l_aFDataIn;
 
             // fill result mat
@@ -107,103 +71,7 @@ namespace swUtil
             delete[] l_aFDataOut;
         }
 
-        /**
-         * \brief GPU matrix multiplication. Res(l,n) = A(l,m)*B(m,n)
-         * \param [in]  oSMatA    : input A matrix
-         * \param [in]  oSMatB    : input B matrix
-         * \param [out] oSMatRes  : res C matrix
-         */
-//        static void matrixMultiplication( cv::SparseMat_<double> &oSMatA,  cv::SparseMat_<double> &oSMatB,  cv::SparseMat_<double> &oSMatRes)
-        static void matrixMultiplication( cv::SparseMat_<float> &oSMatA,  cv::SparseMat_<float> &oSMatB,  cv::SparseMat_<float> &oSMatRes)
-        {
-            // Padd matrix offset
-            int l_i32PaddOffsetRowsA = (BLOCKSIZE - (oSMatA.size(0) % BLOCKSIZE))% BLOCKSIZE;
-            int l_i32PaddOffsetColsA = (BLOCKSIZE - (oSMatA.size(1) % BLOCKSIZE))% BLOCKSIZE;
-            int l_i32PaddOffsetRowsB = (BLOCKSIZE - (oSMatB.size(0) % BLOCKSIZE))% BLOCKSIZE;
-            int l_i32PaddOffsetColsB = (BLOCKSIZE - (oSMatB.size(1) % BLOCKSIZE))% BLOCKSIZE;
 
-            Matrix A, B, C;
-            A.height = oSMatA.size(0) + l_i32PaddOffsetRowsA;
-            A.width  = oSMatA.size(1) + l_i32PaddOffsetColsA;
-            A.elements = new float[A.width * A.height];
-
-            B.height = oSMatB.size(0) + l_i32PaddOffsetRowsB;
-            B.width  = oSMatB.size(1) + l_i32PaddOffsetColsB;
-            B.elements = new float[B.width * B.height];
-
-            C.height = A.height;
-            C.width  = B.width;
-            C.elements = new float[C.width * C.height];
-
-            for(int ii = 0; ii < A.height; ++ii)
-            {
-                for(int jj = 0; jj < A.width; ++jj)
-                {
-                    if(ii < oSMatA.size(0) && jj < oSMatA.size(1))
-                    {
-                        if(oSMatA.ptr(ii,jj, false))
-                        {
-                            A.elements[ii*A.width + jj] = oSMatA(ii,jj);
-                        }
-                        else
-                        {
-                            A.elements[ii*A.width + jj] = 0.f;
-                        }
-                    }
-                    else
-                    {
-                        A.elements[ii*A.width + jj] = 0.f;
-                    }
-                }
-            }
-
-            for(int ii = 0; ii < B.height; ++ii)
-            {
-                for(int jj = 0; jj < B.width; ++jj)
-                {
-                    if(ii < oSMatB.size(0) && jj < oSMatB.size(1))
-                    {
-                        if(oSMatB.ptr(ii,jj, false))
-                        {
-                            B.elements[ii*B.width + jj] = oSMatB(ii,jj);
-                        }
-                        else
-                        {
-                            B.elements[ii*B.width + jj] = 0.f;
-                        }
-                    }
-                    else
-                    {
-                        B.elements[ii*B.width + jj] = 0.f;
-                    }
-                }
-            }
-
-            matMult(A, B, C);
-
-            delete[] A.elements;
-            delete[] B.elements;
-
-            int l_i32ResHeight = C.height- l_i32PaddOffsetRowsA;
-            int l_i32ResWidth  = C.width - l_i32PaddOffsetColsB;
-
-            int size[] = {l_i32ResHeight, l_i32ResWidth};
-
-            oSMatRes = cv::SparseMat_<float>(2, size);
-
-            for(int ii = 0; ii < oSMatRes.size(0); ++ii)
-            {
-                for(int jj = 0; jj < oSMatRes.size(1); ++jj)
-                {
-                    if(C.elements[ii*C.width + jj] != 0.0)
-                    {
-                        oSMatRes.ref(ii, jj) = C.elements[ii*C.width + jj];
-                    }
-                }
-            }
-
-            delete[] C.elements;
-        }
 
         /**
          * \brief GPU matrix multiplication. Res(l,n) = A(l,m)*B(m,n)
@@ -277,9 +145,6 @@ namespace swUtil
                 }
             }
 
-//            printf("fill A\n");
-
-
             bool l_bB32 = false, l_bB64 = false;
 
             if(oMatB.depth() == CV_32F)
@@ -317,19 +182,10 @@ namespace swUtil
                 }
             }
 
-//            printf("fill B\n");
-
-
             matMult(A, B, C, l_i32BlockSize);
-
-//            printf("multiplication \n");
-
 
             delete[] A.elements;
             delete[] B.elements;
-
-//            printf("delete A & B\n");
-
 
             int l_i32ResHeight = C.height- l_i32PaddOffsetRowsA;
             int l_i32ResWidth  = C.width - l_i32PaddOffsetColsB;
@@ -369,9 +225,6 @@ namespace swUtil
                     }
                 }
             }
-
-//            printf("fill Res \n");
-
 
             delete[] C.elements;
         }
@@ -498,20 +351,6 @@ namespace swUtil
         }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         /**
          * \brief ...
          * \param [in]      oMat            : ...
@@ -578,14 +417,6 @@ namespace swUtil
              }
         }
 
-
-
-
-
-
-
-
-
         /**
          * \brief ...
          * \param [in]  oSMatA   : ...
@@ -593,7 +424,6 @@ namespace swUtil
          * \param [out] oSMatRes : ...
          * \param [in] i32SizeMatBlock : ...
          */
-//        static void blockMatrixMultiplication( cv::SparseMat_<double> &oSMatA,  cv::SparseMat_<double> &oSMatB,  cv::SparseMat_<double> &oSMatRes, cint i32SizeMatBlock = 2)
         static void blockMatrixMultiplication( cv::SparseMat_<float> &oSMatA,  cv::SparseMat_<float> &oSMatB,  cv::SparseMat_<float> &oSMatRes, cint i32SizeMatBlock = 2)
         {
             int l_i32SizeMatBlock    = i32SizeMatBlock; // l_i32SizeMatBlock must be a multiple of BLOCKSIZE
@@ -642,42 +472,12 @@ namespace swUtil
                     // compute Cij
                     for(int kk = 0; kk < l_i32SizeMatBlock; ++kk)
                     {
-    //                    std::cout << "subA_";
                         block(oSMatA, subA.elements, ii, kk, subA.height, subA.width);
-    //                                    std::cout  << std::endl << "display subA : " << std::endl;
-    //                                    for(int _kk = 0; _kk < subA.height; ++_kk)
-    //                                    {
-    //                                        for(int ll = 0; ll < subA.width; ++ll)
-    //                                            std::cout << subA.elements[_kk*subA.width + ll] << " ";
-    //                                        std::cout << std::endl;
-    //                                    }
 
-    //                    std::cout << "subB_";
                         block(oSMatB, subB.elements, kk, jj, subB.height, subB.width);
-    //                                    std::cout  << std::endl << "display subB : " << std::endl;
-    //                                    for(int _kk = 0; _kk < subB.height; ++_kk)
-    //                                    {
-    //                                        for(int ll = 0; ll < subB.width; ++ll)
-    //                                            std::cout << subB.elements[_kk*subB.width + ll] << " ";
-    //                                        std::cout << std::endl;
-    //                                    }
-
-
-        //                gpuMult(subA, subB, subC);
-        //                std::fill_n(subC.elements, subC.height * subC.width, 0.f);
 
                         matMult(subA, subB, subC);
 
-    //                    std::cout << "subC_";
-    //                                    std::cout  << std::endl << "display subC : " << std::endl;
-    //                                    for(int _kk = 0; _kk < subC.height; ++_kk)
-    //                                    {
-    //                                        for(int ll = 0; ll < subC.width; ++ll)
-    //                                            std::cout << subC.elements[_kk*subC.width + ll] << " ";
-    //                                        std::cout << std::endl;
-    //                                    }
-
-    //                    std::cout << " sub copy : " << std::endl;
                         for(int ll = 0; ll < subC.height* subC.width; ++ll)
                         {
                             l_fSubCCopy[ll] += subC.elements[ll];
@@ -697,5 +497,323 @@ namespace swUtil
 }
 
 
-
 #endif
+
+
+//        /**
+//         * \brief GPU matrix inversion.
+//         * \param [in]  oInput   : input square matrix
+//         * \param [out] oResult  : output inverse matrix
+//         */
+//        static void matrixInversion(const cv::SparseMat_<float> &oInput, cv::Mat &oResult)
+//        {
+//            float *l_aFDataIn  = new float[oInput.size(0) * oInput.size(1)];
+//            float *l_aFDataOut = new float[oInput.size(0) * oInput.size(1)];
+
+//            int l_i32CurrentIndexDiag = 0;
+
+//            // input input/output array datas
+//            for(int ii = 0; ii < oInput.size(0) * oInput.size(1); ++ii)
+//            {
+//                l_aFDataIn[ii] = oInput( (ii/oInput.size(0)), (ii%oInput.size(0)));
+
+//                if(ii == l_i32CurrentIndexDiag) // init output array with id matrix
+//                {
+//                    l_aFDataOut[ii] = 1;
+//                    l_i32CurrentIndexDiag += oInput.size(0) + 1;
+//                }
+//                else
+//                {
+//                    l_aFDataOut[ii] = 0;
+//                }
+//            }
+
+//            // compute inverse mat
+//            inverseMatSgesv(l_aFDataIn, l_aFDataOut, oInput.size(0));
+
+//            oResult = cv::Mat(oInput.size(0), oInput.size(0), CV_32FC1);
+//            for(int ii = 0; ii < oInput.size(0) * oInput.size(0); ++ii)
+//            {
+//                oResult.at<float>(ii) = (l_aFDataOut[ii]);
+//            }
+
+//            delete[] l_aFDataIn;
+//            delete[] l_aFDataOut;
+//        }
+/**
+ * \brief GPU matrix inversion.
+ * \param [in]  oInput   : float input square matrix
+ * \param [out] oX  : output X matrix
+ */
+//        static void resolveAX_B(const cv::Mat &oInput, cv::Mat &oX)
+//        {
+//            float *l_aFMatLU  = new float[oInput.rows * oInput.cols];
+
+//            // input input/output array datas
+//            for(int ii = 0; ii < oInput.rows*oInput.cols; ++ii)
+//            {
+//                l_aFMatLU[ii] = oInput.at<float>(ii);
+//            }
+
+//            // compute inverse mat
+//            LUDecomposition(l_aFMatLU, oInput.rows);
+
+//            // fill result mat
+//            oX = cv::Mat(oInput.rows,oInput.rows, CV_32FC1);
+//            for(int ii = 0; ii < oX.rows; ++ii)
+//            {
+//                for(int jj = 0; jj < oX.cols; ++jj)
+//                    oX.at<float>(ii,jj) = (l_aFMatLU[jj*oX.rows + ii]);
+//            }
+
+//            delete[] l_aFMatLU;
+//        }
+
+
+
+
+
+//        static void solve(cv::Mat &oA,cv::Mat &oL, cv::Mat &oU, cv::Mat &oLU)//, cv::Mat &oB, cv::Mat &oX)
+//        {
+//            float **LU__ = new float*[oA.rows];
+
+//            for(int ii = 0; ii < oA.rows; ++ii)
+//            {
+//                LU__[ii] = new float[oA.cols];
+
+//                for(int jj = 0; jj < oA.cols;++jj)
+//                {
+//                    LU__[ii][jj] = oA.at<float>(ii,jj);
+//                }
+//            }
+
+//            // CALL
+//            _decomposeLU(LU__, oA.rows);
+
+//            float **L__ = new float*[oA.rows];
+//            float **U__ = new float*[oA.rows];
+
+//            for(int ii = 0; ii < oA.rows; ++ii)
+//            {
+//                L__[ii] = new float[oA.cols];
+//                U__[ii] = new float[oA.cols];
+
+//                for(int jj = 0; jj < oA.cols;++jj)
+//                {
+//                    if(ii < jj)
+//                    {
+//                        L__[ii][jj] = LU__[ii][jj];
+//                        U__[ii][jj] = 0.f;
+//                    }
+//                    else if(jj > ii)
+//                    {
+//                        U__[ii][jj] = LU__[ii][jj];
+//                        L__[ii][jj] = 0.f;
+//                    }
+//                    else
+//                    {
+//                        L__[ii][jj] = 1.f;
+//                        U__[ii][jj] = LU__[ii][jj];
+//                    }
+//                }
+//            }
+
+
+////            for(int ii = 0; ii < oA.rows; ++ii)
+////            {
+////                for(int jj = 0; jj < oA.rows; ++jj)
+////                {
+////                    printf("%f ", LU__[ii][jj]);
+////                }
+////                printf("#################\n\n");
+////            }
+
+//            oL = cv::Mat(oA.rows, oA.rows, CV_32FC1);
+
+//            for(int ii = 0; ii < oA.rows; ++ii)
+//            {
+//                for(int jj = 0; jj < oA.rows; ++jj)
+//                {
+//                    oL.at<float>(ii,jj) = L__[ii][jj];
+//                }
+//            }
+
+//            oU = cv::Mat(oA.rows, oA.rows, CV_32FC1);
+
+//            for(int ii = 0; ii < oA.rows; ++ii)
+//            {
+//                for(int jj = 0; jj < oA.rows; ++jj)
+//                {
+//                    oU.at<float>(ii,jj) = U__[ii][jj];
+//                }
+//            }
+
+//            oLU = cv::Mat(oA.rows, oA.rows, CV_32FC1);
+
+//            for(int ii = 0; ii < oA.rows; ++ii)
+//            {
+//                for(int jj = 0; jj < oA.rows; ++jj)
+//                {
+//                    oLU.at<float>(ii,jj) = LU__[ii][jj];
+//                }
+//            }
+
+
+
+
+//            for(int ii = 0; ii < oA.rows; ++ii)
+//            {
+//                delete[] LU__[ii];
+//                delete[] L__[ii];
+//                delete[] U__[ii];
+//            }
+//            delete[] LU__;
+//            delete[] L__;
+//            delete[] U__;
+
+//        }
+
+
+
+
+/**
+ * @brief solveAX_b
+ * @param A
+ * @param B
+ * @param oX
+ */
+//        static void solveAX_b(const cv::Mat &A, const cv::Mat &B, cv::Mat &oX)
+//        {
+//            float *l_aFDataA = new float[A.rows * A.cols];
+//            float *l_aFDataB = new float[B.rows * B.cols];
+
+//            // input input/output array datas
+//            for(int ii = 0; ii < A.rows * A.cols; ++ii)
+//            {
+//                l_aFDataA[ii] = A.at<float>(ii);
+//            }
+
+//            for(int ii = 0; ii < B.rows * B.cols; ++ii)
+//            {
+//                l_aFDataB[ii] = B.at<float>(ii);
+//            }
+
+//            // compute X
+//            std::cout << "Cula : " << doCulaSgesv(l_aFDataA, l_aFDataB, A.rows, B.cols) << std::endl;
+
+//            delete[] l_aFDataA;
+
+//             std::cout << "delete A " << std::endl;
+
+//            // fill result mat
+//            oX = cv::Mat(B.rows,B.cols, CV_32FC1);
+//            std::cout <<"oX " << oX.rows << " " << oX.cols << std::endl;
+
+//            for(int ii = 0; ii < oX.rows*oX.cols; ++ii)
+//            {
+////                std::cout << ii<< " ";
+//                oX.at<float>(ii) = l_aFDataB[ii];
+//            }
+//            std::cout <<"fill X " << std::endl;
+
+
+//            delete[] l_aFDataB;
+
+//            std::cout << "end solve " << std::endl;
+//        }
+///**
+// * \brief GPU matrix multiplication. Res(l,n) = A(l,m)*B(m,n)
+// * \param [in]  oSMatA    : input A matrix
+// * \param [in]  oSMatB    : input B matrix
+// * \param [out] oSMatRes  : res C matrix
+// */
+//static void matrixMultiplication( cv::SparseMat_<float> &oSMatA,  cv::SparseMat_<float> &oSMatB,  cv::SparseMat_<float> &oSMatRes)
+//{
+//    // Padd matrix offset
+//    int l_i32PaddOffsetRowsA = (BLOCKSIZE - (oSMatA.size(0) % BLOCKSIZE))% BLOCKSIZE;
+//    int l_i32PaddOffsetColsA = (BLOCKSIZE - (oSMatA.size(1) % BLOCKSIZE))% BLOCKSIZE;
+//    int l_i32PaddOffsetRowsB = (BLOCKSIZE - (oSMatB.size(0) % BLOCKSIZE))% BLOCKSIZE;
+//    int l_i32PaddOffsetColsB = (BLOCKSIZE - (oSMatB.size(1) % BLOCKSIZE))% BLOCKSIZE;
+
+//    Matrix A, B, C;
+//    A.height = oSMatA.size(0) + l_i32PaddOffsetRowsA;
+//    A.width  = oSMatA.size(1) + l_i32PaddOffsetColsA;
+//    A.elements = new float[A.width * A.height];
+
+//    B.height = oSMatB.size(0) + l_i32PaddOffsetRowsB;
+//    B.width  = oSMatB.size(1) + l_i32PaddOffsetColsB;
+//    B.elements = new float[B.width * B.height];
+
+//    C.height = A.height;
+//    C.width  = B.width;
+//    C.elements = new float[C.width * C.height];
+
+//    for(int ii = 0; ii < A.height; ++ii)
+//    {
+//        for(int jj = 0; jj < A.width; ++jj)
+//        {
+//            if(ii < oSMatA.size(0) && jj < oSMatA.size(1))
+//            {
+//                if(oSMatA.ptr(ii,jj, false))
+//                {
+//                    A.elements[ii*A.width + jj] = oSMatA(ii,jj);
+//                }
+//                else
+//                {
+//                    A.elements[ii*A.width + jj] = 0.f;
+//                }
+//            }
+//            else
+//            {
+//                A.elements[ii*A.width + jj] = 0.f;
+//            }
+//        }
+//    }
+
+//    for(int ii = 0; ii < B.height; ++ii)
+//    {
+//        for(int jj = 0; jj < B.width; ++jj)
+//        {
+//            if(ii < oSMatB.size(0) && jj < oSMatB.size(1))
+//            {
+//                if(oSMatB.ptr(ii,jj, false))
+//                {
+//                    B.elements[ii*B.width + jj] = oSMatB(ii,jj);
+//                }
+//                else
+//                {
+//                    B.elements[ii*B.width + jj] = 0.f;
+//                }
+//            }
+//            else
+//            {
+//                B.elements[ii*B.width + jj] = 0.f;
+//            }
+//        }
+//    }
+
+//    matMult(A, B, C);
+
+//    delete[] A.elements;
+//    delete[] B.elements;
+
+//    int l_i32ResHeight = C.height- l_i32PaddOffsetRowsA;
+//    int l_i32ResWidth  = C.width - l_i32PaddOffsetColsB;
+
+//    int size[] = {l_i32ResHeight, l_i32ResWidth};
+
+//    oSMatRes = cv::SparseMat_<float>(2, size);
+
+//    for(int ii = 0; ii < oSMatRes.size(0); ++ii)
+//    {
+//        for(int jj = 0; jj < oSMatRes.size(1); ++jj)
+//        {
+//            if(C.elements[ii*C.width + jj] != 0.0)
+//            {
+//                oSMatRes.ref(ii, jj) = C.elements[ii*C.width + jj];
+//            }
+//        }
+//    }
+
+//    delete[] C.elements;
+//}

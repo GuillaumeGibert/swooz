@@ -1,22 +1,13 @@
 
-#include <cutil.h>
+//#include <cutil.h>
+#include "cublas.h"
 #include "cula.h"
 #include <iostream>
 
 #include "configCuda.h"
 
 
-
-
-//using namespace swUtil;
-void cudaDummyCall(int argc, char **argv)
-{
-    // init CUDA
-    //CUT_DEVICE_INIT(argc, argv);
-    cudaFree(0);
-}
-
-int inverseMatSgesv(float *aFInputMat, float *aFOutputInvMat, int i32SizeSquareMat)
+int doCulaSgesv(float *aFInputMat, float *aFOutputInvMat, int i32SizeSquareMat)
 {
     culaStatus l_oStatus;
 
@@ -47,73 +38,34 @@ int inverseMatSgesv(float *aFInputMat, float *aFOutputInvMat, int i32SizeSquareM
     return 0;
 }
 
-//// Matrix multiplication kernel called by MatMul()
-//__global__ void MatMulKernel(Matrix A, Matrix B, Matrix C)
-//{
-//    // Each thread computes one element of C
-//    // by accumulating results into Cvalue
-//    float Cvalue = 0.f;
-//    int row = blockIdx.y * blockDim.y + threadIdx.y;
-//    int col = blockIdx.x * blockDim.x + threadIdx.x;
+int LUDecomposition(float *aFMat, int i32SizeSquareMat)
+{
+    culaStatus l_oStatus;
 
-//    if(row > A.height || col > B.width)
-//        return;
+    // init cula
+    l_oStatus = culaInitialize();
+    // check error
+    if(l_oStatus != culaNoError)
+    {
+        std::cerr << "Error cuda init : " << culaGetErrorInfo() << std::endl;
+        return -1; // TODO : create a throw
+    }
 
-//    for (int e = 0; e < A.width; ++e)
-//        Cvalue += (A.elements[row * A.width + e]) * (B.elements[e * B.width + col]);
-//    C.elements[row * C.width + col] = Cvalue;
-//}
+    int *l_aI32Ipiv = new int[i32SizeSquareMat * i32SizeSquareMat * sizeof(float)];
 
-// Matrix multiplication - Host code
-// Matrix dimensions are assumed to be multiples of BLOCK_SIZE
-//void matMult(const Matrix A, const Matrix B, Matrix C)
-//{
-//    // Load A and B to device memory
-//    Matrix d_A;
-//    d_A.width = A.width;
-//    d_A.height = A.height;
-//    size_t size = A.width * A.height * sizeof(float);
-//    cudaError_t err = cudaMalloc(&d_A.elements, size);
-////    printf("CUDA malloc A: %s\n",cudaGetErrorString(err));
-//    err = cudaMemcpy(d_A.elements, A.elements, size, cudaMemcpyHostToDevice);
-////    printf("Copy A to device: %s\n",cudaGetErrorString(err));
+    // launch gpu computing
+    l_oStatus = culaSgetrf(i32SizeSquareMat, i32SizeSquareMat, aFMat, i32SizeSquareMat, l_aI32Ipiv);
 
-//    Matrix d_B;
-//    d_B.width = B.width;
-//    d_B.height = B.height;
-//    size = B.width * B.height * sizeof(float);
-//    err = cudaMalloc(&d_B.elements, size);
-////    printf("CUDA malloc B: %s\n",cudaGetErrorString(err));
-//    err = cudaMemcpy(d_B.elements, B.elements, size, cudaMemcpyHostToDevice);
-////    printf("Copy B to device: %s\n",cudaGetErrorString(err));
+    if(l_oStatus != culaNoError)
+    {
+        std::cerr << "Error culaSgesv : " << culaGetErrorInfo() << std::endl;
+        return -1; // TODO : create a throw
+    }
 
-//    // Allocate C in device memory
-//    Matrix d_C;
-//    d_C.width = C.width;
-//    d_C.height = C.height;
-//    size = C.width * C.height * sizeof(float);
-//    err = cudaMalloc(&d_C.elements, size);
-////    printf("CUDA malloc C: %s\n",cudaGetErrorString(err));
+    delete[] l_aI32Ipiv;
 
-//    // Invoke kernel
-//    dim3 dimBlock(BLOCKSIZE, BLOCKSIZE);
-//    dim3 dimGrid((B.width + dimBlock.x - 1) / dimBlock.x,
-//           (A.height + dimBlock.y - 1) / dimBlock.y);
-
-//    MatMulKernel<<<dimGrid, dimBlock>>>(d_A, d_B, d_C);
-//    err = cudaThreadSynchronize();
-////    printf("Run kernel: %s \n", cudaGetErrorString(err));
-
-//    // Read C from device memory
-//    err = cudaMemcpy(C.elements, d_C.elements, size, cudaMemcpyDeviceToHost);
-////    printf("Copy C off of device: %s\n",cudaGetErrorString(err));
-
-//    // Free device memory
-//    cudaFree(d_A.elements);
-//    cudaFree(d_B.elements);
-//    cudaFree(d_C.elements);
-//}
-
+    return 1;
+}
 
 // This kernel is optimized to ensure all global reads and writes are coalesced,
 // and to avoid bank conflicts in shared memory.  This kernel is up to 11x faster
@@ -203,8 +155,6 @@ void transpose(float *idata, float *odata, int width, int height)
 
     cudaThreadExit();
 }
-
-
 
 
 
@@ -333,8 +283,333 @@ __device__ void SetElement(Matrix A, int row, int col,
  }
 
 
+  //***************************************************************************************
+  //void DecomposeLU( int M, int N, int lda , float* A,
+  //                    int* permute, float epsilon, InfoStat& stat)
+  //
+  // M         :     Num of rows of A
+  // N         :     Num of column of A
+  // A         :     Float Matrix of size M*N
+  //                on the output contains the result of the LU decomposition
+  //                The diagonal elements for L are not stored in A ( assuming they are all 1)
+  //lda        :    Leading dim of A lda < std::max(1,M)
+  //P          :      Permutation vector of size M
+  //epsilon    :     Epsilon (used to test for singularities)
+  //stat          :  return status
+  // **************************************************************************************
 
 
+
+//  void DecomposeLU(int M, int N, int lda , float* A, int* P, float epsilon)//, InfoStat& stat)
+//  {
+//       cublasStatus cuStat;
+//       //Preconditions
+//       if ( M<=0 || N<=0 || lda < std::max(1,M) )
+//       {
+//           printf("bad preconditions\n");
+// //           stat._info = -1;
+// //           if (M<=0)
+// //               stat._str = "M<=0";
+// //           if (N<=0)
+// //               stat._str = "M<=0";
+// //           if (lda < std::max(1,M))
+// //               stat._str = "lda < std::max(1,M)";
+//            return;
+//       }
+//       int minDim = std::min( M, N );
+//       for (int k=0; k<minDim-1; k++)
+//       {
+//            int pivotRow = k-1+cublasIsamax(M-k,A+k + k*lda, 1); // row relative to the current submatrix
+//            int kp1 = k+1;
+//            P[k] = pivotRow;
+//            if (pivotRow!=k)
+//            {
+//                 cublasSswap(N, A+pivotRow, lda, A+k, lda);
+//            }
+//            float valcheck;
+//            cublasGetVector(1,sizeof(float),A+k+ k*lda, 1, &valcheck, 1);
+//            if (fabs(valcheck) < epsilon)
+//            {
+//                printf("Matrix is Singular\n");
+// //                stat._info =k+1;
+// //                stat._str = " Matrix is Singular ";
+//                 return;
+//            }
+//            if (kp1 < M)
+//           {
+//                cublasSscal(M-kp1, 1.0f/valcheck,A+kp1+ k*lda, 1);
+//           }
+//           if ( kp1 < minDim )
+//           {
+//                cublasSger (M-kp1, N-kp1, -1.0f,A+kp1+ k*lda, 1, A+k+ kp1*lda, lda,A+ kp1*lda+kp1, lda);
+//           }
+//       }
+// //      CHECK_CUBLAS("decomposeLU pb");
+//  }
+
+
+
+
+//// DecomposeBlockedLU(A.size(), A.size(), std::max(1,A.size()),   );
+
+// //***************************************************************************************
+// //void DecomposeBlockedLU ( int M, int N,int lda,
+// //                          float *A,
+// //                          int* P, int blockSize,float epsilon, InfoStat &stat )
+// //
+// // M            :   Num of rows of A
+// // N            :   Num of column of A
+// // A            :   Float Matrix of size M*N
+// //                  on the output contains the result of the LU decomposition
+// //                  The diagonal elements for L are not stored in A ( assuming they are all 1)
+// //lda           :   Leading dim of A lda < std::max(1,M)
+// //P             :   Permutation vector of size M
+// //blockSize     :   Size of the submatrices
+// //                  if blockSize>=M || blockSize==1 unblocked decomposition is called
+// //epsilon       :   Epsilon (used to test for singularities)
+// //stat          :  return status
+// // **************************************************************************************
+// void DecomposeBlockedLU (   int M, int N,int lda,
+//                             float *A,
+//                             int* P, int blockSize,float epsilon)//, InfoStat &stat )
+// {
+
+//     cublasStatus cuStat;
+//     //Preconditions
+//     if (M < 0 || N < 0 || lda < std::max(1,M) )
+//     {
+////         stat._info = -1;
+////         if (M<=0)
+////             stat._str = "M<=0";
+////         if (N<=0)
+////             stat._str = "M<=0";
+////         if (lda < std::max(1,M))
+////             stat._str = "lda < std::max(1,M)";
+
+//         return;
+//     }
+
+//     int minSize = std::min(M,N);
+
+//     if ( blockSize > minSize || blockSize == 1)
+//     {
+//         //straight LU decomposition
+//         DecomposeLU( M, N, lda, A, P, epsilon);//, stat);
+//     }
+//     else
+//     {
+//         //blocked decomposition
+//         for (int i =0; i< minSize ; i+=blockSize)
+//         {
+//             int realBlockSize  = std::min(minSize - i, blockSize);
+
+//             //decompose the current rectangular block
+//             DecomposeLU( M-i, realBlockSize, lda, A+i+i*lda, P+i, epsilon);//, stat);
+
+//             //adjust pivot infos
+//             //Todo : write a kernel for that
+//             for (int p = i; p< std::min( M, i+realBlockSize)-1; p++)
+//             {
+//                     P[p] = P[p]+i;
+//                     if (P[p] != p)
+//                     {
+//                         // Apply interchanges to columns 0:i.
+//                         cublasSswap(i, A+p , lda, A+ P[p], lda);
+//                         // Apply interchanges to columns i+blockSize:N.
+//                         cublasSswap(N-i-realBlockSize, A+p+(i+realBlockSize)*lda , lda, A+ P[p]+(i+realBlockSize)*lda, lda);
+//                     }
+
+//             }
+
+//             // Compute block row of U.
+//             cublasStrsm( 'l','l','n','u', realBlockSize, N-i-realBlockSize, 1.0f,
+//                          A +i +i*lda, lda, A +i + (i+realBlockSize)*lda, lda);
+////             CHECK_CUBLAS("decomposeBlockedLU cublasStrsm");
+
+//             if (i+realBlockSize < M)
+//             {
+//                  cublasSgemm('n','n',  M-i-realBlockSize, N-i-realBlockSize, realBlockSize,
+//                              -1.0f,
+//                              A+i+realBlockSize+i*lda,lda,
+//                              A+i+(realBlockSize+i)*lda,lda,
+//                              1.0f,
+//                              A+i+realBlockSize+(realBlockSize+i)*lda,lda );
+////                  CHECK_CUBLAS("decomposeBlockedLU cublasSgemm");
+//             }
+//         }
+//     }
+
+// }
+
+
+// int decomp(float* src_d, float *dst_d, int n)
+// {
+//     cublasHandle_t handle;
+//     cublasCreate_v2(&handle);
+
+//     int batchSize = 1;
+//     int *P, *INFO;
+//     cudaMalloc<int>(&P,n * batchSize * sizeof(int));
+//     cudaMalloc<int>(&INFO,batchSize * sizeof(int));
+
+//     int lda = n;//spitch/sizeof(float);
+
+//     float *A[] = { src_d };
+//     float** A_d;
+//     cudaMalloc<float*>(&A_d,sizeof(A));
+//     cudaMemcpy(A_d,A,sizeof(A),cudaMemcpyHostToDevice);
+
+//     cublasStatus_t status = cublasSgetrfBatched(handle,
+//                                                 n,
+//                                                 A_d,
+//                                                 lda,
+//                                                 P,
+//                                                 INFO,
+//                                                 batchSize);
+
+
+//      int INFOh = 0;
+//      cudaMemcpy(&INFOh,INFO,sizeof(int),cudaMemcpyDeviceToHost);
+
+//      if(INFOh == n)
+//      {
+//              /* Singular */
+//              cublasDestroy_v2(handle);
+//              cudaFree(INFO);
+//              cudaFree(P);
+//              cudaFree(A_d);
+//              return -1;
+//      }
+
+//      if(CUBLAS_STATUS_SUCCESS != status)
+//      {
+//              cublasDestroy_v2(handle);
+//              cudaFree(INFO);
+//              cudaFree(P);
+//              cudaFree(A_d);
+//              return -2;
+//      }
+// }
+
+
+//// void _decomposeLU2(float *src_d, float *dst_d, int n)
+// void _decomposeLU2(float *src_d, int n)
+// {
+//     cudaError_t cudaStat;
+//     cublasStatus stat;
+//     cublasHandle_t handle;
+////     cublasCreate(&handle );
+
+//     int batchSize = n;
+//     int *P, *INFO;
+//     cudaStat = cudaMalloc<int>(&P,n * batchSize * sizeof(int));
+//     printf("malloc1 : %d\n", cudaStat);
+//     cudaStat = cudaMalloc<int>(&INFO, batchSize * sizeof(int));
+//     printf("malloc2 : %d\n", cudaStat);
+
+//     float *A[] = {src_d};
+////     float *LU[] = {dst_d};
+
+//     float** A_d;
+//     cudaStat = cudaMalloc<float*>(&A_d, sizeof(A));
+//     printf("malloc3 : %d\n", cudaStat);
+
+//     cudaStat =cudaMemcpy(A_d, A, sizeof(A), cudaMemcpyHostToDevice);
+//     printf("memcopy : %d\n", cudaStat);
+
+//     cublasStatus_t statut =
+//             cublasSgetrfBatched(handle,    // handle to the CUBLAS library context.
+//                                 n,         // number of rows and columns of Aarray[i].
+//                                 A_d,       // array of pointers to <type> array, with each array of dim. n x n with lda>=max(1,n).
+//                                 n,         // leading dimension of two-dimensional array used to store each matrix Aarray[i].
+//                                 P,         // array of size n x batchSize that contains the pivoting sequence of each factorization of Aarray[i] stored in a linear fashion.
+//                                 INFO,      // array of size batchSize that info(=infoArray[i]) contains the information of factorization of Aarray[i].
+//                                 batchSize  // number of pointers contained in A
+//                                );
+//     printf("statut : %d\n", statut);
+
+//     int INFOh = 0;
+//     cudaMemcpy(&INFOh,INFO,sizeof(int),cudaMemcpyDeviceToHost);
+//     printf("Info : %d\n", INFOh);
+
+////     cudaMemcpy(LU, A_d, sizeof(A), cudaMemcpyHostToDevice);
+//     cudaMemcpy(A, A_d, sizeof(A), cudaMemcpyHostToDevice);
+
+//     cudaFree(A_d);
+//     cudaFree(P);
+//     cudaFree(INFO);
+
+
+////     cublasDestroy(handle);
+// }
+
+
+
+// void _decomposeLU(float **A, int rows)
+// {
+//     int *P__ = new int[rows*rows];
+//     int *infoArray = new int[rows];
+
+
+////     float** A_d;
+////    cudaMalloc<float*>(&A_d,sizeof(A));
+
+//     cublasHandle_t handle;
+//     cublasStatus_t statut = cublasSgetrfBatched(handle,   // handle to the CUBLAS library context.
+//                                                 rows,  // number of rows and columns of Aarray[i].
+//                                                 A,     // array of pointers to <type> array, with each array of dim. n x n with lda>=max(1,n).
+//                                                 rows,        // leading dimension of two-dimensional array used to store each matrix Aarray[i].
+//                                                 P__,      //array of size n x batchSize that contains the pivoting sequence of each factorization of Aarray[i] stored in a linear fashion.
+//                                                 infoArray,//array of size batchSize that info(=infoArray[i]) contains the information of factorization of Aarray[i].
+//                                                 rows   //number of pointers contained in A
+//                                                 );
+//     printf("statut : %d\n", statut);
+
+//     for(int ii = 0; ii < rows; ++ii)
+////         if(infoArray[ii] != 0)
+//             printf(" e[%d %d] ", ii, infoArray[ii]);
+
+//     delete[] P__;
+//     delete[] infoArray;
+// }
+
+
+
+
+
+// void testCublas()
+// {
+////     float *data;
+
+////     DecomposeLU(A.size(), A.size(), std::max(1,A.size()), A.data(), p.datat(), 0.f)
+
+//////     float **data = new float[];
+
+
+////     //     cublasStatus_t cublasSgetrfBatched(cublasHandle_t handle,   handle to the CUBLAS library context.
+////     //                                        int n,                   number of rows and columns of Aarray[i].
+////     //                                        float *Aarray[],         array of pointers to <type> array, with each array of dim. n x n with lda>=max(1,n).
+////     //                                        int lda,                 leading dimension of two-dimensional array used to store each matrix Aarray[i].
+////     //                                        int *PivotArray,         array of size n x batchSize that contains the pivoting sequence of each factorization of Aarray[i] stored in a linear fashion.
+////     //                                        int *infoArray,          array of size batchSize that info(=infoArray[i]) contains the information of factorization of Aarray[i].
+////     //                                        int batchSize);          number of pointers contained in A
+
+////     // LU Factorization
+////     int *pivot;
+////     int *info;
+////     float **testF;
+////     cublasHandle_t handle;
+////     cublasStatus_t statu = cublasSgetrfBatched(
+////                                                handle,
+////                                                100,
+////                                                testF,
+////                                                0,
+////                                                pivot,
+////                                                info,
+////                                                10
+////                                                );
+
+// }
 
 
 
@@ -669,3 +944,175 @@ __device__ void SetElement(Matrix A, int row, int col,
 //         __syncthreads();
 //     }
 // }
+
+
+
+
+ //#include <cuda_runtime.h>
+ //#include <cublas_v2.h>
+
+
+ //using namespace swUtil;
+ //void cudaDummyCall()
+ //{
+ //    // init CUDA
+ //    //CUT_DEVICE_INIT(argc, argv);
+ //    cudaFree(0);
+ //}
+ //void checkStatus(culaStatus status)
+ //{
+ //    char buf[256];
+
+ //    if(!status)
+ //        return;
+
+ //    culaGetErrorInfoString(status, culaGetErrorInfo(), buf, sizeof(buf));
+ //    printf("%s\n", buf);
+
+ //    culaShutdown();
+ //    exit(EXIT_FAILURE);
+ //}
+ //int doCulaSgesv(float *aFInputMat, float *aFOutputInvMat, int i32N, int i32NRHS)
+ //{
+ //    culaStatus l_oStatus;
+
+ //    // init cula
+ //    l_oStatus = culaInitialize();
+ //    // check error
+ //    if(l_oStatus != culaNoError)
+ //    {
+ //        std::cerr << "Error cuda init : " << culaGetErrorInfo() << std::endl;
+ //        return -1; // TODO : create a throw
+ //    }
+
+ //    int *l_aI32Ipiv = new int[i32N * sizeof(float)];
+
+ //    // launch gpu computing
+ //    l_oStatus = culaSgesv(i32N, i32NRHS, aFInputMat, i32N, l_aI32Ipiv, aFOutputInvMat, i32N);
+
+ //    delete[] l_aI32Ipiv;
+
+ //    if(l_oStatus != culaNoError)
+ //    {
+ //        std::cerr << "Error culaSgesv : " << culaGetErrorInfo() << std::endl;
+ //        return -1; // TODO : create a throw
+ //    }
+
+ //    culaShutdown();
+
+ //    return 0;
+ //}
+
+ //int solveAX_B(float *A, int i32SizeSquareMat)
+ //{
+ //    culaStatus l_oStatus;
+
+ //    // init cula
+ //    l_oStatus = culaInitialize();
+ //    // check error
+ //    if(l_oStatus != culaNoError)
+ //    {
+ //        std::cerr << "Error cuda init : " << culaGetErrorInfo() << std::endl;
+ //        return -1; // TODO : create a throw
+ //    }
+
+ //    int *l_aI32Ipiv = new int[i32SizeSquareMat * i32SizeSquareMat * sizeof(float)];
+
+ //    // launch gpu computing
+ //    l_oStatus = culaSgetrf(i32SizeSquareMat, i32SizeSquareMat, A, i32SizeSquareMat, l_aI32Ipiv);
+
+ //    if(l_oStatus != culaNoError)
+ //    {
+ //        std::cerr << "Error culaSgesv : " << culaGetErrorInfo() << std::endl;
+ //        return -1; // TODO : create a throw
+ //    }
+
+ //    float *LU = A;
+
+ //    float *L = LU;
+ //    float *U = new float[i32SizeSquareMat * i32SizeSquareMat * sizeof(float)];
+
+ //    for(int ii = 0; ii < i32SizeSquareMat; ++ii)
+ //    {
+ //        for(int jj = 0; jj < i32SizeSquareMat; ++jj)
+ //        {
+ //            if(ii < jj)
+ //            {
+ //                U[ii*i32SizeSquareMat + jj] = 0.f;
+ //            }
+ //            else if(jj > ii)
+ //            {
+ //                U[ii*i32SizeSquareMat + jj] = LU[ii*i32SizeSquareMat + jj];
+ //                L[ii*i32SizeSquareMat + jj] = 0.f;
+ //            }
+ //            else
+ //            {
+ //                L[ii*i32SizeSquareMat + jj] = 1.f;
+ //                U[ii*i32SizeSquareMat + jj] = LU[ii*i32SizeSquareMat + jj];
+ //            }
+ //        }
+ //    }
+
+
+ ////    l_oStatus = culaSgesv(i32SizeSquareMat, i32SizeSquareMat, aFInputMat, i32SizeSquareMat, l_aI32Ipiv, aFOutputInvMat, i32SizeSquareMat);
+
+
+
+ //    delete[] l_aI32Ipiv;
+ //}
+
+ //culaSgesv
+
+
+
+
+
+ //  void _decomposeLU3(float *src_d, int n)
+ //  {
+ //      cudaError_t cudaStat;
+ //      cublasStatus stat;
+ //      cublasHandle_t handle;
+
+ //      int batchSize = n;
+ //      int *P, *INFO;
+ //      cudaStat = cudaMalloc<int>(&P,n * batchSize * sizeof(int));
+ //      printf("malloc1 : %d\n", cudaStat);
+ //      cudaStat = cudaMalloc<int>(&INFO, batchSize * sizeof(int));
+ //      printf("malloc2 : %d\n", cudaStat);
+
+ //      float *A[] = {src_d};
+ // //     float *LU[] = {dst_d};
+
+ //      printf("A sizeof %d\n", sizeof(A));
+
+ //      float** A_d;
+
+
+ //      cudaStat = cudaMalloc<float*>(&A_d, sizeof(A));
+ //      printf("malloc3 : %d\n", cudaStat);
+
+ //      cudaStat =cudaMemcpy(A_d, A, sizeof(A), cudaMemcpyHostToDevice);
+ //      printf("memcopy : %d\n", cudaStat);
+
+ //      cublasStatus_t statut =
+ //              cublasSgetrfBatched(handle,    // handle to the CUBLAS library context.
+ //                                  n,         // number of rows and columns of Aarray[i].
+ //                                  A_d,       // array of pointers to <type> array, with each array of dim. n x n with lda>=max(1,n).
+ //                                  n,         // leading dimension of two-dimensional array used to store each matrix Aarray[i].
+ //                                  P,         // array of size n x batchSize that contains the pivoting sequence of each factorization of Aarray[i] stored in a linear fashion.
+ //                                  INFO,      // array of size batchSize that info(=infoArray[i]) contains the information of factorization of Aarray[i].
+ //                                  batchSize  // number of pointers contained in A
+ //                                 );
+ //      printf("statut : %d\n", statut);
+
+ //      int INFOh = 0;
+ //      cudaMemcpy(&INFOh,INFO,sizeof(int),cudaMemcpyDeviceToHost);
+ //      printf("Info : %d\n", INFOh);
+
+ // //     cudaMemcpy(LU, A_d, sizeof(A), cudaMemcpyHostToDevice);
+ //      cudaMemcpy(A, A_d, sizeof(A), cudaMemcpyHostToDevice);
+
+ //      cudaFree(A_d);
+ //      cudaFree(P);
+ //      cudaFree(INFO);
+ //  }

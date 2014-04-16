@@ -256,10 +256,11 @@ namespace swCloud
             {
                 if(ui32IndexPoint < size())
                 {
+                    oPoint = std::vector<T>(3);
+                    oPoint[0] = coord(0)[ui32IndexPoint];
+                    oPoint[1] = coord(1)[ui32IndexPoint];
+                    oPoint[2] = coord(2)[ui32IndexPoint];
                     oPoint.clear();
-                    oPoint.push_back(coord(0)[ui32IndexPoint]);
-                    oPoint.push_back(coord(1)[ui32IndexPoint]);
-                    oPoint.push_back(coord(2)[ui32IndexPoint]);
                 }
                 else
                 {

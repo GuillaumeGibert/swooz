@@ -76,18 +76,44 @@ namespace swUtil
     template <typename T>
     static std::vector<T> vec(const std::vector<T> &v1, const std::vector<T> &v2)
     {
-        std::vector<T> l_v3;
+        std::vector<T> l_v3(v1.size());
 
         if(v1.size() == v2.size())
         {
             for(uint ii = 0; ii < v1.size(); ++ii)
             {
-                l_v3.push_back(v2[ii] - v1[ii]);
+                l_v3[ii] = v2[ii] - v1[ii];
             }
         }
 
         return l_v3;
     }
+
+    template <typename T>
+    static void vec(const std::vector<T> &v1, const std::vector<T> &v2, std::vector<T> &vec)
+    {
+        vec = std::vector<T>(v1.size());
+
+        if(v1.size() == v2.size())
+        {
+            for(uint ii = 0; ii < v1.size(); ++ii)
+            {
+                vec[ii] = v2[ii] - v1[ii];
+            }
+        }
+    }
+
+    template <typename T>
+    static T squareLength(const std::vector<T> &vD)
+    {
+        T l_TSquareLength = 0;
+        for(uint ii = 0; ii < vD.size(); ++ii)
+        {
+            l_TSquareLength += vD[ii] * vD[ii];
+        }
+        return l_TSquareLength;
+    }
+
 
     template <typename T>
     static T norm(const std::vector<T> &vD)

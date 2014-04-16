@@ -44,11 +44,7 @@ LINK=link
 
 !INCLUDE <./makefile-include>
 
-INC_CUDA=\
-        -I./include/gpuMat\
-	-I./include/emicp\
-	-I"$(THIRD_PARTY_CUDA)"/include\
-        -I"$(THIRD_PARTY_CUSPARSE)"\
+
 
 ################################################  MAKEFILE COMMAND
 

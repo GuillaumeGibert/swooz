@@ -161,7 +161,7 @@ void SWGLOptimalStepNonRigidICP::initResolve()
 double SWGLOptimalStepNonRigidICP::morph(cdouble dAlpha)
 {
     clock_t l_oProgramTime = clock();
-    qDebug() << "morph -> " << dAlpha;
+//    qDebug() << "morph -> " << dAlpha;
 
     if(!m_pOSNRICP)
     {
@@ -175,8 +175,8 @@ double SWGLOptimalStepNonRigidICP::morph(cdouble dAlpha)
     double l_dGama        = m_dGama;
     double l_dUseLandmarks= m_bUseLandMarks;
 
-    qDebug() << "Start alpha : " << m_dStartAlpha << "\nAlpha : " << dAlpha << "\nBeta : " << m_dBeta << "\nGama : " << m_dGama << "\nUse landmarks : " << m_bUseLandMarks;
-    qDebug() << "Min Alpha : " << m_dMinAlpha << "\nCoeff : " << m_dCoeffAlpha;
+//    qDebug() << "Start alpha : " << m_dStartAlpha << "\nAlpha : " << dAlpha << "\nBeta : " << m_dBeta << "\nGama : " << m_dGama << "\nUse landmarks : " << m_bUseLandMarks;
+//    qDebug() << "Min Alpha : " << m_dMinAlpha << "\nCoeff : " << m_dCoeffAlpha;
 
     m_pParamMutex->unlock();
 
@@ -196,7 +196,7 @@ double SWGLOptimalStepNonRigidICP::morph(cdouble dAlpha)
         m_pOSNRICP->updateSourceMeshWithMorphModification();
     m_pSourceMeshMutex->unlock();
 
-    qDebug() << " end morph ->  " << dAlpha << " time : " << ((float)(clock() - l_oProgramTime) / CLOCKS_PER_SEC);
+//    qDebug() << " end morph ->  " << dAlpha << " time : " << ((float)(clock() - l_oProgramTime) / CLOCKS_PER_SEC);
 
     return l_dDiff;
 }
@@ -1011,7 +1011,7 @@ void SWGLOptimalStepNonRigidICP::drawSourceCloud(QGLShaderProgram &oShader, cons
             float l_fCol[3] = {1.f, 0.f, 0.f};
 
 //            if(m_pOSNRICP->m_w[ii] > 0.0)
-            if(m_pOSNRICP->m_fw[ii] > 0.0)
+            if(m_pOSNRICP->m_w[ii] > 0.0)
             {
                 l_fCol[0] = 1.f;
                 l_fCol[1] = 1.f;

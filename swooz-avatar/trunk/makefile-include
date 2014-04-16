@@ -117,7 +117,16 @@ INC_OPENNI	= -I$(THIRD_PARTY_OPENNI)/Include\
 
 INC_BOOST	= -I"$(THIRD_PARTY_BOOST)"/include\
 
-INC_CUDA	= -I./include/emicp -I"$(THIRD_PARTY_CUDA)"/include -I"$(THIRD_PARTY_CAPLACK)"/include\
+#INC_CUDA	= -I./include/emicp -I"$(THIRD_PARTY_CUDA)"/include -I"$(THIRD_PARTY_CAPLACK)"/include\
+
+INC_CUDA=\
+        -I./include/gpuMat\
+        -I./include/emicp\
+        -I"$(THIRD_PARTY_CUDA)"/include\
+        -I"$(THIRD_PARTY_CUSPARSE)"\
+
+
+#INC_CUBLAS      = -I"$(THIRD_PARTY_CUDA)"/include\
 
 INC_CULA        = -I"$(THIRD_PARTY_CULA)"/include\
 

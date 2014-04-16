@@ -250,7 +250,7 @@ bool emicp(int Xsize, int Ysize,
 	   const float* h_Y,
 	   float* h_R, float* h_t, 
 	   registration::registrationParameters param)	   
-{
+{    
 	// initialize parameters
 	bool l_bNoError    = true;
 	float sigma_p2 	   = param.sigma_p2;
