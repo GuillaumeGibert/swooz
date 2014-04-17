@@ -30,9 +30,12 @@ If you have used the **swooz-3rdparty** installer, only rename **"win32-init_env
 
 Go to ./scripts and open a console.
 
-	* win32-build.cmd builds the platform :
-		* win32-build Debug    -> for the debug mode
-		* win32-build Release  -> for the release mode
+	* win-build.cmd builds the platform :
+		* win-build 		   -> for the release x86 mode
+		* win-build Debug          -> for the debug x86 mode 
+		* win-build Release  	   -> for the release x86 mode
+		* win-build Debug adm64    -> for the debug amd64 mode 
+		* win-build Release adm64  -> for the release amd64 mode
 	
 This script creates the ../dist file tree :  
 
@@ -40,10 +43,16 @@ This script creates the ../dist file tree :
 		* ../dist/bin
 		* ../dist/include
 		* ../dist/lib
+			* ../dist/lib/x86
+				* ../dist/lib/x86/Debug
+				* ../dist/lib/x86/Release
+			* ../dist/lib/amd64
+				* ../dist/lib/amd64/Debug
+				* ../dist/lib/amd64/Release
 		* ../dist/data
 		* ../dist/doc
 
-It calls all the **win32-build_branch.cmd** scripts of all the swooz projects defined in **SW_build_order.txt**,
+It calls all the **win-build_branch.cmd** scripts of all the swooz projects defined in **SW_build_order.txt**,
 bin, include, lib, data, doc directories of all theses project will be copied in ./dist.
 
 
@@ -52,9 +61,9 @@ bin, include, lib, data, doc directories of all theses project will be copied in
 -----------------------------
 
 
-**SW_build_order.txt** is created by the **win32-init-env_command.cmd** script, you can remove or add a project to be buildt by comment or uncomment the lines, example :
+**SW_build_order.txt** is created by the **win-init-env_command.cmd** script, you can remove or add a project to be buildt by comment or uncomment the lines, example :
 
-**win32-init-env_command.cmd** (at the end) :
+**win-init-env_command.cmd** (at the end) :
 
 	set SW_build_order=SW_build_order.txt
 	del %SW_build_order% > NULL 2<&1
@@ -80,19 +89,19 @@ functions used in the others projects, if you do so the build may be not working
 3. CLEAN SWOOZ
 --------------
 	
-win32-clean.cmd will delete all the content of the dist repertory (except dist/data) and all the compiled files
-in the swooz projects defined in the auto-generated file **"SW_build_order.txt"** (see win32-build.cmd)
+win-clean.cmd will delete all the content of the dist repertory (except dist/data) and all the compiled files
+in the swooz projects defined in the auto-generated file **"SW_build_order.txt"** (see win-build.cmd)
 
 
 4. GENERATE DOC
 ---------------
  
-win32-doc-generate.cmd will call all the win32-generate_doc.cmd of each project, these scripts generate the Doxygen documentation using their respective Doxyfile.
+win-doc-generate.cmd will call all the win-generate_doc.cmd of each project, these scripts generate the Doxygen documentation using their respective Doxyfile.
 
 5. CLEAN DOC
 ------------
 
-win32-doc-clean.cmd will delete the doc directories of all the projects.
+win-doc-clean.cmd will delete the doc directories of all the projects.
 
 
 
