@@ -1,5 +1,4 @@
 
-
 ![SWoOZ (Super Wizard of OZ)](http://uppix.net/E8C3ed.bmp "SWoOZ")
 
 Links :
@@ -25,6 +24,8 @@ Content :
  * Avatar creation/morphing :
    * [Creation](https://github.com/GuillaumeGibert/swooz/wiki/avatar#wiki-creation) from depths sensors devices(Kinect/Xtion) data
    * [Morphing](https://github.com/GuillaumeGibert/swooz/wiki/avatar#wiki-morphing) for fitting references avatars meshes
+
+![](http://uppix.net/GuA0bAs.jpg) ![](http://uppix.net/CKLxdcs.jpg) ![](http://uppix.net/r5JVoTs.jpg)
 
 
 Research :
