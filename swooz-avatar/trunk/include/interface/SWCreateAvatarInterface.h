@@ -187,7 +187,7 @@ class SWCreateAvatarInterface : public QMainWindow
         QReadWriteLock m_oMutex;                /**< mutex */
 
         // stasm
-        std::vector<cv::Point2i> m_vP2IStasmPoints; /**< last stsams points computed */
+        std::vector<cv::Point2i> m_vP2IStasmPoints; /**< last stasms points computed */
 
         // cloud
         int m_i32NumCloud;                      /**< current cloud number */

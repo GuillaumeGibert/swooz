@@ -260,7 +260,6 @@ namespace swCloud
                     oPoint[0] = coord(0)[ui32IndexPoint];
                     oPoint[1] = coord(1)[ui32IndexPoint];
                     oPoint[2] = coord(2)[ui32IndexPoint];
-                    oPoint.clear();
                 }
                 else
                 {

@@ -32,6 +32,7 @@ using namespace swDevice;
 SWCreateAvatarWorker::SWCreateAvatarWorker(swDevice::SWKinect_thread *pRGBDDeviceThread) :
     m_pRGBDDeviceThread(pRGBDDeviceThread)
 {	    
+    m_bSendStasmPoints = false;
     m_bInitKinect = false;
     m_pFaceMeshResult = NULL;
     m_pCloudToDisplay = NULL;
@@ -42,6 +43,10 @@ SWCreateAvatarWorker::SWCreateAvatarWorker(swDevice::SWKinect_thread *pRGBDDevic
 
     m_i32CurrentCloudNumber = 0;
     m_i32NumberOfClouds = 10;
+
+    m_i32NumberStasm = 0;
+    m_i32MaxNumberStasm = 5;
+
 
     // add new objets in qt meta type
         qRegisterMetaType<swCloud::SWCloud*>("SWCloud");
@@ -139,7 +144,14 @@ void SWCreateAvatarWorker::doWork()
 
                     // retrieve stasm points
                         std::vector<cv::Point2i> l_vP2IStasm;
-                        m_CAvatarPtr->m_CStasmDetectPtr->featuresPoints(l_vP2IStasm);
+
+                        if(m_bSendStasmPoints)
+                        {
+                            if(m_i32NumberStasm++ < m_i32MaxNumberStasm) // TODO : add mutex
+                            {
+                                m_CAvatarPtr->m_CStasmDetectPtr->featuresPoints(l_vP2IStasm);
+                            }
+                        }
                         emit sendStasmPoints(l_vP2IStasm);
 
                     // send the cloud and the rectangles to the interface for displaying
@@ -194,6 +206,7 @@ void SWCreateAvatarWorker::doWork()
                 // stop
                     stopWork();
                     l_bContinueLoop = false;
+
             }
         }
     }
@@ -203,7 +216,8 @@ void SWCreateAvatarWorker::doWork()
 void SWCreateAvatarWorker::stopWork()
 {
     m_oLoopMutex.lockForWrite();
-        m_bDoWork = false;
+        m_bDoWork        = false;
+        m_i32NumberStasm = 0;
     m_oLoopMutex.unlock();
 
     emit stopWorkSignal();
@@ -427,6 +441,7 @@ void SWCreateAvatarWorker::setUseBilateralFilter(const bool bUseFilter)
 void SWCreateAvatarWorker::setUseStasm(const bool bUseStasm)
 {
     m_CAvatarPtr->setUseStasm(bUseStasm);
+    m_bSendStasmPoints = bUseStasm;
 }
 
 void SWCreateAvatarWorker::setErode(const int i32Erode)

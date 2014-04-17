@@ -57,7 +57,7 @@ SWCreateAvatarInterface::SWCreateAvatarInterface(QWidget *oQWRelative) : QMainWi
 //    m_WCloudGL->setMaximumSize(640,480);
     m_uiCreateAvatar->hlCloud->addWidget(m_WCloudGL);
     // mesh gl widget
-    m_WMeshGL = new SWGLMeshWidget(l_glContext2, this);
+    m_WMeshGL = new SWGLMeshWidget(l_glContext2, this, "../data/shaders/createAvatarMesh.vert", "../data/shaders/createAvatarMesh.frag");
     m_uiCreateAvatar->hlMesh->addWidget(m_WMeshGL);
 
 	// init workers

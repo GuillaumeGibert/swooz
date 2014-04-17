@@ -37,8 +37,17 @@ void SWGLMeshWidget::initializeGL()
         qglClearColor(QColor(49, 53, 70));
 
     // init shaders
+        if(m_sVertexShaderPath != "" && m_sFragmentShaderPath != "")
+        {
+            initShaders(m_sVertexShaderPath, m_sFragmentShaderPath, m_oShaderMesh,  true);
+        }
+        else
+        {
+            initShaders("../data/shaders/meshAvatar.vert", "../data/shaders/meshAvatar.frag", m_oShaderMesh,  true);
+        }
+
         initShaders("../data/shaders/cloudAvatar.vert", "../data/shaders/cloudAvatar.frag", m_oShaderLines, false);
-        initShaders("../data/shaders/meshAvatar.vert", "../data/shaders/meshAvatar.frag", m_oShaderMesh,  true);
+
 
     // enable depth buffer
         glEnable(GL_DEPTH_TEST);

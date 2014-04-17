@@ -251,9 +251,11 @@ class SWCreateAvatarWorker : public QObject
 		
 	private :
 		
-
+        bool m_bSendStasmPoints;                    /**< ... */
         bool m_bDoWork;                             /**< ... */
         bool m_bInitKinect;                         /**< ... */
+        int  m_i32NumberStasm;                      /**< ... */
+        int  m_i32MaxNumberStasm;                   /**< ... */
         int  m_i32NumberOfClouds;                   /**< ... */
 
         // parameters
