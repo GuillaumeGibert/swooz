@@ -1,4 +1,3 @@
-
 ![SWoOZ (Super Wizard of OZ)](http://uppix.net/E8C3ed.bmp "SWoOZ")
 
 Links :
@@ -19,13 +18,17 @@ Content :
    * [interfaces](https://github.com/GuillaumeGibert/swooz/wiki/toolkit#wiki-devices) (Kinect/Xtion, FaceLab, Fastrak Polhemus, Tobii..)
    * [depth sensor data recorder/loader](https://github.com/GuillaumeGibert/swooz/wiki/samplesCode#data-recorderloader) 
  * Modules based on yarp :
-   * [Tracking](https://github.com/GuillaumeGibert/swooz/wiki/tracking) human movements without intrusive devices : head rigid/non-rigid motion, arms(not online now), torso
-   * [Teleoperation](https://github.com/GuillaumeGibert/swooz/wiki/teleoperation) for iCub, NAO(not online now), 3D Avatars(not online now) based on the tracking modules
+   * [Tracking](https://github.com/GuillaumeGibert/swooz/wiki/tracking) human movements without intrusive devices : head rigid/non-rigid motion, arms, torso
+   * [Teleoperation](https://github.com/GuillaumeGibert/swooz/wiki/teleoperation) for iCub, NAO, 3D Avatars(not online now) based on the tracking modules
+   * [Manipulation](https://github.com/GuillaumeGibert/swooz/wiki/manipulation) for manipulating tracking data and create planifications
  * Avatar creation/morphing :
    * [Creation](https://github.com/GuillaumeGibert/swooz/wiki/avatar#wiki-creation) from depths sensors devices(Kinect/Xtion) data
    * [Morphing](https://github.com/GuillaumeGibert/swooz/wiki/avatar#wiki-morphing) for fitting references avatars meshes
 
-![](http://uppix.net/GuA0bAs.jpg) ![](http://uppix.net/CKLxdcs.jpg) ![](http://uppix.net/r5JVoTs.jpg)
+
+![](http://uppix.net/GuA0bAs.jpg) ![](http://uppix.net/CKLxdcs.jpg) ![](http://uppix.net/r5JVoTs.jpg) ![](http://uppix.net/gkMAQWs.jpg) ![](http://uppix.net/Qyp88ds.png) ![](http://uppix.net/kgWN89s.jpg)
+![](http://uppix.net/2RndHKs.jpg)
+
 
 
 Research :
