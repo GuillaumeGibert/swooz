@@ -4,25 +4,26 @@ SWOOZ - SCRIPTS
 0. DEPENDENCIES
 ---------------
 
-Install openni...
+ * Install openni :
 
-...
+	OpenNI-Win32-1.5.4.0-Dev1.msi -> http://www.openni.org/wp-content/uploads/2012/12/OpenNI-Win32-1.5.4.0-Dev1.zip
+	
+	SensorKinect093-Bin-Win32-v5.1.2.1.msi -> https://github.com/avin2/SensorKinect (in the bin folder)
+	
+	Sensor-Win32-5.1.2.1-Redist.msi -> http://www.openni.org/wp-content/uploads/2012/12/Sensor-Win32-5.1.2.1-Redist.zip
+	
+	NITE-Win32-1.5.2.21-Dev.msi -> http://www.openni.org/wp-content/uploads/2012/12/NITE-Win32-1.5.2.21-Dev.zip  
+	 
+	
+ * Install cuda : https://developer.nvidia.com/cuda-downloads
 
-Install cuda...
+ * Checkout of the git repository...
 
-...
-
-Checkout of the git repository...
-
-...
-
-Install the swooz-3rdparty installer...
-
-...
+ * Install the swooz-3rdparty installer in the swooz directory.
 
 
-Modify the **win32-init_env_command.cmd.skeleton** script.
-If you have used the **swooz-3rdparty** installer, only rename **"win32-init_env_command.cmd.skeleton"** into **"win32-init_env_command.cmd"**, else you will have to open it and define manually all the librairies links before renaming it.
+Modify the **win-init_env_command.cmd.skeleton** script.
+If you have used the **swooz-3rdparty** installer, only rename **"win-init_env_command.cmd.skeleton"** into **"win-init_env_command.cmd"**, else you will have to open it and define manually all the librairies links before renaming it.
 
 
 1. BUILD SWOOZ
