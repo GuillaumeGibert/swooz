@@ -1,5 +1,6 @@
-SWoOZ (Super Wizard of OZ)
-==========================
+
+
+![SWoOZ (Super Wizard of OZ)](http://uppix.net/E8C3ed.bmp "SWoOZ")
 
 Links :
 -------
