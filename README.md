@@ -17,7 +17,7 @@ Content :
 ---------
  * A toolkit for working with tracking devices :
    * [interfaces](https://github.com/GuillaumeGibert/swooz/wiki/toolkit#wiki-devices) (Kinect/Xtion, FaceLab, Fastrak Polhemus, Tobii..)
-   * [depth captor data recorder/loader](https://github.com/GuillaumeGibert/swooz/wiki/samplesCode#data-recorderloader) 
+   * [depth sensor data recorder/loader](https://github.com/GuillaumeGibert/swooz/wiki/samplesCode#data-recorderloader) 
  * Modules based on yarp :
    * [Tracking](https://github.com/GuillaumeGibert/swooz/wiki/tracking) human movements without intrusive devices : head rigid/non-rigid motion, arms(not online now), torso
    * [Teleoperation](https://github.com/GuillaumeGibert/swooz/wiki/teleoperation) for iCub, NAO(not online now), 3D Avatars(not online now) based on the tracking modules
