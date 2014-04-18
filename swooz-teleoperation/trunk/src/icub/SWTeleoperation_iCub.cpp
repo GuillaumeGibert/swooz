@@ -16,7 +16,12 @@
 
 SWTeleoperation_iCub::SWTeleoperation_iCub() : m_pIHeadVelocity(NULL), m_pIHeadEncoders(NULL), m_pIHeadPosition(NULL), m_bIsRunning(false), m_bFirstLEDCommand(true),
             m_i32HeadTimeLastBottle(0), m_i32FaceTimeLastBottle(0), m_i32ArmsTimeLastBottle(0), m_i32GazeTimeLastBottle(0)
-{}
+{
+	m_sPreviousMouth = "M08";
+	m_sPreviousLeftEyebrow = "L02";
+	m_sPreviousRightEyebrow = "R02";
+	
+}
 
 SWTeleoperation_iCub::~SWTeleoperation_iCub()
 {}
@@ -55,17 +60,18 @@ bool SWTeleoperation_iCub::configure(ResourceFinder &rf)
 
 
     // min / max values for iCub eyelids
+    
         if(m_sRobotName == "icubSim")
         {
-            m_i32MinValueEyelids = rf.check("minValueEyelidsSim",  Value( 24 ),  "Min value eyelidSim (int)").asInt();
-            m_i32MaxValueEyelids = rf.check("maxValueEyelidsSim",  Value( 48 ),  "Max value eyelidSim (int)").asInt();
+            m_i32MinValueEyelids = rf.check("minValueEyelidsSim",  Value( 0 ),  "Min value eyelidSim (int)").asInt();
+            m_i32MaxValueEyelids = rf.check("maxValueEyelidsSim",  Value( 70 ),  "Max value eyelidSim (int)").asInt();
         }
         else
         {
             m_i32MinValueEyelids = rf.check("minValueEyelids",  Value( 30 ),  "Min value eyelid (int)").asInt();
             m_i32MaxValueEyelids = rf.check("maxValueEyelids",  Value( 70 ),  "Max value eyelid (int)").asInt();
         }
-
+	
     // miscellaneous
         m_i32Fps                    = rf.check("fps",                   Value(100),  "Frame per second (int)").asInt();
         m_i32HeadTimeoutReset       = rf.check("headTimeoutReset",      Value(3000), "Head gaze timeout reset iCub (int)").asInt();
@@ -119,7 +125,6 @@ bool SWTeleoperation_iCub::configure(ResourceFinder &rf)
                 return false;
             }
 
-
     // left arm
         // set polydriver options
             m_oLeftArmOptions.put("robot",     m_sRobotName.c_str());
@@ -152,8 +157,7 @@ bool SWTeleoperation_iCub::configure(ResourceFinder &rf)
             m_oRobotLeftArmCartesian.open(m_oLeftArmCartesianOptions);
             if (!m_oRobotLeftArmCartesian.isValid())
             {
-                std::cerr << "-WARNING: left arm cartesian is not valid" << std::endl;
-
+		std::cerr << "-WARNING: left arm cartesian is not valid" << std::endl;
             }
             else
             {
@@ -271,10 +275,10 @@ bool SWTeleoperation_iCub::configure(ResourceFinder &rf)
 
     // reset position
         resetHeadPosition();
-//        resetTorsoPosition();
-//        resetLeftArmPosition();
-//        resetRightArmPosition();
-
+        /*resetTorsoPosition();
+        resetLeftArmPosition();
+        resetRightArmPosition();
+*/
         m_bTorsoCapture = m_bLeftArmCapture = m_bRightArmCapture = false;
 
     // set accelerations
@@ -289,14 +293,16 @@ bool SWTeleoperation_iCub::configure(ResourceFinder &rf)
     // set speed
         for (int i = 0; i < l_i32JointsNb ; i++)
         {            
-            if(i != 5)
-            {
-                l_aHeadTmp[i] = m_i32JointVelocityValue;
-            }
-            else
-            {
-                l_aHeadTmp[i] = 50; // vergence speed
-            }
+            l_aHeadTmp[i] = m_i32JointVelocityValue;
+
+//            if(i != 5)
+//            {
+//                l_aHeadTmp[i] = m_i32JointVelocityValue;
+//            }
+//            else
+//            {
+//                l_aHeadTmp[i] = 50; // vergence speed
+//            }
         }
         m_pIHeadPosition->setRefSpeeds(l_aHeadTmp.data());
 
@@ -383,12 +389,13 @@ void SWTeleoperation_iCub::resetRightArmPosition()
 
 bool SWTeleoperation_iCub::close()
 {
-    // reset position
+    // reset position/*
+	/*
         resetHeadPosition();
-//        resetTorsoPosition();
-//        resetLeftArmPosition();
-//        resetRightArmPosition();
-
+        resetTorsoPosition();
+        resetLeftArmPosition();
+        resetRightArmPosition();
+*/
     // close ports
         m_oHeadTrackerPort.close();
         m_oFaceTrackerPort.close();
@@ -415,6 +422,7 @@ bool SWTeleoperation_iCub::close()
 bool SWTeleoperation_iCub::updateModule()
 {
 
+	int choice = rand()%3;
     if(!m_bIsRunning)
     {
         return false;
@@ -570,52 +578,72 @@ bool SWTeleoperation_iCub::updateModule()
                 case swTracking::COREDATA_LIB :
                     {
                         Bottle &l_oFaceMotionBottle = m_oFaceHandlerPort.prepare();
+		    // retrieve values
+				// eyebrows
+				std::vector<double> l_vLeftEyeBrowPoints, l_vRightEyeBrowPoints, l_vLeftEyeCenter, l_vRightEyeCenter;
+				for(int ii = 0; ii < 9; ++ii)
+				{
+					l_vLeftEyeBrowPoints.push_back(l_pFaceTarget->get(52+ii).asDouble());
+					l_vRightEyeBrowPoints.push_back(l_pFaceTarget->get(43+ii).asDouble());
 
-                        // mouth
-                            l_oFaceMotionBottle.clear();
-                            std::vector<double> l_vInnerLip2, l_vInnerLip6;
-                            for(int ii = 0; ii < 3; ++ii)
-                            {
-                                l_vInnerLip2.push_back(l_pFaceTarget->get(25+ii).asDouble());
-                                l_vInnerLip6.push_back(l_pFaceTarget->get(37+ii).asDouble());
-                            }
-                            l_oFaceMotionBottle.addString(m_oIcubFaceLEDCmd.lipCommand(l_vInnerLip2, l_vInnerLip6).c_str());
-                            m_oFaceHandlerPort.write();
-                            Time::delay(0.001);
+					if(ii < 3)
+					{
+						l_vLeftEyeCenter.push_back(l_pFaceTarget->get(64+ii).asDouble());
+						l_vRightEyeCenter.push_back(l_pFaceTarget->get(67+ii).asDouble());
+					}
+				}
 
+				if(m_bFirstLEDCommand)
+				{
+					m_oIcubFaceLEDCmd.setNeutralPoints(l_vLeftEyeBrowPoints, l_vRightEyeBrowPoints, l_vLeftEyeCenter, l_vRightEyeCenter);
+					m_bFirstLEDCommand = false;
+				}
+		
+				// mouth 
+				std::vector<double> l_vInnerLip2, l_vInnerLip6;
+				for(int ii = 0; ii < 3; ++ii)
+				{
+					l_vInnerLip2.push_back(l_pFaceTarget->get(25+ii).asDouble());
+					l_vInnerLip6.push_back(l_pFaceTarget->get(37+ii).asDouble());
+				}
 
-                        // eyebrows
-                            // retrieve values
-                                std::vector<double> l_vLeftEyeBrowPoints, l_vRightEyeBrowPoints, l_vLeftEyeCenter, l_vRightEyeCenter;
-                                for(int ii = 0; ii < 9; ++ii)
-                                {
-                                    l_vLeftEyeBrowPoints.push_back(l_pFaceTarget->get(52+ii).asDouble());
-                                    l_vRightEyeBrowPoints.push_back(l_pFaceTarget->get(43+ii).asDouble());
+				std::string l_sNewMouth = m_oIcubFaceLEDCmd.lipCommand(l_vInnerLip2, l_vInnerLip6);
+				std::string l_sNewLeftEyebrow = m_oIcubFaceLEDCmd.leftEyeBrowCommand(l_vLeftEyeBrowPoints, l_vLeftEyeCenter);
+				std::string l_sNewRightEyebrow=m_oIcubFaceLEDCmd.rightEyeBrowCommand(l_vRightEyeBrowPoints, l_vRightEyeCenter);
 
-                                    if(ii < 3)
-                                    {
-                                        l_vLeftEyeCenter.push_back(l_pFaceTarget->get(64+ii).asDouble());
-                                        l_vRightEyeCenter.push_back(l_pFaceTarget->get(67+ii).asDouble());
-                                    }
-                                }
-
-                                if(m_bFirstLEDCommand)
-                                {
-                                    m_oIcubFaceLEDCmd.setNeutralPoints(l_vLeftEyeBrowPoints, l_vRightEyeBrowPoints, l_vLeftEyeCenter, l_vRightEyeCenter);
-                                    m_bFirstLEDCommand = false;
-                                }
-
-                                // TO BE TESTED
-                            // left
-                                l_oFaceMotionBottle.clear();
-                                l_oFaceMotionBottle.addString(m_oIcubFaceLEDCmd.leftEyeBrowCommand(l_vLeftEyeBrowPoints, l_vLeftEyeCenter).c_str());
-                                m_oFaceHandlerPort.write();
-                                Time::delay(0.001);
-                            // right
-                                l_oFaceMotionBottle.clear();
-                                l_oFaceMotionBottle.addString(m_oIcubFaceLEDCmd.rightEyeBrowCommand(l_vRightEyeBrowPoints, l_vRightEyeCenter).c_str());
-                                m_oFaceHandlerPort.write();
-                                Time::delay(0.001);
+				
+				
+				if(choice == 0)
+				//if(m_sPreviousMouth != l_sNewMouth)
+				{
+					l_oFaceMotionBottle.clear();
+					l_oFaceMotionBottle.addString(l_sNewMouth.c_str());
+					m_oFaceHandlerPort.write();
+					m_sPreviousMouth = l_sNewMouth;
+					//Time::delay(0.001);
+				}
+				
+				if(choice == 1)
+				//if(m_sPreviousLeftEyebrow != l_sNewLeftEyebrow)
+				{
+					l_oFaceMotionBottle.clear();
+					//l_oFaceMotionBottle.addString(l_sNewLeftEyebrow.c_str());
+					l_oFaceMotionBottle.addString(std::string("L02").c_str());
+					m_oFaceHandlerPort.write();
+					m_sPreviousLeftEyebrow = l_sNewLeftEyebrow;
+					//Time::delay(0.001);
+				}
+				
+				if(choice == 2)
+				//if(m_sPreviousRightEyebrow != l_sNewRightEyebrow)
+				{
+					l_oFaceMotionBottle.clear();
+					//l_oFaceMotionBottle.addString(l_sNewRightEyebrow.c_str());
+					l_oFaceMotionBottle.addString(std::string("R02").c_str());
+					m_oFaceHandlerPort.write();
+					m_sPreviousRightEyebrow = l_sNewRightEyebrow;
+					//Time::delay(0.001);
+				}
                     }
                 break;
                 case swTracking::STASM_LIB :
@@ -670,12 +698,11 @@ bool SWTeleoperation_iCub::updateModule()
                         // eye closure
                             l_oFaceMotionBottle.clear();
                             double l_dLeftEyeClosure = l_pGazeTarget->get(8).asDouble(), l_dRightEyeClosure = l_pGazeTarget->get(13).asDouble();
-                            l_oFaceMotionBottle.addString(
-                            eyesOpeningCode((1.0-(l_dLeftEyeClosure + l_dRightEyeClosure)/2.0), m_i32MinValueEyelids, m_i32MaxValueEyelids).c_str());
+			    
+			    std::cout << "eyeopening : " << eyesOpeningCode((1.0-(l_dLeftEyeClosure + l_dRightEyeClosure)/2.0), m_i32MinValueEyelids, m_i32MaxValueEyelids) << " ";
+                            l_oFaceMotionBottle.addString(eyesOpeningCode((1.0-(l_dLeftEyeClosure + l_dRightEyeClosure)/2.0), m_i32MinValueEyelids, m_i32MaxValueEyelids).c_str());
                             m_oFaceHandlerPort.write();
                             Time::delay(0.001);
-
-                            std::cout << "eyesOpeningCode " << std::endl;
                     }
                 break;
                 case swTracking::FACESHIFT_LIB :
@@ -689,7 +716,6 @@ bool SWTeleoperation_iCub::updateModule()
                     }
                 break;
             }
-
 
             m_i32GazeTimeLastBottle = 0;
         }
@@ -1171,7 +1197,7 @@ bool SWTeleoperation_iCub::updateModule()
         l_vHeadCommand[5] = 1.0 * (l_vHeadJoints[5] - l_vHeadEncoders[5]);
 
         // move
-        std::cout << "velocityMove Head" << std::endl;
+        //std::cout << "velocityMove Head" << std::endl;
         m_pIHeadVelocity->velocityMove(l_vHeadCommand.data());
     }
 
@@ -1235,7 +1261,7 @@ double SWTeleoperation_iCub::getPeriod()
 
 std::string SWTeleoperation_iCub::eyesOpeningCode(cdouble dEyeLids, cint i32MinValue, cint i32MaxValue)
 {
-    int l_i32ScaledValue = static_cast<int>((i32MinValue + (i32MaxValue - i32MinValue) * dEyeLids));
+    int l_i32ScaledValue = (int)(i32MinValue + (i32MaxValue - i32MinValue) * dEyeLids);
 
     std::ostringstream l_osCodeValue;
     l_osCodeValue << 'S';

@@ -165,10 +165,12 @@ CFLAGS_STA = -nologo -O2 -GF -Gy -W3 -MT -EHsc -DWIN32 -MP$(NUMBER_OF_PROCESSORS
 CFLAGS_DYN = -nologo -O2 -GF -Gy -W3 -MD -EHsc -DWIN32 -MP$(NUMBER_OF_PROCESSORS)
 
 LFLAGS=-nologo
-LFLAGS_EMICP_HEAD_TRACKING=-nologo -nodefaultlib:LIBCMT -nodefaultlib:MSVCPRT
-#  -nodefaultlib:LIBCMT
-LFLAGS_FACESHIFT_TRACKING=-nologo -nodefaultlib:LIBCMT -nodefaultlib:MSVCPRT
-LFLAGS_FOREST_HEAD_TRACKING=-nologo -nodefaultlib:LIBCMT -nodefaultlib:MSVCPRT
+
+LFLAGS_EMICP_HEAD_TRACKING = -nologo -nodefaultlib:LIBCMT -nodefaultlib:MSVCPRT
+
+LFLAGS_FACESHIFT_TRACKING = -nologo -nodefaultlib:LIBCMT -nodefaultlib:MSVCPRT
+
+LFLAGS_FOREST_HEAD_TRACKING = -nologo -nodefaultlib:LIBCMT -nodefaultlib:MSVCPRT
 
 ############################ LIBS
 

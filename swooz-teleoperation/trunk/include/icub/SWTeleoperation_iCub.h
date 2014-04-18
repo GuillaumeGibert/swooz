@@ -351,6 +351,10 @@ class SWTeleoperation_iCub : public RFModule
         yarp::os::Property m_oLeftArmOptions;           /**< robot interfaces for left arm/hand movements */
         yarp::os::Property m_oRightArmCartesianOptions; /**< robot interfaces for Right hand cartesian position */
         yarp::os::Property m_oRightArmOptions;          /**< robot interfaces for Right arm/hand movements */
+	
+	std::string m_sPreviousMouth;
+	std::string  m_sPreviousLeftEyebrow;
+	std::string  m_sPreviousRightEyebrow;
 };
 
 #endif

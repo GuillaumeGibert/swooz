@@ -43,13 +43,18 @@ FILTER_OBJ=\
 ############################################################################## Makefile commands
 	
 !if  "$(ARCH)" == "x86"
-all: $(KINECT_OBJ) $(FACELAB_OBJ) $(TOBII_OBJ) $(FASTRAK_OBJ) $(BINDIR)/SWDisplayKinectOnDimenco.exe
+all: $(KINECT_OBJ) $(FACELAB_OBJ) $(TOBII_OBJ) $(FASTRAK_OBJ) $(BINDIR)/SWDisplayKinectOnDimenco.exe $(LIBDIR)/SWToolkit.lib
 #$(FILTER_OBJ)
 !endif
 
 !if "$(ARCH)" == "amd64"
 all:
 !endif
+
+##############################################################################
+
+$(LIBDIR)/SWToolkit.lib: $(KINECT_OBJ)
+        LIB.EXE /OUT:$(LIBDIR)/SWToolkit.lib $(KINECT_OBJ)
 
 ############################################################################## exe files
 

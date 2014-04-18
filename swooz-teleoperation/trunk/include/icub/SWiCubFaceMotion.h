@@ -26,6 +26,8 @@ namespace swIcub
                                      m_dThresholdMouth(0.01)
             {}
 
+		    
+		    
             void setNeutralPoints(const std::vector<double> &l_vLeftEyebrowPoints, const std::vector<double> &l_vRightEyebrowPoints,
                                   const std::vector<double> &l_vCenterLeftEye,    const std::vector<double> &l_vCenterRightEye)
             {
@@ -47,15 +49,18 @@ namespace swIcub
                 double l_dLeftEyeSquareDist  = (l_vCenterLeftEye[0] - l_dLeftXMedian)*(l_vCenterLeftEye[0] - l_dLeftXMedian) + (l_vCenterLeftEye[1] - l_dLeftYMedian)*(l_vCenterLeftEye[1] - l_dLeftYMedian);
                 double l_dRightEyeSquareDist = (l_vCenterRightEye[0] - l_dRightXMedian)*(l_vCenterRightEye[0] - l_dRightXMedian) + (l_vCenterRightEye[1] - l_dRightYMedian)*(l_vCenterRightEye[1] - l_dRightYMedian);
 
+		l_dLeftEyeSquareDist = sqrt(l_dLeftEyeSquareDist);
+		l_dRightEyeSquareDist = sqrt(l_dRightEyeSquareDist);
+		
                 m_dLeftThresholdUp2     = DBL_MAX;
-                m_dLeftThresholdUp1     = 1.4 * l_dLeftEyeSquareDist;
-                m_dLeftThresholdNeutral = 1.2 * l_dLeftEyeSquareDist;
-                m_dLeftThresholdDown    = 0.8 * l_dLeftEyeSquareDist;
+                m_dLeftThresholdUp1     = 0.9* l_dLeftEyeSquareDist;
+                m_dLeftThresholdNeutral = 0.8 * l_dLeftEyeSquareDist;
+                m_dLeftThresholdDown    = 0.7 * l_dLeftEyeSquareDist;
 
                 m_dRightThresholdUp2     = DBL_MAX;
-                m_dRightThresholdUp1     = 1.4 * l_dRightEyeSquareDist;
-                m_dRightThresholdNeutral = 1.2 * l_dRightEyeSquareDist;
-                m_dRightThresholdDown    = 0.8 * l_dRightEyeSquareDist;
+                m_dRightThresholdUp1     = 0.9 * l_dRightEyeSquareDist;
+                m_dRightThresholdNeutral = 0.8 * l_dRightEyeSquareDist;
+                m_dRightThresholdDown    = 0.7 * l_dRightEyeSquareDist;
             }
 
             std::string lipCommand(const std::vector<double> &a3DLip1, const std::vector<double> &a3DLip2)
@@ -82,7 +87,7 @@ namespace swIcub
             std::string eyeBrowCommand(const std::vector<double> &a3DEyeBrow, const std::vector<double> &a3DEyeCenter, const bool bLeftEye)
             {
                 double l_dXMedian = 0.0, l_dYMedian = 0.0;
-
+		
                 for(uint ii = 0; ii < a3DEyeBrow.size()/3; ++ii)
                 {
                     l_dXMedian += a3DEyeBrow[ii*3];
@@ -92,9 +97,9 @@ namespace swIcub
                 l_dXMedian /= 3.0; l_dYMedian /= 3.0;
 
                 double l_dEyeSquareDist  = (a3DEyeBrow[0] - l_dXMedian)*(a3DEyeBrow[0] - l_dXMedian) + (a3DEyeBrow[1] - l_dYMedian)*(a3DEyeBrow[1] - l_dYMedian);
-
+		l_dEyeSquareDist = sqrt(l_dEyeSquareDist);
                 bool l_bDown, l_bNeutral, l_bUp1, l_bUp2;
-
+		
                 if(bLeftEye)
                 {
                     l_bDown     = l_dEyeSquareDist < m_dLeftThresholdDown;
@@ -109,7 +114,15 @@ namespace swIcub
                     l_bUp1      = l_dEyeSquareDist < m_dRightThresholdUp1;
                     l_bUp2      = l_dEyeSquareDist < m_dRightThresholdUp2;
                 }
-
+		
+		if(rand()%30==0)
+		{
+			std::cout << bLeftEye << " " << l_dEyeSquareDist << std::endl;
+			std::cout << m_dRightThresholdDown << " " << m_dRightThresholdNeutral << " " << m_dRightThresholdUp1 << " " << m_dRightThresholdUp2 << std::endl;
+			std::cout << m_dLeftThresholdDown << " " << m_dLeftThresholdDown << " " << m_dLeftThresholdUp1 << " " << m_dLeftThresholdUp2 << std::endl;
+			std::cout << l_bDown  << " " << l_bNeutral << " " << l_bUp1 << " " << l_bUp2 << std::endl;
+		}
+			
                 if(l_bDown)
                 {
                     return std::string("01");
@@ -134,12 +147,13 @@ namespace swIcub
 
             std::string leftEyeBrowCommand(const std::vector<double> &a3DLeftEyeBrow, const std::vector<double> &a3DLeftEyeCenter)
             {
-                if(a3DLeftEyeBrow.size() != 9 && a3DLeftEyeCenter.size() != 3)
+		    /*
+                if(a3DLeftEyeBrow.size() != a3DLeftEyeCenter.size() && a3DLeftEyeCenter.size() != 9)
                 {
                     std::cerr << "Error size input vectors : leftEyeBrowCommand. " << std::endl;
                     return std::string("");
                 }
-
+*/
                 std::string l_sEyeBrowCommand = eyeBrowCommand(a3DLeftEyeBrow, a3DLeftEyeCenter, true);
 
                 if(l_sEyeBrowCommand.size() == 0)
@@ -152,11 +166,11 @@ namespace swIcub
 
              std::string rightEyeBrowCommand(const std::vector<double> &a3DRightEyeBrow, const std::vector<double> &a3DRightEyeCenter)
             {
-                if(a3DRightEyeBrow.size() != 9 && a3DRightEyeCenter.size() != 3)
+                /*if(a3DRightEyeBrow.size() != a3DRightEyeCenter.size() && a3DRightEyeCenter.size() != 9)
                 {
                     std::cerr << "Error size input vectors : rightEyeBrowCommand. " << std::endl;
                     return std::string("");
-                }
+                }*/
 
                 std::string l_sEyeBrowCommand = eyeBrowCommand(a3DRightEyeBrow, a3DRightEyeCenter, false);
 
