@@ -26,7 +26,7 @@
 #include <cstdio>
 #include <cstdlib>
 
-#include "3dregistration.h"
+#include "emicp/3dregistration.h"
 
 
 void eigenvectorOfN(double* N, float* q);

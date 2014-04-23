@@ -53,7 +53,7 @@ namespace swUtil
 
     static void displayTextDownRight(cv::Mat &oInputMat, const std::string &oText)
     {
-        putText( oInputMat, oText, cv::Point( oInputMat.cols - 50 - oText.size()*10, oInputMat.rows - 50), cv::FONT_HERSHEY_SIMPLEX, 0.7, RED, 3 );
+        putText( oInputMat, oText, cv::Point( oInputMat.cols - 50 - static_cast<int>(oText.size())*10, oInputMat.rows - 50), cv::FONT_HERSHEY_SIMPLEX, 0.7, RED, 3 );
     }
 
     /**

@@ -25,14 +25,14 @@ OBJ_TRACKING_HEAD_FOREST=\
         $(LIBDIR)/SWForestHeadTracking.obj\
 
 OBJ_TRACKING_OPENNI=\
-        $(DIST_LIBDIR)/SWKinectSkeleton_dynamic.obj\
+        $(DIST_LIBDIR)/SWKinectSkeleton_d.obj\
         $(LIBDIR)/SWOpenNITracking.obj\
 
 
 OBJ_TRACKING_FACELAB=\
-        $(LIBDIR)/SWFaceLabTracking_dynamic.obj\
-        $(DIST_LIBDIR)/SWFaceLab_dynamic.obj\
-        $(DIST_LIBDIR)/FaceLab_dynamic.obj\
+        $(LIBDIR)/SWFaceLabTracking_d.obj\
+        $(DIST_LIBDIR)/SWFaceLab_d.obj\
+        $(DIST_LIBDIR)/FaceLab_d.obj\
 
 OBJ_TRACKING_FACESHIFT=\
         $(LIBDIR)/fsbinarystream.obj\
@@ -118,8 +118,8 @@ $(LIBDIR)/SWForestHeadTracking.obj: ./src/rgbd/SWForestHeadTracking.cpp
 
 ############################################################################## FACELAB TRACKING OBJ
 
-$(LIBDIR)/SWFaceLabTracking_dynamic.obj: ./src/facelab/SWFaceLabTracking.cpp
-        $(CC) -c ./src/facelab/SWFaceLabTracking.cpp $(CFLAGS_DYN) $(SW_FACELABTRACKING) -Fo"$(LIBDIR)/SWFaceLabTracking_dynamic.obj"
+$(LIBDIR)/SWFaceLabTracking_d.obj: ./src/facelab/SWFaceLabTracking.cpp
+        $(CC) -c ./src/facelab/SWFaceLabTracking.cpp $(CFLAGS_DYN) $(SW_FACELABTRACKING) -Fo"$(LIBDIR)/SWFaceLabTracking_d.obj"
 
 ############################################################################## FACESHIFT TRACKING OBJ
 

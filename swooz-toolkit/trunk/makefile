@@ -19,31 +19,27 @@ LINK=link
 
 ############################################################################## OBJ PROGRAMS
 
+TOOLKIT_OBJ=\
+    $(LIBDIR)/SWKinect.obj $(LIBDIR)/SWKinect_thread.obj $(LIBDIR)/SWSaveKinectData.obj $(LIBDIR)/SWLoadKinectData.obj $(LIBDIR)/SWKinectSkeleton.obj\
+    $(LIBDIR)/SWFastrak.obj $(LIBDIR)/SWFastrak_thread.obj \
+    $(LIBDIR)/Tobii.obj\
+
+TOOLKIT_DYN_OBJ=\
+    $(LIBDIR)/SWKinect_d.obj $(LIBDIR)/SWKinect_thread_d.obj $(LIBDIR)/SWSaveKinectData_d.obj \
+    $(LIBDIR)/SWLoadKinectData_d.obj $(LIBDIR)/SWKinectSkeleton_d.obj $(LIBDIR)/FaceLab_d.obj \
+    $(LIBDIR)/SWFaceLab_d.obj $(LIBDIR)/SWFastrak_d.obj $(LIBDIR)/SWFastrak_thread_d.obj\
+    $(LIBDIR)/Tobii_d.obj\
+
 KINECT_DIMENCO_OBJ=\
     $(LIBDIR)/SWKinect.obj\
     $(LIBDIR)/SWDimenco3DDisplay.obj\
 
-KINECT_OBJ=\
-    $(LIBDIR)/SWKinect.obj $(LIBDIR)/SWKinect_thread.obj $(LIBDIR)/SWKinect_dynamic.obj $(LIBDIR)/SWKinect_thread_dynamic.obj\
-    $(LIBDIR)/SWSaveKinectData.obj $(LIBDIR)/SWSaveKinectData_dynamic.obj $(LIBDIR)/SWLoadKinectData.obj $(LIBDIR)/SWLoadKinectData_dynamic.obj\
-    $(LIBDIR)/SWKinectSkeleton.obj $(LIBDIR)/SWKinectSkeleton_dynamic.obj\
-
-FACELAB_OBJ=\
-    $(LIBDIR)/FaceLab_dynamic.obj $(LIBDIR)/SWFaceLab_dynamic.obj\
-
-FASTRAK_OBJ=\
-    $(LIBDIR)/SWFastrak.obj $(LIBDIR)/SWFastrak_dynamic.obj $(LIBDIR)/SWFastrak_thread.obj $(LIBDIR)/SWFastrak_thread_dynamic.obj\
-
-TOBII_OBJ=\
-    $(LIBDIR)/Tobii.obj\
-
-FILTER_OBJ=\
-    $(LIBDIR)/SWApplyTemporalFilter.obj $(LIBDIR)/SWComputeTemporalFilterCoefficients.obj\
-
 ############################################################################## Makefile commands
 	
+# $(KINECT_OBJ) $(FACELAB_OBJ) $(TOBII_OBJ) $(FASTRAK_OBJ)
+
 !if  "$(ARCH)" == "x86"
-all: $(KINECT_OBJ) $(FACELAB_OBJ) $(TOBII_OBJ) $(FASTRAK_OBJ) $(BINDIR)/SWDisplayKinectOnDimenco.exe $(LIBDIR)/SWToolkit.lib
+all: $(BINDIR)/SWDisplayKinectOnDimenco.exe $(LIBDIR)/SWToolkit.lib $(LIBDIR)/SWToolkit_d.lib
 #$(FILTER_OBJ)
 !endif
 
@@ -51,10 +47,13 @@ all: $(KINECT_OBJ) $(FACELAB_OBJ) $(TOBII_OBJ) $(FASTRAK_OBJ) $(BINDIR)/SWDispla
 all:
 !endif
 
-##############################################################################
+############################################################################## lib files
 
-$(LIBDIR)/SWToolkit.lib: $(KINECT_OBJ)
-        LIB.EXE /OUT:$(LIBDIR)/SWToolkit.lib $(KINECT_OBJ)
+$(LIBDIR)/SWToolkit.lib: $(TOOLKIT_OBJ)
+        LIB.EXE /OUT:$(LIBDIR)/SWToolkit.lib $(TOOLKIT_OBJ)
+
+$(LIBDIR)/SWToolkit_d.lib: $(TOOLKIT_DYN_OBJ)
+        LIB.EXE /OUT:$(LIBDIR)/SWToolkit_d.lib $(TOOLKIT_DYN_OBJ)
 
 ############################################################################## exe files
 
@@ -86,47 +85,43 @@ $(LIBDIR)/SWLoadKinectData.obj: ./src/devices/rgbd/SWLoadKinectData.cpp
 $(LIBDIR)/Tobii.obj: ./src/devices/tobii/Tobii.cpp
         $(CC) -c ./src/devices/tobii/Tobii.cpp $(CFLAGS_STA) $(TOBII) -Fo"$(LIBDIR)/"
 
-$(LIBDIR)/SWDimenco3DDisplay.obj: ./src/devices/dimenco/SWDimenco3DDisplay.cpp
-        $(CC) -c ./src/devices/dimenco/SWDimenco3DDisplay.cpp $(CFLAGS_STA) $(SW_SDIMENCO3DPLAY) -Fo"$(LIBDIR)/"
-
 $(LIBDIR)/SWKinectSkeleton.obj: ./src/devices/rgbd/SWKinectSkeleton.cpp
         $(CC) -c ./src/devices/rgbd/SWKinectSkeleton.cpp $(CFLAGS_STA) $(SW_KINECT_SKELETON) -Fo"$(LIBDIR)/"
 
+$(LIBDIR)/SWDimenco3DDisplay.obj: ./src/devices/dimenco/SWDimenco3DDisplay.cpp
+        $(CC) -c ./src/devices/dimenco/SWDimenco3DDisplay.cpp $(CFLAGS_STA) $(SW_SDIMENCO3DPLAY) -Fo"$(LIBDIR)/"
+
+
 ####### dynamic
 
-$(LIBDIR)/FaceLab_dynamic.obj: ./src/devices/faceLab/FaceLab.cpp
-        $(CC) -c ./src/devices/faceLab/FaceLab.cpp $(CFLAGS_DYN) $(FACELAB) -Fo"$(LIBDIR)/FaceLab_dynamic.obj"
+$(LIBDIR)/SWKinect_d.obj: ./src/devices/rgbd/SWKinect.cpp
+        $(CC) -c ./src/devices/rgbd/SWKinect.cpp $(CFLAGS_DYN) $(SW_KINECT) -Fo"$(LIBDIR)/SWKinect_d.obj"
 
-$(LIBDIR)/SWFaceLab_dynamic.obj: ./src/devices/faceLab/SWFaceLab.cpp
-        $(CC) -c ./src/devices/faceLab/SWFaceLab.cpp $(CFLAGS_DYN) $(SW_FACELAB) -Fo"$(LIBDIR)/SWFaceLab_dynamic.obj"
+$(LIBDIR)/SWKinect_thread_d.obj: ./src/devices/rgbd/SWKinect_thread.cpp
+        $(CC) -c ./src/devices/rgbd/SWKinect_thread.cpp $(CFLAGS_DYN) $(SW_KINECT_THREAD) -Fo"$(LIBDIR)/SWKinect_thread_d.obj"
 
-$(LIBDIR)/SWKinect_dynamic.obj: ./src/devices/rgbd/SWKinect.cpp
-        $(CC) -c ./src/devices/rgbd/SWKinect.cpp $(CFLAGS_DYN) $(SW_KINECT) -Fo"$(LIBDIR)/SWKinect_dynamic.obj"
+$(LIBDIR)/SWFastrak_d.obj: ./src/devices/fastrak/SWFastrak.cpp
+        $(CC) -c ./src/devices/fastrak/SWFastrak.cpp $(CFLAGS_DYN) $(SW_FASTRAK) -Fo"$(LIBDIR)/SWFastrak_d.obj"
 
-$(LIBDIR)/SWKinect_thread_dynamic.obj: ./src/devices/rgbd/SWKinect_thread.cpp
-        $(CC) -c ./src/devices/rgbd/SWKinect_thread.cpp $(CFLAGS_DYN) $(SW_KINECT_THREAD) -Fo"$(LIBDIR)/SWKinect_thread_dynamic.obj"
+$(LIBDIR)/SWFastrak_thread_d.obj: ./src/devices/fastrak/SWFastrak_thread.cpp
+        $(CC) -c ./src/devices/fastrak/SWFastrak_thread.cpp $(CFLAGS_DYN) $(SW_FASTRAK_THREAD) -Fo"$(LIBDIR)/SWFastrak_thread_d.obj"
 
-$(LIBDIR)/SWFastrak_dynamic.obj: ./src/devices/fastrak/SWFastrak.cpp
-        $(CC) -c ./src/devices/fastrak/SWFastrak.cpp $(CFLAGS_DYN) $(SW_FASTRAK) -Fo"$(LIBDIR)/SWFastrak_dynamic.obj"
+$(LIBDIR)/SWSaveKinectData_d.obj: ./src/devices/rgbd/SWSaveKinectData.cpp
+        $(CC) -c ./src/devices/rgbd/SWSaveKinectData.cpp $(CFLAGS_DYN) $(SW_SAVE_KINECT_DATA) -Fo"$(LIBDIR)/SWSaveKinectData_d.obj"
 
-$(LIBDIR)/SWFastrak_thread_dynamic.obj: ./src/devices/fastrak/SWFastrak_thread.cpp
-        $(CC) -c ./src/devices/fastrak/SWFastrak_thread.cpp $(CFLAGS_DYN) $(SW_FASTRAK_THREAD) -Fo"$(LIBDIR)/SWFastrak_thread_dynamic.obj"
+$(LIBDIR)/SWLoadKinectData_d.obj: ./src/devices/rgbd/SWLoadKinectData.cpp
+        $(CC) -c ./src/devices/rgbd/SWLoadKinectData.cpp $(CFLAGS_DYN) $(SW_LOAD_KINECT_DATA) -Fo"$(LIBDIR)/SWLoadKinectData_d.obj"
 
-$(LIBDIR)/SWSaveKinectData_dynamic.obj: ./src/devices/rgbd/SWSaveKinectData.cpp
-        $(CC) -c ./src/devices/rgbd/SWSaveKinectData.cpp $(CFLAGS_DYN) $(SW_SAVE_KINECT_DATA) -Fo"$(LIBDIR)/SWSaveKinectData_dynamic.obj"
+$(LIBDIR)/Tobii_d.obj: ./src/devices/tobii/Tobii.cpp
+        $(CC) -c ./src/devices/tobii/Tobii.cpp $(CFLAGS_DYN) $(TOBII)  -Fo"$(LIBDIR)/Tobii_d.obj"
 
-$(LIBDIR)/SWLoadKinectData_dynamic.obj: ./src/devices/rgbd/SWLoadKinectData.cpp
-        $(CC) -c ./src/devices/rgbd/SWLoadKinectData.cpp $(CFLAGS_DYN) $(SW_LOAD_KINECT_DATA) -Fo"$(LIBDIR)/SWLoadKinectData_dynamic.obj"
+$(LIBDIR)/FaceLab_d.obj: ./src/devices/faceLab/FaceLab.cpp
+        $(CC) -c ./src/devices/faceLab/FaceLab.cpp $(CFLAGS_DYN) $(FACELAB) -Fo"$(LIBDIR)/FaceLab_d.obj"
 
-$(LIBDIR)/SWKinectSkeleton_dynamic.obj: ./src/devices/rgbd/SWKinectSkeleton.cpp
-        $(CC) -c ./src/devices/rgbd/SWKinectSkeleton.cpp $(CFLAGS_DYN) $(SW_KINECT_SKELETON) -Fo"$(LIBDIR)/SWKinectSkeleton_dynamic.obj"
+$(LIBDIR)/SWFaceLab_d.obj: ./src/devices/faceLab/SWFaceLab.cpp
+        $(CC) -c ./src/devices/faceLab/SWFaceLab.cpp $(CFLAGS_DYN) $(SW_FACELAB) -Fo"$(LIBDIR)/SWFaceLab_d.obj"
 
+$(LIBDIR)/SWKinectSkeleton_d.obj: ./src/devices/rgbd/SWKinectSkeleton.cpp
+        $(CC) -c ./src/devices/rgbd/SWKinectSkeleton.cpp $(CFLAGS_DYN) $(SW_KINECT_SKELETON) -Fo"$(LIBDIR)/SWKinectSkeleton_d.obj"
 
-##################################################### filters
-	
-$(LIBDIR)/SWComputeTemporalFilterCoefficients.obj: ./src/filters/SWComputeTemporalFilterCoefficients.cpp
-        $(CC) -c ./src/filters/SWComputeTemporalFilterCoefficients.cpp $(CFLAGS_STA) $(SW_APPLYTEMPFILRER) -Fo"$(LIBDIR)/"
-	
-$(LIBDIR)/SWApplyTemporalFilter.obj: ./src/filters/SWApplyTemporalFilter.cpp
-        $(CC) -c ./src/filters/SWApplyTemporalFilter.cpp $(CFLAGS_STA) $(SW_APPLYTEMPFILRER) -Fo"$(LIBDIR)/"
 

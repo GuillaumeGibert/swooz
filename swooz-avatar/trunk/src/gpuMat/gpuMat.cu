@@ -4,7 +4,7 @@
 #include "cula.h"
 #include <iostream>
 
-#include "configCuda.h"
+#include "gpuMat/configCuda.h"
 
 
 int doCulaSgesv(float *aFInputMat, float *aFOutputInvMat, int i32SizeSquareMat)

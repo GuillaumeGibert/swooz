@@ -167,6 +167,9 @@ class SWTeleoperation_iCub : public RFModule
         int m_i32JointVelocityValue;            /**< iCub velocity value */
         int m_i32JointAccelerationValue;        /**< iCub accelereation value */
 
+	int m_i32EyeVelocityValue;
+	int m_i32EyeAccelerationValue;
+
         // min/max joints
         //  head
         int m_i32HeadMaxValueJoint0;            /**< ... */
@@ -355,6 +358,8 @@ class SWTeleoperation_iCub : public RFModule
 	std::string m_sPreviousMouth;
 	std::string  m_sPreviousLeftEyebrow;
 	std::string  m_sPreviousRightEyebrow;
+
+    void displayAccSpeed();
 };
 
 #endif

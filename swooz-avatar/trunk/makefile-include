@@ -94,9 +94,7 @@ THIRD_PARTY_CULA        = $(THIRD_PARTY_CULA_64)
 THIRD_PARTY_CUDA        = $(THIRD_PARTY_CUDA_64)
 THIRD_PARTY_QT          = $(THIRD_PARTY_QT_64)
 THIRD_PARTY_CLAPACK     = $(THIRD_PARTY_CLAPACK_64)
-#THIRD_PARTY_BOOST       = $(THIRD_PARTY_BOOST_64)
 
-# ...
 !ENDIF
 
 ############################ INCLUDES
@@ -108,40 +106,19 @@ INC_SW    	= -I./include\
 INC_VS		= -I"$(PROGRAMFILES)/Microsoft SDKs/Windows/v7.0A/Include"\ -I"$(VS100COMNTOOLS)/../../VC/include"\
 	
 INC_STASM	= -I./include/stasm\
-	
-INC_POLHEMUS	= -I$(THIRD_PARTY_POLHEMUS)/include\
-
-INC_GLM		= -I"$(THIRD_PARTY_GLM)"\
-
-INC_OPENNI	= -I$(THIRD_PARTY_OPENNI)/Include\
 
 INC_BOOST	= -I"$(THIRD_PARTY_BOOST)"/include\
 
-#INC_CUDA	= -I./include/emicp -I"$(THIRD_PARTY_CUDA)"/include -I"$(THIRD_PARTY_CAPLACK)"/include\
-
-INC_CUDA=\
-        -I./include/gpuMat\
-        -I./include/emicp\
-        -I"$(THIRD_PARTY_CUDA)"/include\
-        -I"$(THIRD_PARTY_CUSPARSE)"\
-
-
-#INC_CUBLAS      = -I"$(THIRD_PARTY_CUDA)"/include\
+INC_CUDA        = -I"$(THIRD_PARTY_CUDA)"/include -I"$(THIRD_PARTY_CUSPARSE)"\
 
 INC_CULA        = -I"$(THIRD_PARTY_CULA)"/include\
 
-INC_CUDACONFIG  = -I./include/invmat
-		  
 INC_GSL 	= -I"$(THIRD_PARTY_GSL)"/gsl -I"$(THIRD_PARTY_GSL)"\
 
 INC_OPENCV      = -I"$(THIRD_PARTY_OPENCV)"\modules/core/include -I"$(THIRD_PARTY_OPENCV)"\modules/imgproc/include\
                   -I"$(THIRD_PARTY_OPENCV)"\modules/objdetect/include -I"$(THIRD_PARTY_OPENCV)"\modules/features2d/include\
                   -I"$(THIRD_PARTY_OPENCV)"\modules/features2d/include -I"$(THIRD_PARTY_OPENCV)"\modules/flann/include\
                   -I"$(THIRD_PARTY_OPENCV)"\modules/highgui/include -I"$(THIRD_PARTY_OPENCV)"\modules/video/include\
-
-INC_OPENCV_2    =  -I"$(THIRD_PARTY_OPENCV)"\modules/core/include -I"$(THIRD_PARTY_OPENCV)"\modules/imgproc/include\
-                   -I"$(THIRD_PARTY_OPENCV)"\modules/flann/include\
-                   -I"$(THIRD_PARTY_OPENCV)"\modules/highgui/include -I"$(THIRD_PARTY_OPENCV)"\modules/video/include\
 
 INC_MOC		= -I$(MOCDIR)\
 
@@ -159,19 +136,18 @@ COMMON	 	    = $(INC_VS) $(INC_SW) $(INC_OTHERS)
 SW_CREATE_AVATAR    = $(COMMON) $(INC_BOOST) $(INC_OPENCV) $(INC_GSL) $(INC_STASM)
 #	detect
 SW_HAAR_CASCADE     = $(COMMON) $(INC_OPENCV)
-SW_FACE_DETECTION   = $(COMMON) $(INC_BOOST) $(INC_OPENCV)
-SW_STASM_DETECTION  = $(COMMON) $(INC_OPENCV) $(INC_GSL) $(INC_STASM)
+SW_FACE_DETECTION   = $(SW_HAAR_CASCADE) $(INC_BOOST)
+SW_STASM_DETECTION  = $(SW_HAAR_CASCADE) $(INC_GSL) $(INC_STASM)
 #	track
 SW_TRACK_FLOW       = $(COMMON) $(INC_OPENCV)
-SW_TRACK            = $(COMMON) $(INC_BOOST) $(INC_OPENCV)
+SW_TRACK            = $(SW_TRACK_FLOW) $(INC_BOOST)
 #	cloud
 SW_CLOUD            = $(COMMON)
-SW_VISUALIZE_CLOUD  = $(COMMON) $(INC_BOOST) $(INC_OPENCV)
-SW_ALIGN_CLOUDS     = $(COMMON) $(INC_BOOST) $(INC_OPENCV)
-SW_CAPTURE_HEAD_M   = $(COMMON) $(INC_BOOST) $(INC_OPENCV) $(INC_GSL) $(INC_STASM)
+SW_ALIGN_CLOUDS     = $(SW_CLOUD) $(INC_BOOST) $(INC_OPENCV)
+SW_CAPTURE_HEAD_M   = $(SW_ALIGN_CLOUDS) $(INC_GSL) $(INC_STASM)
 #       mesh
-SW_MESH             = $(SW_CLOUD)
-SW_OSNRICP          = $(SW_MESH) $(INC_OPENCV_2) $(SW_ALIGN_CLOUDS)
+SW_MESH             = $(COMMON)
+SW_OSNRICP          = $(SW_ALIGN_CLOUDS)
 #	stasm
 STASM		    = $(COMMON) $(INC_GSL) $(INC_STASM) $(INC_OPENCV)
 
@@ -186,16 +162,12 @@ SW_CREATEAVATAR_WORKER= $(COMMON) $(INC_BOOST) $(INC_QT) $(INC_OPENCV) $(INC_MOC
 SW_MORPHING_WORKER  = $(COMMON) $(SW_GL_OSNRI_WIDGET)
 SW_QT_CAMERA	    = $(COMMON) $(INC_QT)
 #	interface
-SW_CREATEAVATAR_INTERFACE     = $(COMMON) $(INC_BOOST) $(INC_OPENCV) $(INC_QT) $(INC_MOC) $(INC_QTWIDGETS) $(INC_GSL) $(INC_STASM)
+SW_AVATAR_INTERFACE = $(COMMON) $(INC_BOOST) $(INC_OPENCV) $(INC_QT) $(INC_MOC) $(INC_QTWIDGETS) $(INC_GSL) $(INC_STASM)
 
 SW_MORPH_INTERFACE  = $(SW_MORPHING_WORKER)
 
 
 ############################ COMMON DEBUG/RELEASE LIBS
-
-LIBS_COMMON	=
-
-#"$(PROGRAMFILES)\Microsoft SDKs\Windows\v7.0A\Lib/ws2_32.lib"\
 
 LIBS_SW		= $(DIST_LIBDIR)/SWKinect.obj $(DIST_LIBDIR)/SWKinect_thread.obj $(DIST_LIBDIR)/SWSaveKinectData.obj $(DIST_LIBDIR)/SWLoadKinectData.obj\
 
@@ -208,16 +180,16 @@ LIBS_SW_DYN     = $(DIST_LIBDIR)/SWKinect_dynamic.obj  $(DIST_LIBDIR)/SWKinect_t
 	
 ############################ FLAGS
 
-CFLAGS_STA = -nologo -O2 -GF -Gy -W3 -w44996 -w14189 -MT -EHsc -DWIN32 -MP$(NUMBER_OF_PROCESSORS)
-CFLAGS_DYN = -nologo -O2 -GF -Gy -W3 -w44996 -w14189 -MD -EHsc -DWIN32 -MP$(NUMBER_OF_PROCESSORS)
+CFLAGS_STA = -nologo -O2 -GF -Gy -W3 -MT -w44996 -w14189 -EHsc -DWIN32 -MP$(NUMBER_OF_PROCESSORS)
+CFLAGS_DYN = -nologo -O2 -GF -Gy -W3 -MD -w44996 -w14189 -EHsc -DWIN32 -MP$(NUMBER_OF_PROCESSORS)
 
-CXXWARN_CUDA_FLAGS = -W0
 COMMON_CUDA_FLAGS  = -O0 -DUNIX --use_fast_math
-CFLAGS_CUDA_EMICP  = $(INC_CUDA) $(COMMON_CUDA_FLAGS) -odir="./lib"
-CFLAGS_CUDA_GPUMAT = $(INC_CUDA) $(INC_CULA) $(INC_CUDACONFIG) $(COMMON_CUDA_FLAGS) -odir="./lib"
-CFLAGS_PLY         = $(INC_CUDA) -Fo"$(LIBDIR)/
+CFLAGS_CUDA_EMICP  = $(INC_SW) $(INC_CUDA) $(COMMON_CUDA_FLAGS) -odir="./lib"
+CFLAGS_CUDA_GPUMAT = $(INC_SW) $(INC_CUDA) $(INC_CULA) $(INC_CUDACONFIG) $(COMMON_CUDA_FLAGS) -odir="./lib"
 
-LFLAGS=-nologo -nodefaultlib:LIBCMT -nodefaultlib:LIBC -nodefaultlib:MSVCPRT
+LFLAGS_AVATAR = -nologo -nodefaultlib:LIBCMT -nodefaultlib:LIBC
+
+#-nodefaultlib:LIBCMT -nodefaultlib:LIBC -nodefaultlib:MSVCPRT
 
 LFLAGS_MORPHING = -nologo
 
@@ -241,19 +213,11 @@ LIBS_CV         = $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_highgui248.lib 
 
 !ENDIF
 
-
-
-#		  $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_gpu245.lib\
-
 LIBS_QT 	= $(THIRD_PARTY_QT)/lib/QtOpenGL4.lib $(THIRD_PARTY_QT)/lib/QtCore4.lib $(THIRD_PARTY_QT)/lib/QtGui4.lib $(THIRD_PARTY_QT)/lib/qtmain.lib\
 
 LIBS_CLA	= $(THIRD_PARTY_CLAPACK)/lib/lapack.lib $(THIRD_PARTY_CLAPACK)/lib/blas.lib $(THIRD_PARTY_CLAPACK)/lib/libf2c.lib\
 
-#$(THIRD_PARTY_CLAPACK)/lib/libf2c.lib\
-	
 LIBS_CUDA	= $(THIRD_PARTY_CUDA)/lib/cuda.lib $(THIRD_PARTY_CUDA)/lib/cublas.lib $(THIRD_PARTY_CUDA)/lib/cudart.lib\
-
-# $(THIRD_PARTY_CUDA)/lib/cutil32.lib
 
 LIBS_CULA       = $(THIRD_PARTY_CULA)\lib\cula_lapack_basic.lib\
 
@@ -269,22 +233,16 @@ LIBS_FL		= $(THIRD_PARTY_FACELAB)/coredata/libshared/win32_ia32sse2_vc90/sm_cd_c
 		  $(THIRD_PARTY_FACELAB)/coredata/thirdparty/libvpx0.9.5\libstatic\win_ia32_vc90\vpxmt.lib\
                   $(DIST_LIBDIR)/SWFaceLab_dynamic.obj\
 	
-LIBS_ITPP	= $(THIRD_PARTY_MKL)\tools\builder\lib\mkl_cdll_ia32.lib $(THIRD_PARTY_ITPP)/lib/itpp.lib $(THIRD_PARTY_MKL)\lib\ia32\mkl_intel_c_dll.lib\
-		  $(THIRD_PARTY_MKL)\lib\ia32\mkl_intel_c.lib $(THIRD_PARTY_MKL)\lib\ia32\mkl_core.lib $(THIRD_PARTY_MKL)\lib\ia32\mkl_intel_thread_dll.lib\
-		  $(THIRD_PARTY_MKL)\lib\ia32\mkl_intel_thread.lib $(THIRD_PARTY_CXE2013)\compiler\lib\ia32\libiomp5md.lib\
-
 LIBS_PH		= $(THIRD_PARTY_POLHEMUS)/lib/Win32/PDI.lib\
 
 LIBS_YARP	= $(THIRD_PARTY_YARP)/lib/YARP_sig.lib $(THIRD_PARTY_YARP)/lib/YARP_OS.lib $(THIRD_PARTY_YARP)/lib/YARP_dev.lib $(THIRD_PARTY_YARP)/lib/YARP_init.lib\
 
-LIBS_AVATAR     = $(LIBS_COMMON) $(LIBS_SW) $(LIBS_BOOST_S) $(LIBS_OPENNI) $(LIBS_CV) $(LIBS_QT) $(LIBS_CLA) $(LIBS_CUDA) $(LIBS_GSL) $(LIBS_CULA)\
+LIBS_SWOOZ      = $(DIST_LIBDIR)/SWToolkit.lib\
 
-LIBS_MORPHING   = $(LIBS_QT) $(LIBS_CUDA) $(LIBS_CULA) $(LIBS_CLA) $(LIBS_CV)
+LIBS_AVATAR     = $(LIBS_COMMON) $(LIBS_SWOOZ) $(LIBS_BOOST_S) $(LIBS_OPENNI) $(LIBS_CV) $(LIBS_QT) $(LIBS_CLA) $(LIBS_CUDA) $(LIBS_GSL) $(LIBS_CULA)\
 
-#$(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_core248.lib\
+LIBS_MORPHING   = $(LIBS_BOOST_S) $(LIBS_QT) $(LIBS_CUDA) $(LIBS_CULA) $(LIBS_CLA) $(LIBS_CV)
 
-#$(LIBS_CV)
-#$(LIBS_QT) $(LIBS_CV) $(LIBS_CLA) $(LIBS_CUDA) $(LIBS_CULA) $(LIBS_GSL)\
 
 !ENDIF
 
@@ -300,11 +258,10 @@ CFLAGS_DYN= -nologo -Zi -W2 -MDd -EHsc -DWIN32 $(COMPILE_NUMPROC) -D_ALLOW_ITERA
 LFLAGS=-nologo -nodefaultlib:LIBCMT -nodefaultlib:MSVCRT 
 LFLAGS_MORPHING = -nologo
 
-CXXWARN_CUDA_FLAGS=  -W0
 COMMON_CUDA_FLAGS= 
 # -O0 -DUNIX --use_fast_math
 CFLAGS_CUDA= $(INC_CUDA) $(COMMON_CUDA_FLAGS) -odir="./lib
-CFLAGS_PLY= $(INC_CUDA) -Fo"$(LIBDIR)/
+
 # -D_ITERATOR_DEBUG_LEVEL=2
 
 ############################ LIBS
@@ -333,10 +290,6 @@ LIBS_BOOST_S	= $(THIRD_PARTY_BOOST)/lib/libboost_date_time-vc100-mt-sgd-1_49.lib
 LIBS_FL		= $(THIRD_PARTY_FACELAB)/coredata/libshared/win32_ia32sse2_vc90/sm_cd_coredata_d3.2.lib $(THIRD_PARTY_FACELAB)/coredata/thirdparty/zlib1.2.3/win_ia32_vc90/libshared/zlib1d.lib\
 		  $(THIRD_PARTY_FACELAB)/coredata/thirdparty/libvpx0.9.5\libstatic\win_ia32_vc90\vpxmtd.lib\
 	
-LIBS_ITPP	= $(THIRD_PARTY_MKL)\tools\builder\lib\mkl_cdll_ia32.lib $(THIRD_PARTY_ITPP)/lib/itpp.lib $(THIRD_PARTY_MKL)\lib\ia32\mkl_intel_c_dll.lib\
-		  $(THIRD_PARTY_MKL)\lib\ia32\mkl_intel_c.lib $(THIRD_PARTY_MKL)\lib\ia32\mkl_core.lib $(THIRD_PARTY_MKL)\lib\ia32\mkl_intel_thread_dll.lib\
-		  $(THIRD_PARTY_MKL)\lib\ia32\mkl_intel_thread.lib $(THIRD_PARTY_CXE2013)\compiler\lib\ia32\libiomp5md.lib\
-
 LIBS_PH		= $(THIRD_PARTY_POLHEMUS)/lib/Win32/PDI.lib
 
 LIBS_AVATAR     = $(LIBS_COMMON) $(LIBS_SW) $(LIBS_BOOST_S) $(LIBS_OPENNI) $(LIBS_CV) $(LIBS_QT) $(LIBS_PCL) $(LIBS_CLA) $(LIBS_CUDA) $(LIBS_GSL) $(LIBS_ITPP)\

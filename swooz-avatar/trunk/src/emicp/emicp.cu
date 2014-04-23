@@ -37,13 +37,15 @@
 #include <algorithm>
 #include <cstdio>
 
-#include "cutil.h"
+#include "emicp/cutil.h"
+#include "emicp/3dregistration.h"
+
 #include "cublas.h"
 
 // uncomment if you do not use the viewer.
 #define NOVIEWER
 
-#include "3dregistration.h"
+
 
 using namespace std;
 

@@ -19,7 +19,6 @@
 using namespace swDevice;
 
 
-
 // ############################################# CONSTRUCTORS / DESTRUCTORS
 
 SWCreateAvatar::SWCreateAvatar(cbool bVerbose) : m_bVerbose(bVerbose), m_i32NumCloud(0)
