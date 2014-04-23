@@ -94,9 +94,6 @@ THIRD_PARTY_YARP        = $(THIRD_PARTY_YARP_64)
 THIRD_PARTY_ACE         = $(THIRD_PARTY_ACE_64)
 !ENDIF
 
-
-
-
 ############################ INCLUDES
 
 INC_TRACKING	= -I.\include
@@ -166,12 +163,6 @@ CFLAGS_DYN = -nologo -O2 -GF -Gy -W3 -MD -EHsc -DWIN32 -MP$(NUMBER_OF_PROCESSORS
 
 LFLAGS=-nologo
 
-LFLAGS_EMICP_HEAD_TRACKING = -nologo -nodefaultlib:LIBCMT -nodefaultlib:MSVCPRT
-
-LFLAGS_FACESHIFT_TRACKING = -nologo -nodefaultlib:LIBCMT -nodefaultlib:MSVCPRT
-
-LFLAGS_FOREST_HEAD_TRACKING = -nologo -nodefaultlib:LIBCMT -nodefaultlib:MSVCPRT
-
 ############################ LIBS
 
 LIBS_OPENNI     = $(THIRD_PARTY_OPENNI)/Lib/openNI.lib\
@@ -201,10 +192,10 @@ LIBS_FACELAB    = $(THIRD_PARTY_FACELAB)/coredata/libshared/win32_ia32sse2_vc90/
 
 LIBS_ACE        = $(THIRD_PARTY_ACE)/lib/ACE.lib\
 
-LIBS_BOOST      = "$(THIRD_PARTY_BOOST)/lib/libboost_thread-vc100-mt-1_49.lib" "$(THIRD_PARTY_BOOST)/lib/libboost_date_time-vc100-mt-1_49.lib"\
+LIBS_BOOST_D     = "$(THIRD_PARTY_BOOST)/lib/libboost_thread-vc100-mt-1_49.lib" "$(THIRD_PARTY_BOOST)/lib/libboost_date_time-vc100-mt-1_49.lib"\
                   "$(THIRD_PARTY_BOOST)/lib/libboost_iostreams-vc100-mt-1_49.lib"\
 
-LIBS_BOOST_S    = "$(THIRD_PARTY_BOOST)/lib/libboost_thread-vc100-mt-s-1_49.lib" "$(THIRD_PARTY_BOOST)/lib/libboost_date_time-vc100-mt-s-1_49.lib"\
+LIBS_BOOST      = "$(THIRD_PARTY_BOOST)/lib/libboost_thread-vc100-mt-s-1_49.lib" "$(THIRD_PARTY_BOOST)/lib/libboost_date_time-vc100-mt-s-1_49.lib"\
                   "$(THIRD_PARTY_BOOST)/lib/libboost_iostreams-vc100-mt-s-1_49.lib"\
 
 LIBS_CUDA	= $(THIRD_PARTY_CUDA)/lib/cuda.lib $(THIRD_PARTY_CUDA)/lib/cublas.lib $(THIRD_PARTY_CUDA)/lib/cudart.lib $(THIRD_PARTY_CUDA)/lib/cutil32.lib\
@@ -217,23 +208,24 @@ LIBS_QT 	= $(THIRD_PARTY_QT)/lib/QtOpenGL4.lib $(THIRD_PARTY_QT)/lib/QtCore4.lib
 
 LIBS_HANDTRACKER= $(THIRD_PARTY_HANDTRACKER)/lib/HandTrackerLib.lib
 
+LIBS_SW         = $(DIST_LIBDIR)/SWToolkit_d.lib $(DIST_LIBDIR)/SWAvatar_d.lib\
+
 ############################ LIBS SWOOZ FILES
 
 LIBS_HEAD_FOREST     = $(LIBS_OPENNI) $(LIBS_OPENCV) $(LIBS_FREEGLUT) $(LIBS_YARP)  $(LIBS_ACE)  $(LIBS_COMMON)
 
-LIBS_FACELAB_TRACK   = $(LIBS_COMMON) $(LIBS_FACELAB) $(LIBS_ACE) $(LIBS_YARP) $(LIBS_BOOST)
+LIBS_FACELAB_TRACK   = $(LIBS_COMMON) $(DIST_LIBDIR)/SWToolkit_d.lib $(LIBS_FACELAB) $(LIBS_ACE) $(LIBS_YARP) $(LIBS_BOOST_D)
 
-LIBS_FACESHIFT_TRACK = $(LIBS_COMMON) $(LIBS_ACE) $(LIBS_YARP) $(LIBS_BOOST)
+LIBS_FACESHIFT_TRACK = $(LIBS_COMMON) $(LIBS_ACE) $(LIBS_YARP) $(LIBS_BOOST_D)
 
-LIBS_EMICP_TRACK     = $(LIBS_COMMON)  $(LIBS_OPENCV) $(LIBS_ACE) $(LIBS_YARP) $(LIBS_BOOST_S) $(LIBS_CUDA) $(LIBS_QT) $(LIBS_OPENNI) $(LIBS_CLA)
+LIBS_EMICP_TRACK     = $(LIBS_COMMON) $(LIBS_SW) $(LIBS_OPENCV) $(LIBS_ACE) $(LIBS_YARP) $(LIBS_BOOST_D) $(LIBS_CUDA) $(LIBS_QT) $(LIBS_OPENNI) $(LIBS_CLA)
 
-LIBS_OPENNI_TRACK	= $(LIBS_COMMON) $(LIBS_OPENNI) $(LIBS_ACE) $(LIBS_BOOST) $(LIBS_OPENCV)  $(LIBS_YARP) $(LIBS_ICUB) $(LIBS_GSL)
+LIBS_OPENNI_TRACK    = $(LIBS_COMMON) $(DIST_LIBDIR)/SWToolkit_d.lib $(LIBS_OPENNI) $(LIBS_ACE) $(LIBS_BOOST_D) $(LIBS_OPENCV)  $(LIBS_YARP) $(LIBS_ICUB) $(LIBS_GSL)
 
-LIBS_FORTH_TRACK	= $(LIBS_COMMON) $(LIBS_OPENNI2) $(LIBS_OPENCV) $(LIBS_YARP) $(LIBS_FORTH) $(LIBS_ACE) $(LIBS_HANDTRACKER)
+LIBS_FORTH_TRACK     = $(LIBS_COMMON) $(LIBS_OPENNI2) $(LIBS_OPENCV) $(LIBS_YARP) $(LIBS_FORTH) $(LIBS_ACE) $(LIBS_HANDTRACKER)
 
 !ENDIF
 
-# $(LIBS_CLA) $(LIBS_GSL)
 ################################################################################################################# DEBUG MODE
 
 !IF  "$(CFG)" == "Debug"

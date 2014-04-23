@@ -124,7 +124,7 @@ LIBS_COMMON	=
 CFLAGS_STA = -nologo -O2 -GF -Gy -W3 -MT -EHsc -DWIN32 -MP$(NUMBER_OF_PROCESSORS)
 CFLAGS_DYN = -nologo -O2 -GF -Gy -W3 -MD -EHsc -DWIN32 -MP$(NUMBER_OF_PROCESSORS)
 
-LFLAGS_MANIPULATION =-nologo -nodefaultlib:LIBCMT -nodefaultlib:MSVCPRT
+LFLAGS_MANIPULATION =-nologo
 
 ############################ LIBS
 

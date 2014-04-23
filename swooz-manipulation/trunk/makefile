@@ -19,7 +19,7 @@ LINK=link
 ############################################################################## OBJ PROGRAMS
 
 OBJ_MANIPULATION=\
-        $(LIBDIR)/SWManipulationInterface.obj\
+        $(LIBDIR)/SWManipulationInterface_d.obj\
 
 ############################################################################## Makefile commands
 
@@ -31,7 +31,7 @@ all: manipulation
 all:
 !endif
 
-manipulation       : $(QTGENW)/SWUI_Manipulation.h $(MOCDIR)/moc_SWManipulationInterface.cpp $(BINDIR)/SWManipulation.exe
+manipulation : $(QTGENW)/SWUI_Manipulation.h $(MOCDIR)/moc_SWManipulationInterface.cpp $(BINDIR)/SWManipulation.exe
 
 clean:
 
@@ -44,8 +44,8 @@ $(BINDIR)/SWManipulation.exe: $(OBJ_MANIPULATION) $(LIBS_MANIPULATION)
 
 ############################################################################## MANIPULATION OBJ
 
-$(LIBDIR)/SWManipulationInterface.obj: ./src/SWManipulationInterface.cpp
-        $(CC) -c ./src/SWManipulationInterface.cpp $(CFLAGS_STA) $(SW_MANIPULATION) -Fo"$(LIBDIR)/"
+$(LIBDIR)/SWManipulationInterface_d.obj: ./src/SWManipulationInterface.cpp
+        $(CC) -c ./src/SWManipulationInterface.cpp $(CFLAGS_DYN) $(SW_MANIPULATION) -Fo"$(LIBDIR)/SWManipulationInterface_d.obj"
 
 ############################################################################## Qt ui files
 

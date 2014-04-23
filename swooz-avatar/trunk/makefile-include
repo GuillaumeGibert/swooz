@@ -166,14 +166,6 @@ SW_AVATAR_INTERFACE = $(COMMON) $(INC_BOOST) $(INC_OPENCV) $(INC_QT) $(INC_MOC) 
 
 SW_MORPH_INTERFACE  = $(SW_MORPHING_WORKER)
 
-
-############################ COMMON DEBUG/RELEASE LIBS
-
-LIBS_SW		= $(DIST_LIBDIR)/SWKinect.obj $(DIST_LIBDIR)/SWKinect_thread.obj $(DIST_LIBDIR)/SWSaveKinectData.obj $(DIST_LIBDIR)/SWLoadKinectData.obj\
-
-LIBS_SW_DYN     = $(DIST_LIBDIR)/SWKinect_dynamic.obj  $(DIST_LIBDIR)/SWKinect_thread_dynamic.obj  $(LIBDIR)/SWMaskCloud_dynamic.obj $(LIBDIR)/SWCloud_dynamic.obj\
-                  $(DIST_LIBDIR)/SWFastrak_dynamic.obj $(DIST_LIBDIR)/SWFastrak_thread_dynamic.obj $(DIST_LIBDIR)/SWSaveKinectData_dynamic.obj $(DIST_LIBDIR)/SWLoadKinectData_dynamic.obj\
-
 ################################################################################################################# RELEASE MODE
 
 !IF  "$(CFG)" == "Release"
@@ -187,7 +179,9 @@ COMMON_CUDA_FLAGS  = -O0 -DUNIX --use_fast_math
 CFLAGS_CUDA_EMICP  = $(INC_SW) $(INC_CUDA) $(COMMON_CUDA_FLAGS) -odir="./lib"
 CFLAGS_CUDA_GPUMAT = $(INC_SW) $(INC_CUDA) $(INC_CULA) $(INC_CUDACONFIG) $(COMMON_CUDA_FLAGS) -odir="./lib"
 
-LFLAGS_AVATAR = -nologo -nodefaultlib:LIBCMT -nodefaultlib:LIBC
+LFLAGS_AVATAR = -nologo -nodefaultlib:LIBC
+
+#-nologo -nodefaultlib:LIBCMT -nodefaultlib:LIBC
 
 #-nodefaultlib:LIBCMT -nodefaultlib:LIBC -nodefaultlib:MSVCPRT
 
@@ -196,6 +190,8 @@ LFLAGS_MORPHING = -nologo
 !IF "$(ARCH)" == "x86"
 
 LFLAGS_MORPHING = -nologo -nodefaultlib:LIBCMT
+
+#
 
 !ENDIF
  
@@ -223,10 +219,10 @@ LIBS_CULA       = $(THIRD_PARTY_CULA)\lib\cula_lapack_basic.lib\
 
 LIBS_GSL	= $(THIRD_PARTY_GSL)/lib/mini_gslML.lib $(THIRD_PARTY_GSL)/lib/gslcblasML.lib\
 	
-LIBS_BOOST	= "$(THIRD_PARTY_BOOST)/lib/libboost_thread-vc100-mt-1_49.lib" "$(THIRD_PARTY_BOOST)/lib/libboost_date_time-vc100-mt-1_49.lib"\
+LIBS_BOOST_D	= "$(THIRD_PARTY_BOOST)/lib/libboost_thread-vc100-mt-1_49.lib" "$(THIRD_PARTY_BOOST)/lib/libboost_date_time-vc100-mt-1_49.lib"\
 		  "$(THIRD_PARTY_BOOST)/lib/libboost_iostreams-vc100-mt-1_49.lib"\
 
-LIBS_BOOST_S	= $(THIRD_PARTY_BOOST)/lib/libboost_date_time-vc100-mt-s-1_49.lib $(THIRD_PARTY_BOOST)/lib/libboost_iostreams-vc100-mt-s-1_49.lib\
+LIBS_BOOST	= $(THIRD_PARTY_BOOST)/lib/libboost_date_time-vc100-mt-s-1_49.lib $(THIRD_PARTY_BOOST)/lib/libboost_iostreams-vc100-mt-s-1_49.lib\
 		  $(THIRD_PARTY_BOOST)/lib/libboost_thread-vc100-mt-s-1_49.lib\
 	
 LIBS_FL		= $(THIRD_PARTY_FACELAB)/coredata/libshared/win32_ia32sse2_vc90/sm_cd_coredata_3.2.lib $(THIRD_PARTY_FACELAB)/coredata/thirdparty/zlib1.2.3/win_ia32_vc90/libshared/zlib1.lib\
@@ -237,11 +233,11 @@ LIBS_PH		= $(THIRD_PARTY_POLHEMUS)/lib/Win32/PDI.lib\
 
 LIBS_YARP	= $(THIRD_PARTY_YARP)/lib/YARP_sig.lib $(THIRD_PARTY_YARP)/lib/YARP_OS.lib $(THIRD_PARTY_YARP)/lib/YARP_dev.lib $(THIRD_PARTY_YARP)/lib/YARP_init.lib\
 
-LIBS_SWOOZ      = $(DIST_LIBDIR)/SWToolkit.lib\
+LIBS_SWOOZ      = $(DIST_LIBDIR)/SWToolkit_d.lib\
 
-LIBS_AVATAR     = $(LIBS_COMMON) $(LIBS_SWOOZ) $(LIBS_BOOST_S) $(LIBS_OPENNI) $(LIBS_CV) $(LIBS_QT) $(LIBS_CLA) $(LIBS_CUDA) $(LIBS_GSL) $(LIBS_CULA)\
+LIBS_AVATAR     = $(LIBS_COMMON) $(LIBS_SWOOZ) $(LIBS_BOOST_D) $(LIBS_OPENNI) $(LIBS_CV) $(LIBS_QT) $(LIBS_CLA) $(LIBS_CUDA) $(LIBS_GSL) $(LIBS_CULA)\
 
-LIBS_MORPHING   = $(LIBS_BOOST_S) $(LIBS_QT) $(LIBS_CUDA) $(LIBS_CULA) $(LIBS_CLA) $(LIBS_CV)
+LIBS_MORPHING   = $(LIBS_BOOST) $(LIBS_QT) $(LIBS_CUDA) $(LIBS_CULA) $(LIBS_CLA) $(LIBS_CV)
 
 
 !ENDIF
@@ -281,10 +277,10 @@ LIBS_CUDA	= $(THIRD_PARTY_CUDA)/lib/cuda.lib $(THIRD_PARTY_CUDA)/lib/cublas.lib 
 
 LIBS_GSL	= $(THIRD_PARTY_GSL)/lib/mini_gslMLd.lib $(THIRD_PARTY_GSL)/lib/gslcblasMLd.lib\
 	
-LIBS_BOOST	= "$(THIRD_PARTY_BOOST)/lib/libboost_thread-vc100-mt-gd-1_49.lib" "$(THIRD_PARTY_BOOST)/lib/libboost_date_time-vc100-mt-gd-1_49.lib"\
+LIBS_BOOST_D	= "$(THIRD_PARTY_BOOST)/lib/libboost_thread-vc100-mt-gd-1_49.lib" "$(THIRD_PARTY_BOOST)/lib/libboost_date_time-vc100-mt-gd-1_49.lib"\
 		  "$(THIRD_PARTY_BOOST)/lib/libboost_iostreams-vc100-mt-gd-1_49.lib"\
 
-LIBS_BOOST_S	= $(THIRD_PARTY_BOOST)/lib/libboost_date_time-vc100-mt-sgd-1_49.lib $(THIRD_PARTY_BOOST)/lib/libboost_iostreams-vc100-mt-sgd-1_49.lib\
+LIBS_BOOST	= $(THIRD_PARTY_BOOST)/lib/libboost_date_time-vc100-mt-sgd-1_49.lib $(THIRD_PARTY_BOOST)/lib/libboost_iostreams-vc100-mt-sgd-1_49.lib\
 		  $(THIRD_PARTY_BOOST)/lib/libboost_thread-vc100-mt-sgd-1_49.lib\
 	
 LIBS_FL		= $(THIRD_PARTY_FACELAB)/coredata/libshared/win32_ia32sse2_vc90/sm_cd_coredata_d3.2.lib $(THIRD_PARTY_FACELAB)/coredata/thirdparty/zlib1.2.3/win_ia32_vc90/libshared/zlib1d.lib\
@@ -292,9 +288,7 @@ LIBS_FL		= $(THIRD_PARTY_FACELAB)/coredata/libshared/win32_ia32sse2_vc90/sm_cd_c
 	
 LIBS_PH		= $(THIRD_PARTY_POLHEMUS)/lib/Win32/PDI.lib
 
-LIBS_AVATAR     = $(LIBS_COMMON) $(LIBS_SW) $(LIBS_BOOST_S) $(LIBS_OPENNI) $(LIBS_CV) $(LIBS_QT) $(LIBS_PCL) $(LIBS_CLA) $(LIBS_CUDA) $(LIBS_GSL) $(LIBS_ITPP)\
+LIBS_AVATAR     = $(LIBS_COMMON) $(LIBS_SW) $(LIBS_BOOST) $(LIBS_OPENNI) $(LIBS_CV) $(LIBS_QT) $(LIBS_PCL) $(LIBS_CLA) $(LIBS_CUDA) $(LIBS_GSL) $(LIBS_ITPP)\
 	
-
-#Debug Single-threaded (libcd.lib) 	libc.lib, libcmt.lib, msvcrt.lib, libcmtd.lib, msvcrtd.lib
 
 !ENDIF
