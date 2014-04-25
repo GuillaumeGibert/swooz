@@ -50,6 +50,65 @@
 namespace swTeleop
 {
     /**
+     * @brief The SWIcubFaceLabLEDCommand class
+     */
+    class SWIcubFaceLabLEDCommand
+    {
+        public :
+
+            /**
+             * @brief SWIcubLEDCommand
+             */
+            SWIcubFaceLabLEDCommand();
+
+
+            /**
+             * @brief leftEyeBrowCommand
+             * @param a3DLeftEyeBrow
+             * @return
+             */
+            std::string leftEyeBrowCommand(const std::vector<double> &a3DLeftEyeBrow);
+
+            /**
+             * @brief rightEyeBrowCommand
+             * @param a3DRightEyeBrow
+             * @return
+             */
+            std::string rightEyeBrowCommand(const std::vector<double> &a3DRightEyeBrow);
+
+            /**
+             * @brief swTeleop::SWVelocityController::eyeBrowCommand
+             * @param a3DEyeBrow
+             * @param bLeftEye
+             * @return
+             */
+            std::string eyeBrowCommand(const std::vector<double> &a3DEyeBrow, const bool bLeftEye);
+
+
+            /**
+             * @brief lipCommand
+             * @param a3DLip1
+             * @param a3DLip2
+             * @return
+             */
+            std::string lipCommand(const std::vector<double> &a3DLip1, const std::vector<double> &a3DLip2);
+
+        private :
+
+            double m_dLeftThresholdDown;    /**< ... */
+            double m_dLeftThresholdNeutral; /**< ... */
+            double m_dLeftThresholdUp1;     /**< ... */
+            double m_dLeftThresholdUp2;     /**< ... */
+
+            double m_dRightThresholdDown;   /**< ... */
+            double m_dRightThresholdNeutral;/**< ... */
+            double m_dRightThresholdUp1;    /**< ... */
+            double m_dRightThresholdUp2;    /**< ... */
+
+            double m_dThresholdMouth;       /**< ... */
+    };
+
+    /**
      * @brief The SWVelocityController class
      */
     class SWVelocityController : public yarp::os::RateThread
@@ -264,66 +323,7 @@ namespace swTeleop
 
 
             SWVelocityController *m_pVelocityController;    /**< ... */
-    };
-
-
-    /**
-     * @brief The SWIcubFaceLabLEDCommand class
-     */
-    class SWIcubFaceLabLEDCommand
-    {
-        public :
-
-            /**
-             * @brief SWIcubLEDCommand
-             */
-            SWIcubFaceLabLEDCommand();
-
-
-            /**
-             * @brief leftEyeBrowCommand
-             * @param a3DLeftEyeBrow
-             * @return
-             */
-            std::string leftEyeBrowCommand(const std::vector<double> &a3DLeftEyeBrow);
-
-            /**
-             * @brief rightEyeBrowCommand
-             * @param a3DRightEyeBrow
-             * @return
-             */
-            std::string rightEyeBrowCommand(const std::vector<double> &a3DRightEyeBrow);
-
-            /**
-             * @brief swTeleop::SWVelocityController::eyeBrowCommand
-             * @param a3DEyeBrow
-             * @param bLeftEye
-             * @return
-             */
-            std::string eyeBrowCommand(const std::vector<double> &a3DEyeBrow, const bool bLeftEye);
-
-
-            /**
-             * @brief lipCommand
-             * @param a3DLip1
-             * @param a3DLip2
-             * @return
-             */
-            std::string lipCommand(const std::vector<double> &a3DLip1, const std::vector<double> &a3DLip2);
-
-        private :
-
-            double m_dLeftThresholdDown;    /**< ... */
-            double m_dLeftThresholdNeutral; /**< ... */
-            double m_dLeftThresholdUp1;     /**< ... */
-            double m_dLeftThresholdUp2;     /**< ... */
-
-            double m_dRightThresholdDown;   /**< ... */
-            double m_dRightThresholdNeutral;/**< ... */
-            double m_dRightThresholdUp1;    /**< ... */
-            double m_dRightThresholdUp2;    /**< ... */
-
-            double m_dThresholdMouth;       /**< ... */
+            SWIcubFaceLabLEDCommand m_ICubFaceLabLED;       /**< ... */
     };
 }
 

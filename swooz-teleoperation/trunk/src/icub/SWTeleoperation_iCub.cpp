@@ -34,7 +34,6 @@ bool SWTeleoperation_iCub::configure(ResourceFinder &rf)
     return (m_bIsRunning=true);
 }
 
-
 bool SWTeleoperation_iCub::interruptModule()
 {
     m_bIsRunning = false;
@@ -45,6 +44,7 @@ bool SWTeleoperation_iCub::interruptModule()
 
     return true;
 }
+
 
 bool SWTeleoperation_iCub::close()
 {

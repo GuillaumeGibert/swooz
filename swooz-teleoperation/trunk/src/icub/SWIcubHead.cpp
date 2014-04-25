@@ -397,17 +397,11 @@ bool swTeleop::SWIcubHead::checkBottles()
                             Bottle &l_oFaceMotionBottle = m_oFaceHandlerPort.prepare();
                             // retrieve values
                                 // eyebrows
-                                std::vector<double> l_vLeftEyeBrowPoints, l_vRightEyeBrowPoints, l_vLeftEyeCenter, l_vRightEyeCenter;
+                                std::vector<double> l_vLeftEyeBrowPoints, l_vRightEyeBrowPoints;
                                 for(int ii = 0; ii < 9; ++ii)
                                 {
                                     l_vLeftEyeBrowPoints.push_back(l_pFaceTarget->get(52+ii).asDouble());
                                     l_vRightEyeBrowPoints.push_back(l_pFaceTarget->get(43+ii).asDouble());
-
-                                    if(ii < 3)
-                                    {
-                                        l_vLeftEyeCenter.push_back(l_pFaceTarget->get(64+ii).asDouble());
-                                        l_vRightEyeCenter.push_back(l_pFaceTarget->get(67+ii).asDouble());
-                                    }
                                 }
 
                                 // mouth
@@ -419,49 +413,27 @@ bool swTeleop::SWIcubHead::checkBottles()
                                 }
 
 
+                                std::string l_sNewMouth         = m_ICubFaceLabLED.lipCommand(l_vInnerLip2, l_vInnerLip6);
+                                std::string l_sNewLeftEyebrow   = m_ICubFaceLabLED.leftEyeBrowCommand(l_vLeftEyeBrowPoints);
+                                std::string l_sNewRightEyebrow  = m_ICubFaceLabLED.rightEyeBrowCommand(l_vRightEyeBrowPoints);
 
+                                // mouth
+                                    l_oFaceMotionBottle.clear();
+                                    l_oFaceMotionBottle.addString(l_sNewMouth.c_str());
+                                    m_oFaceHandlerPort.write();
+                                    Time::delay(0.001);
 
-////                            if(m_bFirstLEDCommand)
-////                            {
-////                                m_oIcubFaceLEDCmd.setNeutralPoints(l_vLeftEyeBrowPoints, l_vRightEyeBrowPoints, l_vLeftEyeCenter, l_vRightEyeCenter);
-////                                m_bFirstLEDCommand = false;
-////                            }
+                                // left eyebrow
+                                    l_oFaceMotionBottle.clear();
+                                    l_oFaceMotionBottle.addString(l_sNewLeftEyebrow.c_str());
+                                    m_oFaceHandlerPort.write();
+                                    Time::delay(0.001);
 
-
-
-////                                std::string l_sNewMouth         = m_oIcubFaceLEDCmd.lipCommand(l_vInnerLip2, l_vInnerLip6);
-////                                std::string l_sNewLeftEyebrow   = m_oIcubFaceLEDCmd.leftEyeBrowCommand(l_vLeftEyeBrowPoints, l_vLeftEyeCenter);
-////                                std::string l_sNewRightEyebrow  = m_oIcubFaceLEDCmd.rightEyeBrowCommand(l_vRightEyeBrowPoints, l_vRightEyeCenter);
-
-//                                //if(m_sPreviousMouth != l_sNewMouth)
-//                                {
-//                                    l_oFaceMotionBottle.clear();
-//                                    l_oFaceMotionBottle.addString(l_sNewMouth.c_str());
-//                                    m_oFaceHandlerPort.write();
-//                                    //m_sPreviousMouth = l_sNewMouth;
-//                                }
-
-//                                //if(m_sPreviousLeftEyebrow != l_sNewLeftEyebrow)
-//                                if(false)
-//                                {
-//                                    l_oFaceMotionBottle.clear();
-//                                    l_oFaceMotionBottle.addString(l_sNewLeftEyebrow.c_str());
-//                    //					l_oFaceMotionBottle.addString(std::string("L02").c_str());
-//                                    m_oFaceHandlerPort.write();
-//                                    m_sPreviousLeftEyebrow = l_sNewLeftEyebrow;
-//                                    //Time::delay(0.001);
-//                                }
-
-//                                //if(m_sPreviousRightEyebrow != l_sNewRightEyebrow)
-//                                if(false)
-//                                {
-//                                    l_oFaceMotionBottle.clear();
-//                                    l_oFaceMotionBottle.addString(l_sNewRightEyebrow.c_str());
-//                    //					l_oFaceMotionBottle.addString(std::string("R02").c_str());
-//                                    m_oFaceHandlerPort.write();
-//                                    m_sPreviousRightEyebrow = l_sNewRightEyebrow;
-//                                    //Time::delay(0.001);
-//                                }
+                                // right eyebrow
+                                    l_oFaceMotionBottle.clear();
+                                    l_oFaceMotionBottle.addString(l_sNewRightEyebrow.c_str());
+                                    m_oFaceHandlerPort.write();
+                                    Time::delay(0.001);
                         }
                     break;
                 }
@@ -688,6 +660,14 @@ void swTeleop::SWVelocityController::setJoints(const yarp::sig::Vector &vJoints)
     m_oMutex.unlock();
 }
 
+
+swTeleop::SWIcubFaceLabLEDCommand::SWIcubFaceLabLEDCommand()
+{
+//    m_dLeftThresholdDown = ... ;
+//    m_dLeftThresholdNeutral= ... ;
+//    m_dLeftThresholdUp1= ... ;
+//    m_dLeftThresholdUp2= ... ;
+}
 
 std::string swTeleop::SWIcubFaceLabLEDCommand::leftEyeBrowCommand(const std::vector<double> &a3DLeftEyeBrow)
 {
