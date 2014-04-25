@@ -9,13 +9,17 @@
 #ifndef _TELEOPERATION_ICUB_
 #define _TELEOPERATION_ICUB_
 
+
+#include "SWIcubHead.h"
+
+
+
 // STD
 #include <vector>
 #include <string>
 
 // SWOOZ
 #include "commonTypes.h"
-#include "icub/SWiCubFaceMotion.h"
 
 // YARP
 #include <yarp/os/Network.h>
@@ -149,7 +153,7 @@ class SWTeleoperation_iCub : public RFModule
         yarp::sig::Vector m_vFastrakOffsets;
 
         bool m_bFirstLEDCommand;    /**< ... */
-        swIcub::SWIcubFaceLEDCommand m_oIcubFaceLEDCmd; /**< ... */
+//        swIcub::SWIcubFaceLEDCommand m_oIcubFaceLEDCmd; /**< ... */
 
         // timeout
         int m_i32HeadTimeLastBottle;            /**< time elapsed without head bottle command */
@@ -360,6 +364,9 @@ class SWTeleoperation_iCub : public RFModule
 	std::string  m_sPreviousRightEyebrow;
 
     void displayAccSpeed();
+
+
+    swTeleop::SWIcubHead m_oIcubHeadControl;
 };
 
 #endif

@@ -14,12 +14,12 @@
 #include <iostream>
 #include "commonTypes.h"
 #include "math.h"
+#include <vector>
 
 namespace swUtil
 {
-    /**
-     *
-     */
+    #define PI_ 3.14159265359
+
     template <typename T>
     static void inverse(std::vector<T> &v)
     {
@@ -170,7 +170,7 @@ namespace swUtil
     template <typename T>
     static double vectorAngle(const std::vector<T> &v1, const std::vector<T> &v2)
     {
-        return acos(dotProduct(v1,v2)/((double)norm(v1)*(double)norm(v2))) * 180.0 / 3.14159265;
+        return acos(dotProduct(v1,v2)/((double)norm(v1)*(double)norm(v2))) * 180.0 / PI_;
     }
 
 
@@ -285,6 +285,17 @@ namespace swUtil
 		return roll_pitch_yaw;
 
 	}
+
+    /*
+     * \brief Rad to degree conversion.
+     * \param [in] An angle in rad
+     * \return The same angle in degrees
+     */
+    template <typename T>
+    T rad2Deg(T angle)
+    {
+        return angle * static_cast<T>(180 / PI_);
+    }
 
     /*
      * \brief Sets the value of an angle in degrees to the value of the same angle between -180 and 180 degrees.

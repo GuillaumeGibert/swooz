@@ -23,7 +23,7 @@ namespace swTracking
      * @param i32IdLib
      * @return
      */
-    std::string returnStringValue(const int i32IdLib)
+    static std::string returnStringValue(const int i32IdLib)
     {
         std::string l_sLIB = "UNDEFINED_LIB";
 

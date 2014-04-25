@@ -19,10 +19,11 @@ LINK=link
 ############################################################################## OBJ PROGRAMS
 
 OBJ_TELEOPERATION_ICUB=\
-        $(LIBDIR)/SWTeleoperation_iCub.obj
+        $(LIBDIR)/SWIcubHead.obj\
+        $(LIBDIR)/SWTeleoperation_iCub.obj\
 
 OBJ_TELEOPERATION_NAO=\
-        $(LIBDIR)/SWTeleoperation_nao.obj
+        $(LIBDIR)/SWTeleoperation_nao.obj\
 
 	
 ############################################################################## Makefile commands
@@ -45,8 +46,12 @@ $(BINDIR)/SWTeleoperation_nao.exe: $(OBJ_TELEOPERATION_NAO) $(LIBS_TELEOP_NAO)
 
 ##################################################### devices
 
+$(LIBDIR)/SWIcubHead.obj: ./src/icub/SWIcubHead.cpp
+        $(CC) -c ./src/icub/SWIcubHead.cpp $(CFLAGS_DYN) $(SW_TELE_ICUB) -Fo"$(LIBDIR)/"
+
 $(LIBDIR)/SWTeleoperation_iCub.obj: ./src/icub/SWTeleoperation_iCub.cpp
         $(CC) -c ./src/icub/SWTeleoperation_iCub.cpp $(CFLAGS_DYN) $(SW_TELE_ICUB) -Fo"$(LIBDIR)/"
+
 
 $(LIBDIR)/SWTeleoperation_nao.obj: ./src/nao/SWTeleoperation_nao.cpp
         $(CC) -c ./src/nao/SWTeleoperation_nao.cpp $(CFLAGS_DYN) $(SW_TELE_NAO) -Fo"$(LIBDIR)/"
