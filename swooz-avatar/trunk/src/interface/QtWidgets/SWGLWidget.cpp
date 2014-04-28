@@ -147,22 +147,22 @@ void SWGLWidget::mouseMoveEvent(QMouseEvent *e)
         }
         else
         {
-            if(e->x() < l_oMiddle.x()) // TODO : better camera
+            if(e->x() < l_oMiddle.x())
             {
-                m_pCamera->moveLeft(0.01f);
+                m_pCamera->moveLeft(0.0001f * (l_oMiddle.x() - e->x()));
             }
             else if(e->x() > l_oMiddle.x())
             {
-                m_pCamera->moveRight(0.01f);
+                m_pCamera->moveRight(0.0001f * (e->x() - l_oMiddle.x()));
             }
 
             if(e->y() < l_oMiddle.y())
             {
-                m_pCamera->moveUp(0.01f);
+                m_pCamera->moveUp(0.0001f * (l_oMiddle.y() - e->y()));
             }
             else if(e->y() > l_oMiddle.y())
             {
-                m_pCamera->moveDown(0.01f);
+                m_pCamera->moveDown(0.0001f * (e->y() - l_oMiddle.y()));
             }
         }
 

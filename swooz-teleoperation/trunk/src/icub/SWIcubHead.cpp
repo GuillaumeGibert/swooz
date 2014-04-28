@@ -437,10 +437,23 @@ bool swTeleop::SWIcubHead::checkBottles()
                         }
                     break;
                 }
-            }
-            else
-            {
 
+                m_dLEDTimeLastBottle = -1.;
+            }
+            else // manage timeout and reset position
+            {
+                if(m_dLEDTimeLastBottle < 0.)
+                {
+                    m_dLEDTimeLastBottle = yarp::os::Time::now();
+                }
+                else
+                {
+                    if(yarp::os::Time::now() - m_dLEDTimeLastBottle > 0.001 * m_i32TimeoutLEDReset)
+                    {
+                        resetLEDS();
+                        m_dLEDTimeLastBottle = -1.;
+                    }
+                }
             }
         }
 
@@ -488,6 +501,38 @@ void swTeleop::SWIcubHead::resetGazePosition()
         m_pIHeadPosition->positionMove(3,0.);
         m_pIHeadPosition->positionMove(4,0.);
         m_pIHeadPosition->positionMove(5,0.);
+
+        // eye closure
+            Bottle &l_oFaceMotionBottle = m_oFaceHandlerPort.prepare();
+            l_oFaceMotionBottle.clear();
+            l_oFaceMotionBottle.addString(std::string(eyesOpeningCode(1., m_dMinEyelids, m_dMaxEyelids)).c_str());
+            m_oFaceHandlerPort.write();
+    }
+}
+
+void swTeleop::SWIcubHead::resetLEDS()
+{
+    if(m_bLEDActivated)
+    {
+        Bottle &l_oFaceMotionBottle = m_oFaceHandlerPort.prepare();
+
+            // mouth
+                l_oFaceMotionBottle.clear();
+                l_oFaceMotionBottle.addString(std::string("M08").c_str());
+                m_oFaceHandlerPort.write();
+                Time::delay(0.001);
+
+            // left eyebrow
+                l_oFaceMotionBottle.clear();
+                l_oFaceMotionBottle.addString(std::string("L02").c_str());
+                m_oFaceHandlerPort.write();
+                Time::delay(0.001);
+
+            // right eyebrow
+                l_oFaceMotionBottle.clear();
+                l_oFaceMotionBottle.addString(std::string("R02").c_str());
+                m_oFaceHandlerPort.write();
+                Time::delay(0.001);
     }
 }
 
@@ -534,7 +579,10 @@ bool swTeleop::SWIcubHead::interruptModule()
         {
             resetGazePosition();
         }
-
+        if(m_bLEDActivated)
+        {
+            resetLEDS();
+        }
 
     if(m_pVelocityController->isRunning())
     {

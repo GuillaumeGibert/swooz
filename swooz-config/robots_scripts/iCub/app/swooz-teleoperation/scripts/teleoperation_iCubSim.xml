@@ -1,0 +1,58 @@
+<application>
+
+  <name>SWoOz iCub connections FaceLab teleoperation </name>
+  <description>teleoperation FaceLab iCub </description>
+	
+	<module>
+		<name>simFaceExpressions</name>
+		<parameters></parameters>
+		<node>localhost</node>
+		<tag>simExpressions</tag>
+	</module>
+	
+	<module>
+		<name>emotionInterface</name>
+		<parameters></parameters>
+		<node>localhost</node>
+		<tag>emotionInterface</tag>
+	</module>
+	
+	<connection>
+		<from>/face/eyelids</from>
+		<to> /icubSim/face/eyelids</to>
+		<protocol>tcp</protocol>
+	</connection>
+	
+	<connection>
+		<from>/face/image/out</from>
+		<to>/icubSim/texture/face</to>
+		<protocol>tcp</protocol>
+	</connection>
+	
+	<connection>
+		<from>/emotion/out</from>
+		<to>/icubSim/face/raw/in</to>
+		<protocol>tcp</protocol>
+	</connection>
+	
+        <connection>
+                <from>/tracking/facelab/coredata/head</from>
+                <to>/teleoperation/icubSim/head</to>
+                <protocol>tcp</protocol>
+        </connection>
+	
+	<connection>
+                <from>/tracking/facelab/coredata/face</from>
+                <to>/teleoperation/icubSim/face</to>
+                <protocol>tcp</protocol>
+        </connection>
+
+        <connection>
+                <from>/tracking/facelab/coredata/gaze</from>
+                <to>/teleoperation/icubSim/gaze</to>
+                <protocol>tcp</protocol>
+        </connection>
+
+      
+</application>
+

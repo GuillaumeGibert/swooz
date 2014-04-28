@@ -133,8 +133,9 @@ void SWCreateAvatarWorker::doWork()
 
                     // retrieve total cloud
                         deleteAndNullify(m_pCloudToDisplay);
-                        m_pCloudToDisplay = new swCloud::SWCloud();
+                        m_pCloudToDisplay = new swCloud::SWCloud();                        
                         m_CAvatarPtr->totalCloud(*m_pCloudToDisplay);
+//                        m_pCloudToDisplay->setUnicolor(255/(rand()%7 + 1),255/(rand()%7 + 1),255/(rand()%7 + 1));
 
                     // retrieve rectangles
                         deleteAndNullify(m_pCurrentFaceRect);

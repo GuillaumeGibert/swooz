@@ -1,0 +1,27 @@
+<application>
+
+  <name>SWoOz iCub connections FaceLab teleoperation </name>
+  <description>teleoperation FaceLab iCub </description>
+	
+
+      <connection>
+                <from>/tracking/facelab/coredata/head</from>
+                <to>/teleoperation/icub/head</to>
+                <protocol>tcp</protocol>
+        </connection>
+	
+	<connection>
+                <from>/tracking/facelab/coredata/face</from>
+                <to>/teleoperation/icub/face</to>
+                <protocol>tcp</protocol>
+        </connection>
+
+        <connection>
+                <from>/tracking/facelab/coredata/gaze</from>
+                <to>/teleoperation/icub/gaze</to>
+                <protocol>tcp</protocol>
+        </connection>
+
+
+</application>
+

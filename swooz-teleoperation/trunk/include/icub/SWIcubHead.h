@@ -209,6 +209,11 @@ namespace swTeleop
             void resetGazePosition();
 
             /**
+             * @brief resetLEDS
+             */
+            void resetLEDS();
+
+            /**
              * @brief close
              * @return true if the closing step was ok
              */
@@ -231,8 +236,8 @@ namespace swTeleop
              * This function transforms a command in percentage of eyelid opening form into a hexa code
              * that can be understood by the iCub.
              * \param dEyeLids  : the percentage of opening/closing eyelids
-             * \param dMinValue : the min value accepted by the iCub (30) or by the simulator (24)
-             * \param dMaxValue : the max value accepted by the iCub (70) or by the simulator (48)
+             * \param dMinValue : the min value accepted by the iCub
+             * \param dMaxValue : the max value accepted by the iCub
              * \return a string containing the hexa code
              */
             std::string swTeleop::SWIcubHead::eyesOpeningCode(cdouble dEyeLids, cdouble dMinValue, cdouble dMaxValue);

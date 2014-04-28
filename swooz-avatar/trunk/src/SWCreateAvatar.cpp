@@ -33,12 +33,9 @@ SWCreateAvatar::SWCreateAvatar(cbool bVerbose) : m_bVerbose(bVerbose), m_i32NumC
         m_fTemplateDownScale        = 0.2f;
         m_fTargetDownScale          = 0.2f;
         m_fDepthCloud               = 0.12f; //0.12f;// 0.25f; //0.20f;//0.15f;
-//        m_fDistMaxAlignment         = 0.00005f;
-//        m_fDistMaxAlignment         = 0.00015f;
         m_fDistMaxAlignment         = 0.00020f;
 
-//        m_oAlignClouds.setEmicpParams(0.01f, 0.00001f, 0.85f, 0.01f);
-//        m_oAlignClouds.setEmicpParams(0.01f, 0.00001f, 0.75f, 0.01f);
+
         m_oAlignClouds.setEmicpParams(0.01f, 0.000005f, 0.9f, 0.01f);
 
 
