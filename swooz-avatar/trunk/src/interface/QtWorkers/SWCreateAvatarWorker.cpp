@@ -67,7 +67,12 @@ SWCreateAvatarWorker::SWCreateAvatarWorker(swDevice::SWKinect_thread *pRGBDDevic
         catch(const swExcept::kinectInitError &e)
         {
             std::cerr << "-ERROR : " << e.what() << std::endl;
+            emit noKinectSignal();
         }
+    }
+    else
+    {
+        emit noKinectSignal();
     }
 }	
 

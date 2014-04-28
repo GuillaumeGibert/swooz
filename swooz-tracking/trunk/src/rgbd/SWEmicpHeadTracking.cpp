@@ -55,7 +55,6 @@ SWEmicpHeadTrackingWorker::SWEmicpHeadTrackingWorker() : m_oCaptureHeadMotion(sw
             while(!m_oKinectThread.isDataAvailable())
             {
                 QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
-                // TODO : error manage
             }
 
             std::cout << "RGBD data is ready. " << std::endl;
@@ -65,11 +64,10 @@ SWEmicpHeadTrackingWorker::SWEmicpHeadTrackingWorker() : m_oCaptureHeadMotion(sw
             m_CKinectParams = swDevice::SWKinectParams(m_oKinectThread.captureMode(), cv::Size(l_oRGB.cols, l_oCloud.rows));
             m_oKinectThread.setRecalibration(true, m_CKinectParams.m_i32OffsetRgbX, m_CKinectParams.m_i32OffsetRgbY);
         }
-
-    if(!m_bIsRGBDDeviceInitialized)
-    {
-        emit leaveProgram();
-    }
+//        else
+//        {
+//            emit leaveProgram();
+//        }
 }
 
 SWEmicpHeadTrackingWorker::~SWEmicpHeadTrackingWorker()
@@ -93,6 +91,12 @@ void SWEmicpHeadTrackingWorker::updateInterfaceParameters(cdouble dTemplateCoeff
 
 void SWEmicpHeadTrackingWorker::doWork()
 {
+    if(!m_bIsRGBDDeviceInitialized)
+    {
+        stopWork();
+        return;
+    }
+
     bool l_bContinueLoop = true;
     m_bDoWork     = true;
     m_bWorkStopped= false;
@@ -351,10 +355,15 @@ SWEmicpHeadTrackingInterface::SWEmicpHeadTrackingInterface() : m_uiMainWindow(ne
                 {
                     std::cerr << "-ERROR : " << e.what() << std::endl;
                 }
-            }
 
-        // launch timer for updating the display widget
-            m_oTimer->start(1000/30, this);
+                // launch timer for updating the display widget
+                    m_oTimer->start(1000/30, this);
+            }
+            else
+            {
+                std::cerr << "Leave program, please check if a kinect/xtion is plugged.  " << std::endl;
+                QTimer::singleShot(0, this, SLOT(close()));
+            }
 }
 
 SWEmicpHeadTrackingInterface::~SWEmicpHeadTrackingInterface()
@@ -560,15 +569,15 @@ int main(int argc, char* argv[])
         l_oEmicpHeadTrackingInterface.show();
 
     // prepare and configure the resource finder
-        ResourceFinder rf;
-            rf.setVerbose(true);
-            rf.setDefaultConfigFile("emicpHeadTracking.ini");
-            rf.setDefaultContext("swtracking/conf");
-            rf.configure("ICUB_ROOT", argc, argv);
+//        ResourceFinder rf;
+//            rf.setVerbose(true);
+//            rf.setDefaultConfigFile("emicpHeadTracking.ini");
+//            rf.setDefaultContext("swtracking/conf");
+//            rf.configure("ICUB_ROOT", argc, argv);
 
     // configure the module
-        std::cout << "Configuring the Emicp Head tracking module..."<< std::endl;
-            l_oEmicpHeadTrackingInterface.configure(rf);
+//        std::cout << "Configuring the Emicp Head tracking module..."<< std::endl;
+//            l_oEmicpHeadTrackingInterface.configure(rf);
 
     return l_oApp.exec();
 }

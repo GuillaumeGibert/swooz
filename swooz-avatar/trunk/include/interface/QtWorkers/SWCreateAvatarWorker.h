@@ -189,6 +189,12 @@ class SWCreateAvatarWorker : public QObject
 		
 	signals:
 
+
+        /**
+         * @brief noKinectSignal
+         */
+        void noKinectSignal();
+
         /**
          * \brief ...
          */
