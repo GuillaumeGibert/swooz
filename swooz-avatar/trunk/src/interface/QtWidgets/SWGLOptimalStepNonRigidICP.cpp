@@ -110,7 +110,7 @@ double SWGLOptimalStepNonRigidICP::coeffAlpha() const
 
 void SWGLOptimalStepNonRigidICP::alignWithNose(swMesh::SWMesh &oSourceMesh, swMesh::SWMesh &oTargetMesh)
 {
-    clock_t l_oProgramTime = clock();
+//    clock_t l_oProgramTime = clock();
 
     swCloud::SWCloud *l_oSource = oSourceMesh.cloud(), *l_oTarget = oTargetMesh.cloud();
 
@@ -133,7 +133,7 @@ void SWGLOptimalStepNonRigidICP::alignWithNose(swMesh::SWMesh &oSourceMesh, swMe
 
 void SWGLOptimalStepNonRigidICP::initResolve()
 {
-    clock_t l_oProgramTime = clock();
+//    clock_t l_oProgramTime = clock();
 
     m_pSourceMeshMutex->lockForWrite();
         m_pOSNRICP->updateSourceMeshNormals();
@@ -160,7 +160,7 @@ void SWGLOptimalStepNonRigidICP::initResolve()
 
 double SWGLOptimalStepNonRigidICP::morph(cdouble dAlpha)
 {
-    clock_t l_oProgramTime = clock();
+//    clock_t l_oProgramTime = clock();
 //    qDebug() << "morph -> " << dAlpha;
 
     if(!m_pOSNRICP)
@@ -406,7 +406,7 @@ void SWGLOptimalStepNonRigidICP::setCoeffAlpha(double dVal)
 
 void SWGLOptimalStepNonRigidICP::computeDistWAndCorr()
 {
-    clock_t l_oProgramTime = clock();
+//    clock_t l_oProgramTime = clock();
     m_pOSNRICP->computeCorrespondences();
     m_pOSNRICP->computeDistanceWeights();
     updateGL();

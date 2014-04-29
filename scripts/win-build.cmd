@@ -250,18 +250,6 @@ echo cd ../../scripts                                                           
 echo call win-clean-env_command.cmd                                                   >> %target_dist%\swooz-trackingOpenNI.cmd
 echo cd ../dist                                                                         >> %target_dist%\swooz-trackingOpenNI.cmd
 REM #######################################################################################
-REM ### Forth tracking
-echo @echo off                                                                          >  %target_dist%\swooz-trackingForth.cmd
-echo %SystemRoot%\system32\xcopy /q /e /y %saved_directory%\..\swooz-config %saved_directory%\%target_dist%\data >> %target_dist%\swooz-trackingForth.cmd
-echo pushd ..\scripts                                                                   >> %target_dist%\swooz-trackingForth.cmd
-echo call win-init_env_command.cmd %ARCH_EXE_trackingForth%                           >> %target_dist%\swooz-trackingForth.cmd
-echo popd                                                                               >> %target_dist%\swooz-trackingForth.cmd
-echo cd bin                                                                             >> %target_dist%\swooz-trackingForth.cmd
-echo SWForthTracking.exe                                                                >> %target_dist%\swooz-trackingForth.cmd
-echo cd ../../scripts                                                                   >> %target_dist%\swooz-trackingForth.cmd
-echo call win-clean-env_command.cmd                                                   >> %target_dist%\swooz-trackingForth.cmd
-echo cd ../dist                                                                         >> %target_dist%\swooz-trackingForth.cmd
-REM #######################################################################################
 REM ### Manipulation
 echo @echo off                                                                          >  %target_dist%\swooz-manipulation.cmd
 echo %SystemRoot%\system32\xcopy /q /e /y %saved_directory%\..\swooz-config %saved_directory%\%target_dist%\data >> %target_dist%\swooz-manipulation.cmd
@@ -273,6 +261,18 @@ echo SWManipulation.exe                                                         
 echo cd ../../scripts                                                                   >> %target_dist%\swooz-manipulation.cmd
 echo call win-clean-env_command.cmd                                                   >> %target_dist%\swooz-manipulation.cmd
 echo cd ../dist                                                                         >> %target_dist%\swooz-manipulation.cmd
+REM #######################################################################################
+REM ### Forth tracking
+REM echo @echo off                                                                          >  %target_dist%\swooz-trackingForth.cmd
+REM echo %SystemRoot%\system32\xcopy /q /e /y %saved_directory%\..\swooz-config %saved_directory%\%target_dist%\data >> %target_dist%\swooz-trackingForth.cmd
+REM echo pushd ..\scripts                                                                   >> %target_dist%\swooz-trackingForth.cmd
+REM echo call win-init_env_command.cmd %ARCH_EXE_trackingForth%                           >> %target_dist%\swooz-trackingForth.cmd
+REM echo popd                                                                               >> %target_dist%\swooz-trackingForth.cmd
+REM echo cd bin                                                                             >> %target_dist%\swooz-trackingForth.cmd
+REM echo SWForthTracking.exe                                                                >> %target_dist%\swooz-trackingForth.cmd
+REM echo cd ../../scripts                                                                   >> %target_dist%\swooz-trackingForth.cmd
+REM echo call win-clean-env_command.cmd                                                   >> %target_dist%\swooz-trackingForth.cmd
+REM echo cd ../dist                                                                         >> %target_dist%\swooz-trackingForth.cmd
 REM #######################################################################################
 echo.
 echo Install completed !

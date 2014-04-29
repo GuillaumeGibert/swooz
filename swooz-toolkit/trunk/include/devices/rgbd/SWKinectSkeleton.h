@@ -64,6 +64,8 @@ namespace swDevice
 
 		XnBool fileExists(const char *fn);
 
+        int m_i32PreviousDetected;
+
 
 		/**
 		 * \brief SWKinectSkeleton constructor. Private. Use getInstance();

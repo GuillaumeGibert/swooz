@@ -25,11 +25,13 @@ bool SWTeleoperation_iCub::configure(ResourceFinder &rf)
         m_i32Fps        = rf.check("fps",                   Value(100),  "Frame per second (int)").asInt();
 
     // init sub control mobules
-        if(!m_oIcubHeadControl.init(rf))
+        m_bHeadInitialized = m_oIcubHeadControl.init(rf);
+        m_bTorsoInitialized = m_oIcubTorsoControl.init(rf);
+
+        if(!m_bHeadInitialized && !m_bTorsoInitialized)
         {
             return false;
         }
-
 
     return (m_bIsRunning=true);
 }
@@ -38,7 +40,11 @@ bool SWTeleoperation_iCub::interruptModule()
 {
     m_bIsRunning = false;
 
-    m_oIcubHeadControl.interruptModule();
+    if(m_bHeadInitialized)
+        m_oIcubHeadControl.interruptModule();
+
+    if(m_bTorsoInitialized)
+        m_oIcubTorsoControl.interruptModule();
 
     std::cout << "--Interrupting the iCub Teleoperation module..." << std::endl;
 
@@ -48,7 +54,11 @@ bool SWTeleoperation_iCub::interruptModule()
 
 bool SWTeleoperation_iCub::close()
 {
-    m_oIcubHeadControl.close();
+    if(m_bHeadInitialized)
+        m_oIcubHeadControl.close();
+
+    if(m_bTorsoInitialized)
+        m_oIcubTorsoControl.close();
 
     std::cout << "Close iCub teleoperation module. " << std::endl;
 
@@ -62,11 +72,21 @@ bool SWTeleoperation_iCub::updateModule()
         return false;
     }
 
-    if(!m_oIcubHeadControl.checkBottles())
+    if(m_bHeadInitialized)
     {
-        return false;
+        if(!m_oIcubHeadControl.checkBottles())
+        {
+            return false;
+        }
     }
 
+    if(m_bTorsoInitialized)
+    {
+        if(!m_oIcubTorsoControl.checkBottles())
+        {
+            return false;
+        }
+    }
 
     return true;
 }

@@ -27,7 +27,7 @@ using namespace swDevice;
 
 SWKinectSkeleton* SWKinectSkeleton::m_instance = NULL;
 
-SWKinectSkeleton::SWKinectSkeleton(bool verbose) : m_verbose(verbose), m_bNeedPose(FALSE)
+SWKinectSkeleton::SWKinectSkeleton(bool verbose) : m_verbose(verbose), m_bNeedPose(FALSE), m_i32PreviousDetected(0)
 {
 	m_strPose[0] = '\0';
 }
@@ -68,8 +68,11 @@ int SWKinectSkeleton::grab(std::vector<Coordinates> &values)
 	nUsers=m_maxNumUsers;
     m_UserGenerator.GetUsers(aUsers, nUsers);
 
-    if(rand()%10==0 && m_verbose)
+    if(m_i32PreviousDetected != static_cast<int>(nUsers))
+    {
         std::cout << (int)nUsers << " user(s) detected" << std::endl;
+        m_i32PreviousDetected = static_cast<int>(nUsers);
+    }
 
 	if (nUsers == 0)
 	{
@@ -178,7 +181,7 @@ void XN_CALLBACK_TYPE SWKinectSkeleton::User_NewUser(xn::UserGenerator& generato
 	XnUInt32 epochTime = 0;
 	xnOSGetEpochTime(&epochTime);
     if (m_instance->m_verbose)
-		printf("%d New User %d\n", epochTime, nId);
+        printf("New User %d\n", nId);
 	// New user found
     if (m_instance->m_bNeedPose)
 	{
@@ -196,7 +199,7 @@ void XN_CALLBACK_TYPE SWKinectSkeleton::User_LostUser(xn::UserGenerator& generat
 	XnUInt32 epochTime = 0;
 	xnOSGetEpochTime(&epochTime);
     if (m_instance->m_verbose)
-		printf("%d Lost user %d\n", epochTime, nId);
+        printf("Lost user %d\n", nId);
 }
 
 // Callback: Detected a pose
@@ -204,7 +207,7 @@ void XN_CALLBACK_TYPE SWKinectSkeleton::UserPose_PoseDetected(xn::PoseDetectionC
 	XnUInt32 epochTime = 0;
 	xnOSGetEpochTime(&epochTime);
     if (m_instance->m_verbose)
-		printf("%d Pose %s detected for user %d\n", epochTime, strPose, nId);
+        printf("Pose %s detected for user %d\n", strPose, nId);
     m_instance->m_UserGenerator.GetPoseDetectionCap().StopPoseDetection(nId);
     m_instance->m_UserGenerator.GetSkeletonCap().RequestCalibration(nId, TRUE);
 }
@@ -215,7 +218,7 @@ void XN_CALLBACK_TYPE SWKinectSkeleton::UserCalibration_CalibrationStart(xn::Ske
 	XnUInt32 epochTime = 0;
 	xnOSGetEpochTime(&epochTime);
     if (m_instance->m_verbose)
-		printf("%d Calibration started for user %d\n", epochTime, nId);
+        printf("Calibration started for user %d\n", nId);
 }
 
 void XN_CALLBACK_TYPE SWKinectSkeleton::UserCalibration_CalibrationComplete(xn::SkeletonCapability& capability, XnUserID nId, XnCalibrationStatus eStatus, void* pCookie)
@@ -226,14 +229,14 @@ void XN_CALLBACK_TYPE SWKinectSkeleton::UserCalibration_CalibrationComplete(xn::
 	{
 		// Calibration succeeded
         if (m_instance->m_verbose)
-			printf("%d Calibration complete, start tracking user %d\n", epochTime, nId);
+            printf("Calibration complete, start tracking user %d\n", nId);
         m_instance->m_UserGenerator.GetSkeletonCap().StartTracking(nId);
 	}
 	else
 	{
 		// Calibration failed
         if (m_instance->m_verbose)
-			printf("%d Calibration failed for user %d\n", epochTime, nId);
+            printf("Calibration failed for user %d\n", nId);
 		if(eStatus==XN_CALIBRATION_STATUS_MANUAL_ABORT)
 		{
             if (m_instance->m_verbose)

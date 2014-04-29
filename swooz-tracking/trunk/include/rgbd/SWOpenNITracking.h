@@ -105,7 +105,6 @@ class SWOpenNITracking : public yarp::os::RFModule
         yarp::os::BufferedPort<yarp::os::Bottle> m_oRightArmTrackingPort;    /**< right arm tracking port */
 
         boost::scoped_ptr<swDevice::SWKinectSkeleton> m_oKinectSkeleton;     /**< kinect skeleton */
-
 };
 
 #endif

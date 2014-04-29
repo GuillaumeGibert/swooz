@@ -10,6 +10,7 @@
 
 // SWOOZ Toolkit
 #include "geometryUtility.h"
+#include "SWExceptions.h"
 
 
 SWOpenNITracking::SWOpenNITracking()
@@ -65,7 +66,7 @@ bool SWOpenNITracking::isOpenNIInitialized() const
 double SWOpenNITracking::getPeriod()
 {
 	// module periodicity (seconds), called implicitly by myModule
-	return 0.001;
+    return 0.001/30.;
 }
 
 bool SWOpenNITracking::interruptModule() {
@@ -103,12 +104,6 @@ bool SWOpenNITracking::updateModule()
 		swDevice::SWKinectSkeleton::Coordinates l_pointLHand		= l_values[7];
 		swDevice::SWKinectSkeleton::Coordinates l_pointRHand		= l_values[8];
 
-
-            std::cout << l_pointTorso.X << " " << l_pointTorso.Y << " " << l_pointTorso.Z << " | ";
-
-        std::cout << std::endl;
-
-
         yarp::os::Bottle & l_HeadBottle		= m_oHeadTrackingPort.prepare();
 		l_HeadBottle.clear();
 			l_HeadBottle.addInt(swTracking::OPENNI_LIB);
@@ -145,7 +140,7 @@ bool SWOpenNITracking::updateModule()
 			l_RightArmBottle.addDouble(l_pointRShoulder.X);	l_RightArmBottle.addDouble(l_pointRShoulder.Y);	l_RightArmBottle.addDouble(l_pointRShoulder.Z);
 			l_RightArmBottle.addDouble(l_pointRElbow.X);	l_RightArmBottle.addDouble(l_pointRElbow.Y);	l_RightArmBottle.addDouble(l_pointRElbow.Z);
 			l_RightArmBottle.addDouble(l_pointRHand.X);		l_RightArmBottle.addDouble(l_pointRHand.Y);		l_RightArmBottle.addDouble(l_pointRHand.Z);
-        m_oRightArmTrackingPort.write();
+        m_oRightArmTrackingPort.write();      
 	}
 
 	return true; // RF Module OK
@@ -166,16 +161,16 @@ int main(int argc, char **argv)
     SWOpenNITracking l_OpenNITracking;
 
     // prepare and configure the resource finder
-    yarp::os::ResourceFinder rf;
-    rf.setVerbose(true);
-    rf.setDefaultConfigFile("openniTracking.ini");
-    rf.setDefaultContext("swtracking/conf");
-    rf.configure("YARP_DIR", argc, argv);
+//    yarp::os::ResourceFinder rf;
+//    rf.setVerbose(true);
+//    rf.setDefaultConfigFile("openniTracking.ini");
+//    rf.setDefaultContext("swtracking/conf");
+//    rf.configure("YARP_DIR", argc, argv);
 
-    if(l_OpenNITracking.configure(rf))
-    {
+//    if(l_OpenNITracking.configure(rf))
+//    {
          l_OpenNITracking.runModule();
-    }
+//    }
 
     std::cout << "Ending OpenNI Skeleton capture module..." << std::endl;
 }

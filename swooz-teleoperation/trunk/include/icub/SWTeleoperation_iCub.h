@@ -11,6 +11,7 @@
 
 
 #include "SWIcubHead.h"
+#include "SWIcubTorso.h"
 
 
 
@@ -111,6 +112,8 @@ class SWTeleoperation_iCub : public RFModule
     private:
 
         bool m_bIsRunning;                      /**<  Whether the thread is running */
+        bool m_bHeadInitialized;                /**< ... */
+        bool m_bTorsoInitialized;               /**< ... */
 
         int m_i32Fps;                           /**< fps (define the period for calling updateModule) */
 
@@ -119,6 +122,7 @@ class SWTeleoperation_iCub : public RFModule
         std::string m_sRobotName;               /**< name of the robot (config) */
 
         swTeleop::SWIcubHead m_oIcubHeadControl; /**< ... */
+        swTeleop::SWIcubTorso m_oIcubTorsoControl; /**< ... */
 };
 
 #endif

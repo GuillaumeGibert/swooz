@@ -96,7 +96,7 @@ SWOptimalStepNonRigidICP::SWOptimalStepNonRigidICP(const SWMesh &oSource, const 
 //            cout << "m_l : " << l_ui32TemplateId << " " << l_ui32TargetId << endl;
 //        }
 
-    clock_t l_oProgramTime = clock();
+//    clock_t l_oProgramTime = clock();
 
 
     //  update triangles normals

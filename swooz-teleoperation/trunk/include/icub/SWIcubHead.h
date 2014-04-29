@@ -15,22 +15,17 @@
 
 // SWOOZ
 #include "commonTypes.h"
-//#include "icub/SWiCubFaceMotion.h"
 
 // YARP
 #include <yarp/os/Network.h>
 #include <yarp/os/ResourceFinder.h>
-//#include <yarp/os/Time.h>
 #include <yarp/os/Port.h>
 #include <yarp/os/Bottle.h>
-//#include <yarp/os/Property.h>
+
 
 #include <yarp/sig/Vector.h>
 
-//#include <yarp/math/Math.h>
 
-//#include <yarp/dev/Drivers.h>
-//#include <yarp/dev/CartesianControl.h>
 #include <yarp/dev/PolyDriver.h>
 #include <yarp/dev/ControlBoardInterfaces.h>
 
@@ -39,13 +34,6 @@
 
 #include <yarp/os/Time.h>
 
-//using namespace yarp::dev;
-//using namespace yarp::sig;
-//using namespace yarp::math;
-
-
-
-//void run(); : public yarp::os::RateThread
 
 namespace swTeleop
 {
@@ -111,7 +99,7 @@ namespace swTeleop
     /**
      * @brief The SWVelocityController class
      */
-    class SWVelocityController : public yarp::os::RateThread
+    class SWHeadVelocityController : public yarp::os::RateThread
     {
         public :
 
@@ -120,11 +108,13 @@ namespace swTeleop
              * @param pIHeadEncoders
              * @param pIHeadVelocity
              * @param vHeadJointVelocityK
-             * @param dVelocityTolerance
+             * @param dVelocityToleranceHead
+             * @param dVelocityToleranceGaze
              * @param i32Rate
              */
-            SWVelocityController(yarp::dev::IEncoders *pIHeadEncoders, yarp::dev::IVelocityControl *pIHeadVelocity,
-                                 std::vector<double> &vHeadJointVelocityK, double dVelocityTolerance = 15., int i32Rate = 10);
+            SWHeadVelocityController(yarp::dev::IEncoders *pIHeadEncoders, yarp::dev::IVelocityControl *pIHeadVelocity,
+                                 std::vector<double> &vHeadJointVelocityK, double dVelocityToleranceHead = 15.,
+                                 double dVelocityToleranceGaze = 15., int i32Rate = 10);
 
             /**
              * @brief run
@@ -155,7 +145,9 @@ namespace swTeleop
             bool m_bGazeEnabled;
             bool m_bHeadEnabled;
 
-            double m_dVelocityTolerance;                    /**< ... */
+            double m_dVelocityToleranceHead;                /**< ... */
+            double m_dVelocityToleranceGaze;                /**< ... */
+
             yarp::os::Mutex m_oMutex;                       /**< ... */
             yarp::dev::IEncoders *m_pIHeadEncoders;         /**< ... */
             yarp::dev::IVelocityControl *m_pIHeadVelocity;  /**< ... */
@@ -274,8 +266,11 @@ namespace swTeleop
             double m_dMinEyelidsSimDefault; /**< ... */
             double m_dMaxEyelidsSimDefault; /**< ... */
 
-            double m_dVelocityTolerance;        /**< ... */
-            double m_dVelocityToleranceDefault; /**< ... */
+            double m_dVelocityToleranceHead;        /**< ... */
+            double m_dVelocityToleranceHeadDefault; /**< ... */
+
+            double m_dVelocityToleranceGaze;        /**< ... */
+            double m_dVelocityToleranceGazeDefault; /**< ... */
 
             std::vector<double> m_vHeadMinJoint;            /**< ... */            
             std::vector<double> m_vHeadMaxJoint;            /**< ... */
@@ -327,7 +322,7 @@ namespace swTeleop
             yarp::dev::IVelocityControl *m_pIHeadVelocity;  /**< ... */
 
 
-            SWVelocityController *m_pVelocityController;    /**< ... */
+            SWHeadVelocityController *m_pVelocityController;    /**< ... */
             SWIcubFaceLabLEDCommand m_ICubFaceLabLED;       /**< ... */
     };
 }

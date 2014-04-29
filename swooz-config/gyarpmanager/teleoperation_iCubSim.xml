@@ -35,24 +35,76 @@
 		<protocol>tcp</protocol>
 	</connection>
 	
+        <!---  FACELAB -->
+            <!---  HEAD -->
         <connection>
                 <from>/tracking/facelab/coredata/head</from>
                 <to>/teleoperation/icubSim/head</to>
                 <protocol>tcp</protocol>
         </connection>
-	
+            <!---  FACE -->
 	<connection>
                 <from>/tracking/facelab/coredata/face</from>
                 <to>/teleoperation/icubSim/face</to>
                 <protocol>tcp</protocol>
         </connection>
-
+            <!---  GAZE -->
         <connection>
                 <from>/tracking/facelab/coredata/gaze</from>
                 <to>/teleoperation/icubSim/gaze</to>
                 <protocol>tcp</protocol>
         </connection>
 
-      
+        <!---  FOREST -->
+            <!---  HEAD -->
+        <connection>
+                <from>/tracking/rgbd/forest/head</from>
+                <to>/teleoperation/icubSim/head</to>
+                <protocol>tcp</protocol>
+        </connection>
+
+        <!---  EMICP -->
+            <!---  HEAD -->
+        <connection>
+                <from>/tracking/rgbd/emicp/head</from>
+                <to>/teleoperation/icubSim/head</to>
+                <protocol>tcp</protocol>
+        </connection>
+
+        <!---  FACESHIFT -->
+            <!---  HEAD -->
+        <connection>
+                <from>/tracking/rgbd/faceshift/head</from>
+                <to>/teleoperation/icubSim/head</to>
+                <protocol>tcp</protocol>
+        </connection>
+
+        <!---  OPENNI -->
+             <!---  HEAD -->
+        <connection>
+                <from>/tracking/rgbd/openni/head</from>
+                <to>/teleoperation/icubSim/head</to>
+                <protocol>tcp</protocol>
+        </connection>
+            <!---  TORSO -->
+        <connection>
+                <from>/tracking/rgbd/openni/torso</from>
+                <to>/teleoperation/icubSim/torso</to>
+                <protocol>tcp</protocol>
+        </connection>
+            <!---  LEFT ARM -->
+        <connection>
+                <from>/tracking/rgbd/openni/left_arm</from>
+                <to>/teleoperation/icubSim/left_arm</to>
+                <protocol>tcp</protocol>
+        </connection>
+            <!---  RIGHT ARM -->
+        <connection>
+                <from>/tracking/rgbd/openni/right_arm</from>
+                <to>/teleoperation/icubSim/right_arm</to>
+                <protocol>tcp</protocol>
+        </connection>
+
+
 </application>
 
