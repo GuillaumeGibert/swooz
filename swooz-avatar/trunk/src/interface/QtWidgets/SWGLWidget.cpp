@@ -196,19 +196,19 @@ void SWGLWidget::keyPressEvent(QKeyEvent *e)
 		break;	
 		case Qt::Key_R:	    // reset camera view 
             m_pCamera->reset();
-		break;									
-		case Qt::Key_Left:
-            m_pCamera->moveLeft(0.1f);
-		break;
-		case Qt::Key_Right:
-            m_pCamera->moveRight(0.1f);
-		break;
-		case Qt::Key_Up:			
+        break;
+        case Qt::Key_Left:
+            m_pCamera->moveLeft(0.05f);
+        break;
+        case Qt::Key_Right:
+            m_pCamera->moveRight(0.05f);
+        break;
+        case Qt::Key_Up:
             m_pCamera->moveForeward(0.05f);
-		break;
-		case Qt::Key_Down:
+        break;
+        case Qt::Key_Down:
             m_pCamera->moveBackward(0.05f);
-		break;		
+        break;
 		case Qt::Key_Z:
             m_pCamera->rotateY(-3.f);
 		break;		
