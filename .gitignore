@@ -1,0 +1,65 @@
+
+################ projects
+
+qtCreator-proj/
+
+################ scripts
+
+scripts/NULL
+scripts/win-init_env_command.cmd
+scripts/SW_build_order.txt
+
+################ thirdParty
+
+swooz-3rdparty/
+
+################ generated files
+
+dist/
+
+# avatar
+swooz-avatar/trunk/NULL
+swooz-avatar/trunk/lib/
+swooz-avatar/trunk/bin/
+swooz-avatar/trunk/moc/
+swooz-avatar/trunk/doc/
+swooz-avatar/trunk/genUI/
+# toolkit
+swooz-toolkit/trunk/NULL
+swooz-toolkit/trunk/lib/
+swooz-toolkit/trunk/bin/
+swooz-toolkit/trunk/moc/
+swooz-toolkit/trunk/doc/
+swooz-toolkit/trunk/genUI/
+# tracking
+swooz-tracking/trunk/NULL
+swooz-tracking/trunk/lib/
+swooz-tracking/trunk/bin/
+swooz-tracking/trunk/moc/
+swooz-tracking/trunk/doc/
+swooz-tracking/trunk/genUI/
+# teleoperation
+swooz-teleoperation/trunk/NULL
+swooz-teleoperation/trunk/lib/
+swooz-teleoperation/trunk/bin/
+swooz-teleoperation/trunk/moc/
+swooz-teleoperation/trunk/doc/
+swooz-teleoperation/trunk/genUI/
+# manipulation
+swooz-manipulation/trunk/NULL
+swooz-manipulation/trunk/lib/
+swooz-manipulation/trunk/bin/
+swooz-manipulation/trunk/moc/
+swooz-manipulation/trunk/doc/
+swooz-manipulation/trunk/genUI/
+
+################ datas
+# avatar
+swooz-avatar/trunk/data/classifier/
+swooz-avatar/trunk/data/stasm/
+swooz-avatar/trunk/data/images/
+swooz-avatar/trunk/data/meshes/
+# tracking
+swooz-tracking/trunk/data/classifier/
+swooz-tracking/trunk/data/stasm/
+swooz-tracking/trunk/data/trees/
