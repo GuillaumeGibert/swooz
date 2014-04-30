@@ -1,4 +1,8 @@
 
+################ projects
+
+qtCreator-proj/
+
 ################ scripts
 
 scripts/NULL
@@ -59,4 +63,3 @@ swooz-avatar/trunk/data/meshes/
 swooz-tracking/trunk/data/classifier/
 swooz-tracking/trunk/data/stasm/
 swooz-tracking/trunk/data/trees/
-

@@ -22,7 +22,7 @@ SWFaceDetection::SWFaceDetection(const cv::Size &oMinDetectFaceSize, cbool bVerb
     {
         std::cout << "Haar cascade file initialized : " << l_sCascadeFaceFile << std::endl;
     }
-	
+
 	m_bHaarCascadeFilesLoaded = false;
 	
 	try
