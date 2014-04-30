@@ -12,6 +12,7 @@
 
 #include "SWIcubHead.h"
 #include "SWIcubTorso.h"
+#include "SWIcubArm.h"
 
 
 
@@ -114,6 +115,8 @@ class SWTeleoperation_iCub : public RFModule
         bool m_bIsRunning;                      /**<  Whether the thread is running */
         bool m_bHeadInitialized;                /**< ... */
         bool m_bTorsoInitialized;               /**< ... */
+        bool m_bLeftArmInitialized;               /**< ... */
+        bool m_bRightArmInitialized;               /**< ... */
 
         int m_i32Fps;                           /**< fps (define the period for calling updateModule) */
 
@@ -123,6 +126,8 @@ class SWTeleoperation_iCub : public RFModule
 
         swTeleop::SWIcubHead m_oIcubHeadControl; /**< ... */
         swTeleop::SWIcubTorso m_oIcubTorsoControl; /**< ... */
+        swTeleop::SWIcubArm m_oIcubLeftArmControl; /**< ... */
+        swTeleop::SWIcubArm m_oIcubRightArmControl; /**< ... */
 };
 
 #endif

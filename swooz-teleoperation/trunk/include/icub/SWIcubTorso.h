@@ -186,7 +186,7 @@ namespace swTeleop
             yarp::os::BufferedPort<yarp::os::Bottle> m_oTorsoTrackerPort; /**< torso yarp tracker port*/
 
             // torso control
-            yarp::os::Property m_oTorsoOptions;             /**< robot interfaces for torso movements */
+            yarp::os::Property m_oTorsoOptions;             /**< robot interfaces properties */
             yarp::dev::PolyDriver        m_oRobotTorso;     /**< ... */
             yarp::dev::IEncoders        *m_pITorsoEncoders; /**< ... */
             yarp::dev::IPositionControl *m_pITorsoPosition; /**< ... */

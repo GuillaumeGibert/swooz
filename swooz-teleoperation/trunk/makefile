@@ -21,6 +21,7 @@ LINK=link
 OBJ_TELEOPERATION_ICUB=\
         $(LIBDIR)/SWIcubHead.obj\
         $(LIBDIR)/SWIcubTorso.obj\
+        $(LIBDIR)/SWIcubArm.obj\
         $(LIBDIR)/SWTeleoperation_iCub.obj\
 
 OBJ_TELEOPERATION_NAO=\
@@ -53,9 +54,12 @@ $(LIBDIR)/SWIcubHead.obj: ./src/icub/SWIcubHead.cpp
 $(LIBDIR)/SWIcubTorso.obj: ./src/icub/SWIcubTorso.cpp
         $(CC) -c ./src/icub/SWIcubTorso.cpp $(CFLAGS_DYN) $(SW_TELE_ICUB) -Fo"$(LIBDIR)/"
 
+$(LIBDIR)/SWIcubArm.obj: ./src/icub/SWIcubArm.cpp
+        $(CC) -c ./src/icub/SWIcubArm.cpp $(CFLAGS_DYN) $(SW_TELE_ICUB) -Fo"$(LIBDIR)/"
+
+
 $(LIBDIR)/SWTeleoperation_iCub.obj: ./src/icub/SWTeleoperation_iCub.cpp
         $(CC) -c ./src/icub/SWTeleoperation_iCub.cpp $(CFLAGS_DYN) $(SW_TELE_ICUB) -Fo"$(LIBDIR)/"
-
 
 $(LIBDIR)/SWTeleoperation_nao.obj: ./src/nao/SWTeleoperation_nao.cpp
         $(CC) -c ./src/nao/SWTeleoperation_nao.cpp $(CFLAGS_DYN) $(SW_TELE_NAO) -Fo"$(LIBDIR)/"

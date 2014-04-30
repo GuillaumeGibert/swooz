@@ -28,7 +28,14 @@ bool SWTeleoperation_iCub::configure(ResourceFinder &rf)
         m_bHeadInitialized = m_oIcubHeadControl.init(rf);
         m_bTorsoInitialized = m_oIcubTorsoControl.init(rf);
 
-        if(!m_bHeadInitialized && !m_bTorsoInitialized)
+        std::cout << "init left arm " << std::endl;
+        m_bLeftArmInitialized = m_oIcubLeftArmControl.init(rf, true);
+        std::cout << "init right arm " << std::endl;
+        m_bRightArmInitialized = m_oIcubRightArmControl.init(rf, false);
+
+        std::cout << "init total : " << m_bHeadInitialized << " " << m_bTorsoInitialized << " " << m_bLeftArmInitialized << " " << m_bRightArmInitialized << std::endl;
+
+        if(!m_bHeadInitialized && !m_bTorsoInitialized && !m_bLeftArmInitialized && !m_bRightArmInitialized)
         {
             return false;
         }
@@ -44,7 +51,13 @@ bool SWTeleoperation_iCub::interruptModule()
         m_oIcubHeadControl.interruptModule();
 
     if(m_bTorsoInitialized)
-        m_oIcubTorsoControl.interruptModule();
+        m_oIcubTorsoControl.interruptModule(); 
+
+    if(m_bLeftArmInitialized)
+        m_oIcubLeftArmControl.interruptModule();
+
+    if(m_bRightArmInitialized)
+        m_oIcubRightArmControl.interruptModule();
 
     std::cout << "--Interrupting the iCub Teleoperation module..." << std::endl;
 
@@ -59,6 +72,12 @@ bool SWTeleoperation_iCub::close()
 
     if(m_bTorsoInitialized)
         m_oIcubTorsoControl.close();
+
+    if(m_bLeftArmInitialized)
+        m_oIcubLeftArmControl.close();
+
+    if(m_bRightArmInitialized)
+        m_oIcubRightArmControl.close();
 
     std::cout << "Close iCub teleoperation module. " << std::endl;
 
@@ -83,6 +102,22 @@ bool SWTeleoperation_iCub::updateModule()
     if(m_bTorsoInitialized)
     {
         if(!m_oIcubTorsoControl.checkBottles())
+        {
+            return false;
+        }
+    }
+
+    if(m_bLeftArmInitialized)
+    {
+        if(!m_oIcubLeftArmControl.checkBottles())
+        {
+            return false;
+        }
+    }
+
+    if(m_bRightArmInitialized)
+    {
+        if(!m_oIcubRightArmControl.checkBottles())
         {
             return false;
         }

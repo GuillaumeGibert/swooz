@@ -98,8 +98,6 @@ INC_NAO             = -I"$(THIRD_PARTY_NAOQI)"\include
 
 COMMON              = $(INC_TELEOPERATION) $(INC_OTHERS) $(INC_VS)
 
-SW_HEAD_ICUB        = $(COMMON) $(INC_YARP)
-
 SW_TELE_ICUB        = $(COMMON) $(INC_YARP)
 
 SW_TELE_NAO  = $(COMMON) $(INC_NAO) $(INC_YARP)

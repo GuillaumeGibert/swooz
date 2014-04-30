@@ -78,7 +78,7 @@ bool swTeleop::SWIcubTorso::init( yarp::os::ResourceFinder &oRf)
         m_sRobotName    = oRf.check("robot",Value("icubSim"),  "Robot name (string)").asString();
 
     // robot parts to control
-        m_bTorsoActivated = oRf.check("TorsoActivated", Value(m_bTorsoActivatedDefault), "Torso activated (int)").asInt() != 0;
+        m_bTorsoActivated = oRf.check("torsoActivated", Value(m_bTorsoActivatedDefault), "Torso activated (int)").asInt() != 0;
 
     // min / max values for iCub Torso joints
         for(uint ii = 0; ii < m_vTorsoJointVelocityAcceleration.size(); ++ii)
