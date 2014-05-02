@@ -172,7 +172,9 @@ bool swTeleop::SWIcubArm::init( yarp::os::ResourceFinder &oRf, bool bLeftArm)
         }
 
     // init ports
-        m_sArmTrackerPortName  = "/teleoperation/" + m_sRobotName + "/" + m_sArm + "_arm";
+        m_sArmTrackerPortName      = "/teleoperation/" + m_sRobotName + "/" + m_sArm + "_arm";
+        m_sFingersTrackerPortName  = "/teleoperation/" + m_sRobotName + "/" + m_sArm + "_arm"; // TODO : choose a tracker name
+        m_sHandTrackerPortName     = "/teleoperation/" + m_sRobotName + "/" + m_sArm + "_arm"; //
 
     // open ports
         bool l_bPortOpeningSuccess = true;
