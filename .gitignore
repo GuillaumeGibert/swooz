@@ -53,6 +53,10 @@ swooz-manipulation/trunk/bin/
 swooz-manipulation/trunk/moc/
 swooz-manipulation/trunk/doc/
 swooz-manipulation/trunk/genUI/
+# examples
+swooz-examples/trunk/NULL
+swooz-examples/trunk/lib/
+swooz-examples/trunk/bin/
 
 ################ datas
 # avatar
@@ -64,3 +68,4 @@ swooz-avatar/trunk/data/meshes/
 swooz-tracking/trunk/data/classifier/
 swooz-tracking/trunk/data/stasm/
 swooz-tracking/trunk/data/trees/
+

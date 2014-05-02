@@ -1,0 +1,211 @@
+
+# makefile-include of swooz-examples project
+# Florian Lance
+# lyon mai 2014
+
+################################################################################################################# DEBUG/RELEASE MODE
+
+############################ DOC CL OPTIONS
+
+# -MTd   : Creates a debug multithreaded executable file, No need to define _DEBUG, compiler does it for us if -MTd flag is on
+# -DGSL_RANGE_CHECK : tells the mat lib to do range checking
+# -Zi    : Generates complete debugging information
+# -nolog : In brief, the positive form suppresses the logo at startup and the negative form makes explicit that this suppression is not wanted. However, there are some other effects. 
+# -O2 	 : Creates fast code
+# -W3 	 : Sets warning level
+# -MT 	 : Causes your application to use the multithread, static version of the run-time library. 
+#     	   Defines _MT and causes the compiler to place the library name LIBCMT.lib into the .obj file 
+#     	   so that the linker will use LIBCMT.lib to resolve external symbols.
+# -MD 	 : Causes your application to use the multithread- and DLL-specific version of the run-time library
+#     	   Defines _MT and _DLL and causes the compiler to place the library name MSVCRT.lib into the .obj file.
+#    	   Applications compiled with this option are statically linked to MSVCRT.lib. 
+#     	   This library provides a layer of code that allows the linker to resolve external references. 
+#     	   The actual working code is contained in MSVCR100.DLL, which must be available at run time to applications linked with MSVCRT.lib.
+# -GF 	 : enable string pooling
+# -Gy 	 : enable function-level linking
+# -EHsc  : exception model to use : /EHsc -> intercept only C++ exceptions, extern C functions never launch C++ exception.
+# 	   object files go to -Fo 
+
+############################ WIN LIB
+
+WINLIBS=advapi32.lib comctl32.lib comdlg32.lib gdi32.lib shell32.lib user32.lib vfw32.lib winmm.lib opengl32.lib
+
+############################ DIRECTORIES
+
+# define lib dir
+
+LIBDIR  =./lib
+DIST_LIBDIR = $(SW_DIST)/lib
+
+!if  "$(ARCH)" == "x86"
+LIBDIR= $(LIBDIR)/x86
+DIST_LIBDIR = $(DIST_LIBDIR)/x86
+!endif
+
+!if  "$(ARCH)" == "amd64"
+LIBDIR= $(LIBDIR)/amd64
+DIST_LIBDIR = $(DIST_LIBDIR)/amd64
+!endif
+
+!if  "$(CFG)" == "Release"
+LIBDIR= $(LIBDIR)/Release
+DIST_LIBDIR = $(DIST_LIBDIR)/Release
+!endif
+
+!if  "$(CFG)" == "Debug"
+LIBDIR= $(LIBDIR)/Debug
+DIST_LIBDIR = $(DIST_LIBDIR)/Debug
+!endif
+
+# others dir
+SRCDIR  	 =./src/
+BINDIR           =./bin
+
+
+############################ SET UP FOR THE WANTED ARCH
+
+# We include setargv.obj for executables that do command line filename globbing.
+# PROGRAMFILES is inherited from the shell evironment (where it is
+# called ProgramFiles, but nmake converts it to upper case).  This allows us
+# to work with systems that use \Program Files or \Program Files x86.
+# we include binmode.obj so files are opened as _O_BINARY, for compat with unix
+
+SETARGV = "$(VS100COMNTOOLS)/../../VC/lib/setargv.obj"
+BINMODE = "$(VS100COMNTOOLS)/../../VC/lib/binmode.obj"
+
+!IF "$(ARCH)" != "x86"
+SETARGV = "$(VS100COMNTOOLS)/../../VC/lib/amd64/setargv.obj"
+BINMODE = "$(VS100COMNTOOLS)/../../VC/lib/amd64/binmode.obj"
+
+THIRD_PARTY_OPENNI      = $(THIRD_PARTY_OPENNI_64)
+THIRD_PARTY_OPENCV      = $(THIRD_PARTY_OPENCV_64))
+THIRD_PARTY_CULA        = $(THIRD_PARTY_CULA_64)
+THIRD_PARTY_CUDA        = $(THIRD_PARTY_CUDA_64)
+THIRD_PARTY_QT          = $(THIRD_PARTY_QT_64)
+THIRD_PARTY_CLAPACK     = $(THIRD_PARTY_CLAPACK_64)
+
+!ENDIF
+
+############################ INCLUDES
+
+INC_OTHERS	= -I$(SW_DIST)\include	
+	
+INC_VS		= -I"$(PROGRAMFILES)/Microsoft SDKs/Windows/v7.0A/Include"\ -I"$(VS100COMNTOOLS)/../../VC/include"\
+	
+INC_STASM	= -I./include/stasm\
+
+INC_BOOST	= -I"$(THIRD_PARTY_BOOST)"/include\
+
+INC_CUDA        = -I"$(THIRD_PARTY_CUDA)"/include -I"$(THIRD_PARTY_CUSPARSE)"\
+
+INC_CULA        = -I"$(THIRD_PARTY_CULA)"/include\
+
+INC_GSL 	= -I"$(THIRD_PARTY_GSL)"/gsl -I"$(THIRD_PARTY_GSL)"\
+
+INC_OPENCV      = -I"$(THIRD_PARTY_OPENCV)"\modules/core/include -I"$(THIRD_PARTY_OPENCV)"\modules/imgproc/include\
+                  -I"$(THIRD_PARTY_OPENCV)"\modules/objdetect/include -I"$(THIRD_PARTY_OPENCV)"\modules/features2d/include\
+                  -I"$(THIRD_PARTY_OPENCV)"\modules/features2d/include -I"$(THIRD_PARTY_OPENCV)"\modules/flann/include\
+                  -I"$(THIRD_PARTY_OPENCV)"\modules/highgui/include -I"$(THIRD_PARTY_OPENCV)"\modules/video/include\
+		  
+INC_QT		= -I"$(THIRD_PARTY_QT)"/include/QtOpenGL -I"$(THIRD_PARTY_QT)"/include/QtGui -I"$(THIRD_PARTY_QT)"/include/QtCore -I"$(THIRD_PARTY_QT)"/include/Qt -I"$(THIRD_PARTY_QT)"/include\
+		
+INC_YARP	= -I"$(THIRD_PARTY_YARP)"/include\
+
+############################ DEPENDENCIES
+
+COMMON	 	    = $(INC_VS) $(INC_OTHERS)
+#	display_kinect
+INC_MAIN_DISPLAY_KINECT = $(COMMON) $(OPENNI) $(INC_OPENCV)
+
+################################################################################################################# RELEASE MODE
+
+!IF  "$(CFG)" == "Release"
+	
+############################ FLAGS
+
+CFLAGS_STA = -nologo -O2 -GF -Gy -W3 -MT -w44996 -w14189 -EHsc -DWIN32 -MP$(NUMBER_OF_PROCESSORS)
+CFLAGS_DYN = -nologo -O2 -GF -Gy -W3 -MD -w44996 -w14189 -EHsc -DWIN32 -MP$(NUMBER_OF_PROCESSORS)
+
+LFLAGS = -nologo
+ 
+############################ LIBS
+
+LIBS_OPENNI     = $(THIRD_PARTY_OPENNI)/Lib/openNI.lib\
+
+LIBS_CV		= $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_highgui245.lib $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_core245.lib\
+                  $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_imgproc245.lib $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_objdetect245.lib $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_video245.lib\
+
+LIBS_QT 	= $(THIRD_PARTY_QT)/lib/QtOpenGL4.lib $(THIRD_PARTY_QT)/lib/QtCore4.lib $(THIRD_PARTY_QT)/lib/QtGui4.lib $(THIRD_PARTY_QT)/lib/qtmain.lib\
+
+LIBS_CLA	= $(THIRD_PARTY_CLAPACK)/lib/lapack.lib $(THIRD_PARTY_CLAPACK)/lib/blas.lib $(THIRD_PARTY_CLAPACK)/lib/libf2c.lib\
+
+LIBS_CUDA	= $(THIRD_PARTY_CUDA)/lib/cuda.lib $(THIRD_PARTY_CUDA)/lib/cublas.lib $(THIRD_PARTY_CUDA)/lib/cudart.lib\
+
+LIBS_CULA       = $(THIRD_PARTY_CULA)\lib\cula_lapack_basic.lib\
+
+LIBS_GSL	= $(THIRD_PARTY_GSL)/lib/mini_gslML.lib $(THIRD_PARTY_GSL)/lib/gslcblasML.lib\
+	
+LIBS_BOOST_D	= "$(THIRD_PARTY_BOOST)/lib/libboost_thread-vc100-mt-1_49.lib" "$(THIRD_PARTY_BOOST)/lib/libboost_date_time-vc100-mt-1_49.lib"\
+		  "$(THIRD_PARTY_BOOST)/lib/libboost_iostreams-vc100-mt-1_49.lib"\
+
+LIBS_BOOST	= $(THIRD_PARTY_BOOST)/lib/libboost_date_time-vc100-mt-s-1_49.lib $(THIRD_PARTY_BOOST)/lib/libboost_iostreams-vc100-mt-s-1_49.lib\
+		  $(THIRD_PARTY_BOOST)/lib/libboost_thread-vc100-mt-s-1_49.lib\
+	
+LIBS_FL		= $(THIRD_PARTY_FACELAB)/coredata/libshared/win32_ia32sse2_vc90/sm_cd_coredata_3.2.lib $(THIRD_PARTY_FACELAB)/coredata/thirdparty/zlib1.2.3/win_ia32_vc90/libshared/zlib1.lib\
+		  $(THIRD_PARTY_FACELAB)/coredata/thirdparty/libvpx0.9.5\libstatic\win_ia32_vc90\vpxmt.lib\
+                  $(DIST_LIBDIR)/SWFaceLab_dynamic.obj\
+	
+LIBS_PH		= $(THIRD_PARTY_POLHEMUS)/lib/Win32/PDI.lib\
+
+LIBS_YARP	= $(THIRD_PARTY_YARP)/lib/YARP_sig.lib $(THIRD_PARTY_YARP)/lib/YARP_OS.lib $(THIRD_PARTY_YARP)/lib/YARP_dev.lib $(THIRD_PARTY_YARP)/lib/YARP_init.lib\
+
+LIBS_SWOOZ      = $(DIST_LIBDIR)/SWToolkit_d.lib $(DIST_LIBDIR)/SWAvatar_d.lib\
+
+
+LIBS_MAIN_DISPLAY_KINECT = $(LIBS_OPENNI) $(LIBS_CV) $(LIBS_SWOOZ)
+
+
+!ENDIF
+
+################################################################################################################# DEBUG MODE
+
+!IF  "$(CFG)" == "Debug"
+
+############################ FLAGS
+
+CFLAGS_STA= -nologo -Zi -W2 -MTd -EHsc -DWIN32 $(COMPILE_NUMPROC) -D_ALLOW_ITERATOR_DEBUG_LEVEL_MISMATCH
+CFLAGS_DYN= -nologo -Zi -W2 -MDd -EHsc -DWIN32 $(COMPILE_NUMPROC) -D_ALLOW_ITERATOR_DEBUG_LEVEL_MISMATCH
+
+LFLAGS=-nologo
+
+############################ LIBS
+
+LIBS_OPENNI     = $(THIRD_PARTY_OPENNI)/Lib/openNI.lib
+
+LIBS_CV		= $(THIRD_PARTY_OPENCV)/build/lib/Debug/opencv_highgui245d.lib $(THIRD_PARTY_OPENCV)/build/lib/Debug/opencv_core245d.lib\
+		  $(THIRD_PARTY_OPENCV)/build/lib/Debug/opencv_imgproc245d.lib $(THIRD_PARTY_OPENCV)/build/lib/Debug/opencv_objdetect245d.lib $(THIRD_PARTY_OPENCV)/build/lib/Debug/opencv_video245d.lib\
+		 
+LIBS_QT 	= $(THIRD_PARTY_QT)/lib/QtOpenGLd4.lib $(THIRD_PARTY_QT)/lib/QtCored4.lib $(THIRD_PARTY_QT)/lib/QtGuid4.lib $(THIRD_PARTY_QT)/lib/qtmaind.lib\
+
+LIBS_PCL	= $(THIRD_PARTY_PCL)/lib/pcl_visualization_debug.lib $(THIRD_PARTY_PCL)/lib/pcl_io_debug.lib $(THIRD_PARTY_PCL)/lib/pcl_common_debug.lib\
+	
+LIBS_CLA	= $(THIRD_PARTY_CLAPACK)/lib/lapackd.lib $(THIRD_PARTY_CLAPACK)/lib/blasd.lib $(THIRD_PARTY_CLAPACK)/lib/libf2cd.lib\
+	
+LIBS_CUDA	= $(THIRD_PARTY_CUDA)/lib/cuda.lib $(THIRD_PARTY_CUDA)/lib/cublas.lib $(THIRD_PARTY_CUDA)/lib/cudart.lib $(THIRD_PARTY_CUDA)/lib/cutil32.lib\
+
+LIBS_GSL	= $(THIRD_PARTY_GSL)/lib/mini_gslMLd.lib $(THIRD_PARTY_GSL)/lib/gslcblasMLd.lib\
+	
+LIBS_BOOST_D	= "$(THIRD_PARTY_BOOST)/lib/libboost_thread-vc100-mt-gd-1_49.lib" "$(THIRD_PARTY_BOOST)/lib/libboost_date_time-vc100-mt-gd-1_49.lib"\
+		  "$(THIRD_PARTY_BOOST)/lib/libboost_iostreams-vc100-mt-gd-1_49.lib"\
+
+LIBS_BOOST	= $(THIRD_PARTY_BOOST)/lib/libboost_date_time-vc100-mt-sgd-1_49.lib $(THIRD_PARTY_BOOST)/lib/libboost_iostreams-vc100-mt-sgd-1_49.lib\
+		  $(THIRD_PARTY_BOOST)/lib/libboost_thread-vc100-mt-sgd-1_49.lib\
+	
+LIBS_FL		= $(THIRD_PARTY_FACELAB)/coredata/libshared/win32_ia32sse2_vc90/sm_cd_coredata_d3.2.lib $(THIRD_PARTY_FACELAB)/coredata/thirdparty/zlib1.2.3/win_ia32_vc90/libshared/zlib1d.lib\
+		  $(THIRD_PARTY_FACELAB)/coredata/thirdparty/libvpx0.9.5\libstatic\win_ia32_vc90\vpxmtd.lib\
+	
+LIBS_PH		= $(THIRD_PARTY_POLHEMUS)/lib/Win32/PDI.lib
+
+LIBS_MAIN_DISPLAY_KINECT = $(LIBS_OPENNI) $(LIBS_CV)
+
+!ENDIF
