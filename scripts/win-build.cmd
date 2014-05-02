@@ -45,6 +45,11 @@ echo Creating 'dist' folder structure...
 if not exist  %target_dist%\nul (
     mkdir %target_dist%
 )
+
+if not exist %target_dist%\examples\nul (
+    mkdir %target_dist%\examples
+)
+
 if not exist  %target_dist%\bin\nul (
     mkdir %target_dist%\bin
 )
@@ -274,6 +279,26 @@ REM echo cd ../../scripts                                                       
 REM echo call win-clean-env_command.cmd                                                   >> %target_dist%\swooz-trackingForth.cmd
 REM echo cd ../dist                                                                         >> %target_dist%\swooz-trackingForth.cmd
 REM #######################################################################################
+
+
+REM #####################   EXAMPLES
+
+REM #######################################################################################
+REM ### display kinect
+echo @echo off                                                                          >  %target_dist%\examples\display_kinect.cmd
+echo %SystemRoot%\system32\xcopy /q /e /y %saved_directory%\..\swooz-config %saved_directory%\%target_dist%\data >> %target_dist%\examples\display_kinect.cmd
+echo pushd ..\..\scripts                                                                   >> %target_dist%\examples\display_kinect.cmd
+echo call win-init_env_command.cmd %ARCH_EXE_examples%                           >> %target_dist%\examples\display_kinect.cmd
+echo cd ..\dist\bin                                                                             >> %target_dist%\examples\display_kinect.cmd
+echo kinect_display.exe                                                                >> %target_dist%\examples\display_kinect.cmd
+echo cd ../../scripts                                                                   >> %target_dist%\examples\display_kinect.cmd
+echo call win-clean-env_command.cmd                                                     >> %target_dist%\examples\display_kinect.cmd
+echo cd ../dist/examples                                                                >> %target_dist%\examples\display_kinect.cmd
+REM #######################################################################################
+
+
+
+
 echo.
 echo Install completed !
 echo.
