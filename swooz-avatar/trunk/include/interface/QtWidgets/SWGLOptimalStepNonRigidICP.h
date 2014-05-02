@@ -359,7 +359,7 @@ class SWGLOptimalStepNonRigidICP : public SWGLWidget
                                       cfloat r = -1, cfloat g = -1, cfloat b = -1);
 
         void drawMeshTriangles(QGLShaderProgram &oShader, swMesh::SWMesh &oMesh, QMatrix4x4 &mvpMatrix,
-                                  cfloat fR = -1, cfloat fG = -1, cfloat fB = -1, cfloat fOpacity = 1.f);
+                                  QVector3D &v3DLAmbiant, cfloat fOpacity = 1.f);
 
         /**
          * @brief getInfoMesh

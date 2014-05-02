@@ -72,8 +72,9 @@ void SWSaveKinectData::start(const bool bSaveVideoData, const bool bSaveCloudDat
         if(m_bSaveVideoData)
         {
             // init video writer
-            int l_i32Codec = CV_FOURCC('D','I','V','3'); // CV_FOURCC('M', 'J', 'P', 'G');
-            m_oVideoWriter = cv::VideoWriter(m_sSavingPath + "bgr.avi", l_i32Codec, 30.0, cv::Size(640,480), true);
+            int l_i32Codec = CV_FOURCC('M', 'J', 'P', 'G');
+
+            m_oVideoWriter.open(m_sSavingPath + "bgr.avi", l_i32Codec, 30.0, cv::Size(640,480), true);
 
             if(!m_oVideoWriter.isOpened())
             {

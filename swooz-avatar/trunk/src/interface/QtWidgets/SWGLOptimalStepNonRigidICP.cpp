@@ -570,7 +570,8 @@ void SWGLOptimalStepNonRigidICP::drawScene()
 
                 if(m_bFillS)
                 {
-                    drawMeshTriangles(m_oShaderTriangles, m_pOSNRICP->m_oSourceMesh, m_oMVPMatrix, 0.5f, 0.5f, 1.f, m_fOpacitySourceMesh);
+                    QVector3D l_v3DLAmbiant(0.44,0.44,0.88);
+                    drawMeshTriangles(m_oShaderTriangles, m_pOSNRICP->m_oSourceMesh, m_oMVPMatrix, l_v3DLAmbiant, m_fOpacitySourceMesh);
                 }
                 else
                 {
@@ -594,7 +595,8 @@ void SWGLOptimalStepNonRigidICP::drawScene()
 
                 if(m_bFillT)
                 {
-                    drawMeshTriangles(m_oShaderTriangles, m_pOSNRICP->m_oTargetMesh, m_oMVPMatrix, 0.5f, 1.0f, 0.5f, m_fOpacityTargetMesh);
+                    QVector3D l_v3DLAmbiant(0.13,0.69,0.29);
+                    drawMeshTriangles(m_oShaderTriangles, m_pOSNRICP->m_oTargetMesh, m_oMVPMatrix, l_v3DLAmbiant, m_fOpacityTargetMesh);
                 }
                 else
                 {
@@ -1049,7 +1051,7 @@ void SWGLOptimalStepNonRigidICP::drawSourceCloud(QGLShaderProgram &oShader, cons
 }
 
 void SWGLOptimalStepNonRigidICP::drawMeshTriangles(QGLShaderProgram &oShader, swMesh::SWMesh &oMesh, QMatrix4x4 &mvpMatrix,
-                          cfloat fR, cfloat fG, cfloat fB, cfloat fOpacity)
+                          QVector3D &v3DLAmbiant, cfloat fOpacity)
 {
     // bind shader
     if(!oShader.bind())
@@ -1077,6 +1079,8 @@ void SWGLOptimalStepNonRigidICP::drawMeshTriangles(QGLShaderProgram &oShader, sw
 //    allocateBuffer(m_textureBuffer, l_aFTextureBuffer,  oMesh.pointsNumber() *     2 * sizeof(float) );
 
     // set uniform values parameters
+//    QVector3D l_vAmbiant(0.44,0.44,0.88);
+    oShader.setUniformValueArray("lAmbiant", &v3DLAmbiant, 1);
     oShader.setUniformValue("mvpMatrix",    mvpMatrix);
     oShader.setUniformValue("opacity",      fOpacity);
     oShader.setUniformValue("applyTexture", false);

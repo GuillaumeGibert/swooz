@@ -295,8 +295,28 @@ echo cd ../../scripts                                                           
 echo call win-clean-env_command.cmd                                                     >> %target_dist%\examples\display_kinect.cmd
 echo cd ../dist/examples                                                                >> %target_dist%\examples\display_kinect.cmd
 REM #######################################################################################
-
-
+REM ### save data kinect
+echo @echo off                                                                          >  %target_dist%\examples\data_saver_kinect.cmd
+echo %SystemRoot%\system32\xcopy /q /e /y %saved_directory%\..\swooz-config %saved_directory%\%target_dist%\data >> %target_dist%\examples\data_saver_kinect.cmd
+echo pushd ..\..\scripts                                                                   >> %target_dist%\examples\data_saver_kinect.cmd
+echo call win-init_env_command.cmd %ARCH_EXE_examples%                           >> %target_dist%\examples\data_saver_kinect.cmd
+echo cd ..\dist\bin                                                                             >> %target_dist%\examples\data_saver_kinect.cmd
+echo kinect_data_saver.exe                                                                >> %target_dist%\examples\data_saver_kinect.cmd
+echo cd ../../scripts                                                                   >> %target_dist%\examples\data_saver_kinect.cmd
+echo call win-clean-env_command.cmd                                                     >> %target_dist%\examples\data_saver_kinect.cmd
+echo cd ../dist/examples                                                                >> %target_dist%\examples\data_saver_kinect.cmd
+REM #######################################################################################
+REM ### load data kinect
+echo @echo off                                                                          >  %target_dist%\examples\data_loader_kinect.cmd
+echo %SystemRoot%\system32\xcopy /q /e /y %saved_directory%\..\swooz-config %saved_directory%\%target_dist%\data >> %target_dist%\examples\data_loader_kinect.cmd
+echo pushd ..\..\scripts                                                                   >> %target_dist%\examples\data_loader_kinect.cmd
+echo call win-init_env_command.cmd %ARCH_EXE_examples%                           >> %target_dist%\examples\data_loader_kinect.cmd
+echo cd ..\dist\bin                                                                             >> %target_dist%\examples\data_loader_kinect.cmd
+echo kinect_data_loader.exe                                                                >> %target_dist%\examples\data_loader_kinect.cmd
+echo cd ../../scripts                                                                   >> %target_dist%\examples\data_loader_kinect.cmd
+echo call win-clean-env_command.cmd                                                     >> %target_dist%\examples\data_loader_kinect.cmd
+echo cd ../dist/examples                                                                >> %target_dist%\examples\data_loader_kinect.cmd
+REM #######################################################################################
 
 
 echo.

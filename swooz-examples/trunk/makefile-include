@@ -116,6 +116,10 @@ INC_YARP	= -I"$(THIRD_PARTY_YARP)"/include\
 COMMON	 	    = $(INC_VS) $(INC_OTHERS)
 #	display_kinect
 INC_MAIN_DISPLAY_KINECT = $(COMMON) $(OPENNI) $(INC_OPENCV)
+#       save data kinect
+INC_MAIN_DATA_SAVER_KINECT = $(COMMON) $(OPENNI) $(INC_OPENCV) $(INC_BOOST)
+#       load data kinect
+INC_MAIN_DATA_LOADER_KINECT = $(COMMON) $(INC_OPENCV) $(INC_BOOST)
 
 ################################################################################################################# RELEASE MODE
 
@@ -146,7 +150,8 @@ LIBS_CULA       = $(THIRD_PARTY_CULA)\lib\cula_lapack_basic.lib\
 LIBS_GSL	= $(THIRD_PARTY_GSL)/lib/mini_gslML.lib $(THIRD_PARTY_GSL)/lib/gslcblasML.lib\
 	
 LIBS_BOOST_D	= "$(THIRD_PARTY_BOOST)/lib/libboost_thread-vc100-mt-1_49.lib" "$(THIRD_PARTY_BOOST)/lib/libboost_date_time-vc100-mt-1_49.lib"\
-		  "$(THIRD_PARTY_BOOST)/lib/libboost_iostreams-vc100-mt-1_49.lib"\
+                  "$(THIRD_PARTY_BOOST)/lib/libboost_iostreams-vc100-mt-1_49.lib" $(THIRD_PARTY_BOOST)/lib/libboost_filesystem-vc100-mt-1_49.lib\
+                  $(THIRD_PARTY_BOOST)/lib/libboost_system-vc100-mt-1_49.lib\
 
 LIBS_BOOST	= $(THIRD_PARTY_BOOST)/lib/libboost_date_time-vc100-mt-s-1_49.lib $(THIRD_PARTY_BOOST)/lib/libboost_iostreams-vc100-mt-s-1_49.lib\
 		  $(THIRD_PARTY_BOOST)/lib/libboost_thread-vc100-mt-s-1_49.lib\
@@ -164,6 +169,9 @@ LIBS_SWOOZ      = $(DIST_LIBDIR)/SWToolkit_d.lib $(DIST_LIBDIR)/SWAvatar_d.lib\
 
 LIBS_MAIN_DISPLAY_KINECT = $(LIBS_OPENNI) $(LIBS_CV) $(LIBS_SWOOZ)
 
+LIBS_MAIN_DATA_SAVER_KINECT = $(LIBS_OPENNI) $(LIBS_CV) $(LIBS_BOOST_D) $(LIBS_SWOOZ)
+
+LIBS_MAIN_DATA_LOADER_KINECT = $(LIBS_CV) $(LIBS_BOOST_D) $(LIBS_SWOOZ)
 
 !ENDIF
 
