@@ -10,7 +10,7 @@
 
 #include <iostream>
 #include <time.h>
-#include "devices/rgbd/SWKinect.h"
+#include "devices/rgbd/SWKinect_thread.h"
 #include "devices/rgbd/SWSaveKinectData.h"
 
 #include "boost/filesystem.hpp"
@@ -25,13 +25,20 @@ int main()
     cvMoveWindow("rgb_kinect",200,200);
     cvMoveWindow("cloud_map_kinect",200+640,200);
 
-    swDevice::SWKinect kinectDevice;
+    swDevice::SWKinect_thread kinectDeviceT;
 
     // init the kinect device
-    if(kinectDevice.init() == -1)
+    if(kinectDeviceT.init(0) == -1)
     {
         std::cerr << "Error initializing kinect device. " << std::endl;
         return -1;
+    }
+
+    // start listening the kinect device
+    kinectDeviceT.startListening();
+    while(!kinectDeviceT.isDataAvailable())
+    {
+        cv::waitKey(5);
     }
 
     std::string path("./kinect_save/data_");
@@ -49,21 +56,19 @@ int main()
     dataSaver.start(saveVideoData, saveCloudData);
 
     char key = ' ';
+
     while(key != 'q')
     {
         clock_t time = clock();
 
-        // grab new kinect frame
-        kinectDevice.grab();
-
         // display the kinect rgb image in the opencv window
-        cv::imshow("rgb_kinect",kinectDevice.bgrImage);
+        cv::imshow("rgb_kinect",kinectDeviceT.bgrImage());
 
         // display the kinect cloud map in the opencv window
-        cv::imshow("cloud_map_kinect",kinectDevice.cloudMap);
+        cv::imshow("cloud_map_kinect",kinectDeviceT.cloudMap());
 
         // save current kinect frame
-        if(!dataSaver.save(kinectDevice.bgrImage, kinectDevice.cloudMap))
+        if(!dataSaver.save(kinectDeviceT.bgrImage(), kinectDeviceT.cloudMap()))
         {
             break;
         }
@@ -81,6 +86,9 @@ int main()
             key = cv::waitKey(5);
         }
     }
+
+    // stop listening kinect data
+    kinectDeviceT.stopListening();
 
     // stop the saving and create the data files
     dataSaver.stop();

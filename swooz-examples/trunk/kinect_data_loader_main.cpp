@@ -60,7 +60,6 @@ int main()
         // display the kinect loaded cloud map in the opencv window
         cv::imshow("cloud_map_kinect",cloudMap);
 
-
         // check time
         double elapsedTime = ((float)(clock() - time) / CLOCKS_PER_SEC);
 

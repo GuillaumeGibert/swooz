@@ -35,8 +35,10 @@ namespace swDetect
 			 * \brief constructor of SWFaceDetection
 			 * \param [in] oMinDetectFaceSize :  min size of a detected face
              * \param [in] bVerbose           :  display verbose info
+             * \param [in] sClassifierFilePath:  haar cascade classifier file path
 			 */
-            SWFaceDetection(const cv::Size &oMinDetectFaceSize = cv::Size(80,80), cbool bVerbose = false);
+            SWFaceDetection(const cv::Size &oMinDetectFaceSize = cv::Size(80,80), cbool bVerbose = false,
+                            std::string sClassifierFilePath = std::string("../data/classifier/haarcascade_frontalface_alt2.xml"));
 		
 		
 			// ############################################# METHODS

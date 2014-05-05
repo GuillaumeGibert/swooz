@@ -1,14 +1,15 @@
 
 
+
 /**
- * \file display_kinect_main.cpp
+ * \file display_kinect_thread_main.cpp
  * \author Florian Lance
  * \date 02-05-2014
- * \brief An example program for displaying kinect data using SWoOZ platform.
+ * \brief An example program for displaying kinect data in a thread using SWoOZ platform.
  */
 
 #include <iostream>
-#include "devices/rgbd/SWKinect.h"
+#include "devices/rgbd/SWKinect_thread.h"
 
 int main()
 {
@@ -19,13 +20,22 @@ int main()
     cvMoveWindow("rgb_kinect",200,200);
     cvMoveWindow("cloud_map_kinect",200+640,200);
 
-    swDevice::SWKinect kinectDevice;
+    swDevice::SWKinect_thread kinectDeviceT;
+
 
     // init the kinect device
-    if(kinectDevice.init() == -1)
+    if(kinectDeviceT.init(0) == -1)
     {
         std::cerr << "Error initializing kinect device. " << std::endl;
         return -1;
+    }
+
+    // start listening the kinect device
+    kinectDeviceT.startListening();
+
+    while(!kinectDeviceT.isDataAvailable())
+    {
+        cv::waitKey(5);
     }
 
     char key = ' ';
@@ -33,18 +43,18 @@ int main()
     // set the display loop
     while(key != 'q')
     {
-        // grab new kinect frame
-        kinectDevice.grab();
-
         // display the kinect rgb image in the opencv window
-        cv::imshow("rgb_kinect",kinectDevice.bgrImage);
+        cv::imshow("rgb_kinect" ,kinectDeviceT.bgrImage());
 
         // display the kinect cloud map in the opencv window
-        cv::imshow("cloud_map_kinect",kinectDevice.cloudMap);
+        cv::imshow("cloud_map_kinect", kinectDeviceT.cloudMap());
 
         // wait key event for escaping the loop
         key = cv::waitKey(5);
     }
+
+    // stop listening kinect device    
+    kinectDeviceT.stopListening();
 
     // destroy windows
     cvDestroyWindow("rgb_kinect");

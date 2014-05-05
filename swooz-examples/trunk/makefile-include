@@ -114,12 +114,16 @@ INC_YARP	= -I"$(THIRD_PARTY_YARP)"/include\
 ############################ DEPENDENCIES
 
 COMMON	 	    = $(INC_VS) $(INC_OTHERS)
-#	display_kinect
+#	display kinect
 INC_MAIN_DISPLAY_KINECT = $(COMMON) $(OPENNI) $(INC_OPENCV)
+#	display thread kinect
+INC_MAIN_DISPLAY_THREAD_KINECT = $(COMMON) $(OPENNI) $(INC_OPENCV) $(INC_BOOST)
 #       save data kinect
 INC_MAIN_DATA_SAVER_KINECT = $(COMMON) $(OPENNI) $(INC_OPENCV) $(INC_BOOST)
 #       load data kinect
 INC_MAIN_DATA_LOADER_KINECT = $(COMMON) $(INC_OPENCV) $(INC_BOOST)
+#       detect face stasm
+INC_MAIN_DETECT_FACE_STASM = $(COMMON) $(INC_OPENCV) $(INC_BOOST)
 
 ################################################################################################################# RELEASE MODE
 
@@ -169,9 +173,13 @@ LIBS_SWOOZ      = $(DIST_LIBDIR)/SWToolkit_d.lib $(DIST_LIBDIR)/SWAvatar_d.lib\
 
 LIBS_MAIN_DISPLAY_KINECT = $(LIBS_OPENNI) $(LIBS_CV) $(LIBS_SWOOZ)
 
+LIBS_MAIN_DISPLAY_THREAD_KINECT = $(LIBS_OPENNI) $(LIBS_CV) $(LIBS_SWOOZ) $(LIBS_BOOST_D)
+
 LIBS_MAIN_DATA_SAVER_KINECT = $(LIBS_OPENNI) $(LIBS_CV) $(LIBS_BOOST_D) $(LIBS_SWOOZ)
 
 LIBS_MAIN_DATA_LOADER_KINECT = $(LIBS_CV) $(LIBS_BOOST_D) $(LIBS_SWOOZ)
+
+LIBS_MAIN_DETECT_FACE_STASM = $(LIBS_CV) $(LIBS_BOOST_D) $(LIBS_SWOOZ)
 
 !ENDIF
 
