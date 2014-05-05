@@ -12,7 +12,8 @@
 #include <iostream>
 #include "devices/rgbd/SWKinect_thread.h"
 //#include "detect/SWStasm.h"
-#include "detect/SWFaceDetection.h"
+//#include "detect/SWFaceDetection.h"
+#include "detect/SWFaceDetection_thread.h"
 #include "opencvUtility.h"
 
 int main()
@@ -45,9 +46,15 @@ int main()
     }
 
     // init haar cascade detection
-    swDetect::SWFaceDetection haarDetect1(cv::Size(80,80), false, "../data/classifier/haarcascade_frontalface_alt.xml");
-    swDetect::SWFaceDetection haarDetect2(cv::Size(80,80), false, "../data/classifier/haarcascade_frontalface_alt2.xml");
-    swDetect::SWFaceDetection haarDetect3(cv::Size(80,80), false, "../data/classifier/haarcascade_frontalface_alt_tree.xml");
+    swDetect::SWFaceDetection_thread haarDetect1(cv::Size(80,80), false, "../data/classifier/haarcascade_frontalface_alt.xml");
+    swDetect::SWFaceDetection_thread haarDetect2(cv::Size(80,80), false, "../data/classifier/haarcascade_frontalface_alt2.xml");
+    swDetect::SWFaceDetection_thread haarDetect3(cv::Size(80,80), false, "../data/classifier/haarcascade_frontalface_alt_tree.xml");
+
+    haarDetect1.startDetection();
+    haarDetect2.startDetection();
+    haarDetect3.startDetection();
+
+
 
     char key = ' ';
 
@@ -56,9 +63,9 @@ int main()
     {
         cv::Mat rgb = kinectDeviceT.bgrImage();
 
-        haarDetect1.detect(rgb);
-        haarDetect2.detect(rgb);
-        haarDetect3.detect(rgb);
+        haarDetect1.setNewRGB(rgb);
+        haarDetect2.setNewRGB(rgb);
+        haarDetect3.setNewRGB(rgb);
 
         cv::Mat displayHaar1 = rgb.clone();
         cv::Mat displayHaar2 = rgb.clone();
@@ -78,6 +85,10 @@ int main()
 
     // stop listening kinect device
     kinectDeviceT.stopListening();
+
+    haarDetect1.startDetection();
+    haarDetect2.startDetection();
+    haarDetect3.startDetection();
 
     // destroy windows
     cvDestroyWindow("rgb_kinect_haar1");
