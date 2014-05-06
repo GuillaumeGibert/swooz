@@ -1,0 +1,58 @@
+../swooz-toolkit/trunk/include
+../swooz-toolkit/trunk/include/devices
+../swooz-toolkit/trunk/include/devices/dimenco
+../swooz-toolkit/trunk/include/devices/faceLab
+../swooz-toolkit/trunk/include/devices/fastrak
+../swooz-toolkit/trunk/include/devices/rgbd
+../swooz-toolkit/trunk/include/devices/tobii
+
+../swooz-avatar/trunk/include
+../swooz-avatar/trunk/include/cloud
+../swooz-avatar/trunk/include/detect
+../swooz-avatar/trunk/include/emicp
+../swooz-avatar/trunk/include/gpuMat
+../swooz-avatar/trunk/include/interface
+../swooz-avatar/trunk/include/interface/QtWidgets
+../swooz-avatar/trunk/include/interface/QtWorkers
+../swooz-avatar/trunk/include/mesh
+../swooz-avatar/trunk/include/track
+../swooz-avatar/trunk/genUI
+
+../swooz-teleoperation/trunk/include/icub
+../swooz-teleoperation/trunk/include/nao
+
+../swooz-tracking/trunk/include/
+../swooz-tracking/trunk/include/facelab
+../swooz-tracking/trunk/include/rgbd
+../swooz-tracking/trunk/include/rgbd/forest
+../swooz-tracking/trunk/include/rgbd/faceshift
+
+../swooz-manipulation/trunk/include/
+../swooz-manipulation/trunk/genUI
+
+
+# std
+D:\_software\Microsoft Visual Studio 10.0\VC\include
+
+# opencv
+../swooz-3rdparty/opencv/opencv-2.45/modules/core/include
+../swooz-3rdparty/opencv/opencv-2.45/modules/imgproc/include
+../swooz-3rdparty/opencv/opencv-2.45/modules/objdetect/include
+../swooz-3rdparty/opencv/opencv-2.45/modules/gpu/include
+../swooz-3rdparty/opencv/opencv-2.45/modules/flann/include
+../swooz-3rdparty/opencv/opencv-2.45/modules/features2d/include
+../swooz-3rdparty/opencv/opencv-2.45/modules/highgui/include
+../swooz-3rdparty/opencv/opencv-2.45/modules/video/include
+
+# Qt
+../swooz-3rdparty/Qt\4.8.0/include
+../swooz-3rdparty/Qt\4.8.0/include/Qt
+../swooz-3rdparty/Qt\4.8.0/include/QtCore
+../swooz-3rdparty/Qt\4.8.0/include/QtGui
+../swooz-3rdparty/Qt\4.8.0/include/QtOpenGL
+
+# boost
+../swooz-3rdparty/Boost/include
+
+# yarp
+D:\swooz\swooz-3rdparty\yarp\yarp-2.3.60\include

@@ -1,7 +1,7 @@
 
 ################ projects
 
-qtCreator-proj/
+
 releases/
 
 ################ scripts
@@ -65,7 +65,5 @@ swooz-avatar/trunk/data/stasm/
 swooz-avatar/trunk/data/images/
 swooz-avatar/trunk/data/meshes/
 # tracking
-swooz-tracking/trunk/data/classifier/
-swooz-tracking/trunk/data/stasm/
 swooz-tracking/trunk/data/trees/
 
