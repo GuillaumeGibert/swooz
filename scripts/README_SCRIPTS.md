@@ -19,7 +19,7 @@ SWOOZ - SCRIPTS
 
  * Checkout of the git repository...
 
- * Install the swooz-3rdparty installer in the swooz directory.
+ * Install the swooz-3rdparty installer in the swooz directory : temporary liok -> http://www.sendspace.com/file/l35mg7
 
 
 Modify the **win-init_env_command.cmd.skeleton** script.
