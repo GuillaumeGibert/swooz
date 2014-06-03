@@ -16,7 +16,7 @@
 
 #include "SWUI_Viewer.h"
 
-#include "interface/QtWidgets/SWGLMeshWidget.h"
+#include "interface/QtWidgets/SWGLMultiObjectWidget.h"
 
 
 
@@ -54,6 +54,8 @@ class SWViewerInterface : public QMainWindow
 
     public slots:
 
+        void loadCloud();
+
         void loadMesh();
 
 
@@ -66,7 +68,7 @@ class SWViewerInterface : public QMainWindow
         // widgets & ui
         Ui::SWUI_Viewer* m_uiViewer;   /**< qt main window */
 
-        SWGLMeshWidget *m_pGLMesh; /**< ... */
+        SWGLMultiObjectWidget *m_pGLMultiObject; /**< ... */
 
         // threads & workers
 //        SWViewerWorker  *m_pWViewer;    /**< viewer worker */

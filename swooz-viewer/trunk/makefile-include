@@ -98,13 +98,15 @@ INC_UI      = -I$(QTGENW)\
 
 INC_MOC     = -I$(MOCDIR)\
 
+INC_BOOST   = -I"$(THIRD_PARTY_BOOST)"/include\
+
 INC_QT      = -I"$(THIRD_PARTY_QT)"/include/QtOpenGL -I"$(THIRD_PARTY_QT)"/include/QtGui -I"$(THIRD_PARTY_QT)"/include/QtCore -I"$(THIRD_PARTY_QT)"/include/Qt -I"$(THIRD_PARTY_QT)"/include\
 
 ############################ DEPENDENCIES
 
 COMMON              = $(INC_VIEWER) $(INC_OTHERS) $(INC_VS)
 
-SW_VIEWER_INTERFACE = $(COMMON) $(INC_QT) $(INC_UI) $(INC_MOC)
+SW_VIEWER_INTERFACE = $(COMMON) $(INC_BOOST) $(INC_QT) $(INC_UI) $(INC_MOC)
 
 ############################ COMMON DEBUG/RELEASE LIBS
 

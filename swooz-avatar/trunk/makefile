@@ -31,7 +31,7 @@ SWOOZ_LIST_OBJ=\
         $(LIBDIR)/SWHaarCascade.obj $(LIBDIR)/SWFaceDetection.obj $(LIBDIR)/SWFaceDetection_thread.obj\
         $(LIBDIR)/emicp.obj $(LIBDIR)/findRTfromS.obj $(LIBDIR)/gpuMat.obj $(LIBDIR)/SWTrackFlow.obj $(LIBDIR)/SWTrack.obj\
         $(LIBDIR)/SWDisplayImageWidget.obj $(LIBDIR)/SWDisplayCurvesWidget.obj\
-        $(LIBDIR)/SWQtCamera.obj $(LIBDIR)/SWGLWidget.obj $(LIBDIR)/SWGLCloudWidget.obj $(LIBDIR)/SWGLMeshWidget.obj\
+        $(LIBDIR)/SWQtCamera.obj $(LIBDIR)/SWGLWidget.obj $(LIBDIR)/SWGLCloudWidget.obj $(LIBDIR)/SWGLMeshWidget.obj $(LIBDIR)/SWGLMultiObjectWidget.obj\
         $(LIBDIR)/SWGLOptimalStepNonRigidICP.obj $(LIBDIR)/SWCaptureHeadMotion.obj\
         $(LIBDIR)/SWCreateAvatarWorker.obj $(LIBDIR)/SWCreateAvatar.obj $(LIBDIR)/SWCreateAvatarInterface.obj\
         $(LIBDIR)/SWMorphingWorker.obj $(LIBDIR)/SWMorphingInterface.obj\
@@ -48,7 +48,7 @@ SWOOZ_DYN_LIST_OBJ=\
         $(LIBDIR)/SWHaarCascade_d.obj $(LIBDIR)/SWFaceDetection_d.obj $(LIBDIR)/SWFaceDetection_thread_d.obj\
         $(LIBDIR)/emicp.obj $(LIBDIR)/findRTfromS.obj $(LIBDIR)/gpuMat.obj $(LIBDIR)/SWTrackFlow_d.obj $(LIBDIR)/SWTrack_d.obj\
         $(LIBDIR)/SWDisplayImageWidget_d.obj $(LIBDIR)/SWDisplayCurvesWidget_d.obj\
-        $(LIBDIR)/SWQtCamera_d.obj $(LIBDIR)/SWGLWidget_d.obj $(LIBDIR)/SWGLCloudWidget_d.obj $(LIBDIR)/SWGLMeshWidget_d.obj\
+        $(LIBDIR)/SWQtCamera_d.obj $(LIBDIR)/SWGLWidget_d.obj $(LIBDIR)/SWGLCloudWidget_d.obj $(LIBDIR)/SWGLMeshWidget_d.obj $(LIBDIR)/SWGLMultiObjectWidget_d.obj\
         $(LIBDIR)/SWGLOptimalStepNonRigidICP_d.obj $(LIBDIR)/SWCaptureHeadMotion_d.obj\
         $(LIBDIR)/SWCreateAvatarWorker_d.obj $(LIBDIR)/SWCreateAvatar_d.obj $(LIBDIR)/SWCreateAvatarInterface_d.obj\
         $(LIBDIR)/SWMorphingWorker_d.obj $(LIBDIR)/SWMorphingInterface_d.obj\
@@ -79,14 +79,14 @@ AVATAR_LINK_D_OBJ=\
 MORPHING_LINK_OBJ=\
         $(LIBDIR)/SWCloud.obj $(LIBDIR)/SWAlignClouds.obj $(LIBDIR)/SWMesh.obj $(LIBDIR)/SWOptimalStepNonRigidICP.obj\
         $(LIBDIR)/emicp.obj $(LIBDIR)/findRTfromS.obj $(LIBDIR)/gpuMat.obj $(LIBDIR)/SWDisplayImageWidget.obj\
-        $(LIBDIR)/SWQtCamera.obj $(LIBDIR)/SWGLWidget.obj $(LIBDIR)/SWGLCloudWidget.obj $(LIBDIR)/SWGLMeshWidget.obj\
+        $(LIBDIR)/SWQtCamera.obj $(LIBDIR)/SWGLWidget.obj $(LIBDIR)/SWGLCloudWidget.obj $(LIBDIR)/SWGLMeshWidget.obj $(LIBDIR)/SWGLMultiObjectWidget.obj\
         $(LIBDIR)/SWGLOptimalStepNonRigidICP.obj\
         $(LIBDIR)/SWMorphingWorker.obj $(LIBDIR)/SWMorphingInterface.obj\
 
 MORPHING_LINK_D_OBJ=\
         $(LIBDIR)/SWCloud_d.obj $(LIBDIR)/SWAlignClouds_d.obj $(LIBDIR)/SWMesh_d.obj $(LIBDIR)/SWOptimalStepNonRigidICP_d.obj\
         $(LIBDIR)/emicp.obj $(LIBDIR)/findRTfromS.obj $(LIBDIR)/gpuMat.obj $(LIBDIR)/SWDisplayImageWidget_d.obj\
-        $(LIBDIR)/SWQtCamera_d.obj $(LIBDIR)/SWGLWidget_d.obj $(LIBDIR)/SWGLCloudWidget_d.obj $(LIBDIR)/SWGLMeshWidget_d.obj\
+        $(LIBDIR)/SWQtCamera_d.obj $(LIBDIR)/SWGLWidget_d.obj $(LIBDIR)/SWGLCloudWidget_d.obj $(LIBDIR)/SWGLMeshWidget_d.obj $(LIBDIR)/SWGLMultiObjectWidget_d.obj\
         $(LIBDIR)/SWGLOptimalStepNonRigidICP_d.obj\
         $(LIBDIR)/SWMorphingWorker_d.obj $(LIBDIR)/SWMorphingInterface_d.obj\
 
@@ -107,7 +107,7 @@ AVATAR_GEN_DYN_LIB_OBJ=\
 # Qt Moc files to be generated
 MOC_LIST=\
         $(MOCDIR)/moc_SWCreateAvatarInterface.cpp $(MOCDIR)/moc_SWMorphingInterface.cpp $(MOCDIR)/moc_SWDisplayImageWidget.cpp $(MOCDIR)/moc_SWDisplayCurvesWidget.cpp \
-        $(MOCDIR)/moc_SWGLWidget.cpp $(MOCDIR)/moc_SWGLCloudWidget.cpp $(MOCDIR)/moc_SWGLMeshWidget.cpp $(MOCDIR)/moc_SWCreateAvatarWorker.cpp\
+        $(MOCDIR)/moc_SWGLWidget.cpp $(MOCDIR)/moc_SWGLCloudWidget.cpp $(MOCDIR)/moc_SWGLMeshWidget.cpp $(MOCDIR)/moc_SWGLMultiObjectWidget.cpp $(MOCDIR)/moc_SWCreateAvatarWorker.cpp\
         $(MOCDIR)/moc_SWMorphingWorker.cpp $(MOCDIR)/moc_SWGLOptimalStepNonRigidICP.cpp\
 
 ############################################################################## UI LIST
@@ -213,6 +213,9 @@ $(LIBDIR)/SWGLCloudWidget.obj: $(SRCDIR_QTW)/SWGLCloudWidget.cpp
 $(LIBDIR)/SWGLMeshWidget.obj: $(SRCDIR_QTW)/SWGLMeshWidget.cpp
         $(CC) -c $(SRCDIR_QTW)/SWGLMeshWidget.cpp $(CFLAGS_STA) $(SW_GL_MESH_WIDGET) -Fo"$(LIBDIR)/"
 
+$(LIBDIR)/SWGLMultiObjectWidget.obj: $(SRCDIR_QTW)/SWGLMultiObjectWidget.cpp
+        $(CC) -c $(SRCDIR_QTW)/SWGLMultiObjectWidget.cpp $(CFLAGS_STA) $(SW_GL_MULTI_WIDGET) -Fo"$(LIBDIR)/"
+
 $(LIBDIR)/SWGLOptimalStepNonRigidICP.obj: $(SRCDIR_QTW)/SWGLOptimalStepNonRigidICP.cpp
         $(CC) -c $(SRCDIR_QTW)/SWGLOptimalStepNonRigidICP.cpp $(CFLAGS_STA) $(SW_GL_OSNRI_WIDGET) -Fo"$(LIBDIR)/"
 
@@ -294,6 +297,9 @@ $(LIBDIR)/SWGLCloudWidget_d.obj: $(SRCDIR_QTW)/SWGLCloudWidget.cpp
 
 $(LIBDIR)/SWGLMeshWidget_d.obj: $(SRCDIR_QTW)/SWGLMeshWidget.cpp
         $(CC) -c $(SRCDIR_QTW)/SWGLMeshWidget.cpp $(CFLAGS_DYN) $(SW_GL_MESH_WIDGET) -Fo"$(LIBDIR)/SWGLMeshWidget_d.obj"
+
+$(LIBDIR)/SWGLMultiObjectWidget_d.obj: $(SRCDIR_QTW)/SWGLMultiObjectWidget.cpp
+        $(CC) -c $(SRCDIR_QTW)/SWGLMultiObjectWidget.cpp $(CFLAGS_DYN) $(SW_GL_MULTI_WIDGET) -Fo"$(LIBDIR)/SWGLMultiObjectWidget_d.obj"
 
 $(LIBDIR)/SWGLOptimalStepNonRigidICP_d.obj: $(SRCDIR_QTW)/SWGLOptimalStepNonRigidICP.cpp
         $(CC) -c $(SRCDIR_QTW)/SWGLOptimalStepNonRigidICP.cpp $(CFLAGS_DYN) $(SW_GL_OSNRI_WIDGET) -Fo"$(LIBDIR)/SWGLOptimalStepNonRigidICP_d.obj"
@@ -498,6 +504,9 @@ $(MOCDIR)/moc_SWGLCloudWidget.cpp: $(INCDIR_QTW)/SWGLCloudWidget.h
 
 $(MOCDIR)/moc_SWGLMeshWidget.cpp: $(INCDIR_QTW)/SWGLMeshWidget.h
          moc  $(INCDIR_QTW)/SWGLMeshWidget.h -o $@
+
+$(MOCDIR)/moc_SWGLMultiObjectWidget.cpp: $(INCDIR_QTW)/SWGLMultiObjectWidget.h
+         moc  $(INCDIR_QTW)/SWGLMultiObjectWidget.h -o $@
 
 $(MOCDIR)/moc_SWGLOptimalStepNonRigidICP.cpp: $(INCDIR_QTW)/SWGLOptimalStepNonRigidICP.h
          moc  $(INCDIR_QTW)/SWGLOptimalStepNonRigidICP.h -o $@

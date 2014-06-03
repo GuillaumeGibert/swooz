@@ -10,6 +10,8 @@
 
 #include "moc_SWViewerInterface.cpp"
 
+#include "interface/QtWidgets/SWGLMultiObjectWidget.h"
+
 SWViewerInterface::SWViewerInterface() : m_uiViewer(new Ui::SWUI_Viewer)
 {
     // init main widget
@@ -34,8 +36,8 @@ SWViewerInterface::SWViewerInterface() : m_uiViewer(new Ui::SWUI_Viewer)
         l_glFormat.setProfile(  QGLFormat::CompatibilityProfile);
         l_glFormat.setSampleBuffers( true );
         QGLContext *l_glContext = new QGLContext(l_glFormat);
-        m_pGLMesh = new SWGLMeshWidget(l_glContext, l_pGLContainer, "../data/shaders/meshViewer.vert", "../data/shaders/meshViewer.frag");
-        l_pGLContainerLayout->addWidget(m_pGLMesh);
+        m_pGLMultiObject = new SWGLMultiObjectWidget(l_glContext, l_pGLContainer);//, "../data/shaders/meshViewer.vert", "../data/shaders/meshViewer.frag");
+        l_pGLContainerLayout->addWidget(m_pGLMultiObject);
         l_pGLContainer->setLayout(l_pGLContainerLayout);
         m_uiViewer->glScene->addWidget(l_pGLContainer);
 
@@ -46,6 +48,7 @@ SWViewerInterface::SWViewerInterface() : m_uiViewer(new Ui::SWUI_Viewer)
 
 
     // init connections
+         QObject::connect(m_uiViewer->pbLoadCloud, SIGNAL(clicked()), this, SLOT(loadCloud()));
          QObject::connect(m_uiViewer->pbLoadMesh, SIGNAL(clicked()), this, SLOT(loadMesh()));
 
 
@@ -56,23 +59,16 @@ SWViewerInterface::~SWViewerInterface()
 {
 }
 
+void SWViewerInterface::loadCloud()
+{
+    QString l_sPathCloud = QFileDialog::getOpenFileName(this, "Load cloud", QString(), "Mesh file (*.obj)");;
+    m_pGLMultiObject->addCloud(l_sPathCloud);
+}
+
 void SWViewerInterface::loadMesh()
 {
     QString l_sPathMesh = QFileDialog::getOpenFileName(this, "Load mesh", QString(), "Mesh file (*.obj)");;
-    //m_uiViewer->lePathTemplate->setText(l_sPathTemplateMesh);
-    //m_pGLOSNRICP->setSourceMesh(l_sPathTemplateMesh);
-
-    swMesh::SWMesh l_oMesh(l_sPathMesh.toUtf8().constData());
-    m_pGLMesh->setMesh(&l_oMesh);
-
-//    m_bTemplateDefined = true;
-
-//    if(m_bTemplateDefined && m_bTargetDefined)
-//    {
-//        m_uiMorphing->pbStart->setEnabled(true);
-//        m_uiMorphing->pbSaveMorphedMesh->setEnabled(true);
-//        m_uiMorphing->pbCorr->setEnabled(true);
-//    }
+    m_pGLMultiObject->addMesh(l_sPathMesh);
 }
 
 int main(int argc, char* argv[])

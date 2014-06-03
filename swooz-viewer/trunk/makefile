@@ -19,7 +19,7 @@ LINK=link
 ############################################################################## OBJ LISTS
 
 VIEWER_LINK_D_OBJ=\
-    $(DIST_LIBDIR)/SWCloud_d.obj $(DIST_LIBDIR)/SWMesh_d.obj $(DIST_LIBDIR)/SWGLWidget_d.obj $(DIST_LIBDIR)/SWQtCamera_d.obj $(DIST_LIBDIR)/SWGLMeshWidget_d.obj $(LIBDIR)/SWViewerInterface_d.obj\
+    $(DIST_LIBDIR)/SWCloud_d.obj $(DIST_LIBDIR)/SWMesh_d.obj $(DIST_LIBDIR)/SWGLWidget_d.obj $(DIST_LIBDIR)/SWQtCamera_d.obj $(DIST_LIBDIR)/SWGLMultiObjectWidget_d.obj $(LIBDIR)/SWViewerInterface_d.obj\
 
 ############################################################################## Makefile commands
 
