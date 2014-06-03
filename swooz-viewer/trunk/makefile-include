@@ -1,0 +1,154 @@
+
+# makefile-include of swooz-viewer project using Visual C++
+# Guillaume Gibert / Florian Lance
+# lyon sept 2013
+
+################################################################################################################# DEBUG/RELEASE MODE
+
+############################ DOC CL OPTIONS
+
+# -MTd   : Creates a debug multithreaded executable file, No need to define _DEBUG, compiler does it for us if -MTd flag is on
+# -DGSL_RANGE_CHECK : tells the mat lib to do range checking
+# -Zi    : Generates complete debugging information
+# -nolog : In brief, the positive form suppresses the logo at startup and the negative form makes explicit that this suppression is not wanted. However, there are some other effects. 
+# -O2 	 : Creates fast code
+# -W3 	 : Sets warning level
+# -MT 	 : Causes your application to use the multithread, static version of the run-time library. 
+#     	   Defines _MT and causes the compiler to place the library name LIBCMT.lib into the .obj file 
+#     	   so that the linker will use LIBCMT.lib to resolve external symbols.
+# -MD 	 : Causes your application to use the multithread- and DLL-specific version of the run-time library
+#     	   Defines _MT and _DLL and causes the compiler to place the library name MSVCRT.lib into the .obj file.
+#    	   Applications compiled with this option are statically linked to MSVCRT.lib. 
+#     	   This library provides a layer of code that allows the linker to resolve external references. 
+#     	   The actual working code is contained in MSVCR100.DLL, which must be available at run time to applications linked with MSVCRT.lib.
+# -GF 	 : enable string pooling
+# -Gy 	 : enable function-level linking
+# -EHsc  : exception model to use : /EHsc -> intercept only C++ exceptions, extern C functions never launch C++ exception.
+# 	   object files go to -Fo 
+
+
+############################ WIN LIB
+
+WINLIBS=advapi32.lib comctl32.lib comdlg32.lib gdi32.lib shell32.lib user32.lib vfw32.lib winmm.lib opengl32.lib
+
+############################ DIRECTORIES
+
+# define lib dir
+
+LIBDIR  =./lib
+DIST_LIBDIR = $(SW_DIST)/lib
+
+!if  "$(ARCH)" == "x86"
+LIBDIR= $(LIBDIR)/x86
+DIST_LIBDIR = $(DIST_LIBDIR)/x86
+!endif
+
+!if  "$(ARCH)" == "amd64"
+LIBDIR= $(LIBDIR)/amd64
+DIST_LIBDIR = $(DIST_LIBDIR)/amd64
+!endif
+
+!if  "$(CFG)" == "Release"
+LIBDIR= $(LIBDIR)/Release
+DIST_LIBDIR = $(DIST_LIBDIR)/Release
+!endif
+
+!if  "$(CFG)" == "Debug"
+LIBDIR= $(LIBDIR)/Debug
+DIST_LIBDIR = $(DIST_LIBDIR)/Debug
+!endif
+
+
+# others dir
+
+BINDIR=./bin
+QTGENW=./genUI
+FORMDIR=./form
+MOCDIR=./moc
+
+############################ SET UP FOR THE WANTED ARCH
+
+# We include setargv.obj for executables that do command line filename globbing.
+# PROGRAMFILES is inherited from the shell evironment (where it is
+# called ProgramFiles, but nmake converts it to upper case).  This allows us
+# to work with systems that use \Program Files or \Program Files x86.
+# we include binmode.obj so files are opened as _O_BINARY, for compat with unix
+
+SETARGV = "$(VS100COMNTOOLS)/../../VC/lib/setargv.obj"
+BINMODE = "$(VS100COMNTOOLS)/../../VC/lib/binmode.obj"
+
+!IF "$(ARCH)" != "x86"
+SETARGV = "$(VS100COMNTOOLS)/../../VC/lib/amd64/setargv.obj"
+BINMODE = "$(VS100COMNTOOLS)/../../VC/lib/amd64/binmode.obj"
+
+
+# ...
+
+!ENDIF
+
+############################ INCLUDES
+
+INC_VIEWER  = -I.\include
+
+INC_OTHERS  = -I$(SW_DIST)\include
+
+INC_VS      = -I"$(PROGRAMFILES)/Microsoft SDKs/Windows/v7.0A/Include"\ -I"$(VS100COMNTOOLS)/../../VC/include"\
+	
+INC_UI      = -I$(QTGENW)\
+
+INC_MOC     = -I$(MOCDIR)\
+
+INC_QT      = -I"$(THIRD_PARTY_QT)"/include/QtOpenGL -I"$(THIRD_PARTY_QT)"/include/QtGui -I"$(THIRD_PARTY_QT)"/include/QtCore -I"$(THIRD_PARTY_QT)"/include/Qt -I"$(THIRD_PARTY_QT)"/include\
+
+############################ DEPENDENCIES
+
+COMMON              = $(INC_VIEWER) $(INC_OTHERS) $(INC_VS)
+
+SW_VIEWER_INTERFACE = $(COMMON) $(INC_QT) $(INC_UI) $(INC_MOC)
+
+############################ COMMON DEBUG/RELEASE LIBS
+
+LIBS_COMMON	=
+#"$(PROGRAMFILES)\Microsoft SDKs\Windows\v7.0A\Lib\ws2_32.lib"
+
+################################################################################################################# RELEASE MODE
+
+!IF  "$(CFG)" == "Release"
+
+############################ FLAGS
+
+CFLAGS_STA = -nologo -O2 -GF -Gy -W3 -MT -EHsc -DWIN32 -MP$(NUMBER_OF_PROCESSORS)
+CFLAGS_DYN = -nologo -O2 -GF -Gy -W3 -MD -EHsc -DWIN32 -MP$(NUMBER_OF_PROCESSORS)
+
+LFLAGS_VIEWER =-nologo
+
+############################ LIBS
+
+LIBS_SWOOZ      = $(DIST_LIBDIR)/SWToolkit_d.lib\
+
+LIBS_QT 	= $(THIRD_PARTY_QT)/lib/QtOpenGL4.lib $(THIRD_PARTY_QT)/lib/QtCore4.lib $(THIRD_PARTY_QT)/lib/QtGui4.lib $(THIRD_PARTY_QT)/lib/qtmain.lib\
+
+LIBS_VIEWER     = $(LIBS_SWOOZ) $(LIBS_QT)
+
+!ENDIF
+
+################################################################################################################# DEBUG MODE
+# TODO : complete
+
+!IF  "$(CFG)" == "Debug"
+
+############################ FLAGS
+
+CFLAGS_STA = -nologo -Zi -W3 -MTd -EHsc -DWIN32
+CFLAGS_DYN = -nologo -Zi -W3 -MDd -EHsc -DWIN32
+
+LFLAGS_VIEWER=-nologo
+
+############################ LIBS
+
+
+LIBS_VIEWER         =
+	
+
+!ENDIF
+

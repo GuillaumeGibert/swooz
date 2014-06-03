@@ -249,3 +249,12 @@
 ../swooz-tracking/trunk/include/rgbd/forest/CRForestEstimator.h
 ../swooz-tracking/trunk/include/rgbd/forest/CRForest.h
 ../swooz-tracking/trunk/include/rgbd/forest/common.hpp
+../swooz-viewer/trunk/win-generate_doc.cmd
+../swooz-viewer/trunk/win-build_branch.cmd
+../swooz-viewer/trunk/makefile-include
+../swooz-viewer/trunk/makefile
+../swooz-viewer/trunk/Doxyfile
+../swooz-viewer/trunk/include/SWViewerInterface.h
+../swooz-viewer/trunk/src/SWViewerInterface.cpp
+../swooz-config/shaders/meshViewer.vert
+../swooz-config/shaders/meshViewer.frag

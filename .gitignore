@@ -53,6 +53,13 @@ swooz-manipulation/trunk/bin/
 swooz-manipulation/trunk/moc/
 swooz-manipulation/trunk/doc/
 swooz-manipulation/trunk/genUI/
+# viewer
+swooz-viewer/trunk/NULL
+swooz-viewer/trunk/lib/
+swooz-viewer/trunk/bin/
+swooz-viewer/trunk/moc/
+swooz-viewer/trunk/doc/
+swooz-viewer/trunk/genUI/
 # examples
 swooz-examples/trunk/NULL
 swooz-examples/trunk/lib/

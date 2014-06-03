@@ -13,16 +13,9 @@
 
 #include "QtWorkers/SWMorphingWorker.h"
 
-//#include "SWUI_WMeshCorr.h"
-//#include "SWUI_WParamsDisplay.h"
-//#include "SWUI_WTargetTransfo.h"
-
 #include "SWUI_Morphing.h"
 
 namespace Ui {
-//    class SWUI_WMeshCorr;
-//    class SWUI_WParamsDisplay;
-//    class SWUI_WTargetTransfo;
     class SWUI_Morphing;
 }
 
