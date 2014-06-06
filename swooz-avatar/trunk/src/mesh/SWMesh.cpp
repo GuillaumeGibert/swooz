@@ -28,11 +28,12 @@ SWMesh::SWMesh(const std::string &sPathObjFile) : m_ui32TrianglesNumber(0), m_ui
 
     if(m_oCloud.loadObj(sPathObjFile))
     {
-        ifstream  l_oFileStream(sPathObjFile);
+        ifstream l_oFileStream(sPathObjFile);
 
         bool l_bFirstFace = true;
         bool l_bEndFile   = false;
         string l_sLine, l_sType = " ";
+        string l_sMTLNameFile   = " ";
 
         m_vVertexIdTriangle = vector<vector<uint> >(m_oCloud.size(), vector<uint>());
 
@@ -131,6 +132,12 @@ SWMesh::SWMesh(const std::string &sPathObjFile) : m_ui32TrianglesNumber(0), m_ui
                     }
 
                     m_aIdTriangles.push_back(l_aIdTriangle);
+                    l_sType = "";
+                }
+                else if(l_sType == "mtllib")
+                {
+                    l_oFileStream >> l_sMTLNameFile;
+//                    std::cout << "file mtl : " << l_sMTLNameFile << std::endl;
                     l_sType = "";
                 }
             }

@@ -317,6 +317,7 @@ void  SWGLWidget::drawAxes(QGLShaderProgram &oShader, QMatrix4x4 &mvpMatrix, cfl
 
     // set mvp matrix uniform value
     oShader.setUniformValue("mvpMatrix", mvpMatrix);
+    oShader.setUniformValue("displayMode", 1);
 
     // set color uniform value for the current line
     oShader.setUniformValue("uniColor", 1.f, 0.f, 0.f);

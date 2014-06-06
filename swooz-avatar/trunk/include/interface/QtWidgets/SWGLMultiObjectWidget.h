@@ -25,6 +25,31 @@
 typedef boost::shared_ptr<swCloud::SWCloud> SWCloudPtr;	/**< boost shared pointer for SWCloud */
 typedef boost::shared_ptr<swMesh::SWMesh> SWMeshPtr;	/**< boost shared pointer for SWMesh */
 
+
+enum GLObjectDisplayMode
+{
+    GLO_ORIGINAL_COLOR,GLO_UNI_COLOR,GLO_TEXTURE
+};
+
+struct SWGLObjectParameters
+{        
+    bool m_bCloud;
+
+    bool m_bVisible;    
+    bool m_bDisplayLines;
+
+    GLObjectDisplayMode displayMode;
+
+    double m_dScaling;
+
+    QVector3D m_vUnicolor;
+    QVector3D m_vTranslation;
+    QVector3D m_vRotation;
+
+    QString m_sTexturePath;
+
+};
+
 class SWGLMultiObjectWidget : public SWGLWidget
 {
     Q_OBJECT
@@ -42,6 +67,34 @@ class SWGLMultiObjectWidget : public SWGLWidget
          * \brief destructor of SWGLMultiObjectWidget
          */
         ~SWGLMultiObjectWidget();
+
+        /**
+         * @brief setCloudParameters
+         * @param ui32Index
+         * @param oParams
+         */
+        void setCloudParameters(cuint ui32Index, const SWGLObjectParameters &oParams);
+
+        /**
+         * @brief setMeshParameters
+         * @param ui32Index
+         * @param oParams
+         */
+        void setMeshParameters(cuint ui32Index, const SWGLObjectParameters &oParams);
+
+        /**
+         * @brief cloudParameters
+         * @param ui32Index
+         * @param oParams
+         */
+        void cloudParameters(cuint ui32Index,SWGLObjectParameters &oParams);
+
+        /**
+         * @brief meshParameters
+         * @param ui32Index
+         * @param oParams
+         */
+        void meshParameters(cuint ui32Index,SWGLObjectParameters &oParams);
 
     protected:
 
@@ -115,29 +168,38 @@ class SWGLMultiObjectWidget : public SWGLWidget
 
     private :
 
+        void drawClouds();
+
+        void drawMeshes();
+
+    private :
+
         QGLShaderProgram m_oShaderCloud; /**< ... */
         QGLShaderProgram m_oShaderMesh;  /**< ... */
-
-//        QImage m_oTexture;
 
         QGLBuffer m_vertexBuffer;   /**< ... */
         QGLBuffer m_indexBuffer;    /**< ... */
         QGLBuffer m_normalBuffer;   /**< ... */
         QGLBuffer m_textureBuffer;  /**< ... */
+        QGLBuffer m_colorBuffer;    /**< ... */
 
         QMatrix4x4  m_oMVPMatrix;	/**< ... */
 
         QList<SWCloudPtr> m_vClouds; /**< ... */
-
         QList<SWMeshPtr> m_vMeshes;  /**< ... */
-        QList<QImage> m_vMeshesTextures; /**< ... */
-        QList<bool> m_vBMeshLinesRender; /**< ... */
-        QList<bool> m_vBMeshApplyTextures; /**< ... */
+        QList<SWGLObjectParameters> m_vCloudsParameters; /**< ... */
+        QList<SWGLObjectParameters> m_vMeshesParameters; /**< ... */
+
+//        QList<QImage> m_vMeshesTextures; /**< ... */
+//        QList<bool> m_vBMeshLinesRender; /**< ... */
+//        QList<bool> m_vBMeshApplyTextures; /**< ... */
 
         //        bool m_bInitCamWithCloudPosition;
         //        bool m_bBindTexture;            /**< ... */
         //        GLuint m_textureLocation;
         //        GLuint m_texHandle;
+
+        QReadWriteLock m_oParamMutex; /**< ... */
 
 };
 

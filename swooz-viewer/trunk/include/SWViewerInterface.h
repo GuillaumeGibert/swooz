@@ -58,11 +58,32 @@ class SWViewerInterface : public QMainWindow
 
         void loadMesh();
 
+        void deleteCloud();
+
+        void deleteMesh();
+
+        void updateParameters();
+
+        void updateCloudInterfaceParameters(QListWidgetItem *);
+
+        void updateMeshInterfaceParameters(QListWidgetItem *);
+
+        void updateInterfaceParameters();
+
+
+        /**
+         * \brief Timer event
+         * \param [in] e : qt timer event
+         */
+//        virtual void timerEvent(QTimerEvent *e);
 
     signals:
 
 
     private :
+
+
+        bool m_bIsCloudLastSelection;
 
 
         // widgets & ui
@@ -73,6 +94,8 @@ class SWViewerInterface : public QMainWindow
         // threads & workers
 //        SWViewerWorker  *m_pWViewer;    /**< viewer worker */
         QThread            m_TViwer;    /**< viwer thread */
+
+
 
 };
 

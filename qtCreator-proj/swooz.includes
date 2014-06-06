@@ -30,6 +30,9 @@
 ../swooz-manipulation/trunk/include/
 ../swooz-manipulation/trunk/genUI
 
+../swooz-viewer/trunk/include/
+../swooz-viewer/trunk/genUI
+
 
 # std
 D:\_software\Microsoft Visual Studio 10.0\VC\include
@@ -45,11 +48,11 @@ D:\_software\Microsoft Visual Studio 10.0\VC\include
 ../swooz-3rdparty/opencv/opencv-2.45/modules/video/include
 
 # Qt
-../swooz-3rdparty/Qt\4.8.0/include
-../swooz-3rdparty/Qt\4.8.0/include/Qt
-../swooz-3rdparty/Qt\4.8.0/include/QtCore
-../swooz-3rdparty/Qt\4.8.0/include/QtGui
-../swooz-3rdparty/Qt\4.8.0/include/QtOpenGL
+../swooz-3rdparty/Qt\4.8.3/include
+../swooz-3rdparty/Qt\4.8.3/include/Qt
+../swooz-3rdparty/Qt\4.8.3/include/QtCore
+../swooz-3rdparty/Qt\4.8.3/include/QtGui
+../swooz-3rdparty/Qt\4.8.3/include/QtOpenGL
 
 # boost
 ../swooz-3rdparty/Boost/include

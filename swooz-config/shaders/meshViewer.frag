@@ -3,6 +3,8 @@
 layout(location = 0, index = 0) out vec4 fragColor;
 
 
+uniform int displayMode = 0;
+
 // from vertex shader
 in vec3 Normal;
 in vec3 Vertex;
@@ -11,6 +13,9 @@ in vec2 TextureCoord;
 // colors
 uniform float opacity = 1.0;
 vec4 defaultColor = vec4(1.0,1.0,1.0,0.0);
+in vec3 PointColor;
+
+
 
 // lights
 //  coeffs
@@ -23,7 +28,7 @@ uniform vec3 lAmbiant  = vec3(0.3,0.3,0.3);
 uniform vec3 lDiffus   = vec3(1.0,1.0,1.0);
 uniform vec3 lSpecular = vec3(1.0,1.0,1.0);
 //  sources
-uniform vec3 lSourcePos = vec3(0.1,0.1,0);
+uniform vec3 lSourcePos = vec3(0.0,0.0,-0.9);
 
 // texture
 uniform bool applyTexture = false;
@@ -50,17 +55,14 @@ void main(void)
     //  texture
         vec4 textureColor = texture2D(texture2d, TextureCoord);
 
-
-    //  set pixel color
-        if(applyTexture)
+        if(displayMode != 3)
         {
-            fragColor = textureColor * vec4(ambiantLight + diffusLight , opacity); // + specularLight
+            fragColor = vec4(PointColor, 1.0) * vec4(ambiantLight + diffusLight , opacity);
         }
         else
         {
-            fragColor = defaultColor * vec4(ambiantLight + diffusLight , opacity); // + specularLight
+            fragColor = textureColor * vec4(ambiantLight + diffusLight , opacity); // + specularLight
         }
-
 }
 
 ////Calculate the half vector between the light vector and the view vector.
