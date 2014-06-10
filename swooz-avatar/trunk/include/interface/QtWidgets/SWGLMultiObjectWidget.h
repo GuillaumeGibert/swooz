@@ -48,6 +48,11 @@ struct SWGLObjectParameters
 
     QString m_sTexturePath;
 
+    QGLBuffer m_vertexBuffer;   /**< ... */
+    QGLBuffer m_indexBuffer;    /**< ... */
+    QGLBuffer m_normalBuffer;   /**< ... */
+    QGLBuffer m_textureBuffer;  /**< ... */
+    QGLBuffer m_colorBuffer;    /**< ... */
 };
 
 class SWGLMultiObjectWidget : public SWGLWidget
@@ -177,11 +182,11 @@ class SWGLMultiObjectWidget : public SWGLWidget
         QGLShaderProgram m_oShaderCloud; /**< ... */
         QGLShaderProgram m_oShaderMesh;  /**< ... */
 
-        QGLBuffer m_vertexBuffer;   /**< ... */
-        QGLBuffer m_indexBuffer;    /**< ... */
-        QGLBuffer m_normalBuffer;   /**< ... */
-        QGLBuffer m_textureBuffer;  /**< ... */
-        QGLBuffer m_colorBuffer;    /**< ... */
+//        QGLBuffer m_vertexBuffer;   /**< ... */
+//        QGLBuffer m_indexBuffer;    /**< ... */
+//        QGLBuffer m_normalBuffer;   /**< ... */
+//        QGLBuffer m_textureBuffer;  /**< ... */
+//        QGLBuffer m_colorBuffer;    /**< ... */
 
         QMatrix4x4  m_oMVPMatrix;	/**< ... */
 

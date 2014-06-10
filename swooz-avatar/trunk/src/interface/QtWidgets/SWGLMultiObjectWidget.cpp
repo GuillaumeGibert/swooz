@@ -30,11 +30,11 @@ SWGLMultiObjectWidget::~SWGLMultiObjectWidget()
 void SWGLMultiObjectWidget::initBuffers()
 {
     // create the buffer
-        m_vertexBuffer.create();
-        m_indexBuffer.create();
-        m_normalBuffer.create();
-        m_textureBuffer.create();
-        m_colorBuffer.create();
+//        m_vertexBuffer.create();
+//        m_indexBuffer.create();
+//        m_normalBuffer.create();
+//        m_textureBuffer.create();
+//        m_colorBuffer.create();
 
     // define the usage pattern
 //        m_vertexBuffer.setUsagePattern(QGLBuffer::DynamicDraw);
@@ -144,6 +144,19 @@ void SWGLMultiObjectWidget::addCloud(const QString &sPathCloud)
     l_oCloudParam.m_sTexturePath = QString("...");
     l_oCloudParam.m_vUnicolor = QVector3D(255.,0.,0.);   
 
+    // init buffers
+        l_oCloudParam.m_vertexBuffer.create();
+        l_oCloudParam.m_indexBuffer.create();
+        l_oCloudParam.m_normalBuffer.create();
+        l_oCloudParam.m_textureBuffer.create();
+        l_oCloudParam.m_colorBuffer.create();
+    // set mode buffers
+        l_oCloudParam.m_vertexBuffer.setUsagePattern(QGLBuffer::StaticDraw);
+        l_oCloudParam.m_indexBuffer.setUsagePattern(QGLBuffer::StaticDraw);
+        l_oCloudParam.m_normalBuffer.setUsagePattern(QGLBuffer::StaticDraw);
+        l_oCloudParam.m_textureBuffer.setUsagePattern(QGLBuffer::StaticDraw);
+        l_oCloudParam.m_colorBuffer.setUsagePattern(QGLBuffer::StaticDraw);
+
     m_oParamMutex.lockForWrite();
         m_vClouds.push_back(l_pCloud);
         m_vCloudsParameters.push_back(l_oCloudParam);
@@ -166,6 +179,19 @@ void SWGLMultiObjectWidget::addMesh(const QString &sPathMesh)
     l_oMeshesParam.m_vRotation = QVector3D(0.,0.,0.);
     l_oMeshesParam.m_sTexturePath = QString("...");
     l_oMeshesParam.m_vUnicolor = QVector3D(255.,0.,0.);
+
+    // init buffers
+        l_oMeshesParam.m_vertexBuffer.create();
+        l_oMeshesParam.m_indexBuffer.create();
+        l_oMeshesParam.m_normalBuffer.create();
+        l_oMeshesParam.m_textureBuffer.create();
+        l_oMeshesParam.m_colorBuffer.create();
+    // set mode buffers
+        l_oMeshesParam.m_vertexBuffer.setUsagePattern(QGLBuffer::StaticDraw);
+        l_oMeshesParam.m_indexBuffer.setUsagePattern(QGLBuffer::StaticDraw);
+        l_oMeshesParam.m_normalBuffer.setUsagePattern(QGLBuffer::StaticDraw);
+        l_oMeshesParam.m_textureBuffer.setUsagePattern(QGLBuffer::StaticDraw);
+        l_oMeshesParam.m_colorBuffer.setUsagePattern(QGLBuffer::StaticDraw);
 
     m_oParamMutex.lockForWrite();
         m_vMeshes.push_back(l_pMesh);
