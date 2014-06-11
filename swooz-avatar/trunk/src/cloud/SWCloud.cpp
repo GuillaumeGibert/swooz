@@ -1398,7 +1398,7 @@ float *SWCloud::vertexBuffer() const
 	{
 		l_aFVertex[ii*3]     = coord(0)[ii];
 		l_aFVertex[ii*3 + 1] = coord(1)[ii];
-		l_aFVertex[ii*3 + 2] = coord(2)[ii];		
+        l_aFVertex[ii*3 + 2] = coord(2)[ii];
 	}
 
 	return l_aFVertex;

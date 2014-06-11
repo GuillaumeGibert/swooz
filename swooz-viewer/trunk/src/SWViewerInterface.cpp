@@ -30,6 +30,7 @@ SWViewerInterface::SWViewerInterface() : m_uiViewer(new Ui::SWUI_Viewer)
         // checkbox
         // ...
 
+
     // middle container
         QHBoxLayout *l_pGLContainerLayout = new QHBoxLayout();
         QWidget *l_pGLContainer = new QWidget();
@@ -38,7 +39,7 @@ SWViewerInterface::SWViewerInterface() : m_uiViewer(new Ui::SWUI_Viewer)
         l_glFormat.setProfile(  QGLFormat::CompatibilityProfile);
         l_glFormat.setSampleBuffers( true );
         QGLContext *l_glContext = new QGLContext(l_glFormat);
-        m_pGLMultiObject = new SWGLMultiObjectWidget(l_glContext, l_pGLContainer);//, "../data/shaders/meshViewer.vert", "../data/shaders/meshViewer.frag");
+        m_pGLMultiObject = new SWGLMultiObjectWidget(l_glContext, l_pGLContainer);
         l_pGLContainerLayout->addWidget(m_pGLMultiObject);
         l_pGLContainer->setLayout(l_pGLContainerLayout);
         m_uiViewer->glScene->addWidget(l_pGLContainer);
@@ -47,24 +48,24 @@ SWViewerInterface::SWViewerInterface() : m_uiViewer(new Ui::SWUI_Viewer)
     // init worker
         //m_pWViewer = new SWViewerWorker(...);
 
-
     // init connections
          QObject::connect(m_uiViewer->pbLoadCloud, SIGNAL(clicked()), this, SLOT(loadCloud()));
          QObject::connect(m_uiViewer->pbLoadMesh, SIGNAL(clicked()), this, SLOT(loadMesh()));
          QObject::connect(m_uiViewer->pbDeleteCloud, SIGNAL(clicked()), this, SLOT(deleteCloud()));
          QObject::connect(m_uiViewer->pbDeleteMesh, SIGNAL(clicked()), this, SLOT(deleteMesh()));
+         QObject::connect(m_uiViewer->pbSetTexture, SIGNAL(clicked()), this, SLOT(setTexture()));
 
          QObject::connect(m_uiViewer->lwClouds, SIGNAL(itemClicked(QListWidgetItem *)), this, SLOT(updateCloudInterfaceParameters(QListWidgetItem *)));
          QObject::connect(m_uiViewer->lwMeshes, SIGNAL(itemClicked(QListWidgetItem *)), this, SLOT(updateMeshInterfaceParameters(QListWidgetItem *)));
 
         // update interface
-            QObject::connect(m_uiViewer->dsbRX, SIGNAL(editingFinished()), this, SLOT(updateParameters()));
-            QObject::connect(m_uiViewer->dsbRY, SIGNAL(editingFinished()), this, SLOT(updateParameters()));
-            QObject::connect(m_uiViewer->dsbRZ, SIGNAL(editingFinished()), this, SLOT(updateParameters()));
-            QObject::connect(m_uiViewer->dsbTrX, SIGNAL(editingFinished()), this, SLOT(updateParameters()));
-            QObject::connect(m_uiViewer->dsbTrY, SIGNAL(editingFinished()), this, SLOT(updateParameters()));
-            QObject::connect(m_uiViewer->dsbTrZ, SIGNAL(editingFinished()), this, SLOT(updateParameters()));
-            QObject::connect(m_uiViewer->dsbScaling, SIGNAL(editingFinished()), this, SLOT(updateParameters()));
+            QObject::connect(m_uiViewer->dsbRX, SIGNAL(valueChanged(double)), this, SLOT(updateParameters(double)));
+            QObject::connect(m_uiViewer->dsbRY, SIGNAL(valueChanged(double)), this, SLOT(updateParameters(double)));
+            QObject::connect(m_uiViewer->dsbRZ, SIGNAL(valueChanged(double)), this, SLOT(updateParameters(double)));
+            QObject::connect(m_uiViewer->dsbTrX, SIGNAL(valueChanged(double)), this, SLOT(updateParameters(double)));
+            QObject::connect(m_uiViewer->dsbTrY, SIGNAL(valueChanged(double)), this, SLOT(updateParameters(double)));
+            QObject::connect(m_uiViewer->dsbTrZ, SIGNAL(valueChanged(double)), this, SLOT(updateParameters(double)));
+            QObject::connect(m_uiViewer->dsbScaling, SIGNAL(valueChanged(double)), this, SLOT(updateParameters(double)));
 
             QObject::connect(m_uiViewer->cbDisplayLines, SIGNAL(clicked()), this, SLOT(updateParameters()));
             QObject::connect(m_uiViewer->cbVisible, SIGNAL(clicked()), this, SLOT(updateParameters()));
@@ -72,9 +73,9 @@ SWViewerInterface::SWViewerInterface() : m_uiViewer(new Ui::SWUI_Viewer)
             QObject::connect(m_uiViewer->rbDisplayTexture, SIGNAL(clicked()), this, SLOT(updateParameters()));
             QObject::connect(m_uiViewer->rbDisplayUnicolor, SIGNAL(clicked()), this, SLOT(updateParameters()));
 
-            QObject::connect(m_uiViewer->sbColorB, SIGNAL(editingFinished()), this, SLOT(updateParameters()));
-            QObject::connect(m_uiViewer->sbColorG, SIGNAL(editingFinished()), this, SLOT(updateParameters()));
-            QObject::connect(m_uiViewer->sbColorR, SIGNAL(editingFinished()), this, SLOT(updateParameters()));
+            QObject::connect(m_uiViewer->sbColorB, SIGNAL(valueChanged(int)), this, SLOT(updateParameters(int)));
+            QObject::connect(m_uiViewer->sbColorG, SIGNAL(valueChanged(int)), this, SLOT(updateParameters(int)));
+            QObject::connect(m_uiViewer->sbColorR, SIGNAL(valueChanged(int)), this, SLOT(updateParameters(int)));
 }
 
 SWViewerInterface::~SWViewerInterface()
@@ -84,6 +85,11 @@ void SWViewerInterface::loadCloud()
 {
     // retrieve obj path
         QString l_sPathCloud = QFileDialog::getOpenFileName(this, "Load cloud", QString(), "Mesh file (*.obj)");
+
+        if(l_sPathCloud == "")
+        {
+            return;
+        }
 
     // add list item and cloud
         m_uiViewer->lwClouds->addItem(l_sPathCloud);
@@ -104,6 +110,11 @@ void SWViewerInterface::loadMesh()
     // retrieve obj path
         QString l_sPathMesh = QFileDialog::getOpenFileName(this, "Load mesh", QString(), "Mesh file (*.obj)");
 
+        if(l_sPathMesh == "")
+        {
+            return;
+        }
+
     // add list item and mesh
         m_uiViewer->lwMeshes->addItem(l_sPathMesh);
         m_pGLMultiObject->addMesh(l_sPathMesh);
@@ -118,9 +129,8 @@ void SWViewerInterface::loadMesh()
         updateMeshInterfaceParameters(NULL);
 }
 
-
 void SWViewerInterface::deleteCloud()
-{
+{  
     // retrieve item index to delete
         int l_i32IndexCloud = m_uiViewer->lwClouds->currentRow();
 
@@ -159,6 +169,7 @@ void SWViewerInterface::deleteCloud()
         m_uiViewer->leNameItem->setText(QString("..."));
         m_uiViewer->leNameItem->deselect();
 }
+
 
 void SWViewerInterface::deleteMesh()
 {
@@ -199,11 +210,21 @@ void SWViewerInterface::deleteMesh()
     // reset text
         m_uiViewer->leNameItem->setText(QString("..."));
         m_uiViewer->leNameItem->deselect();
+
+}
+
+void SWViewerInterface::updateParameters(int i32Inused)
+{
+    updateParameters();
+}
+
+void SWViewerInterface::updateParameters(double dInused)
+{
+    updateParameters();
 }
 
 void SWViewerInterface::updateParameters()
 {
-
     SWGLObjectParameters l_oParams;
     l_oParams.m_bVisible       = (m_uiViewer->cbVisible->checkState() == Qt::Checked);
     l_oParams.m_bDisplayLines  = (m_uiViewer->cbDisplayLines->checkState() == Qt::Checked);
@@ -342,11 +363,6 @@ void SWViewerInterface::updateInterfaceParameters()
         }
     }
 
-
-    qDebug() << "updateInterfaceParameters " << l_i32Index << " " << m_bIsCloudLastSelection;
-
-
-
     if(l_oParams.displayMode == GLO_UNI_COLOR)
     {
         m_uiViewer->rbDisplayUnicolor->setChecked(true);
@@ -378,10 +394,14 @@ void SWViewerInterface::updateInterfaceParameters()
     m_uiViewer->sbColorB->setValue(l_oParams.m_vUnicolor.z());
 }
 
-//void SWViewerInterface::timerEvent(QTimerEvent *e)
-//{
-//    updateParameters();
-//}
+void SWViewerInterface::setTexture()
+{
+    // retrieve obj path
+        QString l_sPathTexture = QFileDialog::getOpenFileName(this, "Load texture", QString(), "Texture file (*.png)");
+
+        qDebug() << l_sPathTexture;
+//        l_sPathTexture
+}
 
 int main(int argc, char* argv[])
 {

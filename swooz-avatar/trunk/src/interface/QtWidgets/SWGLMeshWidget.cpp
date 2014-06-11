@@ -1,11 +1,9 @@
-
-
 /**
- * \file SWGLMeshWidget.cpp
- * \brief Defines SWGLMeshWidget
- * \author Florian Lance
- * \date 11/07/13
- */
+* \file SWGLMeshWidget.cpp
+* \brief Defines SWGLMeshWidget
+* \author Florian Lance
+* \date 11/07/13
+*/
 
 
 #include "SWGLMeshWidget.h"
@@ -19,7 +17,7 @@
 
 SWGLMeshWidget::SWGLMeshWidget(QGLContext *context, QWidget* parent, const QString &sVertexShaderPath, const QString &sFragmentShaderPath) :
     SWGLWidget(context, parent), m_sVertexShaderPath(sVertexShaderPath), m_sFragmentShaderPath(sFragmentShaderPath), m_pMesh(NULL),
-    m_vertexBuffer(QGLBuffer::VertexBuffer), m_indexBuffer(QGLBuffer::IndexBuffer),  m_normalBuffer(QGLBuffer::VertexBuffer), m_textureBuffer(QGLBuffer::VertexBuffer),
+    m_vertexBuffer(QGLBuffer::VertexBuffer), m_indexBuffer(QGLBuffer::IndexBuffer), m_normalBuffer(QGLBuffer::VertexBuffer), m_textureBuffer(QGLBuffer::VertexBuffer),
     m_bInitCamWithCloudPosition(true), m_bLinesRender(false), m_bApplyTexture(false)
 {}
 
@@ -30,8 +28,8 @@ void SWGLMeshWidget::initializeGL()
 {
     // set perspective
         m_rZNear = 0.01;
-        m_rZFar  = 100.0;
-        m_rFOV   = 40.0;
+        m_rZFar = 100.0;
+        m_rFOV = 40.0;
 
     // set background
         qglClearColor(QColor(49, 53, 70));
@@ -39,11 +37,11 @@ void SWGLMeshWidget::initializeGL()
     // init shaders
         if(m_sVertexShaderPath != "" && m_sFragmentShaderPath != "")
         {
-            initShaders(m_sVertexShaderPath, m_sFragmentShaderPath, m_oShaderMesh,  true);
+            initShaders(m_sVertexShaderPath, m_sFragmentShaderPath, m_oShaderMesh, true);
         }
         else
         {
-            initShaders("../data/shaders/meshAvatar.vert", "../data/shaders/meshAvatar.frag", m_oShaderMesh,  true);
+            initShaders("../data/shaders/meshAvatar.vert", "../data/shaders/meshAvatar.frag", m_oShaderMesh, true);
         }
 
         initShaders("../data/shaders/cloudAvatar.vert", "../data/shaders/cloudAvatar.frag", m_oShaderLines, false);
@@ -85,7 +83,7 @@ void SWGLMeshWidget::paintGL()
     // comput MVP matrix
         QMatrix4x4 l_oModelMatrix;
         l_oModelMatrix.setToIdentity();
-        m_oMVPMatrix = l_oModelMatrix  * m_oProjectionMatrix * l_oViewMatrix;
+        m_oMVPMatrix = l_oModelMatrix * m_oProjectionMatrix * l_oViewMatrix;
 
     // draw
         if(m_pMesh)
@@ -106,7 +104,7 @@ void SWGLMeshWidget::paintGL()
 }
 
 void SWGLMeshWidget::setTexture(const QImage &oTexture)
-{    
+{
     m_oParamMutex.lockForWrite();
         m_oTexture = oTexture;
         m_bBindTexture = true;
@@ -220,16 +218,16 @@ void SWGLMeshWidget::drawMesh()
     QGLBuffer::release(QGLBuffer::VertexBuffer);
     QGLBuffer::release(QGLBuffer::IndexBuffer);
 
-    float  *l_aFVertexBuffer   = m_pMesh->vertexBuffer();
+    float *l_aFVertexBuffer = m_pMesh->vertexBuffer();
     uint32 *l_aUI32IndexBuffer = m_pMesh->indexVertexTriangleBuffer();
-    float  *l_aFNormalBuffer   = m_pMesh->normalBuffer();
-    float  *l_aFTextureBuffer  = m_pMesh->textureBuffer();
+    float *l_aFNormalBuffer = m_pMesh->normalBuffer();
+    float *l_aFTextureBuffer = m_pMesh->textureBuffer();
 
     // allocate QGL buffers
-    allocateBuffer(m_vertexBuffer,  l_aFVertexBuffer,   m_pMesh->pointsNumber() *     3 * sizeof(float) );
-    allocateBuffer(m_indexBuffer,   l_aUI32IndexBuffer, m_pMesh->trianglesNumber() *  3 * sizeof(GLuint) );
-    allocateBuffer(m_normalBuffer,  l_aFNormalBuffer,   m_pMesh->pointsNumber() *     3 * sizeof(float) );
-    allocateBuffer(m_textureBuffer, l_aFTextureBuffer,  m_pMesh->pointsNumber() *     2 * sizeof(float) );
+    allocateBuffer(m_vertexBuffer, l_aFVertexBuffer, m_pMesh->pointsNumber() * 3 * sizeof(float) );
+    allocateBuffer(m_indexBuffer, l_aUI32IndexBuffer, m_pMesh->trianglesNumber() * 3 * sizeof(GLuint) );
+    allocateBuffer(m_normalBuffer, l_aFNormalBuffer, m_pMesh->pointsNumber() * 3 * sizeof(float) );
+    allocateBuffer(m_textureBuffer, l_aFTextureBuffer, m_pMesh->pointsNumber() * 2 * sizeof(float) );
 
     m_oShaderMesh.setUniformValue("mvpMatrix", m_oMVPMatrix);
     m_oShaderMesh.setUniformValue("applyTexture", m_bApplyTexture);

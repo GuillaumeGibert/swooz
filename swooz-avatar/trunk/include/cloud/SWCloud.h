@@ -527,6 +527,13 @@ namespace swCloud
 		
             uint8 *m_aUi8Colors;        /**< pointer on the color of the points
                                         [R1, R2, ..., Rn, G1, ..., Gn, B1, ..., Bn] */
+
+//            bool m_bBuffersComputed;
+//            int *m_aI32IntedxBuffer;
+//            float *m_aFVertexBuffer;
+//            float *m_aFColorBuffer;
+
+
 					           
 			/**
 			 * \brief increase the size of the cloud point by the input value

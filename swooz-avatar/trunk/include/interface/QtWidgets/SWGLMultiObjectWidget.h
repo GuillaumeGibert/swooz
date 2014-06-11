@@ -14,7 +14,6 @@
 #ifndef SWGLMultiObjectWidget_H
 #define SWGLMultiObjectWidget_H
 
-
 #include "mesh/SWMesh.h"
 
 #include "SWGLWidget.h"
@@ -22,7 +21,13 @@
 #include <QList>
 #include <boost/shared_ptr.hpp>
 
+#include <QReadWriteLock>
+
 typedef boost::shared_ptr<swCloud::SWCloud> SWCloudPtr;	/**< boost shared pointer for SWCloud */
+
+typedef boost::shared_ptr<QGLBuffer> QGLBufferPtr;
+
+
 typedef boost::shared_ptr<swMesh::SWMesh> SWMeshPtr;	/**< boost shared pointer for SWMesh */
 
 
@@ -32,23 +37,26 @@ enum GLObjectDisplayMode
 };
 
 struct SWGLObjectParameters
-{        
-    bool m_bCloud;
+{
+        bool m_bCloud;
 
-    bool m_bVisible;    
-    bool m_bDisplayLines;
+        bool m_bVisible;
+        bool m_bDisplayLines;
 
-    GLObjectDisplayMode displayMode;
+        GLObjectDisplayMode displayMode;
 
-    double m_dScaling;
+        double m_dScaling;
 
-    QVector3D m_vUnicolor;
-    QVector3D m_vTranslation;
-    QVector3D m_vRotation;
+        QVector3D m_vUnicolor;
+        QVector3D m_vTranslation;
+        QVector3D m_vRotation;
 
-    QString m_sTexturePath;
+        QString m_sTexturePath;
 
+        QReadWriteLock m_parametersMutex;
 };
+
+typedef boost::shared_ptr<SWGLObjectParameters> SWGLObjectParametersPtr;	/**< boost shared pointer for SWGLObjectParameters */
 
 class SWGLMultiObjectWidget : public SWGLWidget
 {
@@ -108,11 +116,6 @@ class SWGLMultiObjectWidget : public SWGLWidget
          */
         virtual void paintGL();
 
-        /**
-         * \brief Init buffers.
-         */
-        void initBuffers();
-
 
     public slots:
 
@@ -159,12 +162,6 @@ class SWGLMultiObjectWidget : public SWGLWidget
          */
         void applyTexture(cuint ui32Index, const bool bApplyTexture);
 
-        /**
-         * @brief setMeshLinesRender
-         * @param ui32Index
-         * @param bRenderLines
-         */
-        void setMeshLinesRender(cuint ui32Index, const bool bRenderLines);
 
     private :
 
@@ -174,21 +171,40 @@ class SWGLMultiObjectWidget : public SWGLWidget
 
     private :
 
+
         QGLShaderProgram m_oShaderCloud; /**< ... */
         QGLShaderProgram m_oShaderMesh;  /**< ... */
 
-        QGLBuffer m_vertexBuffer;   /**< ... */
-        QGLBuffer m_indexBuffer;    /**< ... */
-        QGLBuffer m_normalBuffer;   /**< ... */
-        QGLBuffer m_textureBuffer;  /**< ... */
-        QGLBuffer m_colorBuffer;    /**< ... */
+//        QGLBuffer m_vertexBuffer;   /**< ... */
+//        QGLBuffer m_indexBuffer;    /**< ... */
+//        QGLBuffer m_normalBuffer;   /**< ... */
+//        QGLBuffer m_textureBuffer;  /**< ... */
+//        QGLBuffer m_colorBuffer;    /**< ... */
 
         QMatrix4x4  m_oMVPMatrix;	/**< ... */
 
-        QList<SWCloudPtr> m_vClouds; /**< ... */
+//        QList<SWCloudPtr> m_vClouds; /**< ... */
+//        QList<SWMeshPtr> m_vMeshes;  /**< ... */
         QList<SWMeshPtr> m_vMeshes;  /**< ... */
-        QList<SWGLObjectParameters> m_vCloudsParameters; /**< ... */
-        QList<SWGLObjectParameters> m_vMeshesParameters; /**< ... */
+        QList<SWCloudPtr> m_vClouds; /**< ... */
+
+        QList<SWGLObjectParametersPtr> m_vCloudsParameters; /**< ... */
+        QList<SWGLObjectParametersPtr> m_vMeshesParameters; /**< ... */
+
+        QList<QGLBufferPtr> m_vCloudsVertexBuffer;
+        QList<QGLBufferPtr> m_vCloudsIndexBuffer;
+        QList<QGLBufferPtr> m_vCloudsNormalBuffer;
+        QList<QGLBufferPtr> m_vCloudsTextureBuffer;
+        QList<QGLBufferPtr> m_vCloudsColorBuffer;
+
+        QList<QGLBufferPtr> m_vMeshesVertexBuffer;
+        QList<QGLBufferPtr> m_vMeshesIndexBuffer;
+        QList<QGLBufferPtr> m_vMeshesNormalBuffer;
+        QList<QGLBufferPtr> m_vMeshesTextureBuffer;
+        QList<QGLBufferPtr> m_vMeshesColorBuffer;
+
+
+        QVector<QGLBufferPtr> m_vBuffersToDelete;
 
 //        QList<QImage> m_vMeshesTextures; /**< ... */
 //        QList<bool> m_vBMeshLinesRender; /**< ... */
@@ -199,7 +215,11 @@ class SWGLMultiObjectWidget : public SWGLWidget
         //        GLuint m_textureLocation;
         //        GLuint m_texHandle;
 
+
         QReadWriteLock m_oParamMutex; /**< ... */
+
+        QReadWriteLock m_pListCloudsMutex;
+        QReadWriteLock m_pListMeshesMutex;
 
 };
 

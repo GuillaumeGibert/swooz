@@ -262,3 +262,4 @@
 ../swooz-avatar/trunk/src/interface/QtWidgets/SWGLMultiObjectWidget.cpp
 ../swooz-config/shaders/cloudViewer.vert
 ../swooz-config/shaders/cloudViewer.frag
+../swooz-avatar/trunk/include/mesh/SWRenderMesh.h

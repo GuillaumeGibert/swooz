@@ -8,7 +8,7 @@ uniform int displayMode = 0;
 in vec3 vertex;
 in vec3 color;
 
-out vec3 pointColor;
+out vec3 PointColor;
 
 void main( void )
 {
@@ -16,10 +16,10 @@ void main( void )
 
         if(displayMode == 0)
         {
-            pointColor = color;
+            PointColor = color;
         }
         else
         {
-            pointColor = uniColor;
+            PointColor = uniColor;
         }
 }

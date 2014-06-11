@@ -62,6 +62,21 @@ class SWViewerInterface : public QMainWindow
 
         void deleteMesh();
 
+        /**
+         * @brief updateParameters
+         * @param i32Inused
+         */
+        void updateParameters(int i32Inused);
+
+        /**
+         * @brief updateParameters
+         * @param dInused
+         */
+        void updateParameters(double dInused);
+
+        /**
+         * @brief updateParameters
+         */
         void updateParameters();
 
         void updateCloudInterfaceParameters(QListWidgetItem *);
@@ -69,6 +84,8 @@ class SWViewerInterface : public QMainWindow
         void updateMeshInterfaceParameters(QListWidgetItem *);
 
         void updateInterfaceParameters();
+
+        void setTexture();
 
 
         /**

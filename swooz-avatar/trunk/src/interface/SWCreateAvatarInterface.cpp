@@ -16,7 +16,6 @@
 #include "interface/SWConvQtOpencv.h"
 #include "cloud/SWImageProcessing.h"
 
-
 SWCreateAvatarInterface::SWCreateAvatarInterface(QWidget *oQWRelative) : QMainWindow(oQWRelative), m_uiCreateAvatar(new Ui::SWUI_WCreateAvatar),
   m_oTimer(new QBasicTimer)
 {

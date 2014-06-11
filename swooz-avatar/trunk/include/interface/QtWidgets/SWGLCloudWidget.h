@@ -67,19 +67,13 @@ class SWGLCloudWidget : public SWGLWidget
          */
         void setDepthRect(const double dDepth);
 
-
         /**
          * @brief drawCloud
          * @param oShader
-         * @param oCloud
          * @param fSizePoint
          * @param mvpMatrix
-         * @param r
-         * @param g
-         * @param b
          */
-        void drawCloud(QGLShaderProgram &oShader, const swCloud::SWCloud &oCloud, cfloat fSizePoint,
-                        QMatrix4x4 &mvpMatrix, cfloat r=-1, cfloat g=-1, cfloat b=-1);
+        void drawCloud(QGLShaderProgram &oShader, cfloat fSizePoint, QMatrix4x4 &mvpMatrix);
 
         /**
          * \brief Set the current cloud point to display.
@@ -92,9 +86,11 @@ class SWGLCloudWidget : public SWGLWidget
 
         QGLShaderProgram m_oShader;     /**< ... */
 
-        QGLBuffer m_vertexBuffer;       /**< ... */
-        QGLBuffer m_indexBuffer;        /**< ... */
-        QGLBuffer m_colorBuffer;        /**< ... */
+        QReadWriteLock m_oCloudMutex;
+
+        QGLBuffer m_vertexBufferCloud;       /**< ... */
+        QGLBuffer m_indexBufferCloud;        /**< ... */
+        QGLBuffer m_colorBufferCloud;        /**< ... */
 
         bool m_bInitCamWithCloudPosition; /**< init the camera with the cloud bbox at the first frame */
         bool m_bApplyRigidMotion;   /**< ... */
@@ -105,7 +101,8 @@ class SWGLCloudWidget : public SWGLWidget
 
         QMatrix4x4  m_oMVPMatrix;          /**< model view projection matrix */
 
-        swCloud::SWCloud *m_pCloud;        /**< cloud pointer*/
+//        swCloud::SWCloud *m_pCloud;        /**< cloud pointer*/
+        swCloud::SWCloud m_oCloud;
         swCloud::SWCloudBBox m_oCloudBBox; /**< bounded box of the cloud */
 };
 

@@ -268,24 +268,21 @@ void SWGLWidget::resizeGL( int i32Width, int i32Height )
     updateGL();
 }
 
-
 void  SWGLWidget::drawAxes(QGLShaderProgram &oShader, QMatrix4x4 &mvpMatrix, cfloat fScale, const QVector3D &oOrigine)
 {
-    // bind shader
-    if(!oShader.bind())
-    {
-        throw swExcept::swShaderGLError();
-        return;
-    }
+    oShader.bind();
+        checkGlError();
+
+    QGLBuffer::release(QGLBuffer::VertexBuffer);
+    QGLBuffer::release(QGLBuffer::IndexBuffer);
 
     // set mode
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-    QGLBuffer l_vertexBuffer(QGLBuffer::VertexBuffer);
-    QGLBuffer l_indexBuffer(QGLBuffer::IndexBuffer);
-
-    l_vertexBuffer.create();
-    l_indexBuffer.create();
+    // init buffers
+    QGLBuffer l_vertexBuffer, l_indexBuffer;
+    initIndexBuffer(l_indexBuffer);
+    initVertexBuffer(l_vertexBuffer);
 
     float  *l_aFVertexBuffer   = new float[12];
     l_aFVertexBuffer[0] = oOrigine.x();
@@ -309,8 +306,8 @@ void  SWGLWidget::drawAxes(QGLShaderProgram &oShader, QMatrix4x4 &mvpMatrix, cfl
     l_aUI32IndexBuffer[1] = 1;
 
     // allocate QGL buffers
-    allocateBuffer(l_vertexBuffer, l_aFVertexBuffer, 4 *  3 * sizeof(float) );
-    allocateBuffer(l_indexBuffer, l_aUI32IndexBuffer, 2 * sizeof(GLuint) );
+    allocateBuffer(l_vertexBuffer, l_aFVertexBuffer, 4 *  3 * sizeof(float) ); std::cout << " m1 ";
+    allocateBuffer(l_indexBuffer, l_aUI32IndexBuffer, 2 * sizeof(GLuint) ); std::cout << " m2 ";
 
     delete[] l_aFVertexBuffer;
     delete[] l_aUI32IndexBuffer;
@@ -321,6 +318,7 @@ void  SWGLWidget::drawAxes(QGLShaderProgram &oShader, QMatrix4x4 &mvpMatrix, cfl
 
     // set color uniform value for the current line
     oShader.setUniformValue("uniColor", 1.f, 0.f, 0.f);
+
     drawBuffer(l_indexBuffer, l_vertexBuffer, oShader, GL_LINES);
 
     l_aUI32IndexBuffer = new uint[6];
@@ -328,24 +326,27 @@ void  SWGLWidget::drawAxes(QGLShaderProgram &oShader, QMatrix4x4 &mvpMatrix, cfl
     l_aUI32IndexBuffer[1] = 2;
 
     // allocate QGL buffers
-    allocateBuffer(l_indexBuffer, l_aUI32IndexBuffer, 2 * sizeof(GLuint) );
+    allocateBuffer(l_indexBuffer, l_aUI32IndexBuffer, 2 * sizeof(GLuint) ); std::cout << " m3 ";
 
     delete[] l_aUI32IndexBuffer;
 
     // set color uniform value for the current line
     oShader.setUniformValue("uniColor", 0.f, 1.f, 0.f);
-    drawBuffer(l_indexBuffer, l_vertexBuffer, oShader, GL_LINES);
+    drawBuffer(l_indexBuffer, l_vertexBuffer, oShader, GL_LINES); std::cout << " m4 ";
 
     l_aUI32IndexBuffer = new uint[6];
     l_aUI32IndexBuffer[0] = 0;
     l_aUI32IndexBuffer[1] = 3;
 
     // allocate QGL buffers
-    allocateBuffer(l_indexBuffer, l_aUI32IndexBuffer, 2 * sizeof(GLuint) );
+    allocateBuffer(l_indexBuffer, l_aUI32IndexBuffer, 2 * sizeof(GLuint) ); std::cout << " m5 ";
 
     delete[] l_aUI32IndexBuffer;
 
     // set color uniform value for the current line
     oShader.setUniformValue("uniColor", 0.f, 0.f, 1.f);
     drawBuffer(l_indexBuffer, l_vertexBuffer, oShader, GL_LINES);
+
+    oShader.release();
+        checkGlError();
 }

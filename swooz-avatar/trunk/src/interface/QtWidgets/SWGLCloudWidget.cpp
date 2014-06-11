@@ -16,17 +16,14 @@
 using namespace swExcept;
 
 SWGLCloudWidget::SWGLCloudWidget(QGLContext *context, QWidget* parent) :
-    SWGLWidget(context, parent), m_bInitCamWithCloudPosition(true),
-    m_vertexBuffer(QGLBuffer::VertexBuffer), m_colorBuffer(QGLBuffer::VertexBuffer), m_indexBuffer(QGLBuffer::IndexBuffer), m_pCloud(NULL)
+    SWGLWidget(context, parent), m_bInitCamWithCloudPosition(true)
 {
-    m_fDefaultOpacity = 1.f;   
-    m_fDepthRect = -1.f;
+    m_fDefaultOpacity   = 1.f;
+    m_fDepthRect        = -1.f;
 }
 
 SWGLCloudWidget::~SWGLCloudWidget()
-{
-    deleteAndNullify(m_pCloud);
-}
+{}
 
 void SWGLCloudWidget::initializeGL()
 {
@@ -77,27 +74,20 @@ void SWGLCloudWidget::paintGL()
     m_oMVPMatrix = l_oModelMatrix  * m_oProjectionMatrix * l_oViewMatrix;
 
     // draw geometry
-    try
-    {
-        if(m_pCloud)
+    m_oCloudMutex.lockForRead();
+        if(m_oCloud.size() > 0)
         {
-            if(m_pCloud->size() > 0)
-            {
-                drawCloud(m_oShader, *m_pCloud, m_glFSizePoint, m_oMVPMatrix);
-
-                swCloud::SWCloudBBox l_oBBox = m_pCloud->bBox();
-                drawDepthRect(m_oShader, m_oMVPMatrix, l_oBBox.m_fMinZ + m_fDepthRect);
-            }
+            drawCloud(m_oShader, m_glFSizePoint, m_oMVPMatrix);
+            swCloud::SWCloudBBox l_oBBox = m_oCloud.bBox();
+            drawDepthRect(m_oShader, m_oMVPMatrix, l_oBBox.m_fMinZ + m_fDepthRect);
         }
-    }
-    catch(const openglError &e)
-    {
-        qWarning() << "drawCloud : " << e.what();
-    }
+    m_oCloudMutex.unlock();
 }
 
 void SWGLCloudWidget::setCloud(swCloud::SWCloud *oCloud)
 {
+    makeCurrent();
+
     if(oCloud)
     {
         if(oCloud->size() == 0)
@@ -127,9 +117,7 @@ void SWGLCloudWidget::setCloud(swCloud::SWCloud *oCloud)
         m_bInitCamWithCloudPosition = false;
     }
 
-
-    deleteAndNullify(m_pCloud);
-    m_pCloud = new swCloud::SWCloud(*oCloud);
+    m_oCloud.copy(*oCloud);
 
     if(oCloud->size() > 0 && m_fDepthRect > 0.f)
     {
@@ -137,28 +125,46 @@ void SWGLCloudWidget::setCloud(swCloud::SWCloud *oCloud)
         m_oCloudBBox.m_fMaxZ =  m_oCloudBBox.m_fMinZ + m_fDepthRect;
         m_oCloudBBox.m_fMinZ -= 0.1f;
 
-        m_pCloud->keepOnlyPointInsideBBox(m_oCloudBBox);
+        m_oCloud.keepOnlyPointInsideBBox(m_oCloudBBox);
     }
+
+    // allocate buffers
+    int l_i32SizeIndex      = sizeof(GLuint);
+    int l_i32SizeVertex     = sizeof(float) * 3;
+    uint32 *l_aCloudI       = m_oCloud.indexBuffer();
+    float  *l_aCloudV       = m_oCloud.vertexBuffer();
+    float  *l_aCloudC       = m_oCloud.colorBuffer();
+
+    m_oCloudMutex.lockForWrite();
+        allocateBuffer(m_indexBufferCloud,  l_aCloudI, m_oCloud.size() * l_i32SizeIndex); std::cout << " a1 ";
+        allocateBuffer(m_vertexBufferCloud, l_aCloudV, m_oCloud.size() * l_i32SizeVertex); std::cout << " a2 ";
+        allocateBuffer(m_colorBufferCloud  ,l_aCloudC, m_oCloud.size() * l_i32SizeVertex); std::cout << " a3 ";
+    m_oCloudMutex.unlock();
+
+    deleteAndNullifyArray(l_aCloudI);
+    deleteAndNullifyArray(l_aCloudV);
+    deleteAndNullifyArray(l_aCloudC);
 
     updateGL();
 }
 
 void SWGLCloudWidget::initCloudBuffers()
 {
-    // create the buffer
-    m_vertexBuffer.create();
-    m_indexBuffer.create();
-    m_colorBuffer.create();
+    initIndexBuffer(m_indexBufferCloud);
+    initVertexBuffer(m_vertexBufferCloud);
+    initVertexBuffer(m_colorBufferCloud);
+
+    m_indexBufferCloud.setUsagePattern(QGLBuffer::StaticDraw);
+    m_vertexBufferCloud.setUsagePattern(QGLBuffer::StaticDraw);
+    m_colorBufferCloud.setUsagePattern(QGLBuffer::StaticDraw);
 }
 
 
 void SWGLCloudWidget::drawDepthRect(QGLShaderProgram &oShader, QMatrix4x4 &mvpMatrix, cfloat fDepth)
 {
     // bind shader
-    if(!oShader.bind())
-    {
-        throw swShaderGLError();
-    }
+    oShader.bind();
+        checkGlError();
 
     // set mode
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -185,39 +191,39 @@ void SWGLCloudWidget::drawDepthRect(QGLShaderProgram &oShader, QMatrix4x4 &mvpMa
     l_aDepthRectI[4] = 3;
     l_aDepthRectI[5] = 0;
 
-    // allocate
-    allocateBuffer(m_indexBuffer,  l_aDepthRectI, 6 * l_i32SizeIndex);
-    allocateBuffer(m_vertexBuffer, l_aDepthRectV, 4 * l_i32SizeVertex);
+    QGLBuffer l_indexBufferDepthRect,l_vertexBufferDepthRect;
+    initIndexBuffer(l_indexBufferDepthRect);
+    initVertexBuffer(l_vertexBufferDepthRect);
+
+    allocateBuffer(l_indexBufferDepthRect,  l_aDepthRectI, 6 * l_i32SizeIndex);
+    allocateBuffer(l_vertexBufferDepthRect, l_aDepthRectV, 4 * l_i32SizeVertex);
+
+    deleteAndNullifyArray(l_aDepthRectI);
+    deleteAndNullifyArray(l_aDepthRectV);
 
     // set uniform values parameters
+    oShader.setUniformValue("displayMode", 1);
     oShader.setUniformValue("uniColor", 22, 39, 51);
     oShader.setUniformValue("mvpMatrix", mvpMatrix);
     oShader.setUniformValue("opacity", 0.8f);
 
     // draw primitives
-    GLenum l_glError = drawBufferWithColor(m_indexBuffer, m_vertexBuffer, m_colorBuffer, oShader, GL_TRIANGLES);
+        drawBuffer(l_indexBufferDepthRect, l_vertexBufferDepthRect, oShader, GL_TRIANGLES);
 
-    delete[] l_aDepthRectI;
-    delete[] l_aDepthRectV;
-
-    if(l_glError)
-    {
-        qWarning() << "drawDepthRect GLError : " << l_glError;
-    }
+    oShader.release();
+        checkGlError();
 }
 
 void SWGLCloudWidget::setDepthRect(const double dDepth)
 {
-    m_fDepthRect = (float)dDepth;
+    m_fDepthRect = static_cast<float>(dDepth);
 }
 
-void SWGLCloudWidget::drawCloud(QGLShaderProgram &oShader, const swCloud::SWCloud &oCloud, cfloat fSizePoint, QMatrix4x4 &mvpMatrix, cfloat r, cfloat g, cfloat b)
-{
+void SWGLCloudWidget::drawCloud(QGLShaderProgram &oShader, cfloat fSizePoint, QMatrix4x4 &mvpMatrix)
+{   
     // bind shader
-    if(!oShader.bind())
-    {
-        throw swShaderGLError();
-    }
+    oShader.bind();
+        checkGlError();
 
     // set mode
     glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
@@ -226,34 +232,17 @@ void SWGLCloudWidget::drawCloud(QGLShaderProgram &oShader, const swCloud::SWClou
     QGLBuffer::release(QGLBuffer::VertexBuffer);
     QGLBuffer::release(QGLBuffer::IndexBuffer);
 
-    // allocate buffers
-    int l_i32SizeIndex      = sizeof(GLuint);
-    int l_i32SizeVertex     = sizeof(float) * 3;
-    uint32 *l_aCloudI       = oCloud.indexBuffer();
-    float  *l_aCloudV       = oCloud.vertexBuffer();
-    float  *l_aCloudC       = oCloud.colorBuffer();
-
-    allocateBuffer(m_indexBuffer,  l_aCloudI, oCloud.size() * l_i32SizeIndex);
-    allocateBuffer(m_vertexBuffer, l_aCloudV, oCloud.size() * l_i32SizeVertex);
-    allocateBuffer(m_colorBuffer  ,l_aCloudC, oCloud.size() * l_i32SizeVertex);
-
     // set size of the points
     glPointSize(fSizePoint);
 
     // set uniform values parameters
-    oShader.setUniformValue("uniColor", r, g, b);
+    oShader.setUniformValue("displayMode", 0);
     oShader.setUniformValue("mvpMatrix", mvpMatrix);
     oShader.setUniformValue("opacity", m_fDefaultOpacity);
 
     // draw primitives
-    GLenum l_glError = drawBufferWithColor(m_indexBuffer, m_vertexBuffer, m_colorBuffer, oShader, GL_POINTS);
+        drawBufferWithColor(m_indexBufferCloud, m_vertexBufferCloud, m_colorBufferCloud, oShader, GL_POINTS);
 
-    delete[] l_aCloudI;
-    delete[] l_aCloudV;
-    delete[] l_aCloudC;
-
-    if(l_glError)
-    {
-        qWarning() << "drawCloud GLError : " << l_glError;
-    }
+    oShader.release();
+        checkGlError();
 }

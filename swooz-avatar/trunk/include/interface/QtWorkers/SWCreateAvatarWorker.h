@@ -20,7 +20,6 @@
 
 typedef boost::shared_ptr<SWCreateAvatar> SWCreateAvatarPtr;	/**< boost shared pointer for SWCreateAvatar */
 
-
 /**
  * \class SWCreateAvatarWorker
  * \brief  Worker thread for the create avatar module.
