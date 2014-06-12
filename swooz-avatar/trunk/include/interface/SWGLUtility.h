@@ -16,48 +16,53 @@
 
 /**
  * @brief checkGlError : check gl error
- * @param [in] bDisplay : display gl error
- * @return return the current gl error
+ * @param [in] bDisplay : display all gl errors
+ * @return return the last gl error
  */
 static GLenum checkGlError(bool bDisplay = true)
 {
-    QString l_sError;
+    QVector<QString> l_vSError;
 
-    GLenum l_glError = glGetError();
-    if(l_glError != GL_NO_ERROR)
+    GLenum l_glError;
+
+    while((l_glError = glGetError()) != GL_NO_ERROR)
     {
+        qWarning("ERROR");
         switch(l_glError)
         {
             case GL_INVALID_ENUM :
-                l_sError = "GL_INVALID_ENUM";
+                l_vSError.push_back("GL_INVALID_ENUM");
             break;
             case GL_INVALID_VALUE :
-                l_sError = "GL_INVALID_VALUE";
+                l_vSError.push_back("GL_INVALID_VALUE");
             break;
             case GL_INVALID_OPERATION :
-                l_sError = "GL_INVALID_OPERATION";
+                l_vSError.push_back("GL_INVALID_OPERATION");
             break;
             case GL_INVALID_FRAMEBUFFER_OPERATION :
-                l_sError = "GL_INVALID_FRAMEBUFFER_OPERATION";
+                l_vSError.push_back("GL_INVALID_FRAMEBUFFER_OPERATION");
             break;
             case GL_OUT_OF_MEMORY :
-                l_sError = "GL_OUT_OF_MEMORY";
+                l_vSError.push_back("GL_OUT_OF_MEMORY");
             break;
             case GL_STACK_UNDERFLOW :
-                l_sError = "GL_STACK_UNDERFLOW";
+                l_vSError.push_back("GL_STACK_UNDERFLOW");
             break;
             case GL_STACK_OVERFLOW :
-                l_sError = "GL_STACK_OVERFLOW";
+                l_vSError.push_back("GL_STACK_OVERFLOW");
             break;
             default :
-                l_sError = "GL_UNKNOW_ERROR";
+                l_vSError.push_back("GL_UNKNOW_ERROR");
             break;
         }
     }
 
-    if(bDisplay && l_glError != GL_NO_ERROR)
+    if(bDisplay)
     {
-        qWarning() << "Gl_ERROR : " << l_sError;
+        for(int ii = 0 ; ii < l_vSError.size(); ++ii)
+        {
+            qWarning() << "GL Error : " << ii << " -> " << l_vSError[ii];
+        }
     }
 
     return l_glError;

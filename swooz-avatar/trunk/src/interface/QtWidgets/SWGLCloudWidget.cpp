@@ -16,7 +16,7 @@
 using namespace swExcept;
 
 SWGLCloudWidget::SWGLCloudWidget(QGLContext *context, QWidget* parent) :
-    SWGLWidget(context, parent), m_bInitCamWithCloudPosition(true)
+    SWGLWidget(context, parent), m_bInitCamWithCloudPosition(true), m_bNewCloud(false)
 {
     m_fDefaultOpacity   = 1.f;
     m_fDepthRect        = -1.f;
@@ -74,20 +74,16 @@ void SWGLCloudWidget::paintGL()
     m_oMVPMatrix = l_oModelMatrix  * m_oProjectionMatrix * l_oViewMatrix;
 
     // draw geometry
-    m_oCloudMutex.lockForRead();
-        if(m_oCloud.size() > 0)
-        {
-            drawCloud(m_oShader, m_glFSizePoint, m_oMVPMatrix);
-            swCloud::SWCloudBBox l_oBBox = m_oCloud.bBox();
-            drawDepthRect(m_oShader, m_oMVPMatrix, l_oBBox.m_fMinZ + m_fDepthRect);
-        }
-    m_oCloudMutex.unlock();
+    if(m_oCloud.size() > 0)
+    {
+        drawCloud(m_oShader, m_glFSizePoint, m_oMVPMatrix);
+        swCloud::SWCloudBBox l_oBBox = m_oCloud.bBox();
+        drawDepthRect(m_oShader, m_oMVPMatrix, l_oBBox.m_fMinZ + m_fDepthRect);
+    }
 }
 
 void SWGLCloudWidget::setCloud(swCloud::SWCloud *oCloud)
 {
-    makeCurrent();
-
     if(oCloud)
     {
         if(oCloud->size() == 0)
@@ -128,22 +124,7 @@ void SWGLCloudWidget::setCloud(swCloud::SWCloud *oCloud)
         m_oCloud.keepOnlyPointInsideBBox(m_oCloudBBox);
     }
 
-    // allocate buffers
-    int l_i32SizeIndex      = sizeof(GLuint);
-    int l_i32SizeVertex     = sizeof(float) * 3;
-    uint32 *l_aCloudI       = m_oCloud.indexBuffer();
-    float  *l_aCloudV       = m_oCloud.vertexBuffer();
-    float  *l_aCloudC       = m_oCloud.colorBuffer();
-
-    m_oCloudMutex.lockForWrite();
-        allocateBuffer(m_indexBufferCloud,  l_aCloudI, m_oCloud.size() * l_i32SizeIndex); std::cout << " a1 ";
-        allocateBuffer(m_vertexBufferCloud, l_aCloudV, m_oCloud.size() * l_i32SizeVertex); std::cout << " a2 ";
-        allocateBuffer(m_colorBufferCloud  ,l_aCloudC, m_oCloud.size() * l_i32SizeVertex); std::cout << " a3 ";
-    m_oCloudMutex.unlock();
-
-    deleteAndNullifyArray(l_aCloudI);
-    deleteAndNullifyArray(l_aCloudV);
-    deleteAndNullifyArray(l_aCloudC);
+    m_bNewCloud = true;
 
     updateGL();
 }
@@ -239,6 +220,27 @@ void SWGLCloudWidget::drawCloud(QGLShaderProgram &oShader, cfloat fSizePoint, QM
     oShader.setUniformValue("displayMode", 0);
     oShader.setUniformValue("mvpMatrix", mvpMatrix);
     oShader.setUniformValue("opacity", m_fDefaultOpacity);
+
+    if(m_bNewCloud)
+    {
+        // allocate buffers
+        int l_i32SizeIndex      = sizeof(GLuint);
+        int l_i32SizeVertex     = sizeof(float) * 3;
+        uint32 *l_aCloudI       = m_oCloud.indexBuffer();
+        float  *l_aCloudV       = m_oCloud.vertexBuffer();
+        float  *l_aCloudC       = m_oCloud.colorBuffer();
+
+        allocateBuffer(m_indexBufferCloud,  l_aCloudI, m_oCloud.size() * l_i32SizeIndex);
+        allocateBuffer(m_vertexBufferCloud, l_aCloudV, m_oCloud.size() * l_i32SizeVertex);
+        allocateBuffer(m_colorBufferCloud  ,l_aCloudC, m_oCloud.size() * l_i32SizeVertex);
+
+        deleteAndNullifyArray(l_aCloudI);
+        deleteAndNullifyArray(l_aCloudV);
+        deleteAndNullifyArray(l_aCloudC);
+
+        m_bNewCloud = false;
+    }
+
 
     // draw primitives
         drawBufferWithColor(m_indexBufferCloud, m_vertexBufferCloud, m_colorBufferCloud, oShader, GL_POINTS);

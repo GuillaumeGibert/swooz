@@ -17,8 +17,7 @@
 
 SWGLMeshWidget::SWGLMeshWidget(QGLContext *context, QWidget* parent, const QString &sVertexShaderPath, const QString &sFragmentShaderPath) :
     SWGLWidget(context, parent), m_sVertexShaderPath(sVertexShaderPath), m_sFragmentShaderPath(sFragmentShaderPath), m_pMesh(NULL),
-    m_vertexBuffer(QGLBuffer::VertexBuffer), m_indexBuffer(QGLBuffer::IndexBuffer), m_normalBuffer(QGLBuffer::VertexBuffer), m_textureBuffer(QGLBuffer::VertexBuffer),
-    m_bInitCamWithCloudPosition(true), m_bLinesRender(false), m_bApplyTexture(false)
+    m_bInitCamWithCloudPosition(true), m_bLinesRender(false), m_bApplyTexture(false), m_bNewMesh(false)
 {}
 
 SWGLMeshWidget::~SWGLMeshWidget()
@@ -88,18 +87,9 @@ void SWGLMeshWidget::paintGL()
     // draw
         if(m_pMesh)
         {
-             m_oShaderMesh.bind();
-
-            // bind texture
-                if(m_bApplyTexture)
-                {
-                    glBindTexture(GL_TEXTURE_2D, m_textureLocation);
-                }
-
             drawMesh();
         }
 
-    m_oShaderLines.bind();
     drawAxes(m_oShaderLines, m_oMVPMatrix, 0.02f);
 }
 
@@ -168,74 +158,82 @@ void SWGLMeshWidget::setMesh(swMesh::SWMesh *pMesh)
 
     deleteAndNullify(m_pMesh);
     m_pMesh = new swMesh::SWMesh(*pMesh);
+    m_bNewMesh = true;
+
     updateGL();
 }
-
-
-void SWGLMeshWidget::setMesh(swMesh::SWMesh &oMesh)
-{
-    m_pMesh = &oMesh;
-    updateGL();
-}
-
 
 void SWGLMeshWidget::initMeshBuffers()
 {
-    // create the buffer
-        m_vertexBuffer.create();
-        m_indexBuffer.create();
-        m_normalBuffer.create();
-        m_textureBuffer.create();
+    // init
+        initIndexBuffer(m_indexBufferMesh);
+        initVertexBuffer(m_vertexBufferMesh);
+        initVertexBuffer(m_normalBufferMesh);
+        initVertexBuffer(m_textureBufferMesh);
 
     // define the usage pattern
-        m_vertexBuffer.setUsagePattern(QGLBuffer::DynamicDraw);
-        m_indexBuffer.setUsagePattern(QGLBuffer::DynamicDraw);
-        m_normalBuffer.setUsagePattern(QGLBuffer::DynamicDraw);
-        m_textureBuffer.setUsagePattern(QGLBuffer::DynamicDraw);
+        m_vertexBufferMesh.setUsagePattern(QGLBuffer::StaticDraw);
+        m_indexBufferMesh.setUsagePattern(QGLBuffer::StaticDraw);
+        m_normalBufferMesh.setUsagePattern(QGLBuffer::StaticDraw);
+        m_textureBufferMesh.setUsagePattern(QGLBuffer::StaticDraw);
 }
 
 void SWGLMeshWidget::drawMesh()
 {
-    // bind shader
-    if(!m_oShaderMesh.bind())
-    {
-         throw swExcept::swShaderGLError();
-    }
+    m_oShaderMesh.bind();
+        checkGlError();
+
+    // bind texture
+        if(m_bApplyTexture)
+        {
+            glBindTexture(GL_TEXTURE_2D, m_textureLocation);
+                checkGlError();
+        }
 
     // set mode
     m_oParamMutex.lockForRead();
-    if(m_bLinesRender)
-    {
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    }
-    else
-    {
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    }
+        if(m_bLinesRender)
+        {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+                checkGlError();
+        }
+        else
+        {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+                checkGlError();
+        }
     m_oParamMutex.unlock();
 
     // release buffers
     QGLBuffer::release(QGLBuffer::VertexBuffer);
     QGLBuffer::release(QGLBuffer::IndexBuffer);
 
-    float *l_aFVertexBuffer = m_pMesh->vertexBuffer();
-    uint32 *l_aUI32IndexBuffer = m_pMesh->indexVertexTriangleBuffer();
-    float *l_aFNormalBuffer = m_pMesh->normalBuffer();
-    float *l_aFTextureBuffer = m_pMesh->textureBuffer();
+    if(m_bNewMesh)
+    {
+        float *l_aFVertexBuffer = m_pMesh->vertexBuffer();
+        uint32 *l_aUI32IndexBuffer = m_pMesh->indexVertexTriangleBuffer();
+        float *l_aFNormalBuffer = m_pMesh->normalBuffer();
+        float *l_aFTextureBuffer = m_pMesh->textureBuffer();
 
-    // allocate QGL buffers
-    allocateBuffer(m_vertexBuffer, l_aFVertexBuffer, m_pMesh->pointsNumber() * 3 * sizeof(float) );
-    allocateBuffer(m_indexBuffer, l_aUI32IndexBuffer, m_pMesh->trianglesNumber() * 3 * sizeof(GLuint) );
-    allocateBuffer(m_normalBuffer, l_aFNormalBuffer, m_pMesh->pointsNumber() * 3 * sizeof(float) );
-    allocateBuffer(m_textureBuffer, l_aFTextureBuffer, m_pMesh->pointsNumber() * 2 * sizeof(float) );
+        // allocate QGL buffers
+        allocateBuffer(m_vertexBufferMesh, l_aFVertexBuffer, m_pMesh->pointsNumber() * 3 * sizeof(float) );
+        allocateBuffer(m_indexBufferMesh, l_aUI32IndexBuffer, m_pMesh->trianglesNumber() * 3 * sizeof(GLuint) );
+        allocateBuffer(m_normalBufferMesh, l_aFNormalBuffer, m_pMesh->pointsNumber() * 3 * sizeof(float) );
+        allocateBuffer(m_textureBufferMesh, l_aFTextureBuffer, m_pMesh->pointsNumber() * 2 * sizeof(float) );
+
+        deleteAndNullifyArray(l_aFVertexBuffer);
+        deleteAndNullifyArray(l_aUI32IndexBuffer);
+        deleteAndNullifyArray(l_aFNormalBuffer);
+        deleteAndNullifyArray(l_aFTextureBuffer);
+
+        m_bNewMesh = false;
+    }
 
     m_oShaderMesh.setUniformValue("mvpMatrix", m_oMVPMatrix);
     m_oShaderMesh.setUniformValue("applyTexture", m_bApplyTexture);
 
-    drawBufferWithTexture(m_indexBuffer, m_vertexBuffer, m_textureBuffer, m_normalBuffer, m_oShaderMesh, GL_TRIANGLES);
+    drawBufferWithTexture(m_indexBufferMesh, m_vertexBufferMesh, m_textureBufferMesh, m_normalBufferMesh, m_oShaderMesh, GL_TRIANGLES);
 
-    delete[] l_aFVertexBuffer;
-    delete[] l_aUI32IndexBuffer;
-    delete[] l_aFNormalBuffer;
-    delete[] l_aFTextureBuffer;
+    m_oShaderMesh.release();
+        checkGlError();
 }

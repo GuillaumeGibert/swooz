@@ -86,7 +86,7 @@ class SWGLCloudWidget : public SWGLWidget
 
         QGLShaderProgram m_oShader;     /**< ... */
 
-        QReadWriteLock m_oCloudMutex;
+//        QReadWriteLock m_oCloudMutex;
 
         QGLBuffer m_vertexBufferCloud;       /**< ... */
         QGLBuffer m_indexBufferCloud;        /**< ... */
@@ -104,6 +104,8 @@ class SWGLCloudWidget : public SWGLWidget
 //        swCloud::SWCloud *m_pCloud;        /**< cloud pointer*/
         swCloud::SWCloud m_oCloud;
         swCloud::SWCloudBBox m_oCloudBBox; /**< bounded box of the cloud */
+
+        bool m_bNewCloud;
 };
 
 #endif

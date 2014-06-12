@@ -281,6 +281,8 @@ void SWGLMultiObjectWidget::removeCloud(cuint ui32Index)
         m_vBuffersToDelete.push_back(m_vCloudsVertexBuffer[ui32Index]);
         m_vBuffersToDelete.push_back(m_vCloudsIndexBuffer[ui32Index]);
         m_vBuffersToDelete.push_back(m_vCloudsColorBuffer[ui32Index]);
+        m_vBuffersToDelete.push_back(m_vCloudsTextureBuffer[ui32Index]);
+        m_vBuffersToDelete.push_back(m_vCloudsNormalBuffer[ui32Index]);
 
         m_vCloudsVertexBuffer.removeAt(ui32Index);
         m_vCloudsNormalBuffer.removeAt(ui32Index);

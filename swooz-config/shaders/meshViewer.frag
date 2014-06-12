@@ -55,14 +55,16 @@ void main(void)
     //  texture
         vec4 textureColor = texture2D(texture2d, TextureCoord);
 
-        if(displayMode != 3)
-        {
-            fragColor = vec4(PointColor, 1.0) * vec4(ambiantLight + diffusLight , opacity);
-        }
-        else
-        {
-            fragColor = textureColor * vec4(ambiantLight + diffusLight , opacity); // + specularLight
-        }
+        fragColor = vec4(PointColor, 1.0) * vec4(ambiantLight + diffusLight , opacity);
+
+//        if(displayMode != 3)
+//        {
+//            fragColor = vec4(PointColor, 1.0) * vec4(ambiantLight + diffusLight , opacity);
+//        }
+//        else
+//        {
+//            fragColor = textureColor * vec4(ambiantLight + diffusLight , opacity); // + specularLight
+//        }
 }
 
 ////Calculate the half vector between the light vector and the view vector.

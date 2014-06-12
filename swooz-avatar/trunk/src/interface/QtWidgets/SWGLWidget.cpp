@@ -13,7 +13,6 @@
 // MOC
 #include "moc_SWGLWidget.cpp"
 
-
 SWGLWidget::SWGLWidget(  QGLContext *oContext, QWidget* oParent) :
     QGLWidget( oContext, oParent ), m_glContext(oContext),  m_oTimer(new QBasicTimer)
 {
@@ -278,6 +277,7 @@ void  SWGLWidget::drawAxes(QGLShaderProgram &oShader, QMatrix4x4 &mvpMatrix, cfl
 
     // set mode
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        checkGlError();
 
     // init buffers
     QGLBuffer l_vertexBuffer, l_indexBuffer;
@@ -306,11 +306,10 @@ void  SWGLWidget::drawAxes(QGLShaderProgram &oShader, QMatrix4x4 &mvpMatrix, cfl
     l_aUI32IndexBuffer[1] = 1;
 
     // allocate QGL buffers
-    allocateBuffer(l_vertexBuffer, l_aFVertexBuffer, 4 *  3 * sizeof(float) ); std::cout << " m1 ";
-    allocateBuffer(l_indexBuffer, l_aUI32IndexBuffer, 2 * sizeof(GLuint) ); std::cout << " m2 ";
-
-    delete[] l_aFVertexBuffer;
-    delete[] l_aUI32IndexBuffer;
+    allocateBuffer(l_vertexBuffer, l_aFVertexBuffer, 4 *  3 * sizeof(float) );
+    allocateBuffer(l_indexBuffer, l_aUI32IndexBuffer, 2 * sizeof(GLuint) );
+    deleteAndNullifyArray(l_aFVertexBuffer);
+    deleteAndNullifyArray(l_aUI32IndexBuffer);
 
     // set mvp matrix uniform value
     oShader.setUniformValue("mvpMatrix", mvpMatrix);
@@ -326,22 +325,20 @@ void  SWGLWidget::drawAxes(QGLShaderProgram &oShader, QMatrix4x4 &mvpMatrix, cfl
     l_aUI32IndexBuffer[1] = 2;
 
     // allocate QGL buffers
-    allocateBuffer(l_indexBuffer, l_aUI32IndexBuffer, 2 * sizeof(GLuint) ); std::cout << " m3 ";
-
-    delete[] l_aUI32IndexBuffer;
+    allocateBuffer(l_indexBuffer, l_aUI32IndexBuffer, 2 * sizeof(GLuint) );
+    deleteAndNullifyArray(l_aUI32IndexBuffer);
 
     // set color uniform value for the current line
     oShader.setUniformValue("uniColor", 0.f, 1.f, 0.f);
-    drawBuffer(l_indexBuffer, l_vertexBuffer, oShader, GL_LINES); std::cout << " m4 ";
+    drawBuffer(l_indexBuffer, l_vertexBuffer, oShader, GL_LINES);
 
     l_aUI32IndexBuffer = new uint[6];
     l_aUI32IndexBuffer[0] = 0;
     l_aUI32IndexBuffer[1] = 3;
 
     // allocate QGL buffers
-    allocateBuffer(l_indexBuffer, l_aUI32IndexBuffer, 2 * sizeof(GLuint) ); std::cout << " m5 ";
-
-    delete[] l_aUI32IndexBuffer;
+    allocateBuffer(l_indexBuffer, l_aUI32IndexBuffer, 2 * sizeof(GLuint) );
+    deleteAndNullifyArray(l_aUI32IndexBuffer);
 
     // set color uniform value for the current line
     oShader.setUniformValue("uniColor", 0.f, 0.f, 1.f);

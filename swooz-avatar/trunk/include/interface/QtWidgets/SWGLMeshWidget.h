@@ -60,17 +60,6 @@ class SWGLMeshWidget : public SWGLWidget
         void drawMesh();
 
         /**
-        * @brief drawMeshLines
-        */
-        // void drawMeshLines();
-
-        /**
-        * \brief Set the mesh to draw
-        * \param [in] oMesh : mesh to draw
-        */
-        void setMesh(swMesh::SWMesh &oMesh);
-
-        /**
         * \brief Set the mesh to draw
         * \param [in] pMesh : pointer to the mesh to draw
         */
@@ -103,6 +92,7 @@ class SWGLMeshWidget : public SWGLWidget
     private :
 
         bool m_bInitCamWithCloudPosition;
+        bool m_bNewMesh;
 
         QString m_sVertexShaderPath; /**< ... */
         QString m_sFragmentShaderPath; /**< ... */
@@ -116,10 +106,10 @@ class SWGLMeshWidget : public SWGLWidget
 
         QImage m_oTexture;
 
-        QGLBuffer m_vertexBuffer; /**< ... */
-        QGLBuffer m_indexBuffer; /**< ... */
-        QGLBuffer m_normalBuffer; /**< ... */
-        QGLBuffer m_textureBuffer; /**< ... */
+        QGLBuffer m_vertexBufferMesh; /**< ... */
+        QGLBuffer m_indexBufferMesh; /**< ... */
+        QGLBuffer m_normalBufferMesh; /**< ... */
+        QGLBuffer m_textureBufferMesh; /**< ... */
 
         GLuint m_textureLocation;
         GLuint m_texHandle;

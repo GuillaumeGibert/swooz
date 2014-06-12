@@ -1424,7 +1424,7 @@ float *SWCloud::colorBuffer() const
 	{
 		l_aFColor[ii*3]     = color(0)[ii] / 255.f;
 		l_aFColor[ii*3 + 1] = color(1)[ii] / 255.f;
-		l_aFColor[ii*3 + 2] = color(2)[ii] / 255.f;				
+        l_aFColor[ii*3 + 2] = color(2)[ii] / 255.f;
     }
 	
 	return l_aFColor;
