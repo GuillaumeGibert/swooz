@@ -42,10 +42,13 @@ OBJ_TRACKING_EMCIP=\
 OBJ_TRACKING_FORTH=\
         $(LIBDIR)/SWForthTracking.obj
 
+OBJ_TRACKING_FAKE=\
+        $(LIBDIR)/SWFakeTracking_d.obj\
+
 ############################################################################## Makefile commands
 
 !if  "$(ARCH)" == "x86"
-all: trackingHeadForest trackingHeadEmicp trackingHeadForest trackingFaceLab trackingFaceShift trackingOpenNI
+all: trackingHeadForest trackingHeadEmicp trackingHeadForest trackingFaceLab trackingFaceShift trackingOpenNI trackingFake
 !endif
 
 !if "$(ARCH)" == "amd64"
@@ -58,6 +61,7 @@ trackingFaceShift  : $(BINDIR)/SWFaceShiftTracking.exe
 trackingHeadEmicp  : $(QTGENW_RGBD)/SWUI_WEmicpHeadTracking.h $(MOCDIR)/moc_SWEmicpHeadTracking.cpp $(BINDIR)/SWEmicpHeadTracking.exe
 trackingOpenNI     : $(BINDIR)/SWOpenNITracking.exe
 trackingForth      : $(BINDIR)/SWForthTracking.exe
+trackingFake       : $(BINDIR)/SWFakeTracking.exe
 
 clean:
 
@@ -84,6 +88,9 @@ $(BINDIR)/SWOpenNITracking.exe: $(OBJ_TRACKING_OPENNI) $(LIBS_OPENNI_TRACK)
 
 $(BINDIR)/SWForthTracking.exe: $(OBJ_TRACKING_FORTH) $(LIBS_FORTH_TRACK)
         $(LINK) /OUT:$(BINDIR)/SWForthTracking.exe $(LFLAGS) $(OBJ_TRACKING_FORTH) $(LIBS_FORTH_TRACK) $(WIN_CONFIG)
+
+$(BINDIR)/SWFakeTracking.exe: $(OBJ_TRACKING_FAKE) $(LIBS_FAKE_TRACK)
+        $(LINK) /OUT:$(BINDIR)/SWFakeTracking.exe $(LFLAGS) $(OBJ_TRACKING_FAKE) $(LIBS_FAKE_TRACK) $(WIN_CONFIG)
 
 ############################################################################## OPENNI TRACKING OBJ
 
@@ -126,6 +133,11 @@ $(LIBDIR)/SWFaceShiftTracking_d.obj: ./src/rgbd/SWFaceShiftTracking.cpp
 
 $(LIBDIR)/SWEmicpHeadTracking_d.obj: ./src/rgbd/SWEmicpHeadTracking.cpp
         $(CC) -c ./src/rgbd/SWEmicpHeadTracking.cpp $(CFLAGS_DYN) $(SW_EMICPHEADTRACKING) -Fo"$(LIBDIR)/SWEmicpHeadTracking_d.obj"
+
+############################################################################## FALE TRACKING OBJ
+
+$(LIBDIR)/SWFakeTracking_d.obj: ./src/SWFakeTracking.cpp
+        $(CC) -c ./src/SWFakeTracking.cpp $(CFLAGS_DYN) $(SW_FAKETRACKING) -Fo"$(LIBDIR)/SWFakeTracking_d.obj"
 
 ############################################################################## Qt ui files
 

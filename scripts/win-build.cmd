@@ -120,7 +120,7 @@ echo pushd ..\scripts                                        				>> %target_dist
 echo call win-init_env_command.cmd %ARCH_EXE_toolkit_kinectOnDimenco%                 >> %target_dist%\swooz-toolkit_kinectOnDimenco.cmd
 echo popd                                                    				>> %target_dist%\swooz-toolkit_kinectOnDimenco.cmd
 echo cd bin										>> %target_dist%\swooz-toolkit_kinectOnDimenco.cmd
-echo SWDisplayKinectOnDimenco.exe 							>> %target_dist%\swooz-toolkit_kinectOnDimenco.cmd
+echo SWDisplayKinectOnDimenco.exe %PARAMS_EXEC%							>> %target_dist%\swooz-toolkit_kinectOnDimenco.cmd
 echo cd ../../scripts									>> %target_dist%\swooz-toolkit_kinectOnDimenco.cmd
 echo call win-clean-env_command.cmd							>> %target_dist%\swooz-toolkit_kinectOnDimenco.cmd
 echo cd ../dist										>> %target_dist%\swooz-toolkit_kinectOnDimenco.cmd
@@ -133,7 +133,7 @@ echo pushd ..\scripts                                        				>> %target_dist
 echo call win-init_env_command.cmd %ARCH_EXE_createAvatar%                        	>> %target_dist%\swooz-createAvatar.cmd
 echo popd                                                    				>> %target_dist%\swooz-createAvatar.cmd
 echo cd bin										>> %target_dist%\swooz-createAvatar.cmd
-echo SWCreateAvatar.exe %1 %2 %3							>> %target_dist%\swooz-createAvatar.cmd
+echo SWCreateAvatar.exe %PARAMS_EXEC%							>> %target_dist%\swooz-createAvatar.cmd
 echo cd ../../scripts									>> %target_dist%\swooz-createAvatar.cmd
 echo call win-clean-env_command.cmd							>> %target_dist%\swooz-createAvatar.cmd
 echo cd ../dist										>> %target_dist%\swooz-createAvatar.cmd
@@ -146,7 +146,7 @@ echo pushd ..\scripts                                        				>> %target_dist
 echo call win-init_env_command.cmd x86                                                  >> %target_dist%\swooz-morphing.cmd
 echo popd                                                    				>> %target_dist%\swooz-morphing.cmd
 echo cd bin										>> %target_dist%\swooz-morphing.cmd
-echo SWMorphing.exe %1 %2 %3 %PARAMS_EXEC%						>> %target_dist%\swooz-morphing.cmd
+echo SWMorphing.exe %PARAMS_EXEC%					>> %target_dist%\swooz-morphing.cmd
 echo cd ../../scripts									>> %target_dist%\swooz-morphing.cmd
 echo call win-clean-env_command.cmd							>> %target_dist%\swooz-morphing.cmd
 echo cd ../dist										>> %target_dist%\swooz-morphing.cmd
@@ -159,7 +159,7 @@ echo pushd ..\scripts                                        				>> %target_dist
 echo call win-init_env_command.cmd amd64                                >> %target_dist%\swooz-morphing-x64.cmd
 echo popd                                                    				>> %target_dist%\swooz-morphing-x64.cmd
 echo cd bin										>> %target_dist%\swooz-morphing-x64.cmd
-echo SWMorphing-x64.exe %1 %2 %3 %PARAMS_EXEC%						>> %target_dist%\swooz-morphing-x64.cmd
+echo SWMorphing-x64.exe %PARAMS_EXEC%						>> %target_dist%\swooz-morphing-x64.cmd
 echo cd ../../scripts									>> %target_dist%\swooz-morphing-x64.cmd
 echo call win-clean-env_command.cmd							>> %target_dist%\swooz-morphing-x64.cmd
 echo cd ../dist										>> %target_dist%\swooz-morphing-x64.cmd
@@ -278,6 +278,18 @@ REM echo SWForthTracking.exe                                                    
 REM echo cd ../../scripts                                                                   >> %target_dist%\swooz-trackingForth.cmd
 REM echo call win-clean-env_command.cmd                                                   >> %target_dist%\swooz-trackingForth.cmd
 REM echo cd ../dist                                                                         >> %target_dist%\swooz-trackingForth.cmd
+REM #######################################################################################
+REM ### Fake tracking
+echo @echo off                                                                          >  %target_dist%\swooz-trackingFake.cmd
+echo %SystemRoot%\system32\xcopy /q /e /y %saved_directory%\..\swooz-config %saved_directory%\%target_dist%\data >> %target_dist%\swooz-trackingFake.cmd
+echo pushd ..\scripts                                                                   >> %target_dist%\swooz-trackingFake.cmd
+echo call win-init_env_command.cmd %ARCH_EXE_trackingFake%                           >> %target_dist%\swooz-trackingFake.cmd
+echo popd                                                                               >> %target_dist%\swooz-trackingFake.cmd
+echo cd bin                                                                             >> %target_dist%\swooz-trackingFake.cmd
+echo SWFakeTracking.exe %PARAMS_EXEC%                                                        >> %target_dist%\swooz-trackingFake.cmd
+echo cd ../../scripts                                                                   >> %target_dist%\swooz-trackingFake.cmd
+echo call win-clean-env_command.cmd                                                   >> %target_dist%\swooz-trackingFake.cmd
+echo cd ../dist                                                                         >> %target_dist%\swooz-trackingFake.cmd
 REM #######################################################################################
 REM ### Viewer
 echo @echo off                                                                          >  %target_dist%\swooz-viewer.cmd

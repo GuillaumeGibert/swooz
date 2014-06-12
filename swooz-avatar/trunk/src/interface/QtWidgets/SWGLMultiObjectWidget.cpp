@@ -174,17 +174,6 @@ void SWGLMultiObjectWidget::addCloud(const QString &sPathCloud)
         l_textureBuffer->setUsagePattern(QGLBuffer::StaticDraw);
         l_colorBuffer->setUsagePattern(QGLBuffer::StaticDraw);
 
-    // allocate buffers
-        float  *l_aFVertexBuffer   = l_pCloud->vertexBuffer();
-        float  *l_aFColorBuffer    = l_pCloud->colorBuffer();
-        uint32 *l_aUI32IndexBuffer = l_pCloud->indexBuffer();
-            allocateBuffer(*l_vertexBuffer,l_aFVertexBuffer,   l_pCloud->size() *  3 * sizeof(float) );
-            allocateBuffer(*l_indexBuffer, l_aUI32IndexBuffer, l_pCloud->size() * sizeof(GLuint) );
-            allocateBuffer(*l_colorBuffer, l_aFColorBuffer,    l_pCloud->size() *  3 * sizeof(float));
-        deleteAndNullifyArray(l_aFVertexBuffer);
-        deleteAndNullifyArray(l_aUI32IndexBuffer);
-        deleteAndNullifyArray(l_aFColorBuffer);
-
     m_pListCloudsMutex.lockForWrite();
         m_vClouds.push_back(l_pCloud);
         m_vCloudsParameters.push_back(l_pCloudParam);
@@ -193,6 +182,9 @@ void SWGLMultiObjectWidget::addCloud(const QString &sPathCloud)
         m_vCloudsNormalBuffer.push_back(l_normalBuffer);
         m_vCloudsTextureBuffer.push_back(l_textureBuffer);
         m_vCloudsColorBuffer.push_back(l_colorBuffer);
+
+        m_vCloudsBufferToUpdate.push_back(true);
+
     m_pListCloudsMutex.unlock();
 
     updateGL();
@@ -259,6 +251,9 @@ void SWGLMultiObjectWidget::addMesh(const QString &sPathMesh)
         m_vMeshesNormalBuffer.push_back(l_normalBuffer);
         m_vMeshesTextureBuffer.push_back(l_textureBuffer);
         m_vMeshesColorBuffer.push_back(l_colorBuffer);
+
+        m_vCloudsBufferToUpdate.push_back(true);
+
     m_oParamMutex.unlock();
 
     updateGL();
@@ -289,6 +284,7 @@ void SWGLMultiObjectWidget::removeCloud(cuint ui32Index)
         m_vCloudsIndexBuffer.removeAt(ui32Index);
         m_vCloudsTextureBuffer.removeAt(ui32Index);
         m_vCloudsColorBuffer.removeAt(ui32Index);
+        m_vCloudsBufferToUpdate.removeAt(ui32Index);
 
         m_pListCloudsMutex.unlock();
     }
@@ -326,7 +322,7 @@ void SWGLMultiObjectWidget::removeMesh(cuint ui32Index)
         m_vMeshesNormalBuffer.removeAt(ui32Index);
         m_vMeshesIndexBuffer.removeAt(ui32Index);
         m_vMeshesTextureBuffer.removeAt(ui32Index);
-        m_vMeshesColorBuffer.removeAt(ui32Index);
+        m_vMeshesColorBuffer.removeAt(ui32Index);        
 
         m_pListMeshesMutex.unlock();
     }
@@ -405,6 +401,23 @@ void SWGLMultiObjectWidget::drawClouds()
                 m_oShaderCloud.setUniformValue("displayMode", l_oDisplayMode);
                 m_oShaderCloud.setUniformValue("uniColor", l_vUnicolor.x()/255., l_vUnicolor.y()/255., l_vUnicolor.z()/255.);
                 m_oShaderCloud.setUniformValue("mvpMatrix", m_oMVPMatrix);
+
+            if(m_vCloudsBufferToUpdate[ii])
+            {
+                // allocate buffers
+                    float  *l_aFVertexBuffer   = m_vClouds[ii]->vertexBuffer();
+                    float  *l_aFColorBuffer    = m_vClouds[ii]->colorBuffer();
+                    uint32 *l_aUI32IndexBuffer = m_vClouds[ii]->indexBuffer();
+                        allocateBuffer(*m_vCloudsVertexBuffer[ii], l_aFVertexBuffer,   m_vClouds[ii]->size() *  3 * sizeof(float) );
+                        allocateBuffer(*m_vCloudsIndexBuffer[ii], l_aUI32IndexBuffer, m_vClouds[ii]->size() * sizeof(GLuint) );
+                        allocateBuffer(*m_vCloudsColorBuffer[ii], l_aFColorBuffer,    m_vClouds[ii]->size() *  3 * sizeof(float));
+                    deleteAndNullifyArray(l_aFVertexBuffer);
+                    deleteAndNullifyArray(l_aUI32IndexBuffer);
+                    deleteAndNullifyArray(l_aFColorBuffer);
+
+                m_vCloudsBufferToUpdate[ii] = false;
+            }
+
 
             // draw
                 drawBufferWithColor(*m_vCloudsIndexBuffer[ii], *m_vCloudsVertexBuffer[ii],

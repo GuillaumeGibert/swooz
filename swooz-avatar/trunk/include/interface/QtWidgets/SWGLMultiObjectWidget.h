@@ -187,6 +187,8 @@ class SWGLMultiObjectWidget : public SWGLWidget
 //        QList<SWMeshPtr> m_vMeshes;  /**< ... */
         QList<SWMeshPtr> m_vMeshes;  /**< ... */
         QList<SWCloudPtr> m_vClouds; /**< ... */
+        QList<bool> m_vCloudsBufferToUpdate;
+        QList<bool> m_vMeshesBufferToUpdate;
 
         QList<SWGLObjectParametersPtr> m_vCloudsParameters; /**< ... */
         QList<SWGLObjectParametersPtr> m_vMeshesParameters; /**< ... */
@@ -219,7 +221,7 @@ class SWGLMultiObjectWidget : public SWGLWidget
         QReadWriteLock m_oParamMutex; /**< ... */
 
         QReadWriteLock m_pListCloudsMutex;
-        QReadWriteLock m_pListMeshesMutex;
+        QReadWriteLock m_pListMeshesMutex;                      
 
 };
 
