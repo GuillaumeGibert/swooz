@@ -14,7 +14,7 @@ using namespace yarp::dev;
 using namespace yarp::sig;
 using namespace swExcept;
 
-SWFaceLabTracking::SWFaceLabTracking() : m_bIsFaceLabInitialized(true), m_i32Fps(1000)
+SWFaceLabTracking::SWFaceLabTracking() : m_bIsFaceLabInitialized(true), m_i32Fps(60)
 {
     std::string l_sDeviceName  = "facelab";
     std::string l_sLibraryName = "coredata";

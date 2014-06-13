@@ -11,7 +11,6 @@
 
 #include "moc_SWMorphingWorker.cpp"
 
-
 SWMorphingWorker::SWMorphingWorker(SWGLOptimalStepNonRigidICP *pGLOSNRICP) : m_pGLOSNRICP(pGLOSNRICP), m_bDoMorphing(false)
 {}
 

@@ -21,49 +21,46 @@
  */
 static GLenum checkGlError(bool bDisplay = true)
 {
-    QVector<QString> l_vSError;
+   QString l_sSError;
 
     GLenum l_glError;
 
     while((l_glError = glGetError()) != GL_NO_ERROR)
     {
-        qWarning("ERROR");
         switch(l_glError)
         {
             case GL_INVALID_ENUM :
-                l_vSError.push_back("GL_INVALID_ENUM");
+                l_sSError = QString("GL_INVALID_ENUM");
             break;
             case GL_INVALID_VALUE :
-                l_vSError.push_back("GL_INVALID_VALUE");
+                l_sSError = QString("GL_INVALID_VALUE");
             break;
             case GL_INVALID_OPERATION :
-                l_vSError.push_back("GL_INVALID_OPERATION");
+                l_sSError = QString("GL_INVALID_OPERATION");
             break;
             case GL_INVALID_FRAMEBUFFER_OPERATION :
-                l_vSError.push_back("GL_INVALID_FRAMEBUFFER_OPERATION");
+                l_sSError = QString("GL_INVALID_FRAMEBUFFER_OPERATION");
             break;
             case GL_OUT_OF_MEMORY :
-                l_vSError.push_back("GL_OUT_OF_MEMORY");
+                l_sSError = QString("GL_OUT_OF_MEMORY");
             break;
             case GL_STACK_UNDERFLOW :
-                l_vSError.push_back("GL_STACK_UNDERFLOW");
+                l_sSError = QString("GL_STACK_UNDERFLOW");
             break;
             case GL_STACK_OVERFLOW :
-                l_vSError.push_back("GL_STACK_OVERFLOW");
+                l_sSError = QString("GL_STACK_OVERFLOW");
             break;
             default :
-                l_vSError.push_back("GL_UNKNOW_ERROR");
+                l_sSError = QString("GL_UNKNOW_ERROR");
             break;
+        }
+
+        if(bDisplay)
+        {
+            qWarning() << "GL Error : " << l_sSError;
         }
     }
 
-    if(bDisplay)
-    {
-        for(int ii = 0 ; ii < l_vSError.size(); ++ii)
-        {
-            qWarning() << "GL Error : " << ii << " -> " << l_vSError[ii];
-        }
-    }
 
     return l_glError;
 }

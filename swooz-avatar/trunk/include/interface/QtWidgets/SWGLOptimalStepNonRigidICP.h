@@ -16,10 +16,22 @@
 #include "mesh/SWMesh.h"
 #include "boost/shared_ptr.hpp"
 
+#include "interface/SWGLUtility.h"
 
 
 typedef boost::shared_ptr<swMesh::SWMesh> SWMeshPtr; /**< boost shared pointer for SWMesh */
 typedef boost::shared_ptr<swMesh::SWOptimalStepNonRigidICP> SWOptimalStepNonRigidICPPtr; /**< boost shared pointer for SWOptimalStepNonRigidICP */
+
+
+struct SWGLBufferList
+{
+    QGLBuffer m_vertexBuffer;
+    QGLBuffer m_indexBuffer;
+    QGLBuffer m_colorBuffer;
+    QGLBuffer m_normalBuffer;
+    QGLBuffer m_textureBuffer;
+    bool m_bUpdate;
+};
 
 
 /**
@@ -317,6 +329,8 @@ class SWGLOptimalStepNonRigidICP : public SWGLWidget
 
     private :
 
+        void initBufferList(SWGLBufferList &oBuffer);
+
         /**
          * \brief Align source and target using the nose. Apply also a basic scaling to the target if necessary
          * \param [in,out] oSourceMesh : source mesh
@@ -340,7 +354,7 @@ class SWGLOptimalStepNonRigidICP : public SWGLWidget
 
         void drawSourceCloud(QGLShaderProgram &oShader, const swCloud::SWCloud &oCloud, cfloat fSizePoint, QMatrix4x4 &mvpMatrix);
 
-        void drawMeshLines(QGLShaderProgram &oShader, swMesh::SWMesh &oMesh, QMatrix4x4 &mvpMatrix,
+        void drawMeshLines(QGLShaderProgram &oShader, SWGLBufferList &oBuffers, swMesh::SWMesh &oMesh, QMatrix4x4 &mvpMatrix,
                            cfloat r = -1, cfloat g = -1, cfloat b = -1, cfloat fOpacity = 1.f);
 
         void drawCorrLines(QGLShaderProgram &oShader, const swCloud::SWCloud &oSource, const swCloud::SWCloud &oTarget,
@@ -352,13 +366,13 @@ class SWGLOptimalStepNonRigidICP : public SWGLWidget
         void drawLandMarksPoints(QGLShaderProgram &oShader, const std::map<uint,uint> mLandMarkCorr,
                                  const swCloud::SWCloud &oSource, const swCloud::SWCloud &oTarget, QMatrix4x4 &mvpMatrix);
 
-        void drawMeshVerticesNormals(QGLShaderProgram &oShader, const swMesh::SWMesh &oMesh, QMatrix4x4 &mvpMatrix,
+        void drawMeshVerticesNormals(QGLShaderProgram &oShader, SWGLBufferList &oBuffers, const swMesh::SWMesh &oMesh, QMatrix4x4 &mvpMatrix,
                                      cfloat r = -1, cfloat g = -1, cfloat b = -1);
 
-        void drawMeshTrianglesNormals(QGLShaderProgram &oShader, const swMesh::SWMesh &oMesh, QMatrix4x4 &mvpMatrix,
+        void drawMeshTrianglesNormals(QGLShaderProgram &oShader, SWGLBufferList &oBuffers, const swMesh::SWMesh &oMesh, QMatrix4x4 &mvpMatrix,
                                       cfloat r = -1, cfloat g = -1, cfloat b = -1);
 
-        void drawMeshTriangles(QGLShaderProgram &oShader, swMesh::SWMesh &oMesh, QMatrix4x4 &mvpMatrix,
+        void drawMeshTriangles(QGLShaderProgram &oShader, SWGLBufferList &oBuffers, swMesh::SWMesh &oMesh, QMatrix4x4 &mvpMatrix,
                                   QVector3D &v3DLAmbiant, cfloat fOpacity = 1.f);
 
         /**
@@ -419,6 +433,18 @@ class SWGLOptimalStepNonRigidICP : public SWGLWidget
         QGLBuffer m_colorBuffer;            /**< opengl color buffer */
         QGLBuffer m_normalBuffer;           /**< opengl normal buffer */
         QGLBuffer m_textureBuffer;           /**< opengl normal buffer */
+
+        SWGLBufferList m_templateCloudBuffer;
+        SWGLBufferList m_templateMeshBuffer;
+        SWGLBufferList m_templateMeshLinesBuffer;
+        SWGLBufferList m_templateVerticesNormalesBuffer;
+        SWGLBufferList m_templateTrianglesNormalesBuffer;
+
+        SWGLBufferList m_targetCloudBuffer;
+        SWGLBufferList m_targetMeshBuffer;
+        SWGLBufferList m_targetMeshLinesBuffer;
+        SWGLBufferList m_targetVerticesNormalesBuffer;
+        SWGLBufferList m_targetTrianglesNormalesBuffer;
 
         QGLShaderProgram m_oShaderPoints;   /**< shader program to render points */
         QGLShaderProgram m_oShaderLines;    /**< shader program to render lines */

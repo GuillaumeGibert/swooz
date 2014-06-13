@@ -24,6 +24,11 @@
 #include <boost/thread/thread.hpp>
 
 
+#include "SWTrackingDevice.h"
+
+// facelab min max
+// -0.69 -1.22 -0.95
+// 0.52 1.04 0.87
 
 
 int countWhiteSpaces(std::ifstream  &oFileStream)
@@ -80,10 +85,11 @@ int main(int argc, char* argv[])
         return -1;
     }
 
-    std::string l_sDevice, l_sLib, l_sRobotPart, l_sLine;
+    std::string l_sDevice, l_sLib, l_sRobotPart, l_sLIB_DEVICE, l_sLine;
     l_oFileStream >> l_sDevice;
     l_oFileStream >> l_sLib;
     l_oFileStream >> l_sRobotPart;
+    l_oFileStream >> l_sLIB_DEVICE;
     getline(l_oFileStream, l_sLine);
 
     std::cout << "Device : " << l_sDevice << std::endl;
@@ -134,58 +140,60 @@ int main(int argc, char* argv[])
 
     l_oFileStream.close();
 
-    //    for(uint ii = 0; ii < l_vBottlesTimes.size(); ++ii)
-    //    {
-    //        std::cout << l_vBottlesTimes[ii] << " ";
 
-    //        for(uint jj = 0; jj < l_vVData[ii].size(); ++jj)
-    //        {
-    //            std::cout << l_vVData[ii][jj] << " ";
-    //        }
-    //        std::cout << std::endl;
-    //    }
+    // ###################################
 
+    int l_i32Lib_Id = 0;
 
-    // #######################################
-
+    for (int ii = swTracking::RankFirst; ii <= swTracking::RankLast; ++ii)
+    {
+        if(swTracking::returnStringValue(ii) == l_sLIB_DEVICE)
+        {
+            l_i32Lib_Id = ii;
+            break;
+        }
+    }
 
     yarp::os::BufferedPort<yarp::os::Bottle> l_oFakeTrackingPort;
     std::string l_sPortName =  "/tracking/" + l_sDevice + "/"+ l_sLib + "/" + l_sRobotPart;
     l_oFakeTrackingPort.open(l_sPortName.c_str());
 
-    clock_t l_oProgramTime = clock();
+    std::cout << "Start sending bottles to " << l_sPortName << " ? " << std::endl;
+    char l_cKey;
+    std::cin >> l_cKey;
 
-    int ii = 0;
 
+    clock_t l_oInitialTime = clock();
 
-    while(l_vBottlesTimes.back() * 1000> ((float)(clock() - l_oProgramTime) / CLOCKS_PER_SEC))
+    for(uint ii = 0; ii < l_vBottlesTimes.size(); ++ii)
     {
-        while(l_vBottlesTimes[ii] * 1000> ((float)(clock() - l_oProgramTime) / CLOCKS_PER_SEC))
-        {
+        double l_dTimeToWait = l_vBottlesTimes[ii] - (float)(clock() - l_oInitialTime)/CLOCKS_PER_SEC;
+        boost::this_thread::sleep(boost::posix_time::milliseconds(static_cast<int64>(1000*l_dTimeToWait)));
 
-        }
+        // stuff to do
+        yarp::os::Bottle &l_oFakeTrackingBottle = l_oFakeTrackingPort.prepare();
+        l_oFakeTrackingBottle.clear();
 
-        ++ii;
+            // device lib id
+            l_oFakeTrackingBottle.addInt(l_i32Lib_Id); //head : l_i32Lib_Id id / get(0).asInt()
 
-//        std::cout << l_vBottlesTimes.back() * 1000 << " | " <<  ((float)(clock() - l_oProgramTime) / CLOCKS_PER_SEC) << " | ";
+            std::cout << l_vBottlesTimes[ii] << " ";
 
-//        if(l_vBottlesTimes[ii] * 1000 > ((float)(clock() - l_oProgramTime) / CLOCKS_PER_SEC))
-//        {
-//            std::cout << l_vBottlesTimes[ii] * 1000 << " ";
-//            ++ii;
-//        }
+            for(uint jj = 0; jj < l_vVData[ii].size(); ++jj)
+            {
+                l_oFakeTrackingBottle.addDouble(l_vVData[ii][jj]);
+                std::cout << l_vVData[ii][jj] << " ";
+            }
 
-//        boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+            std::cout << std::endl;
+
+        l_oFakeTrackingPort.write();
     }
 
+    l_oFakeTrackingPort.close();
 
-
-//    (float)(clock() - l_oProgramTime) / CLOCKS_PER_SEC
-
-
-
-
-
+    // terminate network
+    yarp::os::Network::fini();
 
 
     return 0;
