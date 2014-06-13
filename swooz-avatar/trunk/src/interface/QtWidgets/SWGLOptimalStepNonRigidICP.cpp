@@ -564,51 +564,37 @@ void SWGLOptimalStepNonRigidICP::drawScene()
     // draw source mesh
         if(m_bMeshSDisplay)
         {
-            try
-            {
-                m_pSourceMeshMutex->lockForRead();
+            m_pSourceMeshMutex->lockForRead();
 
-                if(m_bFillS)
-                {
-                    QVector3D l_v3DLAmbiant(0.44,0.44,0.88);
-                    drawMeshTriangles(m_oShaderTriangles, m_templateMeshBuffer, m_pOSNRICP->m_oSourceMesh, m_oMVPMatrix, l_v3DLAmbiant, m_fOpacitySourceMesh);
-                }
-                else
-                {
-                    drawMeshLines(m_oShaderLines, m_templateMeshLinesBuffer, m_pOSNRICP->m_oSourceMesh, m_oMVPMatrix, 0.5f, 0.5f, 1.f, m_fOpacitySourceMeshLines);
-                }
-
-                m_pSourceMeshMutex->unlock();
-            }
-            catch(const openglError &e)
+            if(m_bFillS)
             {
-                qWarning() << "drawMeshLines source : " << e.what();
+                QVector3D l_v3DLAmbiant(0.44,0.44,0.88);
+                drawMeshTriangles(m_oShaderTriangles, m_templateMeshBuffer, m_pOSNRICP->m_oSourceMesh, m_oMVPMatrix, l_v3DLAmbiant, m_fOpacitySourceMesh);
             }
+            else
+            {
+                drawMeshLines(m_oShaderLines, m_templateMeshLinesBuffer, m_pOSNRICP->m_oSourceMesh, m_oMVPMatrix, 0.5f, 0.5f, 1.f, m_fOpacitySourceMeshLines);
+            }
+
+            m_pSourceMeshMutex->unlock();
         }
 
     // draw target mesh
         if(m_bMeshTDisplay)
         {
-            try
-            {
-                m_pTargetMeshMutex->lockForRead();
+            m_pTargetMeshMutex->lockForRead();
 
-                if(m_bFillT)
-                {
-                    QVector3D l_v3DLAmbiant(0.13,0.69,0.29);
-                    drawMeshTriangles(m_oShaderTriangles, m_targetMeshBuffer, m_pOSNRICP->m_oTargetMesh, m_oMVPMatrix, l_v3DLAmbiant, m_fOpacityTargetMesh);
-                }
-                else
-                {
-                    drawMeshLines(m_oShaderLines, m_targetMeshLinesBuffer, m_pOSNRICP->m_oTargetMesh, m_oMVPMatrix, 0.5f, 1.0f, 0.5f, m_fOpacityTargetMeshLines);
-                }
-
-                m_pTargetMeshMutex->unlock();
-            }
-            catch(const openglError &e)
+            if(m_bFillT)
             {
-                qWarning() << "drawMeshLines target : " << e.what();
+                QVector3D l_v3DLAmbiant(0.13,0.69,0.29);
+                drawMeshTriangles(m_oShaderTriangles, m_targetMeshBuffer, m_pOSNRICP->m_oTargetMesh, m_oMVPMatrix, l_v3DLAmbiant, m_fOpacityTargetMesh);
             }
+            else
+            {
+                drawMeshLines(m_oShaderLines, m_targetMeshLinesBuffer, m_pOSNRICP->m_oTargetMesh, m_oMVPMatrix, 0.5f, 1.0f, 0.5f, m_fOpacityTargetMeshLines);
+            }
+
+            m_pTargetMeshMutex->unlock();
         }
 
     // draw vertices normals
@@ -787,8 +773,8 @@ void SWGLOptimalStepNonRigidICP::drawLandMarksCorr(QGLShaderProgram &oShader, co
     // draw primitives
     drawBuffer(m_indexBuffer, m_vertexBuffer, oShader, GL_LINES);
 
-    delete[] l_aCorrLineI;
-    delete[] l_aCorrLineV;
+    deleteAndNullifyArray(l_aCorrLineI);
+    deleteAndNullifyArray(l_aCorrLineV);
 
     oShader.release();
         checkGlError();
@@ -881,9 +867,9 @@ void SWGLOptimalStepNonRigidICP::drawCorrLines(QGLShaderProgram &oShader, const 
     // draw primitives
     drawBufferWithColor(m_indexBuffer, m_vertexBuffer, m_colorBuffer, oShader, GL_LINES);
 
-    delete[] l_aLinesCorrI;
-    delete[] l_aLinesCorrV;
-    delete[] l_aLinesCorrC;
+    deleteAndNullifyArray(l_aLinesCorrI);
+    deleteAndNullifyArray(l_aLinesCorrV);
+    deleteAndNullifyArray(l_aLinesCorrC);
 
     oShader.release();
         checkGlError();
