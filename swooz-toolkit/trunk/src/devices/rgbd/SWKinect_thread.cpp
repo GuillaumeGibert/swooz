@@ -92,16 +92,16 @@ void SWKinect_thread::stopListening()
 {
 	if(m_bListening)
 	{
-		m_bListening 	 = false;
-		m_bDataAvailable = false;
-		m_pListeningThread->join();		
+        m_bListening 	 = false;
+        m_bDataAvailable = false;
+        m_pListeningThread->join();
 	}
 }
 
 void SWKinect_thread::doWork()
 {
 	while(m_bListening)
-	{			
+    {
 		if(m_oKinect.grab() != -1)
 		{
 			boost::lock_guard<boost::mutex> lock(m_oMutex);

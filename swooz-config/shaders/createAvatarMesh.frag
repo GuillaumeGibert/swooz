@@ -9,7 +9,7 @@ in vec3 Vertex;
 in vec2 TextureCoord;
 
 // colors
-uniform float opacity = 1.f;
+uniform float opacity = 1.0;
 vec4 defaultColor = vec4(1.0,1.0,1.0,0.0);
 
 // lights
@@ -23,7 +23,7 @@ uniform vec3 lAmbiant  = vec3(0.3,0.3,0.3);
 uniform vec3 lDiffus   = vec3(1.0,1.0,1.0);
 uniform vec3 lSpecular = vec3(1.0,1.0,1.0);
 //  sources
-uniform vec3 lSourcePos     = vec3(0.1,0.1,0); // createavatar
+uniform vec3 lSourcePos = vec3(0.1,0.1,0);
 
 // texture
 uniform bool applyTexture = false;

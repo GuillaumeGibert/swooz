@@ -174,6 +174,13 @@ namespace swCloud
 			 */			
 			SWCloud(cuint ui32NumberOfPoints, float *aCoords, uint8 *aUi8Colors);
 		
+
+            /**
+             * @brief Constructor of SWCloud
+             * @param [in] sPathObjFile : path of the obj file to load
+             */
+            SWCloud(const std::string &sPathObjFile);
+
 			/**
 			 * \brief Constructor of SWCloud
 			 * \param [in] vPX : vector of input X float point
@@ -333,6 +340,18 @@ namespace swCloud
 			 * \param [in] vPZ : vector of input Z float point
 			 */			
 			void set(const std::vector<float> &vPX, const std::vector<float> &vPY, const std::vector<float> &vPZ);
+
+            /**
+             * @brief set coordinates array and color array, previous data si deleted.
+             * \param [in] vPX : vector of input X float point
+             * \param [in] vPY : vector of input Y float point
+             * \param [in] vPZ : vector of input Z float point
+             * @param [in] vR  : vector of input R int color point
+             * @param [in] vG  : vector of input G int color point
+             * @param [in] vB  : vector of input B int color point
+             */
+            void set(const std::vector<float> &vPX, const std::vector<float> &vPY, const std::vector<float> &vPZ,
+                     const std::vector<uint8> &vR, const std::vector<uint8> &vG, const std::vector<uint8> &vB);
 		
 			/**
 			 * \brief set coordinates array and color array, previous data si deleted
@@ -508,6 +527,13 @@ namespace swCloud
 		
             uint8 *m_aUi8Colors;        /**< pointer on the color of the points
                                         [R1, R2, ..., Rn, G1, ..., Gn, B1, ..., Bn] */
+
+//            bool m_bBuffersComputed;
+//            int *m_aI32IntedxBuffer;
+//            float *m_aFVertexBuffer;
+//            float *m_aFColorBuffer;
+
+
 					           
 			/**
 			 * \brief increase the size of the cloud point by the input value

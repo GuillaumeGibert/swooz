@@ -219,6 +219,7 @@ void SWCreateAvatarWorker::doWork()
 
 }
 
+
 void SWCreateAvatarWorker::stopWork()
 {
     m_oLoopMutex.lockForWrite();

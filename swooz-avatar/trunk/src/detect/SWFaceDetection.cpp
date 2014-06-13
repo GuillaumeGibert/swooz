@@ -12,11 +12,11 @@
 using namespace swDetect;
 using namespace swExcept;
 
-SWFaceDetection::SWFaceDetection(const cv::Size &oMinDetectFaceSize, cbool bVerbose) : m_oMinDetectFaceSize(oMinDetectFaceSize), m_bVerbose(bVerbose)
+SWFaceDetection::SWFaceDetection(const cv::Size &oMinDetectFaceSize, cbool bVerbose, std::string sClassifierFile) : m_oMinDetectFaceSize(oMinDetectFaceSize), m_bVerbose(bVerbose)
 {	
 	// init cascade files path
 //    std::string l_sCascadeFaceFile        = "../data/classifier/haarcascade_frontalface_alt.xml";
-    std::string l_sCascadeFaceFile        = "../data/classifier/haarcascade_frontalface_alt2.xml";
+    std::string l_sCascadeFaceFile  = sClassifierFile; //"../data/classifier/haarcascade_frontalface_alt2.xml";
 	
     if(m_bVerbose)
     {

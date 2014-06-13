@@ -120,7 +120,7 @@ echo pushd ..\scripts                                        				>> %target_dist
 echo call win-init_env_command.cmd %ARCH_EXE_toolkit_kinectOnDimenco%                 >> %target_dist%\swooz-toolkit_kinectOnDimenco.cmd
 echo popd                                                    				>> %target_dist%\swooz-toolkit_kinectOnDimenco.cmd
 echo cd bin										>> %target_dist%\swooz-toolkit_kinectOnDimenco.cmd
-echo SWDisplayKinectOnDimenco.exe 							>> %target_dist%\swooz-toolkit_kinectOnDimenco.cmd
+echo SWDisplayKinectOnDimenco.exe %PARAMS_EXEC%							>> %target_dist%\swooz-toolkit_kinectOnDimenco.cmd
 echo cd ../../scripts									>> %target_dist%\swooz-toolkit_kinectOnDimenco.cmd
 echo call win-clean-env_command.cmd							>> %target_dist%\swooz-toolkit_kinectOnDimenco.cmd
 echo cd ../dist										>> %target_dist%\swooz-toolkit_kinectOnDimenco.cmd
@@ -133,7 +133,7 @@ echo pushd ..\scripts                                        				>> %target_dist
 echo call win-init_env_command.cmd %ARCH_EXE_createAvatar%                        	>> %target_dist%\swooz-createAvatar.cmd
 echo popd                                                    				>> %target_dist%\swooz-createAvatar.cmd
 echo cd bin										>> %target_dist%\swooz-createAvatar.cmd
-echo SWCreateAvatar.exe %1 %2 %3							>> %target_dist%\swooz-createAvatar.cmd
+echo SWCreateAvatar.exe %PARAMS_EXEC%							>> %target_dist%\swooz-createAvatar.cmd
 echo cd ../../scripts									>> %target_dist%\swooz-createAvatar.cmd
 echo call win-clean-env_command.cmd							>> %target_dist%\swooz-createAvatar.cmd
 echo cd ../dist										>> %target_dist%\swooz-createAvatar.cmd
@@ -146,7 +146,7 @@ echo pushd ..\scripts                                        				>> %target_dist
 echo call win-init_env_command.cmd x86                                                  >> %target_dist%\swooz-morphing.cmd
 echo popd                                                    				>> %target_dist%\swooz-morphing.cmd
 echo cd bin										>> %target_dist%\swooz-morphing.cmd
-echo SWMorphing.exe %1 %2 %3 %PARAMS_EXEC%						>> %target_dist%\swooz-morphing.cmd
+echo SWMorphing.exe %PARAMS_EXEC%					>> %target_dist%\swooz-morphing.cmd
 echo cd ../../scripts									>> %target_dist%\swooz-morphing.cmd
 echo call win-clean-env_command.cmd							>> %target_dist%\swooz-morphing.cmd
 echo cd ../dist										>> %target_dist%\swooz-morphing.cmd
@@ -159,7 +159,7 @@ echo pushd ..\scripts                                        				>> %target_dist
 echo call win-init_env_command.cmd amd64                                >> %target_dist%\swooz-morphing-x64.cmd
 echo popd                                                    				>> %target_dist%\swooz-morphing-x64.cmd
 echo cd bin										>> %target_dist%\swooz-morphing-x64.cmd
-echo SWMorphing-x64.exe %1 %2 %3 %PARAMS_EXEC%						>> %target_dist%\swooz-morphing-x64.cmd
+echo SWMorphing-x64.exe %PARAMS_EXEC%						>> %target_dist%\swooz-morphing-x64.cmd
 echo cd ../../scripts									>> %target_dist%\swooz-morphing-x64.cmd
 echo call win-clean-env_command.cmd							>> %target_dist%\swooz-morphing-x64.cmd
 echo cd ../dist										>> %target_dist%\swooz-morphing-x64.cmd
@@ -279,6 +279,29 @@ REM echo cd ../../scripts                                                       
 REM echo call win-clean-env_command.cmd                                                   >> %target_dist%\swooz-trackingForth.cmd
 REM echo cd ../dist                                                                         >> %target_dist%\swooz-trackingForth.cmd
 REM #######################################################################################
+REM ### Fake tracking
+echo @echo off                                                                          >  %target_dist%\swooz-trackingFake.cmd
+echo %SystemRoot%\system32\xcopy /q /e /y %saved_directory%\..\swooz-config %saved_directory%\%target_dist%\data >> %target_dist%\swooz-trackingFake.cmd
+echo pushd ..\scripts                                                                   >> %target_dist%\swooz-trackingFake.cmd
+echo call win-init_env_command.cmd %ARCH_EXE_trackingFake%                           >> %target_dist%\swooz-trackingFake.cmd
+echo popd                                                                               >> %target_dist%\swooz-trackingFake.cmd
+echo cd bin                                                                             >> %target_dist%\swooz-trackingFake.cmd
+echo SWFakeTracking.exe %PARAMS_EXEC%                                                        >> %target_dist%\swooz-trackingFake.cmd
+echo cd ../../scripts                                                                   >> %target_dist%\swooz-trackingFake.cmd
+echo call win-clean-env_command.cmd                                                   >> %target_dist%\swooz-trackingFake.cmd
+echo cd ../dist                                                                         >> %target_dist%\swooz-trackingFake.cmd
+REM #######################################################################################
+REM ### Viewer
+echo @echo off                                                                          >  %target_dist%\swooz-viewer.cmd
+echo %SystemRoot%\system32\xcopy /q /e /y %saved_directory%\..\swooz-config %saved_directory%\%target_dist%\data >> %target_dist%\swooz-viewer.cmd
+echo pushd ..\scripts                                                                   >> %target_dist%\swooz-viewer.cmd
+echo call win-init_env_command.cmd %ARCH_EXE_viewer%                           >> %target_dist%\swooz-viewer.cmd
+echo popd                                                                               >> %target_dist%\swooz-viewer.cmd
+echo cd bin                                                                             >> %target_dist%\swooz-viewer.cmd
+echo SWViewer.exe                                                                >> %target_dist%\swooz-viewer.cmd
+echo cd ../../scripts                                                                   >> %target_dist%\swooz-viewer.cmd
+echo call win-clean-env_command.cmd                                                   >> %target_dist%\swooz-viewer.cmd
+echo cd ../dist                                                                         >> %target_dist%\swooz-viewer.cmd
 
 
 REM #####################   EXAMPLES
@@ -295,8 +318,50 @@ echo cd ../../scripts                                                           
 echo call win-clean-env_command.cmd                                                     >> %target_dist%\examples\display_kinect.cmd
 echo cd ../dist/examples                                                                >> %target_dist%\examples\display_kinect.cmd
 REM #######################################################################################
-
-
+REM ### display thread kinect
+echo @echo off                                                                          >  %target_dist%\examples\display_kinect_thread.cmd
+echo %SystemRoot%\system32\xcopy /q /e /y %saved_directory%\..\swooz-config %saved_directory%\%target_dist%\data >> %target_dist%\examples\display_kinect_thread.cmd
+echo pushd ..\..\scripts                                                                   >> %target_dist%\examples\display_kinect_thread.cmd
+echo call win-init_env_command.cmd %ARCH_EXE_examples%                           >> %target_dist%\examples\display_kinect_thread.cmd
+echo cd ..\dist\bin                                                                             >> %target_dist%\examples\display_kinect_thread.cmd
+echo kinect_thread_display.exe                                                                >> %target_dist%\examples\display_kinect_thread.cmd
+echo cd ../../scripts                                                                   >> %target_dist%\examples\display_kinect_thread.cmd
+echo call win-clean-env_command.cmd                                                     >> %target_dist%\examples\display_kinect_thread.cmd
+echo cd ../dist/examples                                                                >> %target_dist%\examples\display_kinect_thread.cmd
+REM #######################################################################################
+REM ### save data kinect
+echo @echo off                                                                          >  %target_dist%\examples\data_saver_kinect.cmd
+echo %SystemRoot%\system32\xcopy /q /e /y %saved_directory%\..\swooz-config %saved_directory%\%target_dist%\data >> %target_dist%\examples\data_saver_kinect.cmd
+echo pushd ..\..\scripts                                                                   >> %target_dist%\examples\data_saver_kinect.cmd
+echo call win-init_env_command.cmd %ARCH_EXE_examples%                           >> %target_dist%\examples\data_saver_kinect.cmd
+echo cd ..\dist\bin                                                                             >> %target_dist%\examples\data_saver_kinect.cmd
+echo kinect_data_saver.exe                                                                >> %target_dist%\examples\data_saver_kinect.cmd
+echo cd ../../scripts                                                                   >> %target_dist%\examples\data_saver_kinect.cmd
+echo call win-clean-env_command.cmd                                                     >> %target_dist%\examples\data_saver_kinect.cmd
+echo cd ../dist/examples                                                                >> %target_dist%\examples\data_saver_kinect.cmd
+REM #######################################################################################
+REM ### load data kinect
+echo @echo off                                                                          >  %target_dist%\examples\data_loader_kinect.cmd
+echo %SystemRoot%\system32\xcopy /q /e /y %saved_directory%\..\swooz-config %saved_directory%\%target_dist%\data >> %target_dist%\examples\data_loader_kinect.cmd
+echo pushd ..\..\scripts                                                                   >> %target_dist%\examples\data_loader_kinect.cmd
+echo call win-init_env_command.cmd %ARCH_EXE_examples%                           >> %target_dist%\examples\data_loader_kinect.cmd
+echo cd ..\dist\bin                                                                             >> %target_dist%\examples\data_loader_kinect.cmd
+echo kinect_data_loader.exe                                                                >> %target_dist%\examples\data_loader_kinect.cmd
+echo cd ../../scripts                                                                   >> %target_dist%\examples\data_loader_kinect.cmd
+echo call win-clean-env_command.cmd                                                     >> %target_dist%\examples\data_loader_kinect.cmd
+echo cd ../dist/examples                                                                >> %target_dist%\examples\data_loader_kinect.cmd
+REM #######################################################################################
+REM ### detect face stasm
+echo @echo off                                                                          >  %target_dist%\examples\detect_face_stasm.cmd
+echo %SystemRoot%\system32\xcopy /q /e /y %saved_directory%\..\swooz-config %saved_directory%\%target_dist%\data >> %target_dist%\examples\detect_face_stasm.cmd
+echo pushd ..\..\scripts                                                                   >> %target_dist%\examples\detect_face_stasm.cmd
+echo call win-init_env_command.cmd %ARCH_EXE_examples%                           >> %target_dist%\examples\detect_face_stasm.cmd
+echo cd ..\dist\bin                                                                             >> %target_dist%\examples\detect_face_stasm.cmd
+echo detect_face_stasm.exe                                                                >> %target_dist%\examples\detect_face_stasm.cmd
+echo cd ../../scripts                                                                   >> %target_dist%\examples\detect_face_stasm.cmd
+echo call win-clean-env_command.cmd                                                     >> %target_dist%\examples\detect_face_stasm.cmd
+echo cd ../dist/examples                                                                >> %target_dist%\examples\detect_face_stasm.cmd
+REM #######################################################################################
 
 
 echo.

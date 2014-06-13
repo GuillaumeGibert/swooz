@@ -22,6 +22,7 @@
 
 #include <time.h>
 
+
 SWMorphingInterface::SWMorphingInterface() : m_uiMorphing(new Ui::SWUI_Morphing)
 {      
     m_bTemplateDefined  = false;
@@ -225,6 +226,7 @@ int main(int argc, char* argv[])
     return l_oApp.exec();
 }
 
+
 void SWMorphingInterface::unlockInterface()
 {
     m_uiMorphing->pbStart->setEnabled(true);
@@ -254,7 +256,6 @@ void SWMorphingInterface::unlockInterface()
 
     m_uiMorphing->pbStop->setEnabled(false);
 }
-
 
 void SWMorphingInterface::lockInterface()
 {

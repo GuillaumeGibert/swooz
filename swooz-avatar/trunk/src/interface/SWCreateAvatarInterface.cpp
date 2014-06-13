@@ -169,6 +169,14 @@ SWCreateAvatarInterface::SWCreateAvatarInterface(QWidget *oQWRelative) : QMainWi
             m_WCreateAvatar->setDepthCloud(m_uiCreateAvatar->dsbFaceDepth->value());
 
 
+    // desactive debug interface components
+            m_uiCreateAvatar->laPixelDiameter->setVisible(false);
+            m_uiCreateAvatar->sbDiameter->setVisible(false);
+            m_uiCreateAvatar->laCynlinderRadius->setVisible(false);
+            m_uiCreateAvatar->dsbRadius->setVisible(false);
+            m_uiCreateAvatar->laFOV->setVisible(false);
+            m_uiCreateAvatar->dsbFOV->setVisible(false);
+
 
     // init and start create avatar thread
         m_WCreateAvatar->moveToThread(&m_TCreateAvatar);

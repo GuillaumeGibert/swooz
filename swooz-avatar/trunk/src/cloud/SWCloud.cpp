@@ -318,13 +318,19 @@ void SWRigidMotion::displayRotMatrix()
 
 SWCloud::SWCloud() : m_ui32NumberOfPoints(0), m_ui32ArraySize(0), m_aFCoords(NULL), m_aUi8Colors(NULL)
 {
-	++m_i32NumberOfCreatedClouds;
+    ++m_i32NumberOfCreatedClouds;
 }
 
 SWCloud::SWCloud(cuint ui32NumberOfPoint, float *aCoords, uint8 *aUi8Colors) : 
 	m_ui32NumberOfPoints(ui32NumberOfPoint), m_ui32ArraySize(3*ui32NumberOfPoint), m_aFCoords(aCoords), m_aUi8Colors(aUi8Colors)
 {
 	++m_i32NumberOfCreatedClouds;    
+}
+
+SWCloud::SWCloud(const std::string &sPathObjFile) : m_ui32NumberOfPoints(0), m_ui32ArraySize(0), m_aFCoords(NULL), m_aUi8Colors(NULL)
+{
+    ++m_i32NumberOfCreatedClouds;
+    loadObj(sPathObjFile);
 }
 
 SWCloud::SWCloud(const std::vector<float> &vPX, const std::vector<float> &vPY, const std::vector<float> &vPZ) :
@@ -546,6 +552,8 @@ bool SWCloud::loadObj(const string &sPathObjFile)
     string l_sType = "";
 
     vector<float> l_vFX, l_vFY, l_vFZ;
+    vector<uint8> l_vUI8R, l_vUI8G, l_vUI8B;
+
     ifstream  l_oFileStream(sPathObjFile);
 
     if (l_oFileStream.is_open())
@@ -564,22 +572,55 @@ bool SWCloud::loadObj(const string &sPathObjFile)
                 }
                 else if(l_sType == "v")
                 {
-                    float l_fX, l_fY, l_fZ;
+                    int l_i32Pos = static_cast<int>(l_oFileStream.tellg());
 
+                    string l_sLine;
+                    getline(l_oFileStream, l_sLine);
+
+                    // count white spaces
+                    std::vector<uint> l_vUI32SpacePos;
+                    for(uint ii = 0; ii < l_sLine.size(); ++ii)
+                    {
+                        if(l_sLine[ii] == ' ')
+                        {
+                            l_vUI32SpacePos.push_back(ii);
+                        }
+                    }
+
+                    if(l_vUI32SpacePos.size() != 3 && l_vUI32SpacePos.size() != 6)
+                    {
+                        std::cerr << "Obj file not valid (SWCloud::loadObj) " << std::endl;
+                        return false;
+                    }
+
+                    l_oFileStream.seekg(l_i32Pos);
+
+                    // add vertices
+                    float l_fX, l_fY, l_fZ;                    
                     l_oFileStream >> l_fX;
                     l_oFileStream >> l_fY;
                     l_oFileStream >> l_fZ;
 
-                    // DEBUG
-//                    cout << l_fX << " " << l_fY << " " << l_fZ << " | ";
-
                     l_vFX.push_back(l_fX);
                     l_vFY.push_back(l_fY);
                     l_vFZ.push_back(l_fZ);
+
+                    // add colors
+                    float l_fR, l_fG, l_fB;
+                    if(l_vUI32SpacePos.size() == 6)
+                    {
+                        l_oFileStream >> l_fR;
+                        l_oFileStream >> l_fG;
+                        l_oFileStream >> l_fB;
+
+                        l_vUI8R.push_back(static_cast<uint8>(l_fR * 255));
+                        l_vUI8G.push_back(static_cast<uint8>(l_fG * 255));
+                        l_vUI8B.push_back(static_cast<uint8>(l_fB * 255));
+                    }
+
                     l_sType = "";
                 }
             }
-
             else
             {
                 l_oFileStream.close();
@@ -593,7 +634,17 @@ bool SWCloud::loadObj(const string &sPathObjFile)
         return false;
     }
 
-    set(l_vFX, l_vFY, l_vFZ);
+    if(l_vUI8B.size() == l_vFX.size())
+    {
+//        std::cout << " aa " << l_vUI8R.size() <<" " << l_vUI8R[10] << " " < << std::endl;
+//        for(int ii = 0; ii < l_vUI8R.size(); ++ii)
+//            std::cout << static_cast<int>(l_vUI8R[ii]) << " " << static_cast<int>(l_vUI8G[ii]) << " " << static_cast<int>(l_vUI8B[ii]) << " | ";
+        set(l_vFX, l_vFY, l_vFZ, l_vUI8R, l_vUI8G, l_vUI8B);
+    }
+    else
+    {
+        set(l_vFX, l_vFY, l_vFZ);
+    }
 
     return true;
 }
@@ -694,6 +745,38 @@ void SWCloud::set(const std::vector<float> &vPX, const std::vector<float> &vPY, 
 	}
 }
 
+
+void SWCloud::set(const std::vector<float> &vPX, const std::vector<float> &vPY, const std::vector<float> &vPZ,
+                  const std::vector<uint8> &vR, const std::vector<uint8> &vG, const std::vector<uint8> &vB)
+{
+    if(vPX.size() == vPY.size() && vPY.size() == vPZ.size())
+    {
+        erase(); // delete current data
+
+        m_ui32NumberOfPoints = static_cast<uint>(vPX.size());
+        m_ui32ArraySize      = m_ui32NumberOfPoints * 3;
+
+        m_aFCoords   = new float[m_ui32ArraySize];
+        m_aUi8Colors = new uint8[m_ui32ArraySize];
+
+        for(uint ii = 0; ii < m_ui32NumberOfPoints; ++ii)
+        {
+            m_aFCoords[0*m_ui32NumberOfPoints + ii] = vPX[ii];
+            m_aFCoords[1*m_ui32NumberOfPoints + ii] = vPY[ii];
+            m_aFCoords[2*m_ui32NumberOfPoints + ii] = vPZ[ii];
+
+            m_aUi8Colors[0*m_ui32NumberOfPoints + ii] = vR[ii];
+            m_aUi8Colors[1*m_ui32NumberOfPoints + ii] = vG[ii];
+            m_aUi8Colors[2*m_ui32NumberOfPoints + ii] = vB[ii];
+        }
+    }
+    else
+    {
+        cerr << "SWCloud set vPX vPY vPZ -> bad parameter, the size of the vector must be the same" << endl;
+        throw cloudBadDataError();
+    }
+}
+
 void SWCloud::set(cuint ui32NumberOfPoints, float *aFCoords, uint8 *aUi8Colors)
 {	
 	erase(); // delete current data
@@ -705,7 +788,6 @@ void SWCloud::set(cuint ui32NumberOfPoints, float *aFCoords, uint8 *aUi8Colors)
 	m_aFCoords   = aFCoords;
 	m_aUi8Colors = aUi8Colors;
 }
-
 
 void SWCloud::setUnicolor(cuint8 ui8R, cuint8 ui8G, cuint8 ui8B)
 {
@@ -1316,7 +1398,7 @@ float *SWCloud::vertexBuffer() const
 	{
 		l_aFVertex[ii*3]     = coord(0)[ii];
 		l_aFVertex[ii*3 + 1] = coord(1)[ii];
-		l_aFVertex[ii*3 + 2] = coord(2)[ii];		
+        l_aFVertex[ii*3 + 2] = coord(2)[ii];
 	}
 
 	return l_aFVertex;
@@ -1342,7 +1424,7 @@ float *SWCloud::colorBuffer() const
 	{
 		l_aFColor[ii*3]     = color(0)[ii] / 255.f;
 		l_aFColor[ii*3 + 1] = color(1)[ii] / 255.f;
-		l_aFColor[ii*3 + 2] = color(2)[ii] / 255.f;				
+        l_aFColor[ii*3 + 2] = color(2)[ii] / 255.f;
     }
 	
 	return l_aFColor;

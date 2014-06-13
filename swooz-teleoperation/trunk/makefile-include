@@ -157,18 +157,7 @@ LIBS_NAO    =   $(THIRD_PARTY_NAOQI)\lib\pthreadVC2.lib\
                 $(THIRD_PARTY_NAOQI)\lib\altools.lib\
                 $(THIRD_PARTY_NAOQI)\lib\alvision.lib\
 
-#$(THIRD_PARTY_NAOQI)\lib\libboost_date_time-vc100-mt-1_47.lib\
-#$(THIRD_PARTY_NAOQI)\lib\libboost_prg_exec_monitor-vc100-mt-1_47.lib\
-#$(THIRD_PARTY_NAOQI)\lib\libboost_program_options-vc100-mt-1_47.lib\
-#$(THIRD_PARTY_NAOQI)\lib\libboost_python-vc100-mt-1_47.lib\
-# $(THIRD_PARTY_NAOQI)\lib\libboost_regex-vc100-mt-1_47.lib\
-#$(THIRD_PARTY_NAOQI)\lib\libboost_wserialization-vc100-mt-1_47.lib\
-#$(THIRD_PARTY_NAOQI)\lib\libboost_thread-vc100-mt-1_47.lib\
-#$(THIRD_PARTY_NAOQI)\lib\libboost_bzip2-vc100-mt-1_47.lib\
-#                $(THIRD_PARTY_NAOQI)\lib\libboost_serialization-vc100-mt-1_47.lib\
-#                $(THIRD_PARTY_NAOQI)\lib\libboost_zlib-vc100-mt-1_47.lib\
-#
-#$(THIRD_PARTY_NAOQI)\lib\alaudio.lib\
+
 
 LIBS_GSL=   $(THIRD_PARTY_GSL)/lib/gsl.lib\
             $(THIRD_PARTY_GSL)/lib/gslcblas.lib

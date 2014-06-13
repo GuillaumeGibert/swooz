@@ -4,10 +4,8 @@
  * \file display_kinect_main.cpp
  * \author Florian Lance
  * \date 02-05-2014
- * \brief An example program for displaying kinect data.
+ * \brief An example program for displaying kinect data using SWoOZ platform.
  */
-
-
 
 #include <iostream>
 #include "devices/rgbd/SWKinect.h"
