@@ -19,12 +19,10 @@ SWOOZ - SCRIPTS
 
  * Checkout of the git repository...
 
- * Install the swooz-3rdparty installer in the swooz directory.
+ * Install the swooz-3rdparty installer in the swooz directory : temporary link -> http://www.sendspace.com/file/l35mg7
 
-
-Modify the **win-init_env_command.cmd.skeleton** script.
-If you have used the **swooz-3rdparty** installer, only rename **"win-init_env_command.cmd.skeleton"** into **"win-init_env_command.cmd"**, else you will have to open it and define manually all the librairies links before renaming it.
-
+In the scripts directory, rename **"win-init_env_command.cmd.skeleton"** into **"win-init_env_command.cmd"**.
+You can modify it in order to change the dependencies of the project.
 
 1. BUILD SWOOZ
 --------------
