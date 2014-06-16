@@ -1,10 +1,10 @@
 
 nbJoints = 6;
-fps = 60
-timeFrame = 1 / fps
+fps = 60;
+timeFrame = 1 / fps;
 
-numberMove = 12
-timeMove = 3
+numberMove = 12;
+timeMove = 3;
 
 nbFrames = numberMove * timeMove * fps;
 
@@ -31,7 +31,7 @@ for l_ii=1:nbFrames
     
     currentTime = l_ii * timeFrame;
     timeMatrix(l_ii) = currentTime;
-        
+    
     % neutral -> min -> neutral -> max -> neutral [joint 6]
     % neutral -> min -> neutral -> max -> neutral [joint 5]
     % neutral -> min -> neutral -> max -> neutral [joint 4]

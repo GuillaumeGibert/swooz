@@ -80,11 +80,19 @@ namespace swCloud
             SWRigidMotion(cfloat *aFRotation, cfloat *aFTranslation, bool bRotMat = true);
 
             /**
-             * \brief constructor of SWRigidMotion
+             * @brief constructor of SWRigidMotion
              * \param [in] fRotation    : rotation angle value
              * \param [in] v3FAxe       : axe rotation
              */
-            SWRigidMotion(cfloat fRotation, std::vector<float> v3FAxe);
+            SWRigidMotion(cfloat fAngle, std::vector<float> v3FAxe);
+
+            /**
+             * @brief constructor of SWRigidMotion with spheric coordinates
+             * @param [in] fLati  : latitude
+             * @param [in] fLong  : longitude
+             * @param [in] fAngle : angle
+             */
+//            SWRigidMotion(cfloat fLati, cfloat fLong, cfloat fAngle, cbool bTest = false);
 
             /**
              * \brief constructor of SWRigidMotion (0,0,0) center of the rotation
@@ -106,19 +114,24 @@ namespace swCloud
             ~SWRigidMotion();
 
             /**
+             * @brief Compute the rotation matrix from the quaternions
+             */
+            void computeRotationMatrixWithQuaternions();
+
+            /**
              * \brief Compute the rotation angles from the rotation matrix
              */
-            void computeRotationAngles();
+            void computeRotationAnglesWithRotationMatrix();
 
             /**
              * \brief Compute the rotation matrix from the rotation angles
              */
-            void computeRotationMatrix();
+            void computeRotationMatrixWithRotationAngles();
 
             /**
              * \brief Compute the quaternions from the rotation matrix
              */
-            void computeQuaternions();
+            void computeQuaternionsWithRotationMatrix();
 
             /**
              * \brief set RT matrix

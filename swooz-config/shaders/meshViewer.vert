@@ -2,10 +2,15 @@
 
 
 uniform mat4 mvpMatrix;
+
+uniform mat4 transformation;
+
 uniform vec3 uniColor;
+//uniform
 
 uniform int displayMode = 0;
-
+uniform vec3 translationToCenter = vec3(0,0,0);
+uniform bool applyTransformation = false;
 
 in vec3 vertex;
 in vec3 normal;
@@ -34,5 +39,18 @@ void main( void )
         PointColor = uniColor;
     }
 
-    gl_Position = mvpMatrix * vec4(vertex,1.0);
+    vec4 newPosVertex = vec4(translationToCenter + vertex, 1.0);
+
+    if(applyTransformation)
+    {
+        newPosVertex = newPosVertex * transformation;
+        newPosVertex.x += transformation[3][0];
+        newPosVertex.y += transformation[3][1];
+        newPosVertex.z += transformation[3][2];
+    }
+
+    newPosVertex = newPosVertex - vec4(translationToCenter,1.0);
+
+
+    gl_Position = mvpMatrix * vec4(newPosVertex.xyz,1.0);
 }

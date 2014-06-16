@@ -312,6 +312,7 @@ void  SWGLWidget::drawAxes(QGLShaderProgram &oShader, QMatrix4x4 &mvpMatrix, cfl
     deleteAndNullifyArray(l_aUI32IndexBuffer);
 
     // set mvp matrix uniform value
+    oShader.setUniformValue("applyTransformation", false);
     oShader.setUniformValue("mvpMatrix", mvpMatrix);
     oShader.setUniformValue("displayMode", 1);
 

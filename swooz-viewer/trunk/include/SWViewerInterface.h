@@ -76,6 +76,12 @@ class SWViewerInterface : public QMainWindow
 
         /**
          * @brief updateParameters
+         * @param sInused
+         */
+        void updateParameters(QString sInused);
+
+        /**
+         * @brief updateParameters
          */
         void updateParameters();
 
@@ -111,8 +117,6 @@ class SWViewerInterface : public QMainWindow
         // threads & workers
 //        SWViewerWorker  *m_pWViewer;    /**< viewer worker */
         QThread            m_TViwer;    /**< viwer thread */
-
-
 
 };
 

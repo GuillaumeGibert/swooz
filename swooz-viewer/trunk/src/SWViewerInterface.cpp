@@ -20,17 +20,6 @@ SWViewerInterface::SWViewerInterface() : m_uiViewer(new Ui::SWUI_Viewer)
     m_uiViewer->setupUi(this);
     this->setWindowTitle(QString("SWoOz : Viewer"));
 
-    // set default values
-    // ...
-
-    // parameters
-        // spinbox
-        // ...
-
-        // checkbox
-        // ...
-
-
     // middle container
         QHBoxLayout *l_pGLContainerLayout = new QHBoxLayout();
         QWidget *l_pGLContainer = new QWidget();
@@ -76,6 +65,12 @@ SWViewerInterface::SWViewerInterface() : m_uiViewer(new Ui::SWUI_Viewer)
             QObject::connect(m_uiViewer->sbColorB, SIGNAL(valueChanged(int)), this, SLOT(updateParameters(int)));
             QObject::connect(m_uiViewer->sbColorG, SIGNAL(valueChanged(int)), this, SLOT(updateParameters(int)));
             QObject::connect(m_uiViewer->sbColorR, SIGNAL(valueChanged(int)), this, SLOT(updateParameters(int)));
+
+            QObject::connect(m_uiViewer->dsbLightX, SIGNAL(valueChanged(double)), this, SLOT(updateParameters(double)));
+            QObject::connect(m_uiViewer->dsbLightY, SIGNAL(valueChanged(double)), this, SLOT(updateParameters(double)));
+            QObject::connect(m_uiViewer->dsbLightZ, SIGNAL(valueChanged(double)), this, SLOT(updateParameters(double)));
+
+            QObject::connect(m_uiViewer->leTexturePath, SIGNAL(textChanged(QString)), this, SLOT(updateParameters(QString)));
 }
 
 SWViewerInterface::~SWViewerInterface()
@@ -164,6 +159,9 @@ void SWViewerInterface::deleteCloud()
         m_uiViewer->sbColorR->setEnabled(false);
         m_uiViewer->sbColorG->setEnabled(false);
         m_uiViewer->sbColorB->setEnabled(false);
+        m_uiViewer->dsbLightX->setEnabled(false);
+        m_uiViewer->dsbLightY->setEnabled(false);
+        m_uiViewer->dsbLightZ->setEnabled(false);
 
     // reset text
         m_uiViewer->leNameItem->setText(QString("..."));
@@ -206,6 +204,9 @@ void SWViewerInterface::deleteMesh()
         m_uiViewer->sbColorR->setEnabled(false);
         m_uiViewer->sbColorG->setEnabled(false);
         m_uiViewer->sbColorB->setEnabled(false);
+        m_uiViewer->dsbLightX->setEnabled(false);
+        m_uiViewer->dsbLightY->setEnabled(false);
+        m_uiViewer->dsbLightZ->setEnabled(false);
 
     // reset text
         m_uiViewer->leNameItem->setText(QString("..."));
@@ -223,6 +224,11 @@ void SWViewerInterface::updateParameters(double dInused)
     updateParameters();
 }
 
+void SWViewerInterface::updateParameters(QString sInused)
+{
+    updateParameters();
+}
+
 void SWViewerInterface::updateParameters()
 {
     SWGLObjectParameters l_oParams;
@@ -232,6 +238,8 @@ void SWViewerInterface::updateParameters()
     l_oParams.m_vRotation      = QVector3D(m_uiViewer->dsbRX->value(), m_uiViewer->dsbRY->value(), m_uiViewer->dsbRZ->value());
     l_oParams.m_dScaling       = m_uiViewer->dsbScaling->value();
     l_oParams.m_vUnicolor      = QVector3D(m_uiViewer->sbColorR->value(), m_uiViewer->sbColorG->value(), m_uiViewer->sbColorB->value());
+    l_oParams.m_sTexturePath   = QString(m_uiViewer->leTexturePath->text());
+    l_oParams.m_vSourceLight   = QVector3D(m_uiViewer->dsbLightX->value(),m_uiViewer->dsbLightY->value(),m_uiViewer->dsbLightZ->value());
 
     GLObjectDisplayMode l_oDisplayMode;
     if(m_uiViewer->rbDisplayOriginalColor->isChecked())
@@ -282,6 +290,12 @@ void SWViewerInterface::updateCloudInterfaceParameters(QListWidgetItem *)
     // lock
         m_uiViewer->rbDisplayTexture->setEnabled(false);
         m_uiViewer->pbSetTexture->setEnabled(false);
+        m_uiViewer->laTexture->setEnabled(false);
+        m_uiViewer->leTexturePath->setEnabled(false);
+        m_uiViewer->laLightPosition->setEnabled(false);
+        m_uiViewer->dsbLightX->setEnabled(false);
+        m_uiViewer->dsbLightY->setEnabled(false);
+        m_uiViewer->dsbLightZ->setEnabled(false);
 
     // unlock
         m_uiViewer->cbDisplayLines->setEnabled(false);
@@ -313,6 +327,8 @@ void SWViewerInterface::updateMeshInterfaceParameters(QListWidgetItem *)
     // unlock
         m_uiViewer->rbDisplayTexture->setEnabled(true);
         m_uiViewer->pbSetTexture->setEnabled(true);
+        m_uiViewer->laTexture->setEnabled(true);
+        m_uiViewer->leTexturePath->setEnabled(true);
         m_uiViewer->cbDisplayLines->setEnabled(true);
         m_uiViewer->cbVisible->setEnabled(true);
         m_uiViewer->rbDisplayOriginalColor->setEnabled(true);
@@ -327,6 +343,16 @@ void SWViewerInterface::updateMeshInterfaceParameters(QListWidgetItem *)
         m_uiViewer->sbColorR->setEnabled(true);
         m_uiViewer->sbColorG->setEnabled(true);
         m_uiViewer->sbColorB->setEnabled(true);
+        m_uiViewer->laLightPosition->setEnabled(true);
+        m_uiViewer->laRGBUnicolor->setEnabled(true);
+        m_uiViewer->laTrans->setEnabled(true);
+        m_uiViewer->laRota->setEnabled(true);
+        m_uiViewer->laScaling->setEnabled(true);
+
+        m_uiViewer->laLightPosition->setEnabled(true);
+        m_uiViewer->dsbLightX->setEnabled(true);
+        m_uiViewer->dsbLightY->setEnabled(true);
+        m_uiViewer->dsbLightZ->setEnabled(true);
 
     updateInterfaceParameters();
 }
@@ -392,15 +418,19 @@ void SWViewerInterface::updateInterfaceParameters()
     m_uiViewer->sbColorR->setValue(l_oParams.m_vUnicolor.x());
     m_uiViewer->sbColorG->setValue(l_oParams.m_vUnicolor.y());
     m_uiViewer->sbColorB->setValue(l_oParams.m_vUnicolor.z());
+
+    m_uiViewer->leTexturePath->setText(l_oParams.m_sTexturePath);
+
+    m_uiViewer->dsbLightX->setValue(l_oParams.m_vSourceLight.x());
+    m_uiViewer->dsbLightY->setValue(l_oParams.m_vSourceLight.y());
+    m_uiViewer->dsbLightZ->setValue(l_oParams.m_vSourceLight.z());
 }
 
 void SWViewerInterface::setTexture()
 {
     // retrieve obj path
         QString l_sPathTexture = QFileDialog::getOpenFileName(this, "Load texture", QString(), "Texture file (*.png)");
-
-        qDebug() << l_sPathTexture;
-//        l_sPathTexture
+        m_uiViewer->leTexturePath->setText(l_sPathTexture);
 }
 
 int main(int argc, char* argv[])

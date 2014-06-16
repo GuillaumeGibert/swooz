@@ -153,7 +153,7 @@ void SWAlignClouds::alignClouds()
                 }
 
                 // update matrix rotation from new angles
-                l_oSumWiTij.computeRotationMatrix();
+                l_oSumWiTij.computeRotationMatrixWithRotationAngles();
 
                 // set the smoothed rigid motion
                 m_oSmoothedRigidMotion = SWRigidMotion(l_oSumWiTij);

@@ -52,8 +52,12 @@ struct SWGLObjectParameters
         QVector3D m_vRotation;
 
         QString m_sTexturePath;
+        QImage m_oTexture;
+        GLuint m_textureLocation;
 
         QReadWriteLock m_parametersMutex;
+
+        QVector3D m_vSourceLight;
 };
 
 typedef boost::shared_ptr<SWGLObjectParameters> SWGLObjectParametersPtr;	/**< boost shared pointer for SWGLObjectParameters */
@@ -148,21 +152,6 @@ class SWGLMultiObjectWidget : public SWGLWidget
          */
         void removeMesh(cuint ui32Index);
 
-        /**
-         * @brief setTexture
-         * @param ui32Index
-         * @param sTexturePath
-         */
-        void setTexture(cuint ui32Index, const QString &sTexturePath);
-
-        /**
-         * @brief applyTexture
-         * @param ui32Index
-         * @param bApplyTexture
-         */
-        void applyTexture(cuint ui32Index, const bool bApplyTexture);
-
-
     private :
 
         void drawClouds();
@@ -193,6 +182,7 @@ class SWGLMultiObjectWidget : public SWGLWidget
         QList<SWGLObjectParametersPtr> m_vCloudsParameters; /**< ... */
         QList<SWGLObjectParametersPtr> m_vMeshesParameters; /**< ... */
 
+//        QVector
         QList<QGLBufferPtr> m_vCloudsVertexBuffer;
         QList<QGLBufferPtr> m_vCloudsIndexBuffer;
         QList<QGLBufferPtr> m_vCloudsNormalBuffer;
@@ -205,6 +195,7 @@ class SWGLMultiObjectWidget : public SWGLWidget
         QList<QGLBufferPtr> m_vMeshesTextureBuffer;
         QList<QGLBufferPtr> m_vMeshesColorBuffer;
 
+//        QVector<QGLBufferPtr> m_vUnusedBuffers;
 
         QVector<QGLBufferPtr> m_vBuffersToDelete;
 
