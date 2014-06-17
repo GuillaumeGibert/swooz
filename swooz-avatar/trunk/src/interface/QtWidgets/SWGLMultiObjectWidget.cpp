@@ -54,6 +54,13 @@ void SWGLMultiObjectWidget::setMeshParameters(cuint ui32Index, const SWGLObjectP
         m_vMeshesParameters[ui32Index]->m_vTranslation = oParams.m_vTranslation;
         m_vMeshesParameters[ui32Index]->m_vRotation = oParams.m_vRotation;
         m_vMeshesParameters[ui32Index]->m_vSourceLight = oParams.m_vSourceLight;
+        m_vMeshesParameters[ui32Index]->m_vAmbiantLight = oParams.m_vAmbiantLight;
+        m_vMeshesParameters[ui32Index]->m_vDiffusLight = oParams.m_vDiffusLight;
+        m_vMeshesParameters[ui32Index]->m_vSpecularLight = oParams.m_vSpecularLight;
+        m_vMeshesParameters[ui32Index]->m_dAmbiantK = oParams.m_dAmbiantK;
+        m_vMeshesParameters[ui32Index]->m_dDiffusK = oParams.m_dDiffusK;
+        m_vMeshesParameters[ui32Index]->m_dSpecularK = oParams.m_dSpecularK;
+        m_vMeshesParameters[ui32Index]->m_dSpecularP = oParams.m_dSpecularP;
 
         if(m_vMeshesParameters[ui32Index]->m_sTexturePath != oParams.m_sTexturePath)
         {
@@ -94,7 +101,14 @@ void SWGLMultiObjectWidget::meshParameters(cuint ui32Index, SWGLObjectParameters
         oParams.m_vTranslation  = m_vMeshesParameters[ui32Index]->m_vTranslation;
         oParams.m_vRotation     = m_vMeshesParameters[ui32Index]->m_vRotation;
         oParams.m_sTexturePath  = m_vMeshesParameters[ui32Index]->m_sTexturePath;
-        oParams.m_vSourceLight  = m_vMeshesParameters[ui32Index]->m_vSourceLight;
+        oParams.m_vSourceLight  = m_vMeshesParameters[ui32Index]->m_vSourceLight;        
+        oParams.m_vAmbiantLight =m_vMeshesParameters[ui32Index]->m_vAmbiantLight;
+        oParams.m_vDiffusLight = m_vMeshesParameters[ui32Index]->m_vDiffusLight;
+        oParams.m_vSpecularLight = m_vMeshesParameters[ui32Index]->m_vSpecularLight;
+        oParams.m_dAmbiantK = m_vMeshesParameters[ui32Index]->m_dAmbiantK;
+        oParams.m_dDiffusK = m_vMeshesParameters[ui32Index]->m_dDiffusK;
+        oParams.m_dSpecularK = m_vMeshesParameters[ui32Index]->m_dSpecularK;
+        oParams.m_dSpecularP = m_vMeshesParameters[ui32Index]->m_dSpecularP;
     m_vMeshesParameters[ui32Index]->m_parametersMutex.unlock();
 }
 
@@ -199,6 +213,11 @@ void SWGLMultiObjectWidget::addMesh(const QString &sPathMesh)
     SWMeshPtr l_pMesh = SWMeshPtr(new swMesh::SWMesh(sPathMesh.toUtf8().constData()));
 
     SWGLObjectParametersPtr l_pMeshesParam = SWGLObjectParametersPtr(new SWGLObjectParameters);
+
+    // compute light position
+    std::vector<float> l_v3FMeanPoint = l_pMesh->cloud()->meanPoint();
+    l_pMeshesParam->m_vSourceLight = QVector3D(l_v3FMeanPoint[0], l_v3FMeanPoint[1], l_v3FMeanPoint[2] - 1.0);
+
     l_pMeshesParam->m_bCloud = false;
     l_pMeshesParam->m_bVisible = true;
     l_pMeshesParam->m_bDisplayLines   = false;
@@ -208,7 +227,13 @@ void SWGLMultiObjectWidget::addMesh(const QString &sPathMesh)
     l_pMeshesParam->m_vRotation = QVector3D(0.,0.,0.);
     l_pMeshesParam->m_sTexturePath = QString("...");
     l_pMeshesParam->m_vUnicolor = QVector3D(255.,0.,0.);
-    l_pMeshesParam->m_vSourceLight = QVector3D(0,0,-0.9);
+    l_pMeshesParam->m_vAmbiantLight  = QVector3D(0.3,0.3,0.3);
+    l_pMeshesParam->m_vDiffusLight   = QVector3D(1.0,1.0,1.0);
+    l_pMeshesParam->m_vSpecularLight = QVector3D(0.5,0.50,0.50);
+    l_pMeshesParam->m_dAmbiantK = 1.;
+    l_pMeshesParam->m_dDiffusK = 0.5;
+    l_pMeshesParam->m_dSpecularK = 1.;
+    l_pMeshesParam->m_dSpecularP = 10.;
 
     // init buffers
         QGLBufferPtr l_indexBuffer = QGLBufferPtr(new QGLBuffer());
@@ -342,6 +367,7 @@ void SWGLMultiObjectWidget::drawClouds()
             // retrieve data
                 m_vCloudsParameters[ii]->m_parametersMutex.lockForRead();
                     bool l_bVisible = m_vCloudsParameters[ii]->m_bVisible;
+                    float l_fScaling = static_cast<float>(m_vCloudsParameters[ii]->m_dScaling);
                     QVector3D l_vTranslation = m_vCloudsParameters[ii]->m_vTranslation;
                     QVector3D l_vRotation = m_vCloudsParameters[ii]->m_vRotation;
                     QVector3D l_vUnicolor = m_vCloudsParameters[ii]->m_vUnicolor;
@@ -368,6 +394,7 @@ void SWGLMultiObjectWidget::drawClouds()
                                              0.0, 0.0, 0.0, 1.0);
 
             // uniform
+                m_oShaderCloud.setUniformValue("scaling", l_fScaling);
                 m_oShaderCloud.setUniformValue("translationToCenter", l_v3FTranslationToCenter);
                 m_oShaderCloud.setUniformValue("applyTransformation", true);
                 m_oShaderCloud.setUniformValue("displayMode", l_oDisplayMode);
@@ -425,6 +452,14 @@ void SWGLMultiObjectWidget::drawMeshes()
                     QVector3D l_vRotation = m_vMeshesParameters[ii]->m_vRotation;
                     QVector3D l_vUnicolor = m_vMeshesParameters[ii]->m_vUnicolor;
                     QVector3D l_vSourceLight = m_vMeshesParameters[ii]->m_vSourceLight;
+                    float l_fAmbiantK = static_cast<float>(m_vMeshesParameters[ii]->m_dAmbiantK);
+                    float l_fDiffusK= static_cast<float>(m_vMeshesParameters[ii]->m_dDiffusK);
+                    float l_fSpecularK = static_cast<float>(m_vMeshesParameters[ii]->m_dSpecularK);
+                    float l_fSpecularP = static_cast<float>(m_vMeshesParameters[ii]->m_dSpecularP);
+                    float l_fScaling = static_cast<float>(m_vMeshesParameters[ii]->m_dScaling);
+                    QVector3D l_vAmbiantLight = m_vMeshesParameters[ii]->m_vAmbiantLight;
+                    QVector3D l_vDiffusLight = m_vMeshesParameters[ii]->m_vDiffusLight;
+                    QVector3D l_vSpecularLight = m_vMeshesParameters[ii]->m_vSpecularLight;
                     GLObjectDisplayMode l_oDisplayMode = m_vMeshesParameters[ii]->displayMode;
                 m_vMeshesParameters[ii]->m_parametersMutex.unlock();
 
@@ -459,14 +494,26 @@ void SWGLMultiObjectWidget::drawMeshes()
                                                  0.0, 0.0, 0.0, 1.0);
 
                 // uniform
-                    m_oShaderMesh.setUniformValue("translationToCenter", l_v3FTranslationToCenter);
-                    m_oShaderMesh.setUniformValue("applyTransformation", true);
-                    m_oShaderMesh.setUniformValue("displayMode", l_oDisplayMode);
-                    m_oShaderMesh.setUniformValue("uniColor", l_vUnicolor.x()/255., l_vUnicolor.y()/255., l_vUnicolor.z()/255.);
-                    m_oShaderMesh.setUniformValue("mvpMatrix", m_oMVPMatrix);
-                    m_oShaderMesh.setUniformValue("transformation", l_oTransformation);
-                    m_oShaderMesh.setUniformValue("lSourcePos" , l_vSourceLight);
-
+                    // camera
+                        m_oShaderMesh.setUniformValue("viewDirection", -m_pCamera->viewDirection());
+                    // transformations
+                        m_oShaderMesh.setUniformValue("scaling", l_fScaling);
+                        m_oShaderMesh.setUniformValue("translationToCenter", l_v3FTranslationToCenter);
+                        m_oShaderMesh.setUniformValue("applyTransformation", true);
+                        m_oShaderMesh.setUniformValue("transformation", l_oTransformation);
+                        m_oShaderMesh.setUniformValue("mvpMatrix", m_oMVPMatrix);
+                    // color / texture
+                        m_oShaderMesh.setUniformValue("displayMode", l_oDisplayMode);
+                        m_oShaderMesh.setUniformValue("uniColor", l_vUnicolor.x()/255., l_vUnicolor.y()/255., l_vUnicolor.z()/255.);
+                    // lights
+                        m_oShaderMesh.setUniformValue("lSourcePos" , l_vSourceLight);
+                        m_oShaderMesh.setUniformValue("kAmbiant" , l_fAmbiantK);
+                        m_oShaderMesh.setUniformValue("kDiffus" , l_fDiffusK);
+                        m_oShaderMesh.setUniformValue("kSpecular" , l_fSpecularK);
+                        m_oShaderMesh.setUniformValue("pSpecular" , l_fSpecularP);
+                        m_oShaderMesh.setUniformValue("lAmbiant" , l_vAmbiantLight);
+                        m_oShaderMesh.setUniformValue("lDiffus" , l_vDiffusLight);
+                        m_oShaderMesh.setUniformValue("lSpecular" , l_vSpecularLight);
 
             if(m_vMeshesBufferToUpdate[ii])
             {

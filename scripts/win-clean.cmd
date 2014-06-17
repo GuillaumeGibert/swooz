@@ -76,6 +76,7 @@ rem rmdir /s /q %target_dist%\data  > NULL 2<&1
 del  %target_dist%\*.cmd            > NULL 2<&1
 
 
+REM call "win-clean_env_command.cmd" noPATH
 
 
 echo.

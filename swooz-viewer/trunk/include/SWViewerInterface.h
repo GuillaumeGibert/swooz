@@ -107,6 +107,7 @@ class SWViewerInterface : public QMainWindow
 
 
         bool m_bIsCloudLastSelection;
+        bool m_bDesactiveUpdateParameters;
 
 
         // widgets & ui

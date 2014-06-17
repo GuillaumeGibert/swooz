@@ -264,3 +264,4 @@
 ../swooz-config/shaders/cloudViewer.frag
 ../swooz-avatar/trunk/include/mesh/SWRenderMesh.h
 ../swooz-tracking/trunk/src/SWFakeTracking.cpp
+../scripts/win-partial-clean.cmd

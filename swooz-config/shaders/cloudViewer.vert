@@ -10,6 +10,7 @@ uniform vec3 translationToCenter = vec3(0,0,0);
 
 uniform bool applyTransformation = false;
 uniform int displayMode = 0;
+uniform float scaling = 1.0;
 
 in vec3 vertex;
 in vec3 color;
@@ -31,6 +32,7 @@ void main( void )
 
     if(applyTransformation)
     {
+        newPosVertex = newPosVertex * scaling;
         newPosVertex = newPosVertex * transformation;
         newPosVertex.x += transformation[3][0];
         newPosVertex.y += transformation[3][1];

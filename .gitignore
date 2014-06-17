@@ -2,6 +2,7 @@
 ################ projects
 
 qtCreator-proj/
+
 releases/
 
 ################ scripts
@@ -74,4 +75,5 @@ swooz-avatar/trunk/data/meshes/
 # tracking
 swooz-tracking/trunk/data/trees/
 
-swooz-config/matlab/facelab.txt
+
+
