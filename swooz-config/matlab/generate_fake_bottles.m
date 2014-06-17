@@ -1,10 +1,11 @@
+%function(outDirectory,outFilename, nbJoints, fps, numberMove, timeMove)
 
 nbJoints = 6;
-fps = 60;
+fps = 10;
 timeFrame = 1 / fps;
 
 numberMove = 12;
-timeMove = 3;
+timeMove = 1.0;
 
 nbFrames = numberMove * timeMove * fps;
 
@@ -62,7 +63,7 @@ for l_ii=1:nbFrames
     end
 end
 
-
+%eval(sprintf('fid = fopen(''[outDirectory '/' outFilename '_' fps '_' timeMove '.txt'], ''w'')'))
 fid = fopen('facelab.txt', 'w');
 if (fid~=0)
 	fprintf(fid, 'facelab coredata head COREDATA_LIB\n')
