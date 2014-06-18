@@ -177,15 +177,15 @@ int main(int argc, char* argv[])
             // device lib id
             l_oFakeTrackingBottle.addInt(l_i32Lib_Id); //head : l_i32Lib_Id id / get(0).asInt()
 
-            std::cout << l_vBottlesTimes[ii] << " ";
+//            std::cout << l_vBottlesTimes[ii] << " ";
 
             for(uint jj = 0; jj < l_vVData[ii].size(); ++jj)
             {
                 l_oFakeTrackingBottle.addDouble(l_vVData[ii][jj]);
-                std::cout << l_vVData[ii][jj] << " ";
+//                std::cout << l_vVData[ii][jj] << " ";
             }
 
-            std::cout << std::endl;
+//            std::cout << std::endl;
 
         l_oFakeTrackingPort.write();
     }

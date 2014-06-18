@@ -27,7 +27,7 @@ SWGLWidget::SWGLWidget(  QGLContext *oContext, QWidget* oParent) :
 	// init camera parameters
         m_bIsClickedMouse = false;
         m_bMidClick       = false;
-        m_pCamera         = new SWQtCamera(QVector3D(0.f, 0.f, -0.15f), QVector3D(0.f, 0.f,  1.f), QVector3D(0.f, 1.f,  0.f));
+        m_pCamera         = new SWQtCamera(QVector3D(0.f, 0.f, -0.15f), QVector3D(0.f, 0.f,  1000.f), QVector3D(0.f, 1.f,  0.f));
 	
 	// init gl parameters
         if(m_bVerbose)

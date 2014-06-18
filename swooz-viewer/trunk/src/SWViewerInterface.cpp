@@ -14,6 +14,7 @@
 
 #include <QCheckBox>
 
+
 SWViewerInterface::SWViewerInterface() : m_uiViewer(new Ui::SWUI_Viewer), m_bDesactiveUpdateParameters(false)
 {
     // init main widget
