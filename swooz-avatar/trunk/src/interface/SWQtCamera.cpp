@@ -26,6 +26,21 @@ SWQtCamera::SWQtCamera(const QVector3D &oEyePosition, const QVector3D &oLookAt, 
 SWQtCamera::~SWQtCamera()
 {}
 
+void SWQtCamera::set(const QVector3D &oEyePosition, const QVector3D &oLookAt, const QVector3D &oUp)
+{
+    m_oEyePosition = oEyePosition;
+    m_oLookAt = oLookAt;
+    m_oUp = oUp;
+
+    m_oLeft = QVector3D::crossProduct(m_oUp, QVector3D(m_oLookAt - m_oEyePosition));
+    m_oLeft.normalize();
+
+    m_oForeward = QVector3D(m_oLookAt - m_oEyePosition);
+    m_oForeward.normalize();
+
+    m_oUp.normalize();
+}
+
 // ############################################# METHODS
 
 QVector3D SWQtCamera::eyePosition() const

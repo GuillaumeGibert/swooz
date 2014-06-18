@@ -93,6 +93,10 @@ class SWViewerInterface : public QMainWindow
 
         void setTexture();
 
+        /**
+         * @brief setCameraToCurrentItem
+         */
+        void setCameraToCurrentItem();
 
         /**
          * \brief Timer event

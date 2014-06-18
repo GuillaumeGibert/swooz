@@ -46,14 +46,14 @@ void main(void)
         distance = distance * distance;
 
     // ambiant
-        vec3 ambiantLight = lAmbiant * kAmbiant / distance;
+        vec3 ambiantLight = lAmbiant * kAmbiant;// / sqrt(distance);
 
     // diffus
         float iDiffus = 0.0; // intensity diffus
-        if(dot(viewDirection, normal) >= 0.0)
-        {
+//        if(dot(viewDirection, normal) >= 0.0)
+//        {
             iDiffus = clamp( dot( normal, lightDir ) , 0.0 ,1.0);
-        }
+//        }
 
         vec3 diffusLight = iDiffus * lDiffus * kDiffus / distance;
 

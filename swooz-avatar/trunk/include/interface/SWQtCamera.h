@@ -41,6 +41,14 @@ class SWQtCamera // ############################################################
 		 */	
 		~SWQtCamera(); 	
 
+        /**
+         * @brief Set new position for the camera
+         * \param [in] oEyePosition : initial position of the eye
+         * \param [in] oLookAt 		: view direction
+         * \param [in] oUp          : up vector for the view direction
+         */
+        void set(const QVector3D &oEyePosition, const QVector3D &oLookAt, const QVector3D &oUp);
+
 		/**
 		 * \brief Return eye position vector
 		 * \return eye position vector
@@ -57,7 +65,7 @@ class SWQtCamera // ############################################################
 		 * \brief Return up vector
 		 * \return up vector
 		 */				
-		QVector3D up() const;	
+		QVector3D up() const;	                
 	
         /**
          * \brief Apply a rotation on the input vector axe.

@@ -86,6 +86,8 @@ SWViewerInterface::SWViewerInterface() : m_uiViewer(new Ui::SWUI_Viewer), m_bDes
             QObject::connect(m_uiViewer->dsbDiffusK, SIGNAL(valueChanged(double)), this, SLOT(updateParameters(double)));
             QObject::connect(m_uiViewer->dsbSpecularK, SIGNAL(valueChanged(double)), this, SLOT(updateParameters(double)));
             QObject::connect(m_uiViewer->dsbSpecularP, SIGNAL(valueChanged(double)), this, SLOT(updateParameters(double)));
+        // push buttons
+            QObject::connect(m_uiViewer->pbSetCamera, SIGNAL(clicked()), this, SLOT(setCameraToCurrentItem()));
 }
 
 SWViewerInterface::~SWViewerInterface()
@@ -493,6 +495,19 @@ void SWViewerInterface::setTexture()
     // retrieve obj path
         QString l_sPathTexture = QFileDialog::getOpenFileName(this, "Load texture", QString(), "Texture file (*.png)");
         m_uiViewer->leTexturePath->setText(l_sPathTexture);
+}
+
+
+void SWViewerInterface::setCameraToCurrentItem()
+{
+    if(m_bIsCloudLastSelection)
+    {
+        m_pGLMultiObject->setCameraItem(true, m_uiViewer->lwClouds->currentRow());
+    }
+    else
+    {
+        m_pGLMultiObject->setCameraItem(false, m_uiViewer->lwMeshes->currentRow());
+    }
 }
 
 int main(int argc, char* argv[])

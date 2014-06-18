@@ -52,6 +52,19 @@ namespace swCloud
 		{			
 			return (fX > m_fMinX && fX < m_fMaxX && fY > m_fMinY && fY < m_fMaxY && fZ > m_fMinZ && fZ < m_fMaxZ);						
 		}
+
+        /**
+         * @brief diagSize
+         * @return the diagonal length of the bbox
+         */
+        float diagLength() const
+        {
+            float l_fDiffX = m_fMinX - m_fMaxX;
+            float l_fDiffY = m_fMinY - m_fMaxY;
+            float l_fDiffZ = m_fMinZ - m_fMaxZ;
+
+            return sqrt(l_fDiffX*l_fDiffX + l_fDiffY*l_fDiffY + l_fDiffZ*l_fDiffZ);
+        }
 	};	
 
     /**

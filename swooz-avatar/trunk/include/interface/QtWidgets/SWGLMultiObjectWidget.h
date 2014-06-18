@@ -163,6 +163,13 @@ class SWGLMultiObjectWidget : public SWGLWidget
          */
         void removeMesh(cuint ui32Index);
 
+        /**
+         * @brief setCameraItem
+         * @param bIsCloudItem
+         * @param i32IndexItem
+         */
+        void setCameraItem(cbool bIsCloudItem, cint i32IndexItem);
+
     private :
 
         void drawClouds();

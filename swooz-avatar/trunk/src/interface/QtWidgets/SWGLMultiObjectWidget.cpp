@@ -160,6 +160,13 @@ void SWGLMultiObjectWidget::addCloud(const QString &sPathCloud)
     SWCloudPtr l_pCloud = SWCloudPtr(new swCloud::SWCloud());
     l_pCloud->loadObj(sPathCloud.toUtf8().constData());
 
+    swCloud::SWCloudBBox l_oBBox = l_pCloud->bBox();
+    if(l_oBBox.diagLength() > 100.f)
+    {
+        (*l_pCloud) *= 0.001f;
+    }
+
+
     SWGLObjectParametersPtr l_pCloudParam = SWGLObjectParametersPtr(new SWGLObjectParameters);
     l_pCloudParam->m_bCloud = true;
     l_pCloudParam->m_bVisible = true;
@@ -203,7 +210,7 @@ void SWGLMultiObjectWidget::addCloud(const QString &sPathCloud)
 
     m_pListCloudsMutex.unlock();
 
-    updateGL();
+    setCameraItem(true, m_vClouds.size()-1);
 }
 
 void SWGLMultiObjectWidget::addMesh(const QString &sPathMesh)
@@ -211,6 +218,14 @@ void SWGLMultiObjectWidget::addMesh(const QString &sPathMesh)
     makeCurrent();
 
     SWMeshPtr l_pMesh = SWMeshPtr(new swMesh::SWMesh(sPathMesh.toUtf8().constData()));
+
+
+    swCloud::SWCloudBBox l_oBBox = l_pMesh->cloud()->bBox();
+    if(l_oBBox.diagLength() > 100.f)
+    {
+        (*l_pMesh->cloud()) *= 0.001f;
+    }
+
 
     SWGLObjectParametersPtr l_pMeshesParam = SWGLObjectParametersPtr(new SWGLObjectParameters);
 
@@ -267,7 +282,7 @@ void SWGLMultiObjectWidget::addMesh(const QString &sPathMesh)
 
     m_oParamMutex.unlock();
 
-    updateGL();
+    setCameraItem(true, m_vMeshes.size()-1);
 }
 
 void SWGLMultiObjectWidget::removeCloud(cuint ui32Index)
@@ -344,6 +359,36 @@ void SWGLMultiObjectWidget::removeMesh(cuint ui32Index)
         std::cerr << "-ERROR : bad index removeMesh " << std::endl;
         return;
     }
+
+    updateGL();
+}
+
+void SWGLMultiObjectWidget::setCameraItem(cbool bIsCloudItem, cint i32IndexItem)
+{
+    std::vector<float> l_v3FMeanPoint;
+    QVector3D l_vTranslation;
+
+    if(bIsCloudItem && (i32IndexItem < m_vClouds.size()))
+    {
+        l_v3FMeanPoint = m_vClouds[i32IndexItem]->meanPoint();
+        l_vTranslation = m_vCloudsParameters[i32IndexItem]->m_vTranslation;
+    }
+    else if(i32IndexItem < m_vMeshes.size())
+    {
+        l_v3FMeanPoint = m_vMeshes[i32IndexItem]->cloud()->meanPoint();
+        l_vTranslation = m_vMeshesParameters[i32IndexItem]->m_vTranslation;
+    }
+    else
+    {
+        return;
+    }
+
+    QVector3D l_oPos(l_v3FMeanPoint[0], l_v3FMeanPoint[1], l_v3FMeanPoint[2]-0.5);
+    l_oPos += l_vTranslation;
+    QVector3D l_oLookAt = l_oPos;
+    l_oLookAt.setZ(1000.0);
+    QVector3D l_oUp(0.0,1.0,0.0);
+    m_pCamera->set(l_oPos, l_oLookAt, l_oUp);
 
     updateGL();
 }
