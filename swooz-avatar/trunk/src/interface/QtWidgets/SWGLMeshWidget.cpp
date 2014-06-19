@@ -151,7 +151,7 @@ void SWGLMeshWidget::setMesh(swMesh::SWMesh *pMesh)
         l_oEye.setZ(l_oEye.z() - 0.25f);
         l_oLookAt.setZ(l_oLookAt.z() + 1.f);
 
-        resetCamera(l_oEye,l_oLookAt);
+        setCamera(l_oEye,l_oLookAt);
 
         m_bInitCamWithCloudPosition = false;
     }

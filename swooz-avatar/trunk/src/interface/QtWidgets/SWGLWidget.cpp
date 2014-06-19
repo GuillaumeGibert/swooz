@@ -42,18 +42,22 @@ SWGLWidget::SWGLWidget(  QGLContext *oContext, QWidget* oParent) :
         setFocusPolicy( Qt::StrongFocus ); // set strong focus policy to be able to get the key events
 }
 
-
 SWGLWidget::~SWGLWidget()
 {
     deleteAndNullify(m_oTimer);
     deleteAndNullify(m_pCamera);
 }
 
-void SWGLWidget::resetCamera(const QVector3D &oEyePosition, const QVector3D &oLookAt, const QVector3D &oUp)
+void SWGLWidget::resetCamera()
 {
-    deleteAndNullify(m_pCamera);
+    m_pCamera->reset();
+    updateGL();
+}
 
-    m_pCamera = new SWQtCamera(oEyePosition, oLookAt, oUp);
+void SWGLWidget::setCamera(const QVector3D &oEyePosition, const QVector3D &oLookAt, const QVector3D &oUp)
+{
+    m_pCamera->set(oEyePosition, oLookAt, oUp);
+    updateGL();
 }
 
 void SWGLWidget::setFOV(const double dFOV)
@@ -148,20 +152,20 @@ void SWGLWidget::mouseMoveEvent(QMouseEvent *e)
         {
             if(e->x() < l_oMiddle.x())
             {
-                m_pCamera->moveLeft(0.0001f * (l_oMiddle.x() - e->x()));
+                m_pCamera->moveLeft(0.00003f * (l_oMiddle.x() - e->x()));
             }
             else if(e->x() > l_oMiddle.x())
             {
-                m_pCamera->moveRight(0.0001f * (e->x() - l_oMiddle.x()));
+                m_pCamera->moveRight(0.00003f * (e->x() - l_oMiddle.x()));
             }
 
             if(e->y() < l_oMiddle.y())
             {
-                m_pCamera->moveUp(0.0001f * (l_oMiddle.y() - e->y()));
+                m_pCamera->moveUp(0.000015f * (l_oMiddle.y() - e->y()));
             }
             else if(e->y() > l_oMiddle.y())
             {
-                m_pCamera->moveDown(0.0001f * (e->y() - l_oMiddle.y()));
+                m_pCamera->moveDown(0.000015f * (e->y() - l_oMiddle.y()));
             }
         }
 

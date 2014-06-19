@@ -47,12 +47,12 @@ class SWGLWidget : public QGLWidget
 		~SWGLWidget();
 
         /**
-         * \brief Reset camera view.
+         * \brief Set camera view.
          * \param [in] oEyePosition : eye position
          * \param [in] oLookAt      : view direction
          * \param [in] oUp          : up direction
          */
-        void resetCamera(const QVector3D &oEyePosition, const QVector3D &oLookAt, const QVector3D &oUp = QVector3D(0.f, 1.f,  0.f));
+        void setCamera(const QVector3D &oEyePosition, const QVector3D &oLookAt, const QVector3D &oUp = QVector3D(0.f, 1.f,  0.f));
 
 
         /**
@@ -71,6 +71,12 @@ class SWGLWidget : public QGLWidget
          * @param [in] dFOV   : ...
          */
         void setFOV(const double dFOV);
+
+
+        /**
+         * @brief Reset camera view.
+         */
+        void resetCamera();
 
 
 	protected:

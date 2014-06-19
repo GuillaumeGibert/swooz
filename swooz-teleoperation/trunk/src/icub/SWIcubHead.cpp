@@ -644,17 +644,21 @@ void swTeleop::SWHeadVelocityController::run()
     double l_dToleranceH = DBL_MAX;
     double l_dToleranceG = DBL_MAX;
 
-    while(l_dToleranceH > m_dVelocityToleranceHead || l_dToleranceG > m_dVelocityToleranceGaze)
-    {
-        m_oMutex.lock();
-            bool l_bHeadEnabled = m_bHeadEnabled;
-            bool l_bGazeEnabled = m_bGazeEnabled;
-            yarp::sig::Vector l_vHeadJoints = m_vLastHeadJoint;
-        m_oMutex.unlock();
+    m_oMutex.lock();
+        bool l_bHeadEnabled = m_bHeadEnabled;
+        bool l_bGazeEnabled = m_bGazeEnabled;
+        yarp::sig::Vector l_vHeadJoints = m_vLastHeadJoint;
+    m_oMutex.unlock();
 
-        yarp::sig::Vector l_vEncoders, l_vCommand;
-        l_vEncoders.resize(l_vHeadJoints.size());
-        l_vCommand.resize(l_vHeadJoints.size());
+    yarp::sig::Vector l_vEncoders, l_vCommand;
+    l_vEncoders.resize(l_vHeadJoints.size());
+    l_vCommand.resize(l_vHeadJoints.size());
+
+
+//    std::cout << "t-> " << m_dVelocityToleranceHead  << " ";
+
+//    while(l_dToleranceH > m_dVelocityToleranceHead)// || l_dToleranceG > m_dVelocityToleranceGaze)
+    {
 
         m_pIHeadEncoders->getEncoders(l_vEncoders.data());
 
@@ -697,7 +701,11 @@ void swTeleop::SWHeadVelocityController::run()
                     l_dToleranceG += sqrt(l_vCommand[ii]*l_vCommand[ii]);
                 }
             }
+
+//            std::cout << l_dToleranceH << " ";
     }
+
+
 }
 
 

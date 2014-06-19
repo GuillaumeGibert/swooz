@@ -150,7 +150,6 @@ void SWGLMultiObjectWidget::paintGL()
         m_oMVPMatrix = l_oModelMatrix  * m_oProjectionMatrix * l_oViewMatrix;
 
     drawScene();
-
 }
 
 void SWGLMultiObjectWidget::addCloud(const QString &sPathCloud)
@@ -219,13 +218,11 @@ void SWGLMultiObjectWidget::addMesh(const QString &sPathMesh)
 
     SWMeshPtr l_pMesh = SWMeshPtr(new swMesh::SWMesh(sPathMesh.toUtf8().constData()));
 
-
     swCloud::SWCloudBBox l_oBBox = l_pMesh->cloud()->bBox();
     if(l_oBBox.diagLength() > 100.f)
     {
         (*l_pMesh->cloud()) *= 0.001f;
     }
-
 
     SWGLObjectParametersPtr l_pMeshesParam = SWGLObjectParametersPtr(new SWGLObjectParameters);
 
@@ -296,6 +293,14 @@ void SWGLMultiObjectWidget::removeCloud(cuint ui32Index)
 
     if(ui32Index < static_cast<uint>(m_vClouds.size()))
     {        
+        float l_aFNULL[1];
+        uint32 l_aUI32NUL[1];
+        allocateBuffer(*m_vCloudsVertexBuffer[ui32Index],  l_aFNULL, 1 * sizeof(float) );
+        allocateBuffer(*m_vCloudsIndexBuffer[ui32Index],  l_aFNULL, 1 * sizeof(float) );
+        allocateBuffer(*m_vCloudsTextureBuffer[ui32Index],  l_aFNULL, 1 * sizeof(float) );
+        allocateBuffer(*m_vCloudsColorBuffer[ui32Index],  l_aFNULL, 1 * sizeof(float) );
+        allocateBuffer(*m_vCloudsColorBuffer[ui32Index],  l_aUI32NUL, 1 * sizeof(GLuint) );
+
         m_vBuffersToDelete.push_back(m_vCloudsVertexBuffer[ui32Index]);
         m_vBuffersToDelete.push_back(m_vCloudsIndexBuffer[ui32Index]);
         m_vBuffersToDelete.push_back(m_vCloudsTextureBuffer[ui32Index]);
@@ -335,6 +340,14 @@ void SWGLMultiObjectWidget::removeMesh(cuint ui32Index)
 
     if(ui32Index < static_cast<uint>(m_vMeshes.size()))
     {
+        float l_aFNULL[1];
+        uint32 l_aUI32NUL[1];
+        allocateBuffer(*m_vMeshesVertexBuffer[ui32Index],  l_aFNULL, 1 * sizeof(float) );
+        allocateBuffer(*m_vMeshesTextureBuffer[ui32Index],  l_aFNULL, 1 * sizeof(float) );
+        allocateBuffer(*m_vMeshesColorBuffer[ui32Index],  l_aFNULL, 1* sizeof(float) );
+        allocateBuffer(*m_vMeshesNormalBuffer[ui32Index],  l_aFNULL, 1* sizeof(float) );
+        allocateBuffer(*m_vMeshesIndexBuffer[ui32Index],  l_aUI32NUL, 1 * sizeof(GLuint) );
+
         m_vBuffersToDelete.push_back(m_vMeshesVertexBuffer[ui32Index]);
         m_vBuffersToDelete.push_back(m_vMeshesTextureBuffer[ui32Index]);
         m_vBuffersToDelete.push_back(m_vMeshesColorBuffer[ui32Index]);
@@ -388,9 +401,7 @@ void SWGLMultiObjectWidget::setCameraItem(cbool bIsCloudItem, cint i32IndexItem)
     QVector3D l_oLookAt = l_oPos;
     l_oLookAt.setZ(1000.0);
     QVector3D l_oUp(0.0,1.0,0.0);
-    m_pCamera->set(l_oPos, l_oLookAt, l_oUp);
-
-    updateGL();
+    setCamera(l_oPos, l_oLookAt, l_oUp);
 }
 
 void SWGLMultiObjectWidget::drawClouds()
@@ -581,7 +592,6 @@ void SWGLMultiObjectWidget::drawMeshes()
 
                 m_vMeshesBufferToUpdate[ii] = false;
             }
-
 
             // draw
                     if(l_oDisplayMode == GLO_ORIGINAL_COLOR)

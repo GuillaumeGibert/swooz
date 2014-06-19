@@ -187,7 +187,7 @@ int main(int argc, char* argv[])
 
 //            std::cout << std::endl;
 
-        l_oFakeTrackingPort.write();
+        l_oFakeTrackingPort.write(); // true
     }
 
     l_oFakeTrackingPort.close();

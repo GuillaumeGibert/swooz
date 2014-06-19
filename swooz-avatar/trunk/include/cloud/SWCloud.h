@@ -516,19 +516,19 @@ namespace swCloud
 
 			/**
 			 * \brief Get a copy of all the points coordinates in an array [x0,y0,z0,x1,y1,z1,...,xn,yn,zn] (used for opengl)
-			 * \return the float array
+             * \return the float array or a NULL pointer
 			 */
 			float *vertexBuffer() const;
 			
 			/**
 			 * \brief Return an unsigned integer array containing the order of the index of the cloud vertex [1,2,3, ... ,n] (used for opengl)
-			 * \return the uint32 array
+             * \return the uint32 array or a NULL pointer
 			 */		
 			uint32 *indexBuffer() const;
 						
 			/**
 			 * \brief Get a copy of all points colors in an array [R0,G0,B0,R1,G1,B1,...,Rn,Gn,Bn] (used for opengl)
-			 * \return the float array
+             * \return the float array or a NULL pointer
 			 */			
 			float *colorBuffer() const;
 			

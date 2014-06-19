@@ -295,14 +295,25 @@ REM ### Viewer
 echo @echo off                                                                          >  %target_dist%\swooz-viewer.cmd
 echo %SystemRoot%\system32\xcopy /q /e /y %saved_directory%\..\swooz-config %saved_directory%\%target_dist%\data >> %target_dist%\swooz-viewer.cmd
 echo pushd ..\scripts                                                                   >> %target_dist%\swooz-viewer.cmd
-echo call win-init_env_command.cmd %ARCH_EXE_viewer%                           >> %target_dist%\swooz-viewer.cmd
+echo call win-init_env_command.cmd x86                                                  >> %target_dist%\swooz-viewer.cmd
 echo popd                                                                               >> %target_dist%\swooz-viewer.cmd
 echo cd bin                                                                             >> %target_dist%\swooz-viewer.cmd
-echo SWViewer.exe                                                                >> %target_dist%\swooz-viewer.cmd
+echo SWViewer.exe                                                                       >> %target_dist%\swooz-viewer.cmd
 echo cd ../../scripts                                                                   >> %target_dist%\swooz-viewer.cmd
-echo call win-clean-env_command.cmd                                                   >> %target_dist%\swooz-viewer.cmd
+echo call win-clean-env_command.cmd                                                     >> %target_dist%\swooz-viewer.cmd
 echo cd ../dist                                                                         >> %target_dist%\swooz-viewer.cmd
-
+REM #######################################################################################
+REM ### Viewer 64
+echo @echo off                                                                          >  %target_dist%\swooz-viewer-x64.cmd
+echo %SystemRoot%\system32\xcopy /q /e /y %saved_directory%\..\swooz-config %saved_directory%\%target_dist%\data >> %target_dist%\swooz-viewer-x64.cmd
+echo pushd ..\scripts                                                                   >> %target_dist%\swooz-viewer-x64.cmd
+echo call win-init_env_command.cmd amd64                                                >> %target_dist%\swooz-viewer-x64.cmd
+echo popd                                                                               >> %target_dist%\swooz-viewer-x64.cmd
+echo cd bin                                                                             >> %target_dist%\swooz-viewer-x64.cmd
+echo SWViewer-x64.exe                                                                   >> %target_dist%\swooz-viewer-x64.cmd
+echo cd ../../scripts                                                                   >> %target_dist%\swooz-viewer-x64.cmd
+echo call win-clean-env_command.cmd                                                     >> %target_dist%\swooz-viewer-x64.cmd
+echo cd ../dist                                                                         >> %target_dist%\swooz-viewer-x64.cmd
 
 REM #####################   EXAMPLES
 

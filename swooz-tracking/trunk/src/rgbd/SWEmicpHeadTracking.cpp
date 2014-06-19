@@ -278,7 +278,7 @@ SWEmicpHeadTrackingInterface::SWEmicpHeadTrackingInterface() : m_uiMainWindow(ne
             l_glFormat.setSampleBuffers( true );
             QGLContext *l_glContext = new QGLContext(l_glFormat);
             m_pGLCloudWidget        = new SWGLCloudWidget(l_glContext);
-            m_pGLCloudWidget->resetCamera(QVector3D(0.f, 0.0f, 0.6f), QVector3D(0.f, 0.0f,  1.f), QVector3D(0.f, 1.f,  0.f));
+            m_pGLCloudWidget->setCamera(QVector3D(0.f, 0.0f, 0.6f), QVector3D(0.f, 0.0f,  1.f), QVector3D(0.f, 1.f,  0.f));
 
             std::vector<std::string> l_aSRotationsLabel;
             l_aSRotationsLabel.push_back("rX");

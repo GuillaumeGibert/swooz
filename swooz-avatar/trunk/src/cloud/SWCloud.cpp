@@ -1471,6 +1471,11 @@ void SWCloud::bBox2DFilter(const SWCloudBBox &oBBox)
 
 float *SWCloud::vertexBuffer() const
 {
+    if(size() == 0)
+    {
+        return NULL;
+    }
+
 	float *l_aFVertex = new float[m_ui32ArraySize];
 	
 	for(uint ii = 0; ii < m_ui32NumberOfPoints; ++ii)
@@ -1485,6 +1490,11 @@ float *SWCloud::vertexBuffer() const
 
 uint32 *SWCloud::indexBuffer() const
 {
+    if(size() == 0)
+    {
+        return NULL;
+    }
+
 	uint32 *l_aUI32Index = new uint32[m_ui32NumberOfPoints];
 	
 	for(uint ii = 0; ii < m_ui32NumberOfPoints; ++ii)
@@ -1497,6 +1507,11 @@ uint32 *SWCloud::indexBuffer() const
 
 float *SWCloud::colorBuffer() const
 {
+    if(size() == 0)
+    {
+        return NULL;
+    }
+
 	float *l_aFColor = new float[m_ui32ArraySize];
 	
 	for(uint ii = 0; ii < m_ui32NumberOfPoints; ++ii)
