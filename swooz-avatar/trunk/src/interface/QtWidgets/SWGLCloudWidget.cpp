@@ -15,6 +15,7 @@
 
 using namespace swExcept;
 
+
 SWGLCloudWidget::SWGLCloudWidget(QGLContext *context, QWidget* parent) :
     SWGLWidget(context, parent), m_bInitCamWithCloudPosition(true), m_bNewCloud(false)
 {
@@ -27,6 +28,8 @@ SWGLCloudWidget::~SWGLCloudWidget()
 
 void SWGLCloudWidget::initializeGL()
 {
+    qDebug() << "initializeGL ";
+
     // set perspective
         m_rZNear = 0.01;
         m_rZFar  = 100.0;
@@ -54,6 +57,9 @@ void SWGLCloudWidget::initializeGL()
 
     // start timer
         m_oTimer->start(1000/30, this);
+
+
+        qDebug() << "initializeGL";
 }
 
 void SWGLCloudWidget::paintGL()

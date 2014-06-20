@@ -27,7 +27,7 @@ using namespace swExcept;
 SWEmicpHeadTrackingWorker::SWEmicpHeadTrackingWorker() : m_oCaptureHeadMotion(swCloud::SWCaptureHeadMotion(20,20)),
     m_bIsRGBDDeviceInitialized(true), m_bVerbose(false), m_bDoWork(true), m_i32Fps(100), m_pCurrentFaceRect(NULL), m_pCurrentNoseRect(NULL),
     m_pCurrentRigidMotion(NULL), m_pCurrCloud(NULL),m_pReferenceCloud(NULL), m_bWorkStopped(true)
-{    
+{        
     // set yarp port name
         std::string l_sDeviceName   = "rgbd";
         std::string l_sLibraryName  = "emicp";
@@ -68,6 +68,7 @@ SWEmicpHeadTrackingWorker::SWEmicpHeadTrackingWorker() : m_oCaptureHeadMotion(sw
 //        {
 //            emit leaveProgram();
 //        }
+
 }
 
 SWEmicpHeadTrackingWorker::~SWEmicpHeadTrackingWorker()
@@ -277,8 +278,8 @@ SWEmicpHeadTrackingInterface::SWEmicpHeadTrackingInterface() : m_uiMainWindow(ne
             l_glFormat.setProfile(  QGLFormat::CompatibilityProfile);
             l_glFormat.setSampleBuffers( true );
             QGLContext *l_glContext = new QGLContext(l_glFormat);
-            m_pGLCloudWidget        = new SWGLCloudWidget(l_glContext);
-            m_pGLCloudWidget->setCamera(QVector3D(0.f, 0.0f, 0.6f), QVector3D(0.f, 0.0f,  1.f), QVector3D(0.f, 1.f,  0.f));
+            m_pGLCloudWidget        = new SWGLCloudWidget(l_glContext, this);
+            m_pGLCloudWidget->setCamera(QVector3D(0.f, 0.0f, 0.6f), QVector3D(0.f, 0.0f,  1.f), QVector3D(0.f, 1.f,  0.f), false);
 
             std::vector<std::string> l_aSRotationsLabel;
             l_aSRotationsLabel.push_back("rX");
@@ -326,7 +327,7 @@ SWEmicpHeadTrackingInterface::SWEmicpHeadTrackingInterface() : m_uiMainWindow(ne
             QObject::connect(m_uiMainWindow->sbKSmooth,                     SIGNAL(valueChanged(int)),    this, SLOT(updateInterfaceValues(int)));
             QObject::connect(m_uiMainWindow->dsbKTransSmoothConst,          SIGNAL(valueChanged(double)), this, SLOT(updateInterfaceValues(double)));
             QObject::connect(m_uiMainWindow->dsbKRotSmoothConst,            SIGNAL(valueChanged(double)), this, SLOT(updateInterfaceValues(double)));
-            QObject::connect(m_uiMainWindow->cbSmoothRigidMotion,           SIGNAL(stateChanged(int)),    this, SLOT(updateInterfaceValues(int)));           
+            QObject::connect(m_uiMainWindow->cbSmoothRigidMotion,           SIGNAL(stateChanged(int)),    this, SLOT(updateInterfaceValues(int)));
 
             updateInterfaceValues(0);
 
@@ -364,6 +365,7 @@ SWEmicpHeadTrackingInterface::SWEmicpHeadTrackingInterface() : m_uiMainWindow(ne
                 std::cerr << "Leave program, please check if a kinect/xtion is plugged.  " << std::endl;
                 QTimer::singleShot(0, this, SLOT(close()));
             }
+
 }
 
 SWEmicpHeadTrackingInterface::~SWEmicpHeadTrackingInterface()

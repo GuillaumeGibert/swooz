@@ -54,10 +54,14 @@ void SWGLWidget::resetCamera()
     updateGL();
 }
 
-void SWGLWidget::setCamera(const QVector3D &oEyePosition, const QVector3D &oLookAt, const QVector3D &oUp)
+void SWGLWidget::setCamera(const QVector3D &oEyePosition, const QVector3D &oLookAt, const QVector3D &oUp, cbool bUpdateGL)
 {
     m_pCamera->set(oEyePosition, oLookAt, oUp);
-    updateGL();
+
+    if(bUpdateGL)
+    {
+        updateGL();
+    }
 }
 
 void SWGLWidget::setFOV(const double dFOV)
