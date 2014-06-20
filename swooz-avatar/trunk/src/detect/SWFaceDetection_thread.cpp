@@ -78,15 +78,13 @@ void swDetect::SWFaceDetection_thread::doWork()
 
 
             boost::lock_guard<boost::mutex> lock(m_oMutex);
-            std::cout << "|" <<(((float)(clock() - time) / CLOCKS_PER_SEC)) << " ";
-
-
+//            std::cout << "|" <<(((float)(clock() - time) / CLOCKS_PER_SEC)) << " ";
 
             if(m_bIsNewRGBAvailable)
             {
                 m_pFaceDetection->detect(m_oRGB);
                 m_bIsNewRGBAvailable = false;
-                std::cout << (((float)(clock() - time) / CLOCKS_PER_SEC)) << " ";
+//                std::cout << (((float)(clock() - time) / CLOCKS_PER_SEC)) << " ";
             }
         }
 

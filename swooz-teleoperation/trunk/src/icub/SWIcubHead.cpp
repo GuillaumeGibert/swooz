@@ -692,26 +692,10 @@ void swTeleop::SWHeadVelocityController::run()
                     l_dCoeff *= l_dCoeff;
                     l_dCoeff = sqrt(l_dCoeff);
 
-//                    if(rand()%50 == 0)
-//                    std::cout << l_dCoeff << " ";
+                    // TODO
 
-
-//                    if(l_dCoeff < l_dMin)
-//                    {
-//                        l_vCommand[ii] = (m_vHeadJointVelocityK[ii] -  5 * (l_dMin - l_dCoeff)) * (l_vHeadJoints[ii] - l_vEncoders[ii]);
-//                        std::cout << (m_vHeadJointVelocityK[ii] -  5 * (l_dMin - l_dCoeff)) << " ";
-//                    }
-//                    else if(l_dCoeff < 0.1)
-//                    {
-//                        l_vCommand[ii] = (m_vHeadJointVelocityK[ii] -  4 * (1 - l_dCoeff)) * (l_vHeadJoints[ii] - l_vEncoders[ii]);
-//                    }
-//                    else
-//                    {
-//                        l_vCommand[ii] = m_vHeadJointVelocityK[ii] * (l_vHeadJoints[ii] - l_vEncoders[ii]);
-//                        std::cout << m_vHeadJointVelocityK[ii] << " ";
-//                    }
-
-                        if(l_dCoeff < 0.035)
+//                        if(l_dCoeff < 0.035)
+                            if(l_dCoeff < 0.025)
                         {
                             l_vCommand[ii] = 0.5 * l_dDiff;
                         }

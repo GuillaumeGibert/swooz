@@ -121,6 +121,47 @@ bool SWFaceDetection::detectFace(const cv::Mat &oRgbImg)
 
         m_oLastDetectFace = m_oRects[0];
 
+
+        //
+        m_lFaceRects.push_front(m_oLastDetectFace);
+
+        // 	pop first result in the list if the size is over the k window
+        while(5 < m_lFaceRects.size())
+        {
+            m_lFaceRects.pop_back();
+        }
+
+        cv::Rect l_oSmoothedRect;
+        l_oSmoothedRect.x = 0;
+        l_oSmoothedRect.y = 0;
+        l_oSmoothedRect.width = 0;
+        l_oSmoothedRect.height = 0;
+
+        for (std::list<cv::Rect>::iterator it= m_lFaceRects.begin(); it != m_lFaceRects.end(); ++it)
+        {
+            l_oSmoothedRect.x += (*it).x;
+            l_oSmoothedRect.y += (*it).y;
+            l_oSmoothedRect.width += (*it).width;
+            l_oSmoothedRect.height += (*it).height;
+        }
+
+        l_oSmoothedRect.x /= m_lFaceRects.size();
+        l_oSmoothedRect.y /= m_lFaceRects.size();
+        l_oSmoothedRect.width /= m_lFaceRects.size();
+        l_oSmoothedRect.height /= m_lFaceRects.size();
+
+//        if((m_oLastDetectFace.x - l_oSmoothedRect.x)*(m_oLastDetectFace.x - l_oSmoothedRect.x) == 1)
+//        {
+//            l_oSmoothedRect.x = m_oLastDetectFace.x;
+//        }
+
+//        if((m_oLastDetectFace.y - l_oSmoothedRect.y)*(m_oLastDetectFace.y - l_oSmoothedRect.y) == 1)
+//        {
+//            l_oSmoothedRect.y = m_oLastDetectFace.y;
+//        }
+
+        m_oLastDetectFace = l_oSmoothedRect;
+
         return true;
     }
 

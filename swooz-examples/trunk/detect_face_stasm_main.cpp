@@ -1,5 +1,6 @@
 
 
+//face_cascade.detectMultiScale( frame_gray, faces, 1.1, 2, 0|CV_HAAR_SCALE_IMAGE, Size(30, 30) );
 
 
 /**
@@ -20,12 +21,12 @@ int main()
 {
     // create an opencv window
     cvNamedWindow("rgb_kinect_haar1", CV_WINDOW_AUTOSIZE | CV_GUI_NORMAL);
-    cvNamedWindow("rgb_kinect_haar2", CV_WINDOW_AUTOSIZE | CV_GUI_NORMAL);
-    cvNamedWindow("rgb_kinect_haar3", CV_WINDOW_AUTOSIZE | CV_GUI_NORMAL);
+//    cvNamedWindow("rgb_kinect_haar2", CV_WINDOW_AUTOSIZE | CV_GUI_NORMAL);
+//    cvNamedWindow("rgb_kinect_haar3", CV_WINDOW_AUTOSIZE | CV_GUI_NORMAL);
 
     cvMoveWindow("rgb_kinect_haar1",200,200);
-    cvMoveWindow("rgb_kinect_haar2",200+640,200);
-    cvMoveWindow("rgb_kinect_haar3",200,200+480);
+//    cvMoveWindow("rgb_kinect_haar2",200+640,200);
+//    cvMoveWindow("rgb_kinect_haar3",200,200+480);
 
     swDevice::SWKinect_thread kinectDeviceT;
 
@@ -47,12 +48,13 @@ int main()
 
     // init haar cascade detection
     swDetect::SWFaceDetection_thread haarDetect1(cv::Size(80,80), false, "../data/classifier/haarcascade_frontalface_alt.xml");
-    swDetect::SWFaceDetection_thread haarDetect2(cv::Size(80,80), false, "../data/classifier/haarcascade_frontalface_alt2.xml");
-    swDetect::SWFaceDetection_thread haarDetect3(cv::Size(80,80), false, "../data/classifier/haarcascade_frontalface_alt_tree.xml");
+//    swDetect::SWFaceDetection_thread haarDetect2(cv::Size(80,80), false, "../data/classifier/haarcascade_frontalface_alt2.xml");
+//    swDetect::SWFaceDetection_thread haarDetect3(cv::Size(80,80), false, "../data/classifier/haarcascade_frontalface_alt_tree.xml");
+
 
     haarDetect1.startDetection();
-    haarDetect2.startDetection();
-    haarDetect3.startDetection();
+//    haarDetect2.startDetection();
+//    haarDetect3.startDetection();
 
 
 
@@ -64,20 +66,20 @@ int main()
         cv::Mat rgb = kinectDeviceT.bgrImage();
 
         haarDetect1.setNewRGB(rgb);
-        haarDetect2.setNewRGB(rgb);
-        haarDetect3.setNewRGB(rgb);
+//        haarDetect2.setNewRGB(rgb);
+//        haarDetect3.setNewRGB(rgb);
 
         cv::Mat displayHaar1 = rgb.clone();
-        cv::Mat displayHaar2 = rgb.clone();
-        cv::Mat displayHaar3 = rgb.clone();
+//        cv::Mat displayHaar2 = rgb.clone();
+//        cv::Mat displayHaar3 = rgb.clone();
 
         haarDetect1.displayFace(displayHaar1, RED);
-        haarDetect2.displayFace(displayHaar2, GREEN);
-        haarDetect3.displayFace(displayHaar3, BLUE);
+//        haarDetect2.displayFace(displayHaar2, GREEN);
+//        haarDetect3.displayFace(displayHaar3, BLUE);
 
         cv::imshow("rgb_kinect_haar1", displayHaar1);
-        cv::imshow("rgb_kinect_haar2", displayHaar2);
-        cv::imshow("rgb_kinect_haar3", displayHaar3);
+//        cv::imshow("rgb_kinect_haar2", displayHaar2);
+//        cv::imshow("rgb_kinect_haar3", displayHaar3);
 
         // wait key event for escaping the loop
         key = cv::waitKey(5);
@@ -87,8 +89,8 @@ int main()
     kinectDeviceT.stopListening();
 
     haarDetect1.startDetection();
-    haarDetect2.startDetection();
-    haarDetect3.startDetection();
+//    haarDetect2.startDetection();
+//    haarDetect3.startDetection();
 
     // destroy windows
     cvDestroyWindow("rgb_kinect_haar1");

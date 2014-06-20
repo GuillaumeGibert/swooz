@@ -35,7 +35,20 @@ SWCreateAvatar::SWCreateAvatar(cbool bVerbose) : m_bVerbose(bVerbose), m_i32NumC
         m_fDistMaxAlignment         = 0.00020f;
 
 
-        m_oAlignClouds.setEmicpParams(0.01f, 0.000005f, 0.9f, 0.01f);
+//        m_oAlignClouds.setEmicpParams(0.01f, 0.000005f, 0.9f, 0.01f);
+//        m_oAlignClouds.setEmicpParams(0.05f, 0.000005f, 0.9f, 0.01f);
+//        m_oAlignClouds.setEmicpParams(0.05f, 0.000005f, 0.95f, 0.01f);
+//        m_oAlignClouds.setEmicpParams(0.05f, 0.000002f, 0.92f, 0.01f);
+//        m_oAlignClouds.setEmicpParams(0.0025f, 0.000001f, 0.95f, 0.01f);
+        m_oAlignClouds.setEmicpParams(0.001f, 0.000005f, 0.9f, 0.01f); // best
+//        m_oAlignClouds.setEmicpParams(0.0005f, 0.000005f, 0.9f, 0.01f);
+//        m_oAlignClouds.setEmicpParams(0.001f, 0.000002f, 0.95f, 0.01f);
+//        * @brief Set emicp alignment parameters (do no use if you don't know how emicp works, native parameters are good for a large panel of usages)
+//        * @param [in] fP2      : emicp P2
+//        * @param [in] fINF     : emicp INF
+//        * @param [in] fFactor  : emicp Factor
+//        * @param [in] fD02     : emicp D02
+//        */
 
 
     // radial projection

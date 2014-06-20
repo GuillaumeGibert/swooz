@@ -116,6 +116,20 @@ void SWEmicpHeadTrackingWorker::doWork()
 
         // tracking
             cv::Mat l_oBGR   = m_oKinectThread.bgrImage();
+
+
+            for(int ii = 0; ii < l_oBGR.rows/3.5; ++ii)
+            {
+                for(int jj = 0; jj < l_oBGR.cols; ++jj)
+                {
+                    l_oBGR.at<cv::Vec3b>(ii,jj)                   = cv::Vec3b(0,0,0);
+                    l_oBGR.at<cv::Vec3b>(l_oBGR.rows - 1 - ii,jj) = cv::Vec3b(0,0,0);
+                }
+            }
+
+
+
+
             cv::Mat l_oCloud = m_oKinectThread.cloudMap();
 
         // resize the rgb mat
@@ -305,6 +319,12 @@ SWEmicpHeadTrackingInterface::SWEmicpHeadTrackingInterface() : m_uiMainWindow(ne
         // init worker
             m_pWTracking = new SWEmicpHeadTrackingWorker();
 
+
+            m_uiMainWindow->dsbP2->setValue(0.001f);
+            m_uiMainWindow->dsbINF->setValue(0.000005f);
+            m_uiMainWindow->dsbFactor->setValue(0.60f);
+            m_uiMainWindow->dsbD02->setValue( 0.01f);
+
         // init connections
             QObject::connect(m_uiMainWindow->pbStart,SIGNAL(clicked()),      m_pWTracking, SLOT(doWork()));
             QObject::connect(m_uiMainWindow->pbStop, SIGNAL(clicked()),      m_pWTracking, SLOT(stopWork()));
@@ -443,43 +463,18 @@ void SWEmicpHeadTrackingInterface::updateImageDisplay()
 {
     // get the current image from the kinect
     cv::Mat l_oRgb = m_oKinectThread.bgrImage();
+
+
     std::string l_sDelay("D ");
     std::ostringstream l_osDelay;
 
 
     // apply a filter on the zones where detection could fail
 
-    for(int ii = 0; ii < l_oRgb.rows/4; ++ii)
+    for(int ii = 0; ii < l_oRgb.rows/3.5; ++ii)
     {
         for(int jj = 0; jj < l_oRgb.cols; ++jj)
         {
-//            cv::Vec3b l_oColValueUp   = l_oRgb.at<cv::Vec3b>(ii,jj);
-//            cv::Vec3b l_oColValueDown = l_oRgb.at<cv::Vec3b>(l_oRgb.rows -1 - ii,jj);
-
-//            for(int kk = 0; kk < 3; ++kk)
-//            {
-//                if(l_oColValueUp[kk] < 155)
-//                {
-//                    l_oColValueUp[kk] += 100;
-//                }
-//                else
-//                {
-//                    l_oColValueUp[kk] = 255;
-//                }
-
-//                if(l_oColValueDown[kk] < 155)
-//                {
-//                    l_oColValueDown[kk] += 100;
-//                }
-//                else
-//                {
-//                    l_oColValueDown[kk] = 255;
-//                }
-//            }
-
-//            l_oRgb.at<cv::Vec3b>(ii,jj)                   = l_oColValueUp;
-//            l_oRgb.at<cv::Vec3b>(l_oRgb.rows - 1 - ii,jj) = l_oColValueDown;
-
             l_oRgb.at<cv::Vec3b>(ii,jj)                   = cv::Vec3b(0,0,0);
             l_oRgb.at<cv::Vec3b>(l_oRgb.rows - 1 - ii,jj) = cv::Vec3b(0,0,0);
         }
@@ -569,17 +564,6 @@ int main(int argc, char* argv[])
         l_oEmicpHeadTrackingInterface.resize(QSize(1200,950));
         l_oEmicpHeadTrackingInterface.move(50,50);
         l_oEmicpHeadTrackingInterface.show();
-
-    // prepare and configure the resource finder
-//        ResourceFinder rf;
-//            rf.setVerbose(true);
-//            rf.setDefaultConfigFile("emicpHeadTracking.ini");
-//            rf.setDefaultContext("swtracking/conf");
-//            rf.configure("ICUB_ROOT", argc, argv);
-
-    // configure the module
-//        std::cout << "Configuring the Emicp Head tracking module..."<< std::endl;
-//            l_oEmicpHeadTrackingInterface.configure(rf);
 
     return l_oApp.exec();
 }

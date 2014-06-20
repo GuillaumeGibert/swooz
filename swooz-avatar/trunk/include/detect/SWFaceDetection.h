@@ -14,6 +14,8 @@
 
 #include "opencvUtility.h"
 
+#include <list>
+
 typedef boost::shared_ptr<swDetect::SWHaarCascade> SWHaarCascadePtr;	/**< boost shared pointer for SWHaarCascade */
 
 namespace swDetect
@@ -110,6 +112,8 @@ namespace swDetect
             std::vector<cv::Rect> m_oRects;         /**< vector of rectangles, will contain the haar cascade detection result */
 
             SWHaarCascadePtr m_CHaarCascadeFacePtr; /**< face haar cascade */
+
+            std::list<cv::Rect> m_lFaceRects;
 	};
 }
 
