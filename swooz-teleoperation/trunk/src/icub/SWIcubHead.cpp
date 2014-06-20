@@ -224,6 +224,7 @@ bool swTeleop::SWIcubHead::init( yarp::os::ResourceFinder &oRf)
         m_pVelocityController = new swTeleop::SWHeadVelocityController(m_pIHeadEncoders, m_pIHeadVelocity, m_vHeadJointVelocityK, m_dVelocityToleranceHead, m_dVelocityToleranceGaze, 10);
         m_pVelocityController->enableHead(m_bHeadActivated);
         m_pVelocityController->enableGaze(m_bGazeActivated);
+        m_pVelocityController->setMinMaxJoints(m_vHeadMinJoint, m_vHeadMaxJoint);
 
     return (m_bIsRunning=m_bInitialized=true);
 }
@@ -641,8 +642,8 @@ swTeleop::SWHeadVelocityController::SWHeadVelocityController(yarp::dev::IEncoder
 
 void swTeleop::SWHeadVelocityController::run()
 {
-    double l_dToleranceH = DBL_MAX;
-    double l_dToleranceG = DBL_MAX;
+//    double l_dToleranceH = DBL_MAX;
+//    double l_dToleranceG = DBL_MAX;
 
     m_oMutex.lock();
         bool l_bHeadEnabled = m_bHeadEnabled;
@@ -662,10 +663,68 @@ void swTeleop::SWHeadVelocityController::run()
 
         m_pIHeadEncoders->getEncoders(l_vEncoders.data());
 
+
+
+        std::vector<double> l_vNewK(m_vHeadJointVelocityK.size(),0.0);
+
+
+//        for(int ii = 0; ii < 1; ++ii)
+//        {
+//            double l_dLength = m_vMaxJoints[ii] - m_vMinJoints[ii];
+////            std::cout << m_vMinJoints[ii] << " " << l_vHeadJoints[ii] << " " << m_vMaxJoints[ii] << " " << (l_vHeadJoints[ii] - m_vMinJoints[ii])/l_dLength << " " << l_dLength << " | ";
+//            double l_dDiff = l_vHeadJoints[ii] - l_vEncoders[ii];
+//            double l_dAmplitude = (m_vMaxJoints[ii] - m_vMinJoints[ii]);
+//            std::cout << l_dDiff << " " << l_dAmplitude << " " << l_dDiff/l_dAmplitude << " | ";
+//        }
+
+
         // head rotation / gaze
             for(uint ii = 0; ii < l_vCommand.size(); ++ii)
             {
-                l_vCommand[ii] = m_vHeadJointVelocityK[ii] * (l_vHeadJoints[ii] - l_vEncoders[ii]);
+                if(ii < 3)
+                {
+                    double l_dDiff = l_vHeadJoints[ii] - l_vEncoders[ii];
+                    double l_dAmplitude = (m_vMaxJoints[ii] - m_vMinJoints[ii]);
+                    l_dAmplitude *= l_dAmplitude;
+                    l_dAmplitude = sqrt(l_dAmplitude);
+
+                    double l_dCoeff = l_dDiff/l_dAmplitude;
+                    l_dCoeff *= l_dCoeff;
+                    l_dCoeff = sqrt(l_dCoeff);
+
+//                    if(rand()%50 == 0)
+//                    std::cout << l_dCoeff << " ";
+
+
+//                    if(l_dCoeff < l_dMin)
+//                    {
+//                        l_vCommand[ii] = (m_vHeadJointVelocityK[ii] -  5 * (l_dMin - l_dCoeff)) * (l_vHeadJoints[ii] - l_vEncoders[ii]);
+//                        std::cout << (m_vHeadJointVelocityK[ii] -  5 * (l_dMin - l_dCoeff)) << " ";
+//                    }
+//                    else if(l_dCoeff < 0.1)
+//                    {
+//                        l_vCommand[ii] = (m_vHeadJointVelocityK[ii] -  4 * (1 - l_dCoeff)) * (l_vHeadJoints[ii] - l_vEncoders[ii]);
+//                    }
+//                    else
+//                    {
+//                        l_vCommand[ii] = m_vHeadJointVelocityK[ii] * (l_vHeadJoints[ii] - l_vEncoders[ii]);
+//                        std::cout << m_vHeadJointVelocityK[ii] << " ";
+//                    }
+
+                        if(l_dCoeff < 0.035)
+                        {
+                            l_vCommand[ii] = 0.5 * l_dDiff;
+                        }
+                        else
+                        {
+                            l_vCommand[ii] = m_vHeadJointVelocityK[ii] * l_dDiff;
+                        }
+                }
+                else
+                {
+                    l_vCommand[ii] = (m_vHeadJointVelocityK[ii] * (l_vHeadJoints[ii] - l_vEncoders[ii]));
+                }
+
             }
 
         // velocity move
@@ -687,20 +746,20 @@ void swTeleop::SWHeadVelocityController::run()
             }
 
         // compute tolerance
-            l_dToleranceH = 0.;
-            l_dToleranceG = 0.;
+//            l_dToleranceH = 0.;
+//            l_dToleranceG = 0.;
 
-            for(uint ii = 0; ii < l_vCommand.size(); ++ii)
-            {
-                if(ii < 3)
-                {
-                    l_dToleranceH += sqrt(l_vCommand[ii]*l_vCommand[ii]);
-                }
-                else
-                {
-                    l_dToleranceG += sqrt(l_vCommand[ii]*l_vCommand[ii]);
-                }
-            }
+//            for(uint ii = 0; ii < l_vCommand.size(); ++ii)
+//            {
+//                if(ii < 3)
+//                {
+//                    l_dToleranceH += sqrt(l_vCommand[ii]*l_vCommand[ii]);
+//                }
+//                else
+//                {
+//                    l_dToleranceG += sqrt(l_vCommand[ii]*l_vCommand[ii]);
+//                }
+//            }
 
 //            std::cout << l_dToleranceH << " ";
     }
@@ -720,7 +779,13 @@ void swTeleop::SWHeadVelocityController::enableGaze(cbool bActivated)
 {
     m_oMutex.lock();
         m_bGazeEnabled = bActivated;
-    m_oMutex.unlock();
+        m_oMutex.unlock();
+}
+
+void swTeleop::SWHeadVelocityController::setMinMaxJoints(const std::vector<double> &vMinJoints, const std::vector<double> &vMaxJoints)
+{
+    m_vMinJoints = vMinJoints;
+    m_vMaxJoints = vMaxJoints;
 }
 
 void swTeleop::SWHeadVelocityController::setJoints(const yarp::sig::Vector &vJoints)

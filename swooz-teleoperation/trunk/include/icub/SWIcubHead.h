@@ -139,6 +139,13 @@ namespace swTeleop
              */
             void enableGaze(cbool bActivated);
 
+            /**
+             * @brief setMinMaxJoints
+             * @param vMinJoints
+             * @param vMaxJoints
+             */
+            void setMinMaxJoints(const std::vector<double> &vMinJoints, const std::vector<double> &vMaxJoints);
+
 
         private :
 
@@ -154,6 +161,8 @@ namespace swTeleop
             yarp::sig::Vector m_vLastHeadJoint;             /**< ... */
 
             std::vector<double> m_vHeadJointVelocityK;      /**< ... */
+            std::vector<double> m_vMinJoints;
+            std::vector<double> m_vMaxJoints;
     };
 
     /**

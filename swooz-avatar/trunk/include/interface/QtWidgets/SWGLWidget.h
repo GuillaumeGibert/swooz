@@ -51,8 +51,9 @@ class SWGLWidget : public QGLWidget
          * \param [in] oEyePosition : eye position
          * \param [in] oLookAt      : view direction
          * \param [in] oUp          : up direction
+         * \param [in] bUpdateGL    : call updateGL
          */
-        void setCamera(const QVector3D &oEyePosition, const QVector3D &oLookAt, const QVector3D &oUp = QVector3D(0.f, 1.f,  0.f));
+        void setCamera(const QVector3D &oEyePosition, const QVector3D &oLookAt, const QVector3D &oUp = QVector3D(0.f, 1.f,  0.f), cbool bUpdateGL = true);
 
 
         /**

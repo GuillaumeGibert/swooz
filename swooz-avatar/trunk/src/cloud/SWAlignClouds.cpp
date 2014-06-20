@@ -145,12 +145,31 @@ void SWAlignClouds::alignClouds()
                     l_fSumRotWi   += l_fRotWi;
                     ++ii;
                 }
+                std::cout << std::endl;
 
                 for(uint jj = 0; jj < 3; ++jj)
                 {
                     l_oSumWiTij.m_aFTranslation[jj] /= l_fSumTransWi;
                     l_oSumWiTij.m_aFRotAngles[jj]   /= l_fSumRotWi;
                 }
+
+                // TEST
+//                    for(std::list<SWRigidMotion>::iterator it = m_lRigidMotion.begin(); it != m_lRigidMotion.end(); ++it)
+//                    {
+//                        for(int jj = 0; jj < 3; ++jj)
+//                        {
+//                            l_oSumWiTij.m_aFTranslation[jj] += (*it).m_aFTranslation[jj];
+//                            l_oSumWiTij.m_aFRotAngles[jj]   += (*it).m_aFRotAngles[jj];
+//                        }
+//                    }
+
+//                    for(uint jj = 0; jj < 3; ++jj)
+//                    {
+//                        l_oSumWiTij.m_aFTranslation[jj] /= m_lRigidMotion.size();
+//                        l_oSumWiTij.m_aFRotAngles[jj]   /= m_lRigidMotion.size();
+//                    }
+
+
 
                 // update matrix rotation from new angles
                 l_oSumWiTij.computeRotationMatrixWithRotationAngles();
