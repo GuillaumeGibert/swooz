@@ -170,6 +170,10 @@ int SWKinect::grab(void)
 			recalibrate();
 		}
 	}
+
+
+    // create normalized depth map (for dimenco)
+    normalizeDepthImage();
 	
 	return 0;
 }
@@ -262,18 +266,6 @@ void SWKinect::normalizeDepthImage(void)
 	{
 		for (int l_col =0; l_col<depthMap.cols; l_col++)
 		{
-			//~ if (depthMap.at<unsigned short>(l_row,l_col) <= minDepthValue)
-			//~ {
-				//~ normalizedDepthMap.at<float>(l_row,l_col) = 0.0f;
-			//~ }
-			//~ if (depthMap.at<unsigned short>(l_row,l_col) >= maxDepthValue)
-			//~ {
-				//~ normalizedDepthMap.at<float>(l_row,l_col) = 1.0f;
-			//~ }
-			//~ if (depthMap.at<unsigned short>(l_row,l_col) < maxDepthValue && depthMap.at<unsigned short>(l_row,l_col) > minDepthValue)
-			//~ {
-				//~ normalizedDepthMap.at<float>(l_row,l_col) = ((float)depthMap.at<unsigned short>(l_row,l_col) - minDepthValue) / (maxDepthValue-minDepthValue);
-			//~ }
 			if (depthMap.at<unsigned short>(l_row,l_col) <= minDepthValue)
 			{
 				normalizedDepthMap.at<float>(l_row,l_col) = 0.0f;
@@ -288,5 +280,5 @@ void SWKinect::normalizeDepthImage(void)
 			}
 		}
 	}
-	//~ std::cout << "normalizedDepthMap.at<float>(l_row,l_col) = " <<normalizedDepthMap.at<float>(depthMap.rows/2,depthMap.cols/2) <<std::endl;
+//    std::cout << "normalizedDepthMap.at<float>(l_row,l_col) = " <<normalizedDepthMap.at<float>(depthMap.rows/2,depthMap.cols/2) <<std::endl;
 }

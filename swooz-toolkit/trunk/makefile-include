@@ -97,8 +97,9 @@ INC_FACELAB     = -I$(THIRD_PARTY_FACELAB)/coredata/include\
 
 INC_TOBII       = -I$(THIRD_PARTY_TOBII)/win32/includes\
 
-INC_OPENNI	= -I$(THIRD_PARTY_OPENNI)/Include
+INC_OPENNI	= -I$(THIRD_PARTY_OPENNI)/Include\
 
+INC_LEAP        = -I"$(THIRD_PARTY_LEAP)"/include\
 
 ############################ DEPENDENCIES
 
@@ -125,6 +126,8 @@ SW_FASTRAK_THREAD 	= $(SW_FASTRAK) $(INC_BOOST)
 SW_FACELAB		= $(COMMON) $(INC_COREDATA) $(INC_BOOST)
 
 SW_SDIMENCO3DPLAY   	= $(COMMON) $(INC_OPENCV)
+
+SW_LEAP                 = $(COMMON) $(INC_LEAP)
 
 
 !IF  "$(CFG)" == "Release"
