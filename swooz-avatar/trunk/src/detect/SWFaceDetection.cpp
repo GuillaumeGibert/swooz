@@ -122,45 +122,46 @@ bool SWFaceDetection::detectFace(const cv::Mat &oRgbImg)
         m_oLastDetectFace = m_oRects[0];
 
 
-        //
-        m_lFaceRects.push_front(m_oLastDetectFace);
+        // TESTS
+//        //
+//        m_lFaceRects.push_front(m_oLastDetectFace);
 
-        // 	pop first result in the list if the size is over the k window
-        while(5 < m_lFaceRects.size())
-        {
-            m_lFaceRects.pop_back();
-        }
-
-        cv::Rect l_oSmoothedRect;
-        l_oSmoothedRect.x = 0;
-        l_oSmoothedRect.y = 0;
-        l_oSmoothedRect.width = 0;
-        l_oSmoothedRect.height = 0;
-
-        for (std::list<cv::Rect>::iterator it= m_lFaceRects.begin(); it != m_lFaceRects.end(); ++it)
-        {
-            l_oSmoothedRect.x += (*it).x;
-            l_oSmoothedRect.y += (*it).y;
-            l_oSmoothedRect.width += (*it).width;
-            l_oSmoothedRect.height += (*it).height;
-        }
-
-        l_oSmoothedRect.x /= m_lFaceRects.size();
-        l_oSmoothedRect.y /= m_lFaceRects.size();
-        l_oSmoothedRect.width /= m_lFaceRects.size();
-        l_oSmoothedRect.height /= m_lFaceRects.size();
-
-//        if((m_oLastDetectFace.x - l_oSmoothedRect.x)*(m_oLastDetectFace.x - l_oSmoothedRect.x) == 1)
+//        // 	pop first result in the list if the size is over the k window
+//        while(5 < m_lFaceRects.size())
 //        {
-//            l_oSmoothedRect.x = m_oLastDetectFace.x;
+//            m_lFaceRects.pop_back();
 //        }
 
-//        if((m_oLastDetectFace.y - l_oSmoothedRect.y)*(m_oLastDetectFace.y - l_oSmoothedRect.y) == 1)
+//        cv::Rect l_oSmoothedRect;
+//        l_oSmoothedRect.x = 0;
+//        l_oSmoothedRect.y = 0;
+//        l_oSmoothedRect.width = 0;
+//        l_oSmoothedRect.height = 0;
+
+//        for (std::list<cv::Rect>::iterator it= m_lFaceRects.begin(); it != m_lFaceRects.end(); ++it)
 //        {
-//            l_oSmoothedRect.y = m_oLastDetectFace.y;
+//            l_oSmoothedRect.x += (*it).x;
+//            l_oSmoothedRect.y += (*it).y;
+//            l_oSmoothedRect.width += (*it).width;
+//            l_oSmoothedRect.height += (*it).height;
 //        }
 
-        m_oLastDetectFace = l_oSmoothedRect;
+//        l_oSmoothedRect.x /= m_lFaceRects.size();
+//        l_oSmoothedRect.y /= m_lFaceRects.size();
+//        l_oSmoothedRect.width /= m_lFaceRects.size();
+//        l_oSmoothedRect.height /= m_lFaceRects.size();
+
+////        if((m_oLastDetectFace.x - l_oSmoothedRect.x)*(m_oLastDetectFace.x - l_oSmoothedRect.x) == 1)
+////        {
+////            l_oSmoothedRect.x = m_oLastDetectFace.x;
+////        }
+
+////        if((m_oLastDetectFace.y - l_oSmoothedRect.y)*(m_oLastDetectFace.y - l_oSmoothedRect.y) == 1)
+////        {
+////            l_oSmoothedRect.y = m_oLastDetectFace.y;
+////        }
+
+//        m_oLastDetectFace = l_oSmoothedRect;
 
         return true;
     }
@@ -183,13 +184,47 @@ void SWFaceDetection::displayFace(cv::Mat &oRgbImg, cv::Scalar oColor)
     }
 }
 
+//cv::Point3f SWFaceDetection::computeNoseTip(cv::Mat &oFaceDepth, int &idX, int &idY)
+//{
+//    float l_fMinDist = FLT_MAX;
+//    cv::Point3f l_oNoseTip;
+
+//    // retrieve the nose part of the depth image
+//    for(int ii = oFaceDepth.rows/2; ii < oFaceDepth.rows; ++ii)  // /2 for avoiding the forehead   // TODO : to be parametered
+//    {
+//        for(int jj = 0; jj < oFaceDepth.cols; ++jj)
+//        {
+//            float l_fCurrDepth = oFaceDepth.at<cv::Vec3f>(ii,jj)[2]; // retrieve current depth
+
+//            if(l_fCurrDepth == 0)
+//            {
+//                // if null value go to the next value
+//                continue;
+//            }
+
+//            if(l_fCurrDepth < l_fMinDist)
+//            {
+//                l_fMinDist = l_fCurrDepth;
+//                idX = jj;
+//                idY = ii;
+//            }
+//        }
+//    }
+
+//    l_oNoseTip = oFaceDepth.at<cv::Vec3f>(idY,idX);
+
+//    return l_oNoseTip;
+//}
+
+
 cv::Point3f SWFaceDetection::computeNoseTip(cv::Mat &oFaceDepth, int &idX, int &idY)
 {
     float l_fMinDist = FLT_MAX;
     cv::Point3f l_oNoseTip;
 
-    // retrieve the nose part of the depth image
-    for(int ii = oFaceDepth.rows/2; ii < oFaceDepth.rows; ++ii)  // /2 for avoiding the forehead   // TODO : to be parametered
+    // find the closest point
+
+    for(int ii = 0; ii < oFaceDepth.rows; ++ii)
     {
         for(int jj = 0; jj < oFaceDepth.cols; ++jj)
         {
@@ -204,15 +239,69 @@ cv::Point3f SWFaceDetection::computeNoseTip(cv::Mat &oFaceDepth, int &idX, int &
             if(l_fCurrDepth < l_fMinDist)
             {
                 l_fMinDist = l_fCurrDepth;
-                idX = jj;
-                idY = ii;
             }
         }
     }
 
-    l_oNoseTip = oFaceDepth.at<cv::Vec3f>(idY,idX);
+//    float l_fMaxDist = l_fMinDist + 0.0015;
+    float l_fMaxDist = l_fMinDist + 0.0035;
+//    float l_fMaxDist = l_fMinDist + 0.0001;
+
+    struct PointCoordinate
+    {
+        int ii;
+        int jj;
+    };
+
+    std::vector<PointCoordinate> l_oMinPoints;
+
+    for(int ii = 0; ii < oFaceDepth.rows; ++ii)
+    {
+        for(int jj = 0; jj < oFaceDepth.cols; ++jj)
+        {
+            float l_fCurrDepth = oFaceDepth.at<cv::Vec3f>(ii,jj)[2]; // retrieve current depth
+
+            if(l_fCurrDepth == 0)
+            {
+                // if null value go to the next value
+                continue;
+            }
+
+            if(l_fCurrDepth < l_fMaxDist)
+            {
+                PointCoordinate pt;
+                pt.ii = ii;
+                pt.jj = jj;
+                l_oMinPoints.push_back(pt);
+            }
+
+
+        }
+    }
+
+
+    int l_i32SumII = 0;
+    int l_i32SumJJ = 0;
+
+    for(int ii = 0; ii < l_oMinPoints.size(); ++ii)
+    {
+        l_i32SumII += l_oMinPoints[ii].ii;
+        l_i32SumJJ += l_oMinPoints[ii].jj;
+    }
+
+    l_i32SumII /= l_oMinPoints.size();
+    l_i32SumJJ /= l_oMinPoints.size();
+
+    std::cout << "TEST : " << l_oMinPoints.size() << " " << l_i32SumII << " " << l_i32SumJJ << std::endl;
+
+
+    idY = l_i32SumII;
+    idX = l_i32SumJJ;
+
+    l_oNoseTip = oFaceDepth.at<cv::Vec3f>(l_i32SumII,l_i32SumJJ);
 
     return l_oNoseTip;
+
 }
 
 //cv::Point3f SWFaceDetection::computeNoseTip(cv::Mat &oFaceDepth, int &idX, int &idY)

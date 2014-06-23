@@ -74,34 +74,3 @@ void main(void)
             fragColor = textureColor * vec4(ambiantLight + diffusLight + specularLight, opacity);
         }
 }
-
-////Calculate the half vector between the light vector and the view vector.
-////This is faster than calculating the actual reflective vector.
-//float3 H = normalize( lightDir + viewDir );
-
-////Intensity of the specular light
-//float NdotH = dot( normal, H );
-//intensity = pow( saturate( NdotH ), specularHardness );
-
-////Sum up the specular light factoring
-//OUT.Specular = intensity * light.specularColor * light.specularPower / l_distance;
-
-////////////////////////////// specular
-
-//    vec3 v = normalize(eyePosition-Vertex);
-
-//    vec3 temp = lightDir+v;
-////    if(temp[0] < 0) temp[0] = - temp[0];
-////    if(temp[1] < 0) temp[1] = - temp[1];
-////    if(temp[2] < 0) temp[2] = - temp[2];
-
-//    vec3 h = (lightDir+v)/temp;
-
-
-// blinn phong
-    // ambiant
-//            vec3 ambiantLight = lAmbiant * kAmbiant / l_distance;
-//        // diffus
-//            vec3 diffusLight = lDiffus * clamp(dot(normalize(Normal), lightDir),0.0, 1.0) * kDiffus / l_distance; //(l_distance*l_distance);
-//        // specular
-//            vec3 specularLight = pow(smoothstep(0, 1,dot(Normal, h)), specularCoeff) * kSpecular * lSpecular / l_distance;

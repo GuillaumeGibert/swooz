@@ -230,7 +230,18 @@ void SWGLMeshWidget::drawMesh()
     }
 
     m_oShaderMesh.setUniformValue("mvpMatrix", m_oMVPMatrix);
-    m_oShaderMesh.setUniformValue("applyTexture", m_bApplyTexture);
+
+    int l_i32DisplayMode = 0;
+
+    if(m_bApplyTexture)
+    {
+        l_i32DisplayMode = 2;
+    }
+
+    m_oShaderMesh.setUniformValue("displayMode", l_i32DisplayMode);
+
+    m_oShaderMesh.setUniformValue("viewDirection", -m_pCamera->viewDirection());
+
 
     drawBufferWithTexture(m_indexBufferMesh, m_vertexBufferMesh, m_textureBufferMesh, m_normalBufferMesh, m_oShaderMesh, GL_TRIANGLES);
 
