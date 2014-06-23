@@ -5,7 +5,9 @@ Links :
 
  * [SWoOZ Website](http://swooz.free.fr/)
  * [SWoOZ Wiki](https://github.com/GuillaumeGibert/swooz/wiki)
- * [SWoOZ Videos](https://github.com/GuillaumeGibert/swooz/wiki/videos)
+ * SWoOZ Videos :
+    * [Teleoperation](https://github.com/GuillaumeGibert/swooz/wiki/videos_teleop)
+    * [Avatars](https://github.com/GuillaumeGibert/swooz/wiki/videos_avatars)
 
 Description :
 -------------
