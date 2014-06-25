@@ -127,7 +127,7 @@ SW_FACELAB		= $(COMMON) $(INC_COREDATA) $(INC_BOOST)
 
 SW_SDIMENCO3DPLAY   	= $(COMMON) $(INC_OPENCV)
 
-SW_LEAP                 = $(COMMON) $(INC_LEAP)
+SW_LEAP                 = $(COMMON) $(INC_LEAP) $(INC_BOOST)
 
 
 !IF  "$(CFG)" == "Release"

@@ -15,8 +15,8 @@ namespace swTracking
 {
     enum DeviceLib
     {
-        FOREST_LIB,EMICP_LIB,COREDATA_LIB,FASTRAK_LIB,STASM_LIB,FORTH_LIB,TOBII_LIB,FACESHIFT_LIB,OPENNI_LIB,
-        RankFirst = FOREST_LIB, RankLast = OPENNI_LIB
+        FOREST_LIB,EMICP_LIB,COREDATA_LIB,FASTRAK_LIB,STASM_LIB,FORTH_LIB,TOBII_LIB,FACESHIFT_LIB,OPENNI_LIB,LEAP_LIB,
+        RankFirst = FOREST_LIB, RankLast = LEAP_LIB
     };
 
     /**
@@ -57,6 +57,9 @@ namespace swTracking
             case swTracking::OPENNI_LIB :
                 l_sLIB = "OPENNI_LIB";
             break;
+			case swTracking::LEAP_LIB :
+                l_sLIB = "LEAP_LIB";
+            break;			
         }
 
         return l_sLIB;

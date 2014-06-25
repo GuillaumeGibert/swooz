@@ -510,7 +510,7 @@ void SWGLOptimalStepNonRigidICP::paintGL()
         l_oViewMatrix.setToIdentity();
 
     // set camera vue
-        l_oViewMatrix.lookAt( m_pCamera->eyePosition(), m_pCamera->viewDirection(), m_pCamera->up());
+        l_oViewMatrix.lookAt( m_pCamera->eyePosition(), m_pCamera->lookAt(), m_pCamera->up());
 
     // comput MVP matrix
         QMatrix4x4 l_oModelMatrix;

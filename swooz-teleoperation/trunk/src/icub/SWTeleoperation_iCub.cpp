@@ -8,6 +8,9 @@
 #include "icub/SWTeleoperation_iCub.h"
 
 
+YARP_DECLARE_DEVICES(icubmod)
+
+
 SWTeleoperation_iCub::SWTeleoperation_iCub() : m_bIsRunning(false)
 {}
 
@@ -27,16 +30,29 @@ bool SWTeleoperation_iCub::configure(ResourceFinder &rf)
     // init sub control mobules
         m_bHeadInitialized = m_oIcubHeadControl.init(rf);
         m_bTorsoInitialized = m_oIcubTorsoControl.init(rf);
-
-        std::cout << "init left arm " << std::endl;
         m_bLeftArmInitialized = m_oIcubLeftArmControl.init(rf, true);
-        std::cout << "init right arm " << std::endl;
         m_bRightArmInitialized = m_oIcubRightArmControl.init(rf, false);
 
-        std::cout << "init total : " << m_bHeadInitialized << " " << m_bTorsoInitialized << " " << m_bLeftArmInitialized << " " << m_bRightArmInitialized << std::endl;
+        if(m_bHeadInitialized)
+        {
+            std::cout << "ICub head initialized. " << std::endl;
+        }
+        if(m_bTorsoInitialized)
+        {
+            std::cout << "ICub torso initialized. " << std::endl;
+        }
+        if(m_bLeftArmInitialized)
+        {
+            std::cout << "ICub left arm initialized. " << std::endl;
+        }
+        if(m_bRightArmInitialized)
+        {
+            std::cout << "ICub right arm initialized. " << std::endl;
+        }
 
         if(!m_bHeadInitialized && !m_bTorsoInitialized && !m_bLeftArmInitialized && !m_bRightArmInitialized)
         {
+            std::cerr << "No iCub parts initialized, end of the teleoperation. " << std::endl;
             return false;
         }
 
@@ -134,6 +150,8 @@ double SWTeleoperation_iCub::getPeriod()
 
 int main(int argc, char* argv[])
 {
+    YARP_REGISTER_DEVICES(icubmod);
+
     /* initialize yarp network */
     Network yarp;
     if (!yarp.checkNetwork())

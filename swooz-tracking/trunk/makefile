@@ -45,10 +45,14 @@ OBJ_TRACKING_FORTH=\
 OBJ_TRACKING_FAKE=\
         $(LIBDIR)/SWFakeTracking_d.obj\
 
+OBJ_TRACKING_LEAP=\
+        $(DIST_LIBDIR)/SWLeap_d.obj\
+        $(LIBDIR)/SWLeapTracking_d.obj\
+
 ############################################################################## Makefile commands
 
 !if  "$(ARCH)" == "x86"
-all: trackingHeadForest trackingHeadEmicp trackingHeadForest trackingFaceLab trackingFaceShift trackingOpenNI trackingFake
+all: trackingHeadForest trackingHeadEmicp trackingHeadForest trackingFaceLab trackingFaceShift trackingOpenNI trackingFake trackingLeap
 !endif
 
 !if "$(ARCH)" == "amd64"
@@ -62,6 +66,7 @@ trackingHeadEmicp  : $(QTGENW_RGBD)/SWUI_WEmicpHeadTracking.h $(MOCDIR)/moc_SWEm
 trackingOpenNI     : $(BINDIR)/SWOpenNITracking.exe
 trackingForth      : $(BINDIR)/SWForthTracking.exe
 trackingFake       : $(BINDIR)/SWFakeTracking.exe
+trackingLeap	   : $(BINDIR)/SWLeapTracking.exe
 
 clean:
 
@@ -91,6 +96,9 @@ $(BINDIR)/SWForthTracking.exe: $(OBJ_TRACKING_FORTH) $(LIBS_FORTH_TRACK)
 
 $(BINDIR)/SWFakeTracking.exe: $(OBJ_TRACKING_FAKE) $(LIBS_FAKE_TRACK)
         $(LINK) /OUT:$(BINDIR)/SWFakeTracking.exe $(LFLAGS) $(OBJ_TRACKING_FAKE) $(LIBS_FAKE_TRACK) $(WIN_CONFIG)
+
+$(BINDIR)/SWLeapTracking.exe: $(OBJ_TRACKING_LEAP) $(LIBS_LEAP_TRACK)
+        $(LINK) /OUT:$(BINDIR)/SWLeapTracking.exe $(LFLAGS) $(OBJ_TRACKING_LEAP) $(LIBS_LEAP_TRACK) $(WIN_CONFIG)
 
 ############################################################################## OPENNI TRACKING OBJ
 
@@ -134,10 +142,15 @@ $(LIBDIR)/SWFaceShiftTracking_d.obj: ./src/rgbd/SWFaceShiftTracking.cpp
 $(LIBDIR)/SWEmicpHeadTracking_d.obj: ./src/rgbd/SWEmicpHeadTracking.cpp
         $(CC) -c ./src/rgbd/SWEmicpHeadTracking.cpp $(CFLAGS_DYN) $(SW_EMICPHEADTRACKING) -Fo"$(LIBDIR)/SWEmicpHeadTracking_d.obj"
 
-############################################################################## FALE TRACKING OBJ
+############################################################################## FAKE TRACKING OBJ
 
 $(LIBDIR)/SWFakeTracking_d.obj: ./src/SWFakeTracking.cpp
         $(CC) -c ./src/SWFakeTracking.cpp $(CFLAGS_DYN) $(SW_FAKETRACKING) -Fo"$(LIBDIR)/SWFakeTracking_d.obj"
+
+############################################################################## LEAP TRACKING OBJ
+
+$(LIBDIR)/SWLeapTracking_d.obj: ./src/leap/SWLeapTracking.cpp
+        $(CC) -c ./src/leap/SWLeapTracking.cpp $(CFLAGS_DYN) $(SW_LEAPTRACKING) -Fo"$(LIBDIR)/SWLeapTracking_d.obj"
 
 ############################################################################## Qt ui files
 

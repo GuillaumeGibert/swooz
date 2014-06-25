@@ -50,94 +50,133 @@ namespace swDevice
 			 */			
 			virtual void stop();
 
-			/**
-			 * \Return the Coordinate of a ui32NumFinger : X = 0, Y = 1, Z = 2 => ui32NumCoord
-			 */					
+            /**
+             * @brief Return the Coordinate of a finger : X = 0, Y = 1, Z = 2 => ui32NumCoord
+             * @param ui32NumFinger
+             * @param ui32NumCoord
+             * @param isleft
+             * @return
+             */
 			float getFingerCoords(cuint ui32NumFinger,cuint ui32NumCoord,bool isleft);
 
-			/**
-			 * \Return the Direction of a ui32NumFinger : X = 0, Y = 1, Z = 2 => ui32NumDir
-			 */	
+            /**
+             * @brief Return the Direction of a ui32NumFinger : X = 0, Y = 1, Z = 2 => ui32NumDir
+             * @param ui32NumFinger
+             * @param ui32NumDir
+             * @param isleft
+             * @return
+             */
 			float getFingerDirection(cuint ui32NumFinger,cuint ui32NumDir,bool isleft);
 
-			/**
-			 * \Return the Coordinate of the palm : X = 0, Y = 1, Z = 2 => ui32NumCoord
-			 */	
+            /**
+             * @brief Return the Coordinate of the palm : X = 0, Y = 1, Z = 2 => ui32NumCoord
+             * @param ui32NumCoord
+             * @param isleft
+             * @return
+             */
 			float getPalmCoords(cuint ui32NumCoord,bool isleft);
 
-			/**
-			 * \Return the Coordinate of the Sphere : X = 0, Y = 1, Z = 2 => ui32NumCoord
-			 */	
+            /**
+             * @brief Return the Coordinate of the Sphere : X = 0, Y = 1, Z = 2 => ui32NumCoord
+             * @param ui32NumCoord
+             * @param isleft
+             * @return
+             */
 			float getHandSphereCoords(cuint ui32NumCoord,bool isleft);
 
-			/**
-			 * \Return the Radius of the sphere in the hand
-			 */	
+            /**
+             * @brief Return the Radius of the sphere in the hand
+             * @param isleft
+             * @return
+             */
 			float getHandSphereRadius(bool isleft);
 
-			/**
-			 * \Return the pitch of the Hand
-			 */	
+            /**
+             * @brief Return the pitch of the Hand
+             * @param isleft
+             * @return
+             */
 			float getHandPitch(bool isleft);
 
-			/**
-			 * \Return the Roll of the Hand
-			 */	
+            /**
+             * @brief Return the Roll of the Hand
+             * @param isleft
+             * @return
+             */
 			float getHandRoll(bool isleft);
 
-			/**
-			 * \Return the Yaw of the Hand
-			 */	
+            /**
+             * @brief Return the Yaw of the Hand
+             * @param isleft
+             * @return
+             */
 			float getHandYaw(bool isleft);
 			
-			/**
-			 * \Return the frame Rate of the module
-			 */	
+            /**
+             * @brief Return the frame Rate of the module
+             * @return
+             */
 			float getFPS();
 
-			/**
-			 * \brief Extract Pitch, Roll and Yaw from a Leap::Matrix : Bone rotation
-			 * \Return the angles to achive this rotation.
-			 */	
+            /**
+             * @brief Extract Pitch, Roll and Yaw from a Leap::Matrix : Bone rotation
+             * @param l_LeapMatrix
+             * @return Return the angles to achive this rotation.
+             */
 			std::vector<double> computeEulerYPRAngles(Leap::Matrix l_LeapMatrix);
 
-			/**
-			 * \brief Call ComputeEuler YPRAngles for each Bone
-			 * \Return the angles to achive the rotation.
-			 */	
+            /**
+             * @brief Call ComputeEuler YPRAngles for each Bone
+             * @param l_bone
+             * @return Return the angles to achive the rotation.
+             */
 			std::vector<double> setBoneRotation(Leap::Bone l_bone);
 
-			/**
-			 * \Return the rotation of a bone : ui32NumCouple of a finger : ui32NumFinger
-			 */	
+            /**
+             * @brief Return the rotation of a bone : ui32NumCouple of a finger : ui32NumFinger
+             * @param ui32NumFinger
+             * @param ui32NumCouple
+             * @param isleft
+             * @return
+             */
 			double getFingerRotation(cuint ui32NumFinger, cuint ui32NumCouple,bool isleft);
 
-			/**
-			 * \Return a vector of Coordinate of the Palm of an hand
-			 */	
+            /**
+             * @brief Return a vector of Coordinate of the Palm of an hand
+             * @param hand
+             * @return
+             */
 			std::vector<float> getHandPalmCoord(Leap::Hand hand);
 
-			/**
-			 * \Return the center of the sphere of an hand
-			 */	
+            /**
+             * @brief Return the center of the sphere of an hand
+             * @param hand
+             * @return
+             */
 			std::vector<float> getHandSphereCenter(Leap::Hand hand);
 
-			/**
-			 * \brief Update member variables of pitch, roll and yaw
-			 * \Return true if no issue detected
-			 */	
+            /**
+             * @brief Update member variables of pitch, roll and yaw
+             * @param hand
+             * @param isleft
+             * @return true if no issue detected
+             */
 			bool setHandRotation(Leap::Hand hand,bool isleft);
 
-			/**
-			 * \brief Update member variables of fingers
-			 * \Return true if no issue detected
-			 */	
+            /**
+             * @brief Update member variables of fingers
+             * @param frame
+             * @param l_fingers
+             * @param isleft
+             * @return true if no issue detected
+             */
 			bool setFingers(Leap::Frame frame,Leap::FingerList l_fingers,bool isleft);
 
-			/**
-			 * \brief Update member variables of bones
-			 * \Return true if no issue detected
-			 */	
+            /**
+             * @brief Update member variables of bones
+             * @param isleft
+             * @return true if no issue detected
+             */
 			bool setBones(bool isleft);
 
 		
@@ -170,6 +209,8 @@ namespace swDevice
 			Leap::Finger m_leftMiddle; /**< Leap Object : leftMiddle*/ 
 			Leap::Finger m_leftRing;   /**< Leap Object : leftRing*/ 
 			Leap::Finger m_leftPinky;  /**< Leap Object : leftPinky*/ 
+
+
 		
 			//Bones rotation
 			double m_leftThumbB01Rot;  /**< thumb left bone 0 and 1 rotation => 1 joint*/
@@ -228,13 +269,20 @@ namespace swDevice
 
 		//INDEPENDANT
 			//FRAME PER SECOND
-			float m_fps; /**< Number Frame per second */ 
+            float m_fps; /**< Number Frame per second */  // TODO : EURRRRRRRRRGH
 
 			bool m_bisleft; /**< Bool to know if we are on the left hand or the right one*/ 
 			
 			//TEST ROTATION
 			std::vector<double> m_tempRotation; /**< Varaible to keep the metacarp rotation */ 
 			bool isMetacarp; /**<True is we working of the metacarp */ 
+
+
+
+            // replacement
+//            int m_fps;
+            std::vector<Leap::Finger> m_vLeftFingers;  /**< arrays of left fingers, order : thunb, index, middle, ring, pinky */
+            std::vector<Leap::Finger> m_vRightFingers; /**< arrays of right fingers, order : thunb, index, middle, ring, pinky */
 	};
 }
 

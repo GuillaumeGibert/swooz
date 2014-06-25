@@ -105,7 +105,7 @@
            <item>
             <widget class="QTabWidget" name="twParameters">
              <property name="currentIndex">
-              <number>3</number>
+              <number>2</number>
              </property>
              <widget class="QWidget" name="tabFilters">
               <attribute name="title">
@@ -113,7 +113,7 @@
               </attribute>
               <layout class="QGridLayout" name="glFilters_2">
                <item row="0" column="0">
-                <layout class="QGridLayout" name="glFilters" rowstretch="1,1,1,1,0,0,0" columnstretch="1,1,1,1">
+                <layout class="QGridLayout" name="glFilters" rowstretch="1,1,1,1,0,0" columnstretch="1,1,1,1">
                  <item row="4" column="3" alignment="Qt::AlignHCenter">
                   <widget class="QSpinBox" name="sbColor">
                    <property name="maximum">
@@ -153,10 +153,10 @@
                  <item row="0" column="3" alignment="Qt::AlignHCenter">
                   <widget class="QSpinBox" name="sbClouds">
                    <property name="minimum">
-                    <number>1</number>
+                    <number>3</number>
                    </property>
                    <property name="maximum">
-                    <number>500</number>
+                    <number>200</number>
                    </property>
                    <property name="value">
                     <number>50</number>
@@ -475,6 +475,115 @@
                    </property>
                    <property name="value">
                     <double>0.150000000000000</double>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
+             <widget class="QWidget" name="tabEMICP">
+              <attribute name="title">
+               <string>EM-ICP</string>
+              </attribute>
+              <layout class="QGridLayout" name="gridLayout_4">
+               <item row="0" column="0">
+                <layout class="QGridLayout" name="glEMICP">
+                 <item row="3" column="0">
+                  <widget class="QLabel" name="laFactor">
+                   <property name="text">
+                    <string>Factor</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="0">
+                  <widget class="QLabel" name="laDistance">
+                   <property name="text">
+                    <string>Distance</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="1">
+                  <widget class="QDoubleSpinBox" name="dsbStart">
+                   <property name="minimum">
+                    <double>0.100000000000000</double>
+                   </property>
+                   <property name="maximum">
+                    <double>10.000000000000000</double>
+                   </property>
+                   <property name="singleStep">
+                    <double>0.100000000000000</double>
+                   </property>
+                   <property name="value">
+                    <double>1.000000000000000</double>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="1">
+                  <widget class="QDoubleSpinBox" name="dsbEnd">
+                   <property name="decimals">
+                    <number>6</number>
+                   </property>
+                   <property name="minimum">
+                    <double>0.000100000000000</double>
+                   </property>
+                   <property name="maximum">
+                    <double>0.100000000000000</double>
+                   </property>
+                   <property name="singleStep">
+                    <double>0.001000000000000</double>
+                   </property>
+                   <property name="value">
+                    <double>0.001000000000000</double>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="0">
+                  <widget class="QLabel" name="laStart">
+                   <property name="text">
+                    <string>Start </string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="0">
+                  <widget class="QLabel" name="laEnd">
+                   <property name="text">
+                    <string>End</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="1">
+                  <widget class="QDoubleSpinBox" name="dsbFactor">
+                   <property name="minimum">
+                    <double>0.500000000000000</double>
+                   </property>
+                   <property name="maximum">
+                    <double>0.990000000000000</double>
+                   </property>
+                   <property name="singleStep">
+                    <double>0.010000000000000</double>
+                   </property>
+                   <property name="value">
+                    <double>0.900000000000000</double>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="1">
+                  <widget class="QDoubleSpinBox" name="dsbDistance">
+                   <property name="decimals">
+                    <number>6</number>
+                   </property>
+                   <property name="minimum">
+                    <double>0.000010000000000</double>
+                   </property>
+                   <property name="maximum">
+                    <double>0.001000000000000</double>
+                   </property>
+                   <property name="singleStep">
+                    <double>0.000010000000000</double>
+                   </property>
+                   <property name="value">
+                    <double>0.000100000000000</double>
                    </property>
                   </widget>
                  </item>

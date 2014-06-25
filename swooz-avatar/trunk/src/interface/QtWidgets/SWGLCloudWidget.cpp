@@ -28,8 +28,6 @@ SWGLCloudWidget::~SWGLCloudWidget()
 
 void SWGLCloudWidget::initializeGL()
 {
-    qDebug() << "initializeGL ";
-
     // set perspective
         m_rZNear = 0.01;
         m_rZFar  = 100.0;
@@ -57,9 +55,6 @@ void SWGLCloudWidget::initializeGL()
 
     // start timer
         m_oTimer->start(1000/30, this);
-
-
-        qDebug() << "initializeGL";
 }
 
 void SWGLCloudWidget::paintGL()
@@ -72,7 +67,7 @@ void SWGLCloudWidget::paintGL()
     l_oViewMatrix.setToIdentity();
 
     // set camera vue
-    l_oViewMatrix.lookAt( m_pCamera->eyePosition(), m_pCamera->viewDirection(), m_pCamera->up());
+    l_oViewMatrix.lookAt( m_pCamera->eyePosition(), m_pCamera->lookAt(), m_pCamera->up());
 
     // comput MVP matrix
     QMatrix4x4 l_oModelMatrix;
@@ -205,6 +200,7 @@ void SWGLCloudWidget::setDepthRect(const double dDepth)
 {
     m_fDepthRect = static_cast<float>(dDepth);
 }
+
 
 void SWGLCloudWidget::drawCloud(QGLShaderProgram &oShader, cfloat fSizePoint, QMatrix4x4 &mvpMatrix)
 {   

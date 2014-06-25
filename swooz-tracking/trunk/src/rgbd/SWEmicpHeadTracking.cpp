@@ -128,8 +128,6 @@ void SWEmicpHeadTrackingWorker::doWork()
             }
 
 
-
-
             cv::Mat l_oCloud = m_oKinectThread.cloudMap();
 
         // resize the rgb mat
@@ -240,6 +238,7 @@ void SWEmicpHeadTrackingWorker::doWork()
     m_oCaptureHeadMotion.reset();
     m_bWorkStopped = true;
 }
+
 
 void SWEmicpHeadTrackingWorker::stopWork()
 {

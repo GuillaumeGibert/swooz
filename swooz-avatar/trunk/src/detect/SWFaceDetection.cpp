@@ -243,9 +243,8 @@ cv::Point3f SWFaceDetection::computeNoseTip(cv::Mat &oFaceDepth, int &idX, int &
         }
     }
 
-//    float l_fMaxDist = l_fMinDist + 0.0015;
-    float l_fMaxDist = l_fMinDist + 0.0035;
-//    float l_fMaxDist = l_fMinDist + 0.0001;
+    float l_fMaxDist = l_fMinDist + 0.0035f;
+//    float l_fMaxDist = l_fMinDist + 0.01f;
 
     struct PointCoordinate
     {
@@ -274,8 +273,6 @@ cv::Point3f SWFaceDetection::computeNoseTip(cv::Mat &oFaceDepth, int &idX, int &
                 pt.jj = jj;
                 l_oMinPoints.push_back(pt);
             }
-
-
         }
     }
 
@@ -283,7 +280,7 @@ cv::Point3f SWFaceDetection::computeNoseTip(cv::Mat &oFaceDepth, int &idX, int &
     int l_i32SumII = 0;
     int l_i32SumJJ = 0;
 
-    for(int ii = 0; ii < l_oMinPoints.size(); ++ii)
+    for(uint ii = 0; ii < l_oMinPoints.size(); ++ii)
     {
         l_i32SumII += l_oMinPoints[ii].ii;
         l_i32SumJJ += l_oMinPoints[ii].jj;
@@ -291,8 +288,6 @@ cv::Point3f SWFaceDetection::computeNoseTip(cv::Mat &oFaceDepth, int &idX, int &
 
     l_i32SumII /= l_oMinPoints.size();
     l_i32SumJJ /= l_oMinPoints.size();
-
-    std::cout << "TEST : " << l_oMinPoints.size() << " " << l_i32SumII << " " << l_i32SumJJ << std::endl;
 
 
     idY = l_i32SumII;

@@ -57,6 +57,20 @@ class SWGLWidget : public QGLWidget
 
 
         /**
+         * @brief setCameraMode
+         * @param oCameraMode
+         */
+        void setCameraMode(const SWQtCamera::CameraMode oCameraMode);
+
+        /**
+         * @brief setCameraInitial
+         * @param oEyePositionInitial
+         * @param oLookAtInitial
+         * @param oUpInitial
+         */
+        void setCameraInitial(const QVector3D &oEyePositionInitial, const QVector3D &oLookAtInitial, const QVector3D &oUpInitial);
+
+        /**
          * @brief setPerspective
          * @param [in] rFOV   : ...
          * @param [in] rZNear : ...
@@ -176,8 +190,7 @@ class SWGLWidget : public QGLWidget
 
         QGLContext *m_glContext;        /**< opengl context */
 
-
-        QReadWriteLock m_oParamMutex; /**< ... */
+        QReadWriteLock m_oParamMutex;   /**< ... */
 };
      
 #endif

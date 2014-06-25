@@ -291,6 +291,18 @@ echo cd ../../scripts                                                           
 echo call win-clean-env_command.cmd                                                   >> %target_dist%\swooz-trackingFake.cmd
 echo cd ../dist                                                                         >> %target_dist%\swooz-trackingFake.cmd
 REM #######################################################################################
+REM ### Leap tracking
+echo @echo off                                                                          >  %target_dist%\swooz-trackingLeap.cmd
+echo %SystemRoot%\system32\xcopy /q /e /y %saved_directory%\..\swooz-config %saved_directory%\%target_dist%\data >> %target_dist%\swooz-trackingLeap.cmd
+echo pushd ..\scripts                                                                   >> %target_dist%\swooz-trackingLeap.cmd
+echo call win-init_env_command.cmd %ARCH_EXE_trackingLeap%                           >> %target_dist%\swooz-trackingLeap.cmd
+echo popd                                                                               >> %target_dist%\swooz-trackingLeap.cmd
+echo cd bin                                                                             >> %target_dist%\swooz-trackingLeap.cmd
+echo SWLeapTracking.exe %PARAMS_EXEC%                                                        >> %target_dist%\swooz-trackingLeap.cmd
+echo cd ../../scripts                                                                   >> %target_dist%\swooz-trackingLeap.cmd
+echo call win-clean-env_command.cmd                                                   >> %target_dist%\swooz-trackingLeap.cmd
+echo cd ../dist                                                                         >> %target_dist%\swooz-trackingLeap.cmd
+REM #######################################################################################
 REM ### Viewer
 echo @echo off                                                                          >  %target_dist%\swooz-viewer.cmd
 echo %SystemRoot%\system32\xcopy /q /e /y %saved_directory%\..\swooz-config %saved_directory%\%target_dist%\data >> %target_dist%\swooz-viewer.cmd

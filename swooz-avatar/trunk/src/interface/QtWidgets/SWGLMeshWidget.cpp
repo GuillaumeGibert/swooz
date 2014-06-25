@@ -17,8 +17,9 @@
 
 SWGLMeshWidget::SWGLMeshWidget(QGLContext *context, QWidget* parent, const QString &sVertexShaderPath, const QString &sFragmentShaderPath) :
     SWGLWidget(context, parent), m_sVertexShaderPath(sVertexShaderPath), m_sFragmentShaderPath(sFragmentShaderPath), m_pMesh(NULL),
-    m_bInitCamWithCloudPosition(true), m_bLinesRender(false), m_bApplyTexture(false), m_bNewMesh(false)
+    m_bLinesRender(false), m_bApplyTexture(false), m_bNewMesh(false)
 {}
+
 
 SWGLMeshWidget::~SWGLMeshWidget()
 {}
@@ -56,7 +57,6 @@ void SWGLMeshWidget::initializeGL()
         initMeshBuffers();
 }
 
-
 void SWGLMeshWidget::paintGL()
 {
     // set the size point
@@ -77,7 +77,7 @@ void SWGLMeshWidget::paintGL()
         l_oViewMatrix.setToIdentity();
 
     // set camera vue
-        l_oViewMatrix.lookAt( m_pCamera->eyePosition(), m_pCamera->viewDirection(), m_pCamera->up());
+        l_oViewMatrix.lookAt( m_pCamera->eyePosition(), m_pCamera->lookAt(), m_pCamera->up());
 
     // comput MVP matrix
         QMatrix4x4 l_oModelMatrix;
@@ -125,7 +125,7 @@ void SWGLMeshWidget::setMeshLinesRender(const bool bRenderLines)
     updateGL();
 }
 
-void SWGLMeshWidget::setMesh(swMesh::SWMesh *pMesh)
+void SWGLMeshWidget::setMesh(swMesh::SWMesh *pMesh, bool bResetCamera)
 {
     if(pMesh)
     {
@@ -139,21 +139,32 @@ void SWGLMeshWidget::setMesh(swMesh::SWMesh *pMesh)
         return;
     }
 
-    if(m_bInitCamWithCloudPosition)
+    if(m_pCamera->cameraMode() == SWQtCamera::TRACKBALL_CAMERA && bResetCamera)
+    {
+        std::vector<float> l_v3FMean = pMesh->cloud()->meanPoint();
+        QVector3D l_oEye,l_oLookAt;
+        l_oLookAt.setX(l_v3FMean[0]);
+        l_oLookAt.setY(l_v3FMean[1]);
+        l_oLookAt.setZ(l_v3FMean[2]);
+        l_oEye = l_oLookAt;
+        l_oEye.setZ(l_oEye.z() - 0.25f);
+
+        setCamera(l_oEye,l_oLookAt);
+        setCameraInitial(l_oEye,l_oLookAt, QVector3D(0,1,0));
+    }
+    else if(m_pCamera->cameraMode() == SWQtCamera::FPS_CAMERA && bResetCamera)
     {
         swCloud::SWCloudBBox l_oBBox = pMesh->cloud()->bBox();
         QVector3D l_oEye,l_oLookAt;
         l_oEye.setX((l_oBBox.m_fMaxX + l_oBBox.m_fMinX)/2);
         l_oEye.setY((l_oBBox.m_fMaxY + l_oBBox.m_fMinY)/2);
         l_oEye.setZ((l_oBBox.m_fMaxZ + l_oBBox.m_fMinZ)/2);
-
         l_oLookAt = l_oEye;
         l_oEye.setZ(l_oEye.z() - 0.25f);
         l_oLookAt.setZ(l_oLookAt.z() + 1.f);
 
         setCamera(l_oEye,l_oLookAt);
-
-        m_bInitCamWithCloudPosition = false;
+        setCameraInitial(l_oEye,l_oLookAt, QVector3D(0,1,0));
     }
 
     deleteAndNullify(m_pMesh);
@@ -240,7 +251,7 @@ void SWGLMeshWidget::drawMesh()
 
     m_oShaderMesh.setUniformValue("displayMode", l_i32DisplayMode);
 
-    m_oShaderMesh.setUniformValue("viewDirection", -m_pCamera->viewDirection());
+    m_oShaderMesh.setUniformValue("viewDirection", -m_pCamera->lookAt());
 
 
     drawBufferWithTexture(m_indexBufferMesh, m_vertexBufferMesh, m_textureBufferMesh, m_normalBufferMesh, m_oShaderMesh, GL_TRIANGLES);

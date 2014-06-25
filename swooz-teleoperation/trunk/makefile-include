@@ -93,12 +93,14 @@ INC_VS              = -I"$(PROGRAMFILES)/Microsoft SDKs/Windows/v7.0A/Include"\ 
 INC_YARP            = -I"$(THIRD_PARTY_YARP)"\include
 
 INC_NAO             = -I"$(THIRD_PARTY_NAOQI)"\include
+
+INC_ICUB            = -I"$(THIRD_PARTY_ICUB)"\include
 	
 ############################ DEPENDENCIES
 
 COMMON              = $(INC_TELEOPERATION) $(INC_OTHERS) $(INC_VS)
 
-SW_TELE_ICUB        = $(COMMON) $(INC_YARP)
+SW_TELE_ICUB        = $(COMMON) $(INC_YARP) $(INC_ICUB)
 
 SW_TELE_NAO  = $(COMMON) $(INC_NAO) $(INC_YARP)
 
@@ -120,15 +122,16 @@ LFLAGS=-nologo
 
 ############################ LIBS
 
-LIBS_YARP           =   $(THIRD_PARTY_YARP)/lib/YARP_sig.lib\
-                        $(THIRD_PARTY_YARP)/lib/YARP_OS.lib\
-                        $(THIRD_PARTY_YARP)/lib/YARP_dev.lib\
-                        $(THIRD_PARTY_YARP)/lib/YARP_init.lib\
-                        $(THIRD_PARTY_YARP)/lib/YARP_math.lib\
-                        $(THIRD_PARTY_YARP)/lib/yarpcar.lib\
-                        $(THIRD_PARTY_YARP)/lib/yarp_bayer.lib
+LIBS_YARP   =   $(THIRD_PARTY_YARP)/lib/YARP_sig.lib\
+                $(THIRD_PARTY_YARP)/lib/YARP_OS.lib\
+                $(THIRD_PARTY_YARP)/lib/YARP_dev.lib\
+                $(THIRD_PARTY_YARP)/lib/YARP_init.lib\
+                $(THIRD_PARTY_YARP)/lib/YARP_math.lib\
+                $(THIRD_PARTY_YARP)/lib/yarpcar.lib\
+                $(THIRD_PARTY_YARP)/lib/yarp_bayer.lib\
+                $(THIRD_PARTY_YARP)/lib/yarpmod.lib\
 					
-LIBS_ACE            =   $(THIRD_PARTY_ACE)/lib/ACE.lib
+LIBS_ACE    =   $(THIRD_PARTY_ACE)/lib/ACE.lib\
 
 LIBS_NAO    =   $(THIRD_PARTY_NAOQI)\lib\pthreadVC2.lib\
                 $(THIRD_PARTY_NAOQI)\lib\pthreadVCE2.lib\
@@ -158,12 +161,37 @@ LIBS_NAO    =   $(THIRD_PARTY_NAOQI)\lib\pthreadVC2.lib\
                 $(THIRD_PARTY_NAOQI)\lib\alvision.lib\
 
 
+LIBS_ICUB = $(THIRD_PARTY_ICUB)/lib/ctrlLib.lib\
+            $(THIRD_PARTY_ICUB)/lib/actionPrimitives.lib\
+            $(THIRD_PARTY_ICUB)/lib/boostMIL.lib\
+            $(THIRD_PARTY_ICUB)/lib/canLoaderLib.lib\
+            $(THIRD_PARTY_ICUB)/lib/cartesiancontrollerclient.lib\
+            $(THIRD_PARTY_ICUB)/lib/cartesiancontrollerserver.lib\
+            $(THIRD_PARTY_ICUB)/lib/controlboardwrapper2.lib\
+            $(THIRD_PARTY_ICUB)/lib/ctrlLib.lib\
+            $(THIRD_PARTY_ICUB)/lib/debugStream.lib\
+            $(THIRD_PARTY_ICUB)/lib/gazecontrollerclient.lib\
+            $(THIRD_PARTY_ICUB)/lib/iCubDev.lib\
+            $(THIRD_PARTY_ICUB)/lib/icubmod.lib\
+            $(THIRD_PARTY_ICUB)/lib/iCubTestLib.lib\
+            $(THIRD_PARTY_ICUB)/lib/iCubVis.lib\
+            $(THIRD_PARTY_ICUB)/lib/iDyn.lib\
+            $(THIRD_PARTY_ICUB)/lib/iKin.lib\
+            $(THIRD_PARTY_ICUB)/lib/learningMachine.lib\
+            $(THIRD_PARTY_ICUB)/lib/lib0.lib\
+            $(THIRD_PARTY_ICUB)/lib/lib1.lib\
+            $(THIRD_PARTY_ICUB)/lib/logpolar.lib\
+            $(THIRD_PARTY_ICUB)/lib/optimization.lib\
+            $(THIRD_PARTY_ICUB)/lib/perceptiveModels.lib\
+            $(THIRD_PARTY_ICUB)/lib/sharksWithLasers.lib\
+            $(THIRD_PARTY_ICUB)/lib/skinDynLib.lib\
 
-LIBS_GSL=   $(THIRD_PARTY_GSL)/lib/gsl.lib\
+
+LIBS_GSL =  $(THIRD_PARTY_GSL)/lib/gsl.lib\
             $(THIRD_PARTY_GSL)/lib/gslcblas.lib
 
 
-LIBS_TELEOP_ICUB    =   $(LIBS_YARP)  $(LIBS_ACE)  $(LIBS_COMMON)
+LIBS_TELEOP_ICUB    =   $(LIBS_YARP)  $(LIBS_ACE)  $(LIBS_COMMON) $(LIBS_ICUB) $(LIBS_GSL)
 
 LIBS_TELEOP_NAO = $(LIBS_COMMON) $(LIBS_NAO) $(LIBS_YARP) $(LIBS_ACE)
 

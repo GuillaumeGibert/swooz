@@ -139,7 +139,7 @@ void SWDimenco3DDisplay::depth2disparity(const cv::Mat& depthImg, cv::Mat& dispa
 		}
 	}
 	
-	//~ cv::flip(disparityImg, disparityImg, 0); 
+//   cv::flip(disparityImg, disparityImg, 0);
 	
 }
 	
@@ -169,7 +169,7 @@ void SWDimenco3DDisplay::addZeroLines(const cv::Mat& inputImg, cv::Mat& outputIm
 
 void SWDimenco3DDisplay::add3DHeader( cv::Mat& img )
 {
-	if (false)
+    if (true)
 	{
 		unsigned char hd[24];
 

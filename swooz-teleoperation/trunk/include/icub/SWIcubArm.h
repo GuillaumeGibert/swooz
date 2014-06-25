@@ -28,6 +28,7 @@
 
 #include <yarp/dev/PolyDriver.h>
 #include <yarp/dev/ControlBoardInterfaces.h>
+#include <yarp/dev/CartesianControl.h>
 
 #include <yarp/os/RateThread.h>
 #include <yarp/os/Mutex.h>
@@ -190,6 +191,8 @@ namespace swTeleop
             yarp::dev::IEncoders        *m_pIArmEncoders;       /**< ... */
             yarp::dev::IPositionControl *m_pIArmPosition;       /**< ... */
             yarp::dev::IVelocityControl *m_pIArmVelocity;       /**< ... */
+            yarp::dev::ICartesianControl *m_pIArmCartesian;     /**< ... */
+
 
             // yarp ports / bottles
             //  arm

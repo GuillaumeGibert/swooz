@@ -17,6 +17,7 @@
 #include "cloud/SWImageProcessing.h"
 
 
+
 SWCreateAvatarInterface::SWCreateAvatarInterface(QWidget *oQWRelative) : QMainWindow(oQWRelative), m_uiCreateAvatar(new Ui::SWUI_WCreateAvatar),
   m_oTimer(new QBasicTimer)
 {
@@ -57,7 +58,9 @@ SWCreateAvatarInterface::SWCreateAvatarInterface(QWidget *oQWRelative) : QMainWi
 //    m_WCloudGL->setMaximumSize(640,480);
     m_uiCreateAvatar->hlCloud->addWidget(m_WCloudGL);
     // mesh gl widget
-    m_WMeshGL = new SWGLMeshWidget(l_glContext2, this, "../data/shaders/createAvatarMesh.vert", "../data/shaders/createAvatarMesh.frag");
+    m_WMeshGL = new SWGLMeshWidget(l_glContext2, this, "../data/shaders/createAvatarMesh.vert", "../data/shaders/createAvatarMesh.frag");  
+    m_WMeshGL->setCameraMode(SWQtCamera::TRACKBALL_CAMERA);
+
     m_uiCreateAvatar->hlMesh->addWidget(m_WMeshGL);
 
 	// init workers
@@ -91,7 +94,7 @@ SWCreateAvatarInterface::SWCreateAvatarInterface(QWidget *oQWRelative) : QMainWi
         QObject::connect(m_WCreateAvatar, SIGNAL(sendCloud(swCloud::SWCloud*)), m_WCloudGL, SLOT(setCloud(swCloud::SWCloud*)));
 
     //      mesh
-        QObject::connect(m_WCreateAvatar, SIGNAL(sendMesh(swMesh::SWMesh*)), m_WMeshGL, SLOT(setMesh(swMesh::SWMesh*)));
+        QObject::connect(m_WCreateAvatar, SIGNAL(sendMesh(swMesh::SWMesh*,bool)), m_WMeshGL, SLOT(setMesh(swMesh::SWMesh*,bool)));
         QObject::connect(m_uiCreateAvatar->pbSaveAvatar, SIGNAL(clicked()), this,   SLOT(saveMeshFile()));
         QObject::connect(this,  SIGNAL(saveMeshFileSignal(QString)),  m_WCreateAvatar, SLOT(saveMeshFile(QString)));
 

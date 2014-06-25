@@ -18,6 +18,7 @@
 
 using namespace swDevice;
 
+
 // ############################################# CONSTRUCTORS / DESTRUCTORS
 
 SWCreateAvatar::SWCreateAvatar(cbool bVerbose) : m_bVerbose(bVerbose), m_i32NumCloud(0)
@@ -31,22 +32,22 @@ SWCreateAvatar::SWCreateAvatar(cbool bVerbose) : m_bVerbose(bVerbose), m_i32NumC
     // clouds / alignment
         m_fTemplateDownScale        = 0.2f;
         m_fTargetDownScale          = 0.2f;
-        m_fDepthCloud               = 0.12f; //0.12f;// 0.25f; //0.20f;//0.15f;
-        m_fDistMaxAlignment         = 0.00020f;
+        m_fDepthCloud               = 0.12f;
+//        m_fDistMaxAlignment         = 0.00020f;// current
+        m_fDistMaxAlignment         = 0.0001f;
+//        m_fDistMaxAlignment         = 0.0000001f;
 
-//        m_oAlignClouds.setEmicpParams(0.01f, 0.000005f, 0.9f, 0.01f);
-//        m_oAlignClouds.setEmicpParams(0.05f, 0.000005f, 0.9f, 0.01f);
-//        m_oAlignClouds.setEmicpParams(0.05f, 0.000005f, 0.95f, 0.01f);
-//        m_oAlignClouds.setEmicpParams(0.05f, 0.000002f, 0.92f, 0.01f);
-//        m_oAlignClouds.setEmicpParams(0.0025f, 0.000001f, 0.95f, 0.01f);
-//        m_oAlignClouds.setEmicpParams(0.001f, 0.000005f, 0.9f, 0.01f);
-        m_oAlignClouds.setEmicpParams(0.001f, 0.00001f, 0.9f, 0.01f); // best
+
 //        * @brief Set emicp alignment parameters (do no use if you don't know how emicp works, native parameters are good for a large panel of usages)
 //        * @param [in] fP2      : emicp P2
 //        * @param [in] fINF     : emicp INF
 //        * @param [in] fFactor  : emicp Factor
 //        * @param [in] fD02     : emicp D02
 //        */
+//        m_oAlignClouds.setEmicpParams(0.001f, 0.00001f, 0.9f, 0.01f); // best
+        m_oAlignClouds.setEmicpParams(0.001f, 0.00001f, 0.6f, 0.01f); //
+//        m_oAlignClouds.setEmicpParams(0.0008f, 0.000008f, 0.6f, 0.01f); // best 2
+
 
 
     // radial projection

@@ -62,8 +62,9 @@ class SWGLMeshWidget : public SWGLWidget
         /**
         * \brief Set the mesh to draw
         * \param [in] pMesh : pointer to the mesh to draw
+        * @param [in] bResetCamera : ...
         */
-        void setMesh(swMesh::SWMesh *pMesh);
+        void setMesh(swMesh::SWMesh *pMesh, bool bResetCamera);
 
         /**
         * \brief Set the texture for the mesh.
@@ -91,7 +92,6 @@ class SWGLMeshWidget : public SWGLWidget
 
     private :
 
-        bool m_bInitCamWithCloudPosition;
         bool m_bNewMesh;
 
         QString m_sVertexShaderPath; /**< ... */

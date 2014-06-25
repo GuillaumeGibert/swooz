@@ -202,7 +202,7 @@ class SWCreateAvatarWorker : public QObject
         /**
          * @brief sendMesh
          */
-        void sendMesh(swMesh::SWMesh*);
+        void sendMesh(swMesh::SWMesh*, bool);
 
         /**
          * @brief sendMat

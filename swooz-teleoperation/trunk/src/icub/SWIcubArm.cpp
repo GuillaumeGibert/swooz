@@ -14,6 +14,7 @@
 #include "SWTrackingDevice.h"
 
 #include "icub/SWIcubArm.h"
+#include <yarp/math/Math.h>
 
 using namespace yarp::os;
 
@@ -53,6 +54,7 @@ swTeleop::SWIcubArm::SWIcubArm() : m_bInitialized(false), m_bIsRunning(false), m
             m_vArmJointPositionAcceleration   = std::vector<double>(m_vArmJointPositionAccelerationDefault.size());
             m_vArmJointPositionSpeed          = std::vector<double>(m_vArmJointPositionSpeedDefault.size());
             m_i32ArmJointsNb = m_vArmMinJoint.size();
+
 }
 
 swTeleop::SWIcubArm::~SWIcubArm()
@@ -70,6 +72,7 @@ swTeleop::SWIcubArm::~SWIcubArm()
 
 bool swTeleop::SWIcubArm::init( yarp::os::ResourceFinder &oRf, bool bLeftArm)
 {
+
     if(m_bInitialized)
     {
         std::cerr << "Icub Arm is already initialized. " << std::endl;
@@ -141,11 +144,12 @@ bool swTeleop::SWIcubArm::init( yarp::os::ResourceFinder &oRf, bool bLeftArm)
         m_oArmOptions.put("remote",   ("/" + m_sRobotName + "/" + m_sArm + "_arm").c_str());
 
     //set cartesian polydriver options
-        m_oArmOptions.put("robot",     m_sRobotName.c_str());
+        m_oArmCartesianOptions.put("robot",     m_sRobotName.c_str());
         m_oArmCartesianOptions.put("device",    "cartesiancontrollerclient");
-        m_oArmCartesianOptions.put("local",    ("/local/" + m_sRobotName + "/cartesianController/" + m_sArm + "_arm").c_str());
+        m_oArmCartesianOptions.put("local",    ("/cartesian_client/" + m_sArm + "_arm"));
         m_oArmCartesianOptions.put("name",     ("/" + m_sRobotName + "/cartesianController/" + m_sArm + "_arm").c_str());
         m_oArmCartesianOptions.put("remote",   ("/" + m_sRobotName + "/cartesianController/" + m_sArm + "_arm").c_str());
+
 
     // init polydriver
         m_oRobotArm.open(m_oArmOptions);
@@ -156,12 +160,34 @@ bool swTeleop::SWIcubArm::init( yarp::os::ResourceFinder &oRf, bool bLeftArm)
         }
 
     //init cartesian polydriver
-        m_oRobotArmCartesian.open(m_oArmCartesianOptions);
+
+        if(!m_oRobotArmCartesian.open(m_oArmCartesianOptions))
+        {
+            std::cout<<"Failing at OPENING polydriver (RobotArmCartesian)"<<std::endl;
+        }
+
         if (!m_oRobotArmCartesian.isValid())
         {
-            std::cerr << "-ERROR: " << m_sArm << "right arm cartesian is not valid" << std::endl;
+            std::cerr << "-ERROR: " << m_sArm << " arm cartesian is not valid" << std::endl;
             return (m_bInitialized=false);
         }
+        else
+        {
+                // initializing controllers
+                if (!m_oRobotArmCartesian.view(m_pIArmCartesian))
+                {
+                    std::cerr << "-ERROR: Couldn't open the "<< m_sArm <<" Arm ICartesianControl client!" << std::endl;
+                    return false;
+                }
+                //  limit the torso DOF for the cartesian controller
+                yarp::sig::Vector l_torsoDof(3);
+                l_torsoDof = 2.; // This values tells the kinematic solver to skip the torso
+                if( m_pIArmCartesian->setDOF(l_torsoDof, l_torsoDof))
+                {
+                    std::cerr << "-WARNING: Unable to set the torso DOFs";
+                }
+        }
+
 
     // initializing controllers
         if (!m_oRobotArm.view(m_pIArmVelocity) || !m_oRobotArm.view(m_pIArmPosition) || !m_oRobotArm.view(m_pIArmEncoders))
@@ -173,8 +199,8 @@ bool swTeleop::SWIcubArm::init( yarp::os::ResourceFinder &oRf, bool bLeftArm)
 
     // init ports
         m_sArmTrackerPortName      = "/teleoperation/" + m_sRobotName + "/" + m_sArm + "_arm";
-        m_sFingersTrackerPortName  = "/teleoperation/" + m_sRobotName + "/" + m_sArm + "_arm"; // TODO : choose a tracker name
-        m_sHandTrackerPortName     = "/teleoperation/" + m_sRobotName + "/" + m_sArm + "_arm"; //
+        m_sHandTrackerPortName      = "/teleoperation/" + m_sRobotName + "/" + m_sArm + "_arm/hand";
+        m_sFingersTrackerPortName   = "/teleoperation/" + m_sRobotName + "/" + m_sArm + "_arm/fingers";
 
     // open ports
         bool l_bPortOpeningSuccess = true;
@@ -217,6 +243,10 @@ bool swTeleop::SWIcubArm::init( yarp::os::ResourceFinder &oRf, bool bLeftArm)
 
 bool swTeleop::SWIcubArm::checkBottles()
 {
+
+
+    bool l_bAllBottleEnable = false;
+
     if(!m_bIsRunning)
     {
         return false;
@@ -234,7 +264,7 @@ bool swTeleop::SWIcubArm::checkBottles()
         l_vArmJoints = 0.;
 
     // defines bottles
-        Bottle *l_pArmTarget = NULL;
+        Bottle *l_pArmTarget = NULL,*l_pFingersTarget = NULL,*l_pHandTarget = NULL;
 
         // read arm commands
         if(m_bArmActivated)
@@ -244,11 +274,12 @@ bool swTeleop::SWIcubArm::checkBottles()
             if (l_pArmTarget)
             {
                 int l_deviceId = l_pArmTarget->get(0).asInt();
-
                 switch(l_deviceId)
                 {
                     case swTracking::OPENNI_LIB :
                     {
+
+                        l_bAllBottleEnable = true;
                         std::vector<double> l_pointTorso(3), l_pointNeck(3), l_pointShoulder(3), l_pointElbow(3), l_pointHand(3);
                             l_pointTorso[0] = l_pArmTarget->get(1).asDouble();
                             l_pointTorso[1] = l_pArmTarget->get(2).asDouble();
@@ -277,12 +308,206 @@ bool swTeleop::SWIcubArm::checkBottles()
                         l_vArmJoints[1] = swUtil::degree180(- l_rpyShoulder[0] - 180.);
                         l_vArmJoints[2] = swUtil::degree180(l_rpyElbow[1] - 90.);
                         l_vArmJoints[3] = swUtil::degree180(- l_rpyElbow[0] + 90);
+
+                        m_dArmTimeLastBottle = -1.;
+                        m_pVelocityController->enableArm(true);
                     }
                     break;
+                    case swTracking::LEAP_LIB :
+                    {
+
+//                        l_pHandTarget = m_oHandTrackerPort.read(false);
+//                        l_pFingersTarget = m_oFingersTrackerPort.read(false);
+
+//                        if(!l_pHandTarget)
+//                        {
+
+//                            std::cout<<"TIPS : Failling to receive an Hand bottle - Skip "<<std::endl;
+//                            break;
+//                        }
+//                        if(!l_pFingersTarget)
+//                        {
+
+//                            std::cout<<"TIPS : Failling to receive a Fingers bottle - Skip"<<std::endl;
+//                            break;
+//                        }
+//                        l_bAllBottleEnable = true;
+
+//                        if (m_oRobotArmCartesian.isValid())
+//                        {
+
+//                        //	m_int32cptframe++; //smooth function
+
+//                            yarp::sig::Vector x0,o0;
+//                            yarp::sig::Vector od(3);
+//                            yarp::sig::Vector l_od(4);
+//                        //	yarp::sig::Vector l_aLeftArmTmp;
+
+
+//                            //m_pIArmCartesian->getPose(x0,o0); //getting the position X/Y/Z and the orientation of the hand
+
+//                            /*
+//                            m_dsmoothx+=l_pHandTarget->get(3).asDouble()/(150);//Smooth
+//                            m_dsmoothy+=l_pHandTarget->get(1).asDouble()/(150);//Smooth
+//                            m_dsmoothz+=(l_pHandTarget->get(2).asDouble()-250)/(150);//Smooth
+//                            */
+
+//                            yarp::sig::Vector xd=x0;
+
+//                            xd[0]+=l_pHandTarget->get(3).asDouble()/(400);
+//                            xd[1]+=l_pHandTarget->get(1).asDouble()/(400);
+//                            xd[2]+=(l_pHandTarget->get(2).asDouble()-250)/(400);//On Y (leap), you can only move from 0 to XXX  so to get negatives position on Z (Icub) we need to substract 250 !
+
+//                            //std::cout<<"X : "<<l_pHandTarget->get(3).asDouble()<<" Y : "<<l_pHandTarget->get(1).asDouble()<<" Z : "<<l_pHandTarget->get(2).asDouble()<<std::endl;
+//                            /*
+//                            xd[0]+=m_dsmoothx/m_int32cptframe;//Smooth
+//                            xd[1]+=m_dsmoothy/m_int32cptframe;//Smooth
+//                            xd[2]+=m_dsmoothy/m_int32cptframe;//Smooth
+//                            */
+
+//                            //reverse because in Icub this is [PITCH,ROLL,YAW]
+
+//                            od[0]=l_pHandTarget->get(4).asDouble();
+//                            od[1]=l_pHandTarget->get(5).asDouble();
+//                            od[2]=l_pHandTarget->get(6).asDouble();
+
+
+
+//                            //l_od=iCub::ctrl::dcm2axis(iCub::ctrl::euler2dcm(od));
+
+//                            m_oqdhat.resize(m_i32ArmJointsNb);
+//                            yarp::sig::Vector xdhat,odhat;
+
+//                            yarp::sig::Vector l_vLeftArmEncoders;
+//                            l_vLeftArmEncoders.resize(m_i32ArmJointsNb);
+
+
+//                            m_pIArmEncoders->getEncoders(l_vLeftArmEncoders.data());
+
+//                            //m_pIArmCartesian->askForPosition(l_vLeftArmEncoders,xd,xdhat,odhat,m_oqdhat);
+//                            //or
+//                            //m_pIArmCartesian->goToPosition(xd,0.8);
+
+
+//                            //Setting Speeds and Accelerations for each joints
+//                /*
+//                            l_aLeftArmTmp.resize(m_i32ArmJointsNb);
+//                            for (int i = 0; i < m_i32ArmJointsNb ; i++)
+//                            {
+
+//                                l_aLeftArmTmp[i] = 100;
+//                            }
+//                            m_pIArmPosition->setRefAccelerations(l_aLeftArmTmp.data());
+//                            m_pIArmPosition->setRefSpeeds(l_aLeftArmTmp.data());
+//    */
+
+
+
+//                            /*
+//                            TIPS : When we get m_oqdhat, the joints from 0 to 2 are use to control the torso (This is possible with the cartesian Controler) that's why we start from the 4th.
+//                            Askforposition/pose gives you the joint configuration with the base of the DOF of the arm. */
+//                            /*
+//                            double l_SumFingerDist;
+//                            double l_finger1 = l_pFingersTarget->get(1).asDouble();
+//                            double l_finger2 = l_pFingersTarget->get(4).asDouble();
+//                            double l_finger3 = l_pFingersTarget->get(7).asDouble();
+//                            double l_finger4 = l_pFingersTarget->get(10).asDouble();
+//                            double l_finger5 = l_pFingersTarget->get(13).asDouble();
+
+//                            l_SumFingerDist = (l_finger5 - l_finger4) + (l_finger4 - l_finger3) + (l_finger3 - l_finger2) + (l_finger2 - l_finger1);
+//                            */
+//                            //std::cout<<"The average distance between finger is : "<<m_faveragediff/m_int32cptframe<<std::endl;
+
+
+
+//                            /*
+
+//                            //TEMPLATE
+//                                                                //Arm
+//                                                                    l_vArmJoints[ 0] = m_oqdhat[ 3];
+//                                                                    l_vArmJoints[ 1] = m_oqdhat[ 4];
+//                                                                    l_vArmJoints[ 2] = m_oqdhat[ 5];
+//                                                                    l_vArmJoints[ 3] = m_oqdhat[ 6];
+
+
+//                                                                //Roll Pitch Yaw
+//                                                                    l_vArmJoints[ 4] = m_oqdhat[ 7];//(l_pHandTarget->get(5).asDouble()*180 / 3.1415)/2*(-1);   // RAD TO DEG | [-180:180] / 2 | [-90:90] * (-1) | [90:-90]
+//                                                                    l_vArmJoints[ 5] = m_oqdhat[ 8];//(l_pHandTarget->get(4).asDouble()*180 / 3.1415)*(-1);     // RAD TO DEG | [-180:180]
+//                                                                    l_vArmJoints[ 6] = m_oqdhat[ 9];//(l_pHandTarget->get(6).asDouble()*180 / 3.1415)*(-1);     // RAD TO DEG | [-180:180]
+
+//                                                                //Fingers (0 hand open)
+//                                                                    //Space Between Fingers
+//                                                                    l_vArmJoints[ 7] = 15 ;// 60 - (((l_SumFingerDist/60)-1)*30);						 // [60:180] /60 | [1:3]  - 1 | [0:2] * 30  | 60  - [0:60]	| [60:0]
+
+//                                                                    l_vArmJoints[ 8] = l_pFingersTarget->get(1).asDouble();
+//                                                                    l_vArmJoints[ 9] = 0;															 //thumb orientation
+//                                                                    l_vArmJoints[10] = l_pFingersTarget->get(2).asDouble();
+//                                                                    l_vArmJoints[11] = 0;//l_pFingersTarget->get(3).asDouble();
+//                                                                    l_vArmJoints[12] = 0;//l_pFingersTarget->get(4).asDouble();
+//                                                                    l_vArmJoints[13] = 0;//l_pFingersTarget->get(5).asDouble();
+//                                                                    l_vArmJoints[14] = 0;//l_pFingersTarget->get(6).asDouble();
+//                                                                    l_vArmJoints[15] = 0;//l_pFingersTarget->get(7).asDouble() + l_pFingersTarget->get(8).asDouble() + l_pFingersTarget->get(9).asDouble() + l_pFingersTarget->get(10).asDouble();
+
+//            */
+
+//                                // USE THIS WITH THE iCub !!!!!
+//                                l_vArmJoints[0] = -25;
+//                                l_vArmJoints[1] = 20;
+//                                l_vArmJoints[2] = 0;
+//                                l_vArmJoints[3] = 50;
+//                                l_vArmJoints[4] = (l_pHandTarget->get(5).asDouble()*180 / 3.1415)*(-1) + 90;
+//                                l_vArmJoints[5] = (l_pHandTarget->get(4).asDouble()*180 / 3.1415)*(-1);
+//                                l_vArmJoints[6] = (l_pHandTarget->get(6).asDouble()*180 / 3.1415)*(-1);
+//                                l_vArmJoints[7] = 20;
+//                                l_vArmJoints[8] = 20;
+//                                l_vArmJoints[9] = 0;
+//                                l_vArmJoints[10] = 20;
+
+//                                l_vArmJoints[11] = l_pFingersTarget->get(3).asDouble();
+//                                l_vArmJoints[12] = l_pFingersTarget->get(4).asDouble();
+
+//                                l_vArmJoints[13] = l_pFingersTarget->get(5).asDouble();
+//                                l_vArmJoints[14] = l_pFingersTarget->get(6).asDouble();
+
+//                                l_vArmJoints[15] = l_pFingersTarget->get(7).asDouble() + l_pFingersTarget->get(8).asDouble() + l_pFingersTarget->get(9).asDouble() + l_pFingersTarget->get(10).asDouble();
+
+
+
+
+
+//                            /*
+
+
+//                            if(m_int32cptframe==4)
+//                            {
+//                                m_bLeftArmCapture = true;//Smooth
+//                                m_int32cptframe = 0;//Smooth
+//                                m_dsmoothx=0;//Smooth
+//                                m_dsmoothy=0;//Smooth
+//                                m_dsmoothz=0;//Smooth
+
+//                            }
+//                            else
+//                            {
+//                                m_bLeftArmCapture = false;
+//                            }
+//                            */
+
+                            //	m_bLeftArmCapture = true
+                            m_dArmTimeLastBottle = -1.;
+                            m_pVelocityController->enableArm(true);
+
+//                        }
+//                        else
+//                        {
+//                            std::cerr << "Left hand cartesian controller not initialized, could not process leap data." << std::endl;
+//                        }
+                    }
+                    break;
+
+
                 }
 
-                m_dArmTimeLastBottle = -1.;
-                m_pVelocityController->enableArm(true);
             }
             else // manage timeout and reset position
             {
@@ -295,11 +520,13 @@ bool swTeleop::SWIcubArm::checkBottles()
                     if(yarp::os::Time::now() - m_dArmTimeLastBottle > 0.001 * m_i32TimeoutArmReset)
                     {
                         m_pVelocityController->enableArm(false);
-                        resetArmPosition();
+                     //   resetArmPosition(); //SET IT BACK PLEASE ! ASAP
                         m_dArmTimeLastBottle = -1.;
                     }
                 }
             }
+
+
         }
 
     // check each joint value to ensure it is in the right range, if not crop to the max/min values
@@ -307,15 +534,17 @@ bool swTeleop::SWIcubArm::checkBottles()
         {
             if(l_vArmJoints[ii] < m_vArmMinJoint[ii])
             {
+                //std::cout<< l_vArmJoints[ii]<<"["<<ii<<"] < "<< m_vArmMinJoint[ii]<<std::endl;
                 l_vArmJoints[ii] = m_vArmMinJoint[ii];
             }
             if(l_vArmJoints[ii] > m_vArmMaxJoint[ii])
             {
+                //std::cout<< l_vArmJoints[ii]<<"["<<ii<<"] > "<< m_vArmMinJoint[ii]<<std::endl;
                 l_vArmJoints[ii] = m_vArmMaxJoint[ii];
             }
         }
 
-        if(l_pArmTarget)
+        if(l_pArmTarget && l_bAllBottleEnable)
         {
             m_pVelocityController->setJoints(l_vArmJoints);
 
@@ -364,6 +593,7 @@ bool swTeleop::SWIcubArm::close()
 
 bool swTeleop::SWIcubArm::interruptModule()
 {
+
     m_bIsRunning = false;
 
     // reset positions
@@ -395,6 +625,7 @@ swTeleop::SWArmVelocityController::SWArmVelocityController(yarp::dev::IEncoders 
                                                      std::vector<double> &vArmJointVelocityK, double dVelocityTolerance, int i32Rate)
     : RateThread(i32Rate), m_dVelocityToleranceArm(dVelocityTolerance), m_bArmEnabled(false), m_vArmJointVelocityK(vArmJointVelocityK)
 {
+
     if(pIArmEncoders)
     {
         m_pIArmEncoders = pIArmEncoders;
@@ -407,9 +638,10 @@ swTeleop::SWArmVelocityController::SWArmVelocityController(yarp::dev::IEncoders 
 
 void swTeleop::SWArmVelocityController::run()
 {
+
         m_oMutex.lock();
             bool l_bArmEnabled = m_bArmEnabled;
-            yarp::sig::Vector l_vArmJoints = m_vLastArmJoint;
+            yarp::sig::Vector l_vArmJoints = m_vLastArmJoint; // Check values with Joint before
         m_oMutex.unlock();
 
         yarp::sig::Vector l_vEncoders, l_vCommand;
@@ -417,6 +649,23 @@ void swTeleop::SWArmVelocityController::run()
         l_vCommand.resize(l_vArmJoints.size());
 
         m_pIArmEncoders->getEncoders(l_vEncoders.data());
+
+
+        //std::cout<<"Calcul of joint 7 : K*(armjoint-encoder) => "<<m_vArmJointVelocityK[7]<<"*("<<l_vArmJoints[7]<<"-"<<l_vEncoders[7]<<")"<<std::endl;
+        for(uint ii = 0; ii < l_vCommand.size(); ++ii)
+        {
+                //std::cout<<"ArmJoint value  : "<<ii<<" With this value : "<<l_vArmJoints[ii]<<std::endl;
+            l_vCommand[ii] =  m_vArmJointVelocityK[ii] * (l_vArmJoints[ii] - l_vEncoders[ii]);
+
+
+        }
+        l_vCommand[7]=0;//NEEDS TO BE REMOVE / ONLY TO BLOCK FINGER APPERTURE
+    //	std::cout<<"Joint Configuration 7  : "<<l_vCommand[7]<<std::endl;
+        for(uint ii = 0; ii < l_vArmJoints.size(); ++ii)
+        {
+            m_pIArmVelocity->velocityMove(ii, l_vCommand[ii]);
+        //	std::cout<<"Command number : "<<ii<<" With this value : "<<l_vCommand[ii]<<std::endl;
+        }
 
         // ...
 
@@ -426,6 +675,7 @@ void swTeleop::SWArmVelocityController::run()
 
 void swTeleop::SWArmVelocityController::enableArm(cbool bActivated)
 {
+
     m_oMutex.lock();
         m_bArmEnabled = bActivated;
     m_oMutex.unlock();
@@ -433,8 +683,10 @@ void swTeleop::SWArmVelocityController::enableArm(cbool bActivated)
 
 void swTeleop::SWArmVelocityController::setJoints(const yarp::sig::Vector &vJoints)
 {
+
     m_oMutex.lock();
         m_vLastArmJoint = vJoints;
     m_oMutex.unlock();
 }
+
 
