@@ -1,0 +1,67 @@
+<application>
+<name>Cartesian Solvers and Controllers Launcher for the Simulator</name>
+
+<dependencies>
+        <port>/icubSim/left_arm/state:o</port>
+</dependencies>
+      
+        <module>
+                <name>simCartesianControl</name>
+                <node>localhost</node>
+                <tag>limbsController</tag>
+        </module>
+
+        <module>
+                <name>iKinCartesianSolver</name>
+                <parameters>--context simCartesianControl --part left_arm</parameters>
+                <node>localhost</node>
+                <tag>leftArmSolver</tag>
+        </module>
+
+        <module>
+                <name>iKinCartesianSolver</name>
+                <parameters>--context simCartesianControl --part right_arm</parameters>
+                <node>localhost</node>
+                <tag>leftArmSolver</tag>
+        </module>
+
+
+	<connection>
+        	<from>/tracking/Leap/LeapSDK/left_arm</from>
+       		<to>/teleoperation/icubSim/left_arm</to>
+       		<protocol>udp</protocol>
+    	</connection>
+
+	<connection>
+        	<from>/tracking/Leap/LeapSDK/left_arm/hand</from>
+       		<to>/teleoperation/icubSim/left_arm/hand</to>
+       		<protocol>udp</protocol>
+    	</connection>
+
+	<connection>
+        	<from>/tracking/Leap/LeapSDK/left_arm/fingers</from>
+       		<to>/teleoperation/icubSim/left_arm/fingers</to>
+       		<protocol>udp</protocol>
+    	</connection>
+
+	<connection>
+        	<from>/tracking/Leap/LeapSDK/right_arm</from>
+       		<to>/teleoperation/icubSim/right_arm</to>
+       		<protocol>udp</protocol>
+    	</connection>
+
+	<connection>
+        	<from>/tracking/Leap/LeapSDK/right_arm/hand</from>
+       		<to>/teleoperation/icubSim/right_arm/hand</to>
+       		<protocol>udp</protocol>
+    	</connection>
+
+	<connection>
+        	<from>/tracking/Leap/LeapSDK/right_arm/fingers</from>
+       		<to>/teleoperation/icubSim/right_arm/fingers</to>
+       		<protocol>udp</protocol>
+    	</connection>
+
+</application>
+
+

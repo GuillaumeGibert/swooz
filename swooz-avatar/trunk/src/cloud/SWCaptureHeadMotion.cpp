@@ -28,7 +28,7 @@ SWCaptureHeadMotion::SWCaptureHeadMotion(cfloat fAlignmentReducCoeff, cfloat fSc
         m_fDistMax     = 0.00015f;
 
     // init face detection
-        m_CFaceDetectPtr = SWFaceDetectionPtr(new swDetect::SWFaceDetection(Size(80,80)));
+        m_CFaceDetectPtr = SWFaceDetectionPtr(new swDetect::SWFaceDetection(Size(80,80),false, std::string("../data/classifier/haarcascade_frontalface_alt.xml")));
 }
 
 // ############################################# METHODS

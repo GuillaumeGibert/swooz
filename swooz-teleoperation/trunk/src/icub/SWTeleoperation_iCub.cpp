@@ -10,7 +10,6 @@
 
 YARP_DECLARE_DEVICES(icubmod)
 
-
 SWTeleoperation_iCub::SWTeleoperation_iCub() : m_bIsRunning(false)
 {}
 

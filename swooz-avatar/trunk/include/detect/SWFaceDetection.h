@@ -40,7 +40,7 @@ namespace swDetect
              * \param [in] sClassifierFilePath:  haar cascade classifier file path
 			 */
             SWFaceDetection(const cv::Size &oMinDetectFaceSize = cv::Size(80,80), cbool bVerbose = false,
-                            std::string sClassifierFilePath = std::string("../data/classifier/haarcascade_frontalface_alt2.xml"));
+                            std::string sClassifierFilePath = std::string("../data/classifier/haarcascade_frontalface_alt.xml"));
 		
 		
             /**

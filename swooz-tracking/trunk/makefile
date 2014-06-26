@@ -52,8 +52,10 @@ OBJ_TRACKING_LEAP=\
 ############################################################################## Makefile commands
 
 !if  "$(ARCH)" == "x86"
-all: trackingHeadForest trackingHeadEmicp trackingHeadForest trackingFaceLab trackingFaceShift trackingOpenNI trackingFake trackingLeap
+all: trackingHeadForest trackingHeadEmicp trackingHeadForest trackingFaceLab trackingOpenNI trackingFake trackingLeap
 !endif
+
+# trackingFaceShift
 
 !if "$(ARCH)" == "amd64"
 all:
