@@ -29,19 +29,20 @@ swTeleop::SWIcubTorso::SWIcubTorso() : m_bInitialized(false), m_bIsRunning(false
             m_i32TimeoutTorsoResetDefault = 3000;
 
         // accelerations / speeds
-            m_dVelocityToleranceTorsoDefault = 15.;
             double l_aDMinJointDefault[]                        = {-50.,-30.,-10.};
             double l_aDMaxJointDefault[]                        = { 50., 30., 70.};
             double l_aDTorsoJointVelocityDefault[]               = {50.,50.,50.};
             double l_aDTorsoJointVelocityKDefault[]              = {0.9,0.9,0.9};
             double l_aDTorsoJointPositionAccelerationDefault[]   = {50.,50.,50.};
             double l_aDTorsoJointPositionSpeedDefault[]          = {50.,50.,50.};
+            double l_aDTorsoResetPositionDefault[]               = {0., 0. ,0.};
             m_vTorsoMinJointDefault                  = std::vector<double>(l_aDMinJointDefault, l_aDMinJointDefault + sizeof(l_aDMinJointDefault) / sizeof(double));
             m_vTorsoMaxJointDefault                  = std::vector<double>(l_aDMaxJointDefault, l_aDMaxJointDefault + sizeof(l_aDMaxJointDefault) / sizeof(double));
             m_vTorsoJointVelocityKDefault            = std::vector<double>(l_aDTorsoJointVelocityKDefault, l_aDTorsoJointVelocityKDefault + sizeof(l_aDTorsoJointVelocityKDefault) / sizeof(double));
             m_vTorsoJointVelocityAccelerationDefault = std::vector<double>(l_aDTorsoJointVelocityDefault, l_aDTorsoJointVelocityDefault + sizeof(l_aDTorsoJointVelocityDefault) / sizeof(double));
             m_vTorsoJointPositionAccelerationDefault = std::vector<double>(l_aDTorsoJointPositionAccelerationDefault, l_aDTorsoJointPositionAccelerationDefault + sizeof(l_aDTorsoJointPositionAccelerationDefault) / sizeof(double));
             m_vTorsoJointPositionSpeedDefault        = std::vector<double>(l_aDTorsoJointPositionSpeedDefault, l_aDTorsoJointPositionSpeedDefault + sizeof(l_aDTorsoJointPositionSpeedDefault) / sizeof(double));
+            m_vTorsoResetPositionDefault             = std::vector<double>(l_aDTorsoResetPositionDefault, l_aDTorsoResetPositionDefault + sizeof(l_aDTorsoResetPositionDefault) / sizeof(double));
 
             m_vTorsoMinJoint                    = std::vector<double>(m_vTorsoMinJointDefault.size());
             m_vTorsoMaxJoint                    = std::vector<double>(m_vTorsoMaxJointDefault.size());
@@ -49,6 +50,7 @@ swTeleop::SWIcubTorso::SWIcubTorso() : m_bInitialized(false), m_bIsRunning(false
             m_vTorsoJointVelocityK              = std::vector<double>(m_vTorsoJointVelocityKDefault.size());
             m_vTorsoJointPositionAcceleration   = std::vector<double>(m_vTorsoJointPositionAccelerationDefault.size());
             m_vTorsoJointPositionSpeed          = std::vector<double>(m_vTorsoJointPositionSpeedDefault.size());
+            m_vTorsoResetPosition               = std::vector<double>(m_vTorsoResetPositionDefault.size());
             m_i32TorsoJointsNb = m_vTorsoMinJoint.size();
 }
 
@@ -79,6 +81,10 @@ bool swTeleop::SWIcubTorso::init( yarp::os::ResourceFinder &oRf)
 
     // robot parts to control
         m_bTorsoActivated = oRf.check("torsoActivated", Value(m_bTorsoActivatedDefault), "Torso activated (int)").asInt() != 0;
+        if(!m_bTorsoActivated)
+        {
+            return (m_bInitialized=false);
+        }
 
     // min / max values for iCub Torso joints
         for(uint ii = 0; ii < m_vTorsoJointVelocityAcceleration.size(); ++ii)
@@ -86,37 +92,33 @@ bool swTeleop::SWIcubTorso::init( yarp::os::ResourceFinder &oRf)
             std::ostringstream l_os;
             l_os << ii;
 
-            if(ii < m_vTorsoMinJointDefault.size())
-            {
-                std::string l_sMinJoint("torsoMinValueJoint" + l_os.str());
-                std::string l_sMaxJoint("torsoMaxValueJoint" + l_os.str());
-
-                std::string l_sMinJointInfo("torso minimum joint" + l_os.str() + " Value (double)");
-                std::string l_sMaxJointInfo("torso maximum joint" + l_os.str() + " Value (double)");
-
-                m_vTorsoMinJoint[ii] = oRf.check(l_sMinJoint.c_str(), m_vTorsoMinJointDefault[ii], l_sMinJointInfo.c_str()).asDouble();
-                m_vTorsoMaxJoint[ii] = oRf.check(l_sMaxJoint.c_str(), m_vTorsoMaxJointDefault[ii], l_sMaxJointInfo.c_str()).asDouble();
-            }
-
+            std::string l_sMinJoint("torsoMinValueJoint" + l_os.str());
+            std::string l_sMaxJoint("torsoMaxValueJoint" + l_os.str());
             std::string l_sTorsoJointVelocityAcceleration("torsoJointVelocityAcceleration" + l_os.str());
             std::string l_sTorsoJointVelocityK("torsoJointVelocityK" + l_os.str());
             std::string l_sTorsoJointPositionAcceleration("torsoJointPositionAcceleration" + l_os.str());
             std::string l_sTorsoJointPositionSpeed("torsoJointPositionSpeed" + l_os.str());
+            std::string l_sTorsoResetPosition("torsoResetPosition" + l_os.str());
 
+            std::string l_sMinJointInfo("torso minimum joint" + l_os.str() + " Value (double)");
+            std::string l_sMaxJointInfo("torso maximum joint" + l_os.str() + " Value (double)");
             std::string l_sTorsoJointVelocityAccelerationInfo("torso joint velocity acceleration " + l_os.str() + " Value (double)");
             std::string l_sTorsoJointVelocityKInfo("torso joint velocity K coeff"+ l_os.str() + " Value (double)");
             std::string l_sTorsoJointPositionAccelerationInfo("torso joint position acceleration " + l_os.str() + " Value (double)");
             std::string l_sTorsoJointPositionSpeedInfo("torso joint position speed " + l_os.str() + " Value (double)");
+            std::string l_sTorsoResetPositionInfo("torso reset position " + l_os.str() + " Value (double)");
 
-            m_vTorsoJointVelocityAcceleration[ii]= oRf.check(l_sTorsoJointVelocityAcceleration.c_str(), m_vTorsoJointVelocityAccelerationDefault[ii], l_sTorsoJointVelocityAccelerationInfo.c_str()).asDouble();
-            m_vTorsoJointPositionAcceleration[ii]= oRf.check(l_sTorsoJointPositionAcceleration.c_str(), m_vTorsoJointPositionAccelerationDefault[ii], l_sTorsoJointPositionAccelerationInfo.c_str()).asDouble();
-            m_vTorsoJointPositionSpeed[ii]       = oRf.check(l_sTorsoJointPositionSpeed.c_str(),        m_vTorsoJointPositionSpeedDefault[ii],        l_sTorsoJointPositionSpeedInfo.c_str()).asDouble();
-            m_vTorsoJointVelocityK[ii]           = oRf.check(l_sTorsoJointVelocityK.c_str(),            m_vTorsoJointVelocityKDefault[ii],            l_sTorsoJointVelocityKInfo.c_str()).asDouble();
+            m_vTorsoMinJoint[ii]                    = oRf.check(l_sMinJoint.c_str(), m_vTorsoMinJointDefault[ii], l_sMinJointInfo.c_str()).asDouble();
+            m_vTorsoMaxJoint[ii]                    = oRf.check(l_sMaxJoint.c_str(), m_vTorsoMaxJointDefault[ii], l_sMaxJointInfo.c_str()).asDouble();
+            m_vTorsoResetPosition[ii]               = oRf.check(l_sTorsoResetPosition.c_str(), m_vTorsoResetPositionDefault[ii], l_sTorsoResetPositionInfo.c_str()).asDouble();
+            m_vTorsoJointVelocityAcceleration[ii]   = oRf.check(l_sTorsoJointVelocityAcceleration.c_str(), m_vTorsoJointVelocityAccelerationDefault[ii], l_sTorsoJointVelocityAccelerationInfo.c_str()).asDouble();
+            m_vTorsoJointPositionAcceleration[ii]   = oRf.check(l_sTorsoJointPositionAcceleration.c_str(), m_vTorsoJointPositionAccelerationDefault[ii], l_sTorsoJointPositionAccelerationInfo.c_str()).asDouble();
+            m_vTorsoJointPositionSpeed[ii]          = oRf.check(l_sTorsoJointPositionSpeed.c_str(),        m_vTorsoJointPositionSpeedDefault[ii],        l_sTorsoJointPositionSpeedInfo.c_str()).asDouble();
+            m_vTorsoJointVelocityK[ii]              = oRf.check(l_sTorsoJointVelocityK.c_str(),            m_vTorsoJointVelocityKDefault[ii],            l_sTorsoJointVelocityKInfo.c_str()).asDouble();
         }
 
     // miscellaneous
         m_i32TimeoutTorsoReset   = oRf.check("torsoTimeoutReset",   Value(m_i32TimeoutTorsoResetDefault), "torso timeout reset iCub (int)").asInt();
-        m_dVelocityToleranceTorso= oRf.check("velocityToleranceTorso",  Value(m_dVelocityToleranceTorsoDefault), "torso velocity tolerance (double)").asDouble();
 
     // set polydriver options
         m_oTorsoOptions.put("robot",     m_sRobotName.c_str());
@@ -170,8 +172,23 @@ bool swTeleop::SWIcubTorso::init( yarp::os::ResourceFinder &oRf)
         }
 
     // init controller                
-        m_pVelocityController = new swTeleop::SWTorsoVelocityController(m_pITorsoEncoders, m_pITorsoVelocity, m_vTorsoJointVelocityK, m_dVelocityToleranceTorso, 10);
+        m_pVelocityController = new swTeleop::SWTorsoVelocityController(m_pITorsoEncoders, m_pITorsoVelocity, m_vTorsoJointVelocityK, 10);
         m_pVelocityController->enableTorso(m_bTorsoActivated);
+
+    // display parameters
+        std::cout << std::endl << std::endl;
+        displayDebug(std::string("Torso activated"), m_bTorsoActivated);
+        displayDebug(std::string("Timeout torso reset"), m_i32TimeoutTorsoReset);
+        std::cout << std::endl;
+        displayVectorDebug(std::string("Torso min joint                  : "), m_vTorsoMinJoint);
+        displayVectorDebug(std::string("Torso max joint                  : "), m_vTorsoMaxJoint);
+        displayVectorDebug(std::string("Torso reset position joint       : "), m_vTorsoResetPosition);
+        displayVectorDebug(std::string("Torso joint velocity acceleration: "), m_vTorsoJointVelocityAcceleration);
+        displayVectorDebug(std::string("Torso joint position acceleration: "), m_vTorsoJointPositionAcceleration);
+        displayVectorDebug(std::string("Torso joint position speed       : "), m_vTorsoJointPositionSpeed);
+        displayVectorDebug(std::string("Torso head joint velocity K      : "), m_vTorsoJointVelocityK);
+        std::cout << std::endl << std::endl;
+
 
     return (m_bIsRunning=m_bInitialized=true);
 }
@@ -289,7 +306,7 @@ void swTeleop::SWIcubTorso::resetTorsoPosition()
     {
         for(int ii = 0; ii < m_i32TorsoJointsNb; ++ii)
         {
-            m_pITorsoPosition->positionMove(ii,0.);
+            m_pITorsoPosition->positionMove(ii, m_vTorsoResetPosition[ii]);
         }
     }
 }
@@ -342,8 +359,8 @@ bool swTeleop::SWIcubTorso::interruptModule()
 
 
 swTeleop::SWTorsoVelocityController::SWTorsoVelocityController(yarp::dev::IEncoders *pITorsoEncoders, yarp::dev::IVelocityControl *pITorsoVelocity,
-                                                     std::vector<double> &vTorsoJointVelocityK, double dVelocityTolerance, int i32Rate)
-    : RateThread(i32Rate), m_dVelocityTolerance(dVelocityTolerance), m_bTorsoEnabled(false), m_vTorsoJointVelocityK(vTorsoJointVelocityK)
+                                                     std::vector<double> &vTorsoJointVelocityK, int i32Rate)
+    : RateThread(i32Rate), m_bTorsoEnabled(false), m_vTorsoJointVelocityK(vTorsoJointVelocityK)
 {
     if(pITorsoEncoders)
     {
@@ -357,10 +374,6 @@ swTeleop::SWTorsoVelocityController::SWTorsoVelocityController(yarp::dev::IEncod
 
 void swTeleop::SWTorsoVelocityController::run()
 {
-//    double l_dTolerance = DBL_MAX;
-
-//    while(l_dTolerance > m_dVelocityTolerance)
-//    {
         m_oMutex.lock();
             bool l_bTorsoEnabled = m_bTorsoEnabled;
             yarp::sig::Vector l_vTorsoJoints = m_vLastTorsoJoint;
@@ -387,15 +400,6 @@ void swTeleop::SWTorsoVelocityController::run()
                     m_pITorsoVelocity->velocityMove(ii, l_vCommand[ii]);
                 }
             }
-
-        // compute tolerance
-//            l_dTolerance = 0.;
-
-//            for(uint ii = 0; ii < l_vCommand.size(); ++ii)
-//            {
-//                l_dTolerance += sqrt(l_vCommand[ii]*l_vCommand[ii]);
-//            }
-//    }
 }
 
 void swTeleop::SWTorsoVelocityController::enableTorso(cbool bActivated)

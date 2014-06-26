@@ -28,6 +28,9 @@ namespace swDetect
         SWFaceDetection_thread(const cv::Size &oMinDetectFaceSize = cv::Size(80,80), cbool bVerbose = false,
                                std::string sClassifierFilePath = std::string("../data/classifier/haarcascade_frontalface_alt2.xml"));
 
+        SWFaceDetection_thread(const cv::Size &oMinDetectFaceSize, const cv::Size &oMaxDetectFaceSize, cbool bVerbose,
+                               std::string sClassifierFilePath);
+
         ~SWFaceDetection_thread();
 
         void startDetection();

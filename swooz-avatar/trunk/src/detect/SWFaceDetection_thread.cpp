@@ -9,6 +9,12 @@ swDetect::SWFaceDetection_thread::SWFaceDetection_thread(const cv::Size &oMinDet
     m_pFaceDetection = new swDetect::SWFaceDetection(oMinDetectFaceSize, bVerbose, sClassifierFile);
 }
 
+swDetect::SWFaceDetection_thread::SWFaceDetection_thread(const cv::Size &oMinDetectFaceSize, const cv::Size &oMaxDetectFaceSize, cbool bVerbose, std::string sClassifierFile) :
+    m_bListening(false), m_bIsNewRGBAvailable(false)
+{
+    m_pFaceDetection = new swDetect::SWFaceDetection(oMinDetectFaceSize, oMaxDetectFaceSize, bVerbose, sClassifierFile);
+}
+
 swDetect::SWFaceDetection_thread::~SWFaceDetection_thread()
 {
     if(m_bListening)
@@ -74,7 +80,7 @@ void swDetect::SWFaceDetection_thread::doWork()
     while(m_bListening)
     {
         {
-            clock_t time = clock();
+//            clock_t time = clock();
 
 
             boost::lock_guard<boost::mutex> lock(m_oMutex);

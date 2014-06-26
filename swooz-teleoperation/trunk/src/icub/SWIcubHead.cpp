@@ -40,20 +40,20 @@ swTeleop::SWIcubHead::SWIcubHead() : m_bInitialized(false), m_bIsRunning(false),
             m_dMaxEyelidsSimDefault = 70.;
 
         // accelerations / speeds
-            m_dVelocityToleranceHeadDefault = 15.;
-            m_dVelocityToleranceGazeDefault = 15.;
-            double l_aDMinJointDefault[]                        = {-40.,-70.,-55.};
-            double l_aDMaxJointDefault[]                        = { 30., 60., 50.};
+            double l_aDMinJointDefault[]                        = {-40.,-70.,-55.,-10000.,-10000.,-10000.};
+            double l_aDMaxJointDefault[]                        = { 30., 60., 50.,10000.,10000.,10000.};
             double l_aDHeadJointVelocityDefault[]               = {50.,50.,50.,50.,50.,50.};
             double l_aDHeadJointVelocityKDefault[]              = {0.9,0.9,0.9,0.9,0.9,0.9};
             double l_aDHeadJointPositionAccelerationDefault[]   = {50.,50.,50.,50.,50.,50.};
-            double l_aDHeadJointPositionSpeedDefault[]          = {50.,50.,50.,50.,50.,50.};            
+            double l_aDHeadJointPositionSpeedDefault[]          = {50.,50.,50.,50.,50.,50.};
+            double l_aDHeadResetPositionDefault[]               = {0.,0.,0.,0.,0.,0.};
             m_vHeadMinJointDefault                  = std::vector<double>(l_aDMinJointDefault, l_aDMinJointDefault + sizeof(l_aDMinJointDefault) / sizeof(double));
             m_vHeadMaxJointDefault                  = std::vector<double>(l_aDMaxJointDefault, l_aDMaxJointDefault + sizeof(l_aDMaxJointDefault) / sizeof(double));
             m_vHeadJointVelocityKDefault            = std::vector<double>(l_aDHeadJointVelocityKDefault, l_aDHeadJointVelocityKDefault + sizeof(l_aDHeadJointVelocityKDefault) / sizeof(double));
             m_vHeadJointVelocityAccelerationDefault = std::vector<double>(l_aDHeadJointVelocityDefault, l_aDHeadJointVelocityDefault + sizeof(l_aDHeadJointVelocityDefault) / sizeof(double));            
             m_vHeadJointPositionAccelerationDefault = std::vector<double>(l_aDHeadJointPositionAccelerationDefault, l_aDHeadJointPositionAccelerationDefault + sizeof(l_aDHeadJointPositionAccelerationDefault) / sizeof(double));
             m_vHeadJointPositionSpeedDefault        = std::vector<double>(l_aDHeadJointPositionSpeedDefault, l_aDHeadJointPositionSpeedDefault + sizeof(l_aDHeadJointPositionSpeedDefault) / sizeof(double));
+            m_vHeadResetPositionDefault             = std::vector<double>(l_aDHeadResetPositionDefault, l_aDHeadResetPositionDefault + sizeof(l_aDHeadResetPositionDefault) / sizeof(double));
 
             m_vHeadMinJoint                     = std::vector<double>(m_vHeadMinJointDefault.size());
             m_vHeadMaxJoint                     = std::vector<double>(m_vHeadMaxJointDefault.size());
@@ -61,6 +61,7 @@ swTeleop::SWIcubHead::SWIcubHead() : m_bInitialized(false), m_bIsRunning(false),
             m_vHeadJointVelocityK               = std::vector<double>(m_vHeadJointVelocityKDefault.size());
             m_vHeadJointPositionAcceleration    = std::vector<double>(m_vHeadJointPositionAccelerationDefault.size());
             m_vHeadJointPositionSpeed           = std::vector<double>(m_vHeadJointPositionSpeedDefault.size());
+            m_vHeadResetPosition                = std::vector<double>(m_vHeadResetPositionDefault.size());
             m_i32HeadJointsNb = m_vHeadJointVelocityAccelerationDefault.size();
 }
 
@@ -94,34 +95,36 @@ bool swTeleop::SWIcubHead::init( yarp::os::ResourceFinder &oRf)
         m_bGazeActivated = oRf.check("gazeActivated", Value(m_bGazeActivatedDefault), "Gaze activated (int)").asInt() != 0;
         m_bLEDActivated  = oRf.check("LEDSActivated", Value(m_bLEDActivatedDefault), "LEDS activated (int)"). asInt() != 0;
 
+        if(!m_bHeadActivated && !m_bGazeActivated && !m_bLEDActivated)
+        {
+            return (m_bInitialized=false);
+        }
+
     // min / max values for iCub head joints
         for(uint ii = 0; ii < m_vHeadJointVelocityAcceleration.size(); ++ii)
         {
             std::ostringstream l_os;
             l_os << ii;
 
-            if(ii < m_vHeadMinJointDefault.size())
-            {
-                std::string l_sMinJoint("headMinValueJoint" + l_os.str());
-                std::string l_sMaxJoint("headMaxValueJoint" + l_os.str());
-
-                std::string l_sMinJointInfo("Head minimum joint" + l_os.str() + " Value (double)");
-                std::string l_sMaxJointInfo("Head maximum joint" + l_os.str() + " Value (double)");
-
-                m_vHeadMinJoint[ii] = oRf.check(l_sMinJoint.c_str(), m_vHeadMinJointDefault[ii], l_sMinJointInfo.c_str()).asDouble();
-                m_vHeadMaxJoint[ii] = oRf.check(l_sMaxJoint.c_str(), m_vHeadMaxJointDefault[ii], l_sMaxJointInfo.c_str()).asDouble();
-            }
-
+            std::string l_sMinJoint("headMinValueJoint" + l_os.str());
+            std::string l_sMaxJoint("headMaxValueJoint" + l_os.str());
+            std::string l_sHeadResetPosition("HeadResetPosition" + l_os.str());
             std::string l_sHeadJointVelocityAcceleration("headJointVelocityAcceleration" + l_os.str());
             std::string l_sHeadJointVelocityK("headJointVelocityK" + l_os.str());
             std::string l_sHeadJointPositionAcceleration("headJointPositionAcceleration" + l_os.str());
             std::string l_sHeadJointPositionSpeed("headJointPositionSpeed" + l_os.str());
 
+            std::string l_sMinJointInfo("Head minimum joint" + l_os.str() + " Value (double)");
+            std::string l_sMaxJointInfo("Head maximum joint" + l_os.str() + " Value (double)");
+            std::string l_sHeadResetPositionInfo("Head reset position " + l_os.str() + " Value (double)");
             std::string l_sHeadJointVelocityAccelerationInfo("Head joint velocity acceleration " + l_os.str() + " Value (double)");
             std::string l_sHeadJointVelocityKInfo("Head joint velocity K coeff"+ l_os.str() + " Value (double)");
             std::string l_sHeadJointPositionAccelerationInfo("Head joint position acceleration " + l_os.str() + " Value (double)");
             std::string l_sHeadJointPositionSpeedInfo("Head joint position speed " + l_os.str() + " Value (double)");
 
+            m_vHeadMinJoint[ii]                 = oRf.check(l_sMinJoint.c_str(), m_vHeadMinJointDefault[ii], l_sMinJointInfo.c_str()).asDouble();
+            m_vHeadMaxJoint[ii]                 = oRf.check(l_sMaxJoint.c_str(), m_vHeadMaxJointDefault[ii], l_sMaxJointInfo.c_str()).asDouble();
+            m_vHeadResetPosition[ii]            = oRf.check(l_sHeadResetPosition.c_str(), m_vHeadResetPositionDefault[ii], l_sHeadResetPositionInfo.c_str()).asDouble();
             m_vHeadJointVelocityAcceleration[ii]= oRf.check(l_sHeadJointVelocityAcceleration.c_str(), m_vHeadJointVelocityAccelerationDefault[ii], l_sHeadJointVelocityAccelerationInfo.c_str()).asDouble();
             m_vHeadJointPositionAcceleration[ii]= oRf.check(l_sHeadJointPositionAcceleration.c_str(), m_vHeadJointPositionAccelerationDefault[ii], l_sHeadJointPositionAccelerationInfo.c_str()).asDouble();
             m_vHeadJointPositionSpeed[ii]       = oRf.check(l_sHeadJointPositionSpeed.c_str(),        m_vHeadJointPositionSpeedDefault[ii],        l_sHeadJointPositionSpeedInfo.c_str()).asDouble();
@@ -143,8 +146,6 @@ bool swTeleop::SWIcubHead::init( yarp::os::ResourceFinder &oRf)
         m_i32TimeoutHeadReset  = oRf.check("headTimeoutReset",   Value(m_i32TimeoutHeadResetDefault), "Head timeout reset iCub (int)").asInt();
         m_i32TimeoutGazeReset  = oRf.check("gazeTimeoutReset",   Value(m_i32TimeoutGazeResetDefault), "Gaze timeout reset iCub (int)").asInt();
         m_i32TimeoutLEDReset   = oRf.check("LEDTimeoutReset",    Value(m_i32TimeoutLEDResetDefault), "LED display timeout reset iCub (int)").asInt();
-        m_dVelocityToleranceHead   = oRf.check("velocityToleranceHead",  Value(m_dVelocityToleranceHeadDefault), "Velocity tolerance head (double)").asDouble();
-        m_dVelocityToleranceGaze   = oRf.check("velocityToleranceGaze",  Value(m_dVelocityToleranceGazeDefault), "Velocity tolerance gaze (double)").asDouble();
 
     // set polydriver options
         m_oHeadOptions.put("robot",     m_sRobotName.c_str());
@@ -178,29 +179,32 @@ bool swTeleop::SWIcubHead::init( yarp::os::ResourceFinder &oRf)
         m_sEyelidOutputPortName = "/teleoperation/" + m_sRobotName + "/eyelids/out";
 
     // open ports
-        bool l_bPortOpeningSuccess = true;
         if(m_bHeadActivated)
         {
-            l_bPortOpeningSuccess = m_oHeadTrackerPort.open(m_sHeadTrackerPortName.c_str());
+            if(!m_oHeadTrackerPort.open(m_sHeadTrackerPortName.c_str()))
+            {
+                std::cerr << "-ERROR: Unable to open head port." << std::endl;
+                m_oRobotHead.close();
+                return (m_bInitialized=false);
+            }
         }
-        if(m_bGazeActivated && l_bPortOpeningSuccess)
+        if(m_bGazeActivated)
         {
-            l_bPortOpeningSuccess = m_oGazeTrackerPort.open(m_sGazeTrackerPortName.c_str());
+            if(!m_oGazeTrackerPort.open(m_sGazeTrackerPortName.c_str()))
+            {
+                std::cerr << "-ERROR: Unable to open gaze port." << std::endl;
+                m_oRobotHead.close();
+                return (m_bInitialized=false);
+            }
         }
-        if(m_bLEDActivated && l_bPortOpeningSuccess)
+        if(m_bLEDActivated)
         {
-            l_bPortOpeningSuccess = m_oFaceTrackerPort.open(m_sFaceTrackerPortName.c_str());
-        }
-        if((m_bLEDActivated || m_bGazeActivated) && l_bPortOpeningSuccess)
-        {
-            l_bPortOpeningSuccess = m_oFaceHandlerPort.open(m_sEyelidOutputPortName.c_str());
-        }
-
-        if(!l_bPortOpeningSuccess)
-        {
-            std::cerr << "-ERROR: Unable to open ports." << std::endl;
-            m_oRobotHead.close();
-            return (m_bInitialized=false);
+            if(m_oFaceHandlerPort.open(m_sEyelidOutputPortName.c_str()))
+            {
+                std::cerr << "-ERROR: Unable to open face port." << std::endl;
+                m_oRobotHead.close();
+                return (m_bInitialized=false);
+            }
         }
 
     //  attach to port
@@ -221,10 +225,32 @@ bool swTeleop::SWIcubHead::init( yarp::os::ResourceFinder &oRf)
         }
 
     // init controller
-        m_pVelocityController = new swTeleop::SWHeadVelocityController(m_pIHeadEncoders, m_pIHeadVelocity, m_vHeadJointVelocityK, m_dVelocityToleranceHead, m_dVelocityToleranceGaze, 10);
+        m_pVelocityController = new swTeleop::SWHeadVelocityController(m_pIHeadEncoders, m_pIHeadVelocity, m_vHeadJointVelocityK, 10);
         m_pVelocityController->enableHead(m_bHeadActivated);
         m_pVelocityController->enableGaze(m_bGazeActivated);
         m_pVelocityController->setMinMaxJoints(m_vHeadMinJoint, m_vHeadMaxJoint);
+
+    // display parameters
+        std::cout << std::endl << std::endl;
+        displayDebug(std::string("Head activated"), m_bHeadActivated);
+        displayDebug(std::string("Gaze activated"), m_bGazeActivated);
+        displayDebug(std::string("LED activated"), m_bLEDActivated);
+        std::cout << std::endl;
+        displayDebug(std::string("Timeout head reset"), m_i32TimeoutHeadReset);
+        displayDebug(std::string("Timeout gaze reset"), m_i32TimeoutGazeReset);
+        displayDebug(std::string("Timeout LED reset"), m_i32TimeoutLEDReset);
+        std::cout << std::endl;
+        displayDebug(std::string("Min eyelids : "), m_dMinEyelids);
+        displayDebug(std::string("Max eyelids : "), m_dMaxEyelids);
+        std::cout << std::endl;
+        displayVectorDebug(std::string("Head min joint                  : "), m_vHeadMinJoint);
+        displayVectorDebug(std::string("Head max joint                  : "), m_vHeadMaxJoint);
+        displayVectorDebug(std::string("Head reset position joint       : "), m_vHeadResetPosition);
+        displayVectorDebug(std::string("Head joint velocity acceleration: "), m_vHeadJointVelocityAcceleration);
+        displayVectorDebug(std::string("Head joint position acceleration: "), m_vHeadJointPositionAcceleration);
+        displayVectorDebug(std::string("Head joint position speed       : "), m_vHeadJointPositionSpeed);
+        displayVectorDebug(std::string("Head head joint velocity        : "), m_vHeadJointVelocityK);
+        std::cout << std::endl << std::endl;
 
     return (m_bIsRunning=m_bInitialized=true);
 }
@@ -492,9 +518,10 @@ void swTeleop::SWIcubHead::resetHeadPosition()
 {
     if(m_bHeadActivated)
     {
-        m_pIHeadPosition->positionMove(0,0.);
-        m_pIHeadPosition->positionMove(1,0.);
-        m_pIHeadPosition->positionMove(2,0.);
+        for(int ii = 0; ii < 3; ++ii)
+        {
+            m_pIHeadPosition->positionMove(ii,m_vHeadResetPosition[ii]);
+        }
     }
 }
 
@@ -502,9 +529,10 @@ void swTeleop::SWIcubHead::resetGazePosition()
 {
     if(m_bGazeActivated)
     {
-        m_pIHeadPosition->positionMove(3,0.);
-        m_pIHeadPosition->positionMove(4,0.);
-        m_pIHeadPosition->positionMove(5,0.);
+        for(int ii = 3; ii < 6; ++ii)
+        {
+            m_pIHeadPosition->positionMove(ii,m_vHeadResetPosition[ii]);
+        }
 
         // eye closure
             Bottle &l_oFaceMotionBottle = m_oFaceHandlerPort.prepare();
@@ -625,10 +653,8 @@ std::string swTeleop::SWIcubHead::eyesOpeningCode(cdouble dEyeLids, cdouble dMin
 }
 
 swTeleop::SWHeadVelocityController::SWHeadVelocityController(yarp::dev::IEncoders *pIHeadEncoders, yarp::dev::IVelocityControl *pIHeadVelocity,
-                                                     std::vector<double> &vHeadJointVelocityK, double dVelocityToleranceHead,
-                                                     double dVelocityToleranceGaze, int i32Rate)
-    : RateThread(i32Rate), m_dVelocityToleranceHead(dVelocityToleranceHead), m_dVelocityToleranceGaze(dVelocityToleranceGaze),
-      m_bHeadEnabled(false), m_bGazeEnabled(false) , m_vHeadJointVelocityK(vHeadJointVelocityK)
+                                                     std::vector<double> &vHeadJointVelocityK, int i32Rate)
+    : RateThread(i32Rate), m_bHeadEnabled(false), m_bGazeEnabled(false) , m_vHeadJointVelocityK(vHeadJointVelocityK)
 {   
     if(pIHeadEncoders)
     {
@@ -642,9 +668,6 @@ swTeleop::SWHeadVelocityController::SWHeadVelocityController(yarp::dev::IEncoder
 
 void swTeleop::SWHeadVelocityController::run()
 {
-//    double l_dToleranceH = DBL_MAX;
-//    double l_dToleranceG = DBL_MAX;
-
     m_oMutex.lock();
         bool l_bHeadEnabled = m_bHeadEnabled;
         bool l_bGazeEnabled = m_bGazeEnabled;
@@ -655,19 +678,10 @@ void swTeleop::SWHeadVelocityController::run()
     l_vEncoders.resize(l_vHeadJoints.size());
     l_vCommand.resize(l_vHeadJoints.size());
 
-
-//    std::cout << "t-> " << m_dVelocityToleranceHead  << " ";
-
-//    while(l_dToleranceH > m_dVelocityToleranceHead)// || l_dToleranceG > m_dVelocityToleranceGaze)
-    {
-
+    // retrieve current values
         m_pIHeadEncoders->getEncoders(l_vEncoders.data());
 
-
-
-        std::vector<double> l_vNewK(m_vHeadJointVelocityK.size(),0.0);
-
-
+//        std::vector<double> l_vNewK(m_vHeadJointVelocityK.size(),0.0);
 //        for(int ii = 0; ii < 1; ++ii)
 //        {
 //            double l_dLength = m_vMaxJoints[ii] - m_vMinJoints[ii];
@@ -676,7 +690,6 @@ void swTeleop::SWHeadVelocityController::run()
 //            double l_dAmplitude = (m_vMaxJoints[ii] - m_vMinJoints[ii]);
 //            std::cout << l_dDiff << " " << l_dAmplitude << " " << l_dDiff/l_dAmplitude << " | ";
 //        }
-
 
         // head rotation / gaze
             for(uint ii = 0; ii < l_vCommand.size(); ++ii)
@@ -692,17 +705,14 @@ void swTeleop::SWHeadVelocityController::run()
                     l_dCoeff *= l_dCoeff;
                     l_dCoeff = sqrt(l_dCoeff);
 
-                    // TODO
-
-//                        if(l_dCoeff < 0.035)
-                            if(l_dCoeff < 0.025)
-                        {
-                            l_vCommand[ii] = 0.5 * l_dDiff;
-                        }
-                        else
-                        {
-                            l_vCommand[ii] = m_vHeadJointVelocityK[ii] * l_dDiff;
-                        }
+                    if(l_dCoeff < 0.025)
+                    {
+                        l_vCommand[ii] = 0.5 * l_dDiff;
+                    }
+                    else
+                    {
+                        l_vCommand[ii] = m_vHeadJointVelocityK[ii] * l_dDiff;
+                    }
                 }
                 else
                 {
@@ -728,27 +738,6 @@ void swTeleop::SWHeadVelocityController::run()
                     m_pIHeadVelocity->velocityMove(ii, l_vCommand[ii]);
                 }
             }
-
-        // compute tolerance
-//            l_dToleranceH = 0.;
-//            l_dToleranceG = 0.;
-
-//            for(uint ii = 0; ii < l_vCommand.size(); ++ii)
-//            {
-//                if(ii < 3)
-//                {
-//                    l_dToleranceH += sqrt(l_vCommand[ii]*l_vCommand[ii]);
-//                }
-//                else
-//                {
-//                    l_dToleranceG += sqrt(l_vCommand[ii]*l_vCommand[ii]);
-//                }
-//            }
-
-//            std::cout << l_dToleranceH << " ";
-    }
-
-
 }
 
 

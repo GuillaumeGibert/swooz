@@ -43,6 +43,16 @@ namespace swDetect
                             std::string sClassifierFilePath = std::string("../data/classifier/haarcascade_frontalface_alt2.xml"));
 		
 		
+            /**
+             * \brief constructor of SWFaceDetection
+             * \param [in] oMinDetectFaceSize :  min size of a detected face
+             * \param [in] oMaxDetectFaceSize :  max size of a detected face
+             * \param [in] bVerbose           :  display verbose info
+             * \param [in] sClassifierFilePath:  haar cascade classifier file path
+             */
+            SWFaceDetection(const cv::Size &oMinDetectFaceSize, const cv::Size &oMaxDetectFaceSize, cbool bVerbose,
+                            std::string sClassifierFilePath);
+
 			// ############################################# METHODS
 			
             /**
@@ -107,6 +117,7 @@ namespace swDetect
             float m_fFaceWidthRatio;                /**< face rectnagle width ratio */
 			
             cv::Size    m_oMinDetectFaceSize;       /**< minimum size of the detected faces */
+            cv::Size    m_oMaxDetectFaceSize;       /**< maximum size of the detected faces */
 
             cv::Rect m_oLastDetectFace;             /**< last detected face rectangle */
             std::vector<cv::Rect> m_oRects;         /**< vector of rectangles, will contain the haar cascade detection result */

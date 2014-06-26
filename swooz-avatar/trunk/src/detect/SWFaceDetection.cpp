@@ -15,8 +15,7 @@ using namespace swExcept;
 SWFaceDetection::SWFaceDetection(const cv::Size &oMinDetectFaceSize, cbool bVerbose, std::string sClassifierFile) : m_oMinDetectFaceSize(oMinDetectFaceSize), m_bVerbose(bVerbose)
 {	
 	// init cascade files path
-//    std::string l_sCascadeFaceFile        = "../data/classifier/haarcascade_frontalface_alt.xml";
-    std::string l_sCascadeFaceFile  = sClassifierFile; //"../data/classifier/haarcascade_frontalface_alt2.xml";
+    std::string l_sCascadeFaceFile  = sClassifierFile;
 	
     if(m_bVerbose)
     {
@@ -49,7 +48,45 @@ SWFaceDetection::SWFaceDetection(const cv::Size &oMinDetectFaceSize, cbool bVerb
 	
     // init rects
     m_oLastDetectFace.width = 0;
-	
+}
+
+SWFaceDetection::SWFaceDetection(const cv::Size &oMinDetectFaceSize, const cv::Size &oMaxDetectFaceSize, cbool bVerbose, std::string sClassifierFilePath):
+    m_oMinDetectFaceSize(oMinDetectFaceSize),m_oMaxDetectFaceSize(oMaxDetectFaceSize), m_bVerbose(bVerbose)
+{
+    // init cascade files path
+    std::string l_sCascadeFaceFile  = sClassifierFilePath;
+
+    if(m_bVerbose)
+    {
+        std::cout << "Haar cascade file initialized : " << l_sCascadeFaceFile << std::endl;
+    }
+
+    m_bHaarCascadeFilesLoaded = false;
+
+    try
+    {
+        // init face cascade detection
+        m_CHaarCascadeFacePtr = SWHaarCascadePtr(new SWHaarCascade(l_sCascadeFaceFile,1, m_oMinDetectFaceSize,m_oMaxDetectFaceSize));
+        m_bHaarCascadeFilesLoaded = true;
+    }
+    catch(const haarFileInitError &e)
+    {
+        std::cerr << e.what() << std::endl;
+    }
+
+    // init detection ratios
+    m_fWidthRatioImageToDetect  = 0.9f;
+    m_fHeightRatioImageToDetect = 0.9f;
+
+    m_fFaceHeightRatio 	        = 0.0f;
+    m_fFaceWidthRatio           = 0.0f;
+
+    // init rectangle offset
+    m_i32WidthRectFaceOffset  = 10;
+    m_i32HeightRectFaceOffset = 15;
+
+    // init rects
+    m_oLastDetectFace.width = 0;
 }
 
 void SWFaceDetection::setRectRatios(cfloat fWidthRatio, cfloat fHeightRatio)

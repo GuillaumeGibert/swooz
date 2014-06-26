@@ -51,11 +51,10 @@ namespace swTeleop
              * @param pIArmEncoders
              * @param pIArmVelocity
              * @param vArmJointVelocityK
-             * @param dVelocityToleranceArm
              * @param i32Rate
              */
             SWArmVelocityController(yarp::dev::IEncoders *pIArmEncoders, yarp::dev::IVelocityControl *pIArmVelocity,
-                                 std::vector<double> &vArmJointVelocityK, double dVelocityToleranceArm = 15.,int i32Rate = 10);
+                                 std::vector<double> &vArmJointVelocityK,int i32Rate = 10);
 
             /**
              * @brief run
@@ -78,7 +77,6 @@ namespace swTeleop
         private :
 
             bool m_bArmEnabled;
-            double m_dVelocityToleranceArm;                /**< ... */
 
             yarp::os::Mutex m_oMutex;                   /**< ... */
             yarp::dev::IEncoders *m_pIArmEncoders;         /**< ... */
@@ -144,40 +142,35 @@ namespace swTeleop
         private :
 
 
-            bool m_bInitialized;    /**< .... */
-            bool m_bIsRunning;      /**< ... */
+            bool m_bInitialized;            /**< .... */
+            bool m_bIsRunning;              /**< ... */
 
-            int m_i32ArmJointsNb;  /**< ... */
+            int m_i32ArmJointsNb;           /**< ... */
 
-            double m_dArmTimeLastBottle;/**< ... */
+            double m_dArmTimeLastBottle;    /**< ... */
 
             // Config variables retrieved from the ini file
-            bool m_bArmActivated;  /**< .... */
-            int m_bArmActivatedDefault;  /**< .... */
+            bool m_bArmActivated;               /**< .... */
+            int m_i32TimeoutArmReset;           /**< ... */
 
-            int m_i32TimeoutArmReset;  /**< ... */
-            int m_i32TimeoutArmResetDefault;  /**< ... */
+            int m_bArmActivatedDefault;         /**< .... */
+            int m_i32TimeoutArmResetDefault;    /**< ... */
 
-            double m_dVelocityToleranceArm;        /**< ... */
-            double m_dVelocityToleranceArmDefault; /**< ... */
+            std::vector<double> m_vArmMinJoint;                         /**< ... */
+            std::vector<double> m_vArmMaxJoint;                         /**< ... */
+            std::vector<double> m_vArmResetPosition;                    /**< ... */
+            std::vector<double> m_vArmJointVelocityAcceleration;        /**< ... */
+            std::vector<double> m_vArmJointPositionAcceleration;        /**< ... */
+            std::vector<double> m_vArmJointPositionSpeed;               /**< ... */
+            std::vector<double> m_vArmJointVelocityK;                   /**< ... */
 
-            std::vector<double> m_vArmMinJoint;            /**< ... */
-            std::vector<double> m_vArmMaxJoint;            /**< ... */
-            std::vector<double> m_vArmMinJointDefault;     /**< ... */
-            std::vector<double> m_vArmMaxJointDefault;     /**< ... */
-
-            std::vector<double> m_vArmResetPosition;        /**< ... */
-            std::vector<double> m_vArmResetPositionDefault; /**< ... */
-
-            std::vector<double> m_vArmJointVelocityAcceleration;       /**< ... */
-            std::vector<double> m_vArmJointPositionAcceleration;       /**< ... */
-            std::vector<double> m_vArmJointPositionSpeed;              /**< ... */
-            std::vector<double> m_vArmJointVelocityAccelerationDefault;/**< ... */
-            std::vector<double> m_vArmJointPositionAccelerationDefault;/**< ... */
-            std::vector<double> m_vArmJointPositionSpeedDefault;       /**< ... */
-
-            std::vector<double> m_vArmJointVelocityK;         /**< ... */
-            std::vector<double> m_vArmJointVelocityKDefault;  /**< ... */
+            std::vector<double> m_vArmMinJointDefault;                  /**< ... */
+            std::vector<double> m_vArmMaxJointDefault;                  /**< ... */
+            std::vector<double> m_vArmResetPositionDefault;             /**< ... */
+            std::vector<double> m_vArmJointVelocityAccelerationDefault; /**< ... */
+            std::vector<double> m_vArmJointPositionAccelerationDefault; /**< ... */
+            std::vector<double> m_vArmJointPositionSpeedDefault;        /**< ... */
+            std::vector<double> m_vArmJointVelocityKDefault;            /**< ... */
 
             std::string m_sModuleName;              /**< name of the mondule (config) */
             std::string m_sRobotName;               /**< name of the robot (config) */

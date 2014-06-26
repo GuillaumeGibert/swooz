@@ -46,6 +46,7 @@ using namespace yarp::dev;
 using namespace yarp::sig;
 using namespace yarp::math;
 
+
 /**
  * \class SWTeleoperation_iCub
  * \author Guillaume Gibert, Florian Lance, Emmanuel Body

@@ -30,7 +30,6 @@ swTeleop::SWIcubArm::SWIcubArm() : m_bInitialized(false), m_bIsRunning(false), m
             m_i32TimeoutArmResetDefault = 3000;
 
         // accelerations / speeds
-            m_dVelocityToleranceArmDefault = 15.;
             double l_aDMinJointDefault[]                       = {-95., 0., -37., 16., -90., -90., -20., 0., 10., 0., 0., 0., 0., 0., 0., 0.};
             double l_aDMaxJointDefault[]                       = { 10., 160., 80., 106., 90., 0., 40., 60., 90., 90., 180., 90., 180., 90., 180., 270.};
             double l_aDArmResetPosition[]                      = {-25.,20.,0.,50.,0.,0.,0.,60.,20.,20.,20.,10.,10.,10.,10.,10.};
@@ -131,11 +130,6 @@ bool swTeleop::SWIcubArm::init( yarp::os::ResourceFinder &oRf, bool bLeftArm)
     // miscellaneous
         m_i32TimeoutArmReset   = oRf.check(std::string(m_sArm + "ArmTimeoutReset").c_str(),       Value(m_i32TimeoutArmResetDefault), std::string(m_sArm + " arm timeout reset iCub (int)").c_str()).asInt();
 
-        if(bLeftArm)
-            m_dVelocityToleranceArm= oRf.check(std::string("velocityToleranceLeftArm").c_str(), Value(m_dVelocityToleranceArmDefault), std::string(m_sArm + " left arm velocity tolerance (double)").c_str()).asDouble();
-        else
-            m_dVelocityToleranceArm= oRf.check(std::string("velocityToleranceRightArm").c_str(),Value(m_dVelocityToleranceArmDefault), std::string(m_sArm + " right arm velocity tolerance (double)").c_str()).asDouble();
-
     // set polydriver options
         m_oArmOptions.put("robot",     m_sRobotName.c_str());
         m_oArmOptions.put("device",    "remote_controlboard");
@@ -235,8 +229,23 @@ bool swTeleop::SWIcubArm::init( yarp::os::ResourceFinder &oRf, bool bLeftArm)
         }
 
     // init controller
-        m_pVelocityController = new swTeleop::SWArmVelocityController(m_pIArmEncoders, m_pIArmVelocity, m_vArmJointVelocityK, m_dVelocityToleranceArm, 10);
+        m_pVelocityController = new swTeleop::SWArmVelocityController(m_pIArmEncoders, m_pIArmVelocity, m_vArmJointVelocityK, 10);
         m_pVelocityController->enableArm(m_bArmActivated);
+
+
+        // display parameters
+            std::cout << std::endl << std::endl;
+            displayDebug(m_sArm + std::string(" arm activated"), m_bArmActivated);
+            displayDebug(std::string("Gaze activated"), m_i32TimeoutArmReset);
+            std::cout << std::endl;
+            displayVectorDebug(m_sArm + std::string(" arm min joint                  : "), m_vArmMinJoint);
+            displayVectorDebug(m_sArm + std::string(" arm max joint                  : "), m_vArmMaxJoint);
+            displayVectorDebug(m_sArm + std::string(" arm reset position joint       : "), m_vArmResetPosition);
+            displayVectorDebug(m_sArm + std::string(" arm joint velocity acceleration: "), m_vArmJointVelocityAcceleration);
+            displayVectorDebug(m_sArm + std::string(" arm joint position acceleration: "), m_vArmJointPositionAcceleration);
+            displayVectorDebug(m_sArm + std::string(" arm joint position speed       : "), m_vArmJointPositionSpeed);
+            displayVectorDebug(m_sArm + std::string(" arm head joint velocity        : "), m_vArmJointVelocityK);
+            std::cout << std::endl << std::endl;
 
     return (m_bIsRunning=m_bInitialized=true);
 }
@@ -622,8 +631,8 @@ bool swTeleop::SWIcubArm::interruptModule()
 
 
 swTeleop::SWArmVelocityController::SWArmVelocityController(yarp::dev::IEncoders *pIArmEncoders, yarp::dev::IVelocityControl *pIArmVelocity,
-                                                     std::vector<double> &vArmJointVelocityK, double dVelocityTolerance, int i32Rate)
-    : RateThread(i32Rate), m_dVelocityToleranceArm(dVelocityTolerance), m_bArmEnabled(false), m_vArmJointVelocityK(vArmJointVelocityK)
+                                                     std::vector<double> &vArmJointVelocityK, int i32Rate)
+    : RateThread(i32Rate), m_bArmEnabled(false), m_vArmJointVelocityK(vArmJointVelocityK)
 {
 
     if(pIArmEncoders)
@@ -640,7 +649,6 @@ void swTeleop::SWArmVelocityController::run()
 {
 
         m_oMutex.lock();
-            bool l_bArmEnabled = m_bArmEnabled;
             yarp::sig::Vector l_vArmJoints = m_vLastArmJoint; // Check values with Joint before
         m_oMutex.unlock();
 
@@ -650,14 +658,11 @@ void swTeleop::SWArmVelocityController::run()
 
         m_pIArmEncoders->getEncoders(l_vEncoders.data());
 
-
         //std::cout<<"Calcul of joint 7 : K*(armjoint-encoder) => "<<m_vArmJointVelocityK[7]<<"*("<<l_vArmJoints[7]<<"-"<<l_vEncoders[7]<<")"<<std::endl;
         for(uint ii = 0; ii < l_vCommand.size(); ++ii)
         {
                 //std::cout<<"ArmJoint value  : "<<ii<<" With this value : "<<l_vArmJoints[ii]<<std::endl;
             l_vCommand[ii] =  m_vArmJointVelocityK[ii] * (l_vArmJoints[ii] - l_vEncoders[ii]);
-
-
         }
         l_vCommand[7]=0;//NEEDS TO BE REMOVE / ONLY TO BLOCK FINGER APPERTURE
     //	std::cout<<"Joint Configuration 7  : "<<l_vCommand[7]<<std::endl;
@@ -666,11 +671,6 @@ void swTeleop::SWArmVelocityController::run()
             m_pIArmVelocity->velocityMove(ii, l_vCommand[ii]);
         //	std::cout<<"Command number : "<<ii<<" With this value : "<<l_vCommand[ii]<<std::endl;
         }
-
-        // ...
-
-        // ...
-
 }
 
 void swTeleop::SWArmVelocityController::enableArm(cbool bActivated)

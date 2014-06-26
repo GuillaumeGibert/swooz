@@ -21,33 +21,33 @@ bool SWTeleoperation_iCub::configure(ResourceFinder &rf)
 {
     // gets the module name which will form the stem of all module port names
         m_sModuleName   = rf.check("name", Value("teleoperation_iCub"), "Teleoperation/iCub Module name (string)").asString();
-        m_sRobotName    = rf.check("robot",  Value("icubSim"),  "Robot name (string)").asString();
+        m_sRobotName    = rf.check("robot", Value("icubSim"),  "Robot name (string)").asString();
         setName(m_sModuleName.c_str());
 
     // miscellaneous
-        m_i32Fps        = rf.check("fps",                   Value(100),  "Frame per second (int)").asInt();
+        m_i32Fps        = rf.check("fps", Value(100),  "Frame per second (int)").asInt();
 
     // init sub control mobules
-        m_bHeadInitialized = m_oIcubHeadControl.init(rf);
-        m_bTorsoInitialized = m_oIcubTorsoControl.init(rf);
-        m_bLeftArmInitialized = m_oIcubLeftArmControl.init(rf, true);
-        m_bRightArmInitialized = m_oIcubRightArmControl.init(rf, false);
+        m_bHeadInitialized      = m_oIcubHeadControl.init(rf);
+        m_bTorsoInitialized     = m_oIcubTorsoControl.init(rf);
+        m_bLeftArmInitialized   = m_oIcubLeftArmControl.init(rf, true);
+        m_bRightArmInitialized  = m_oIcubRightArmControl.init(rf, false);
 
         if(m_bHeadInitialized)
         {
-            std::cout << "ICub head initialized. " << std::endl;
+            std::cout << "  -- iCub head initialized. " << std::endl;
         }
         if(m_bTorsoInitialized)
         {
-            std::cout << "ICub torso initialized. " << std::endl;
+            std::cout << "  -- iCub torso initialized. " << std::endl;
         }
         if(m_bLeftArmInitialized)
         {
-            std::cout << "ICub left arm initialized. " << std::endl;
+            std::cout << "  -- iCub left arm initialized. " << std::endl;
         }
         if(m_bRightArmInitialized)
         {
-            std::cout << "ICub right arm initialized. " << std::endl;
+            std::cout << "  -- iCub right arm initialized. " << std::endl;
         }
 
         if(!m_bHeadInitialized && !m_bTorsoInitialized && !m_bLeftArmInitialized && !m_bRightArmInitialized)
