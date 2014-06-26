@@ -188,7 +188,8 @@ double SWLeap::getFingerRotation(cuint ui32NumFinger, cuint ui32NumCouple,bool i
     }
 }
 
-float SWLeap::getFingerCoords(cuint ui32NumFinger,cuint ui32NumCoord,bool isleft)
+
+float SWLeap::fingersCoords(cuint ui32NumFinger,cuint ui32NumCoord,bool isleft)
 {
     if(isleft)
     {
@@ -1117,3 +1118,17 @@ bool SWLeap::read()
     std::cout<<"The device is not connected/plugged !"<<std::endl;
     return false;
 }
+
+
+
+
+
+
+
+
+
+
+//std::vector<double> SWLeap::leftHandFinger(cuint ui32IdFinger)
+//{
+//    return m_vFingerCoordsLeft[ui32IdFinger];
+//}

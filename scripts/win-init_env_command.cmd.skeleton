@@ -10,13 +10,13 @@ SET ARCH_EXE_trackingFaceShift=x86
 SET ARCH_EXE_trackingFaceLab=x86
 SET ARCH_EXE_trackingHeadForest=x86
 SET ARCH_EXE_trackingFake=x86
+SET ARCH_EXE_trackingLeap=x86
 SET ARCH_EXE_createAvatar=x86
 SET ARCH_EXE_toolkit_kinectOnDimenco=x86
 SET ARCH_EXE_3dclient_dummy=x86
 SET ARCH_EXE_3dplayer=x86
 SET ARCH_EXE_manipulation=x86
 set ARCH_EXE_teleoperation_nao=x86
-set ARCH_EXE_viewer=x86
 set ARCH_EXE_examples=x86
 REM ########################################################################################################################
 
@@ -226,6 +226,10 @@ set THIRD_PARTY_NAOQI=%SW_base%\swooz-3rdparty\naoqi
 set THIRD_PARTY_NAOQI_64=
 REM ##################### CUSPARSE
 set THIRD_PARTY_CUSPARSE=%SW_base%\swooz-3rdparty\cuSparse
+REM ##################### LEAP
+set THIRD_PARTY_LEAP=%SW_base%\swooz-3rdparty\leap
+REM ##################### ICUB
+set THIRD_PARTY_ICUB=%SW_base%\swooz-3rdparty\icub
 REM ########################################################################################################################
 
 
@@ -319,7 +323,7 @@ set PATH=%THIRD_PARTY_MKL%\lib;%PATH%
 set PATH=%THIRD_PARTY_POLHEMUS%\lib\Win32;%PATH%
 set PATH=%THIRD_PARTY_FREEGLUT%\bin;%PATH%
 set PATH=%THIRD_PARTY_NAOQI%\bin;%PATH%
-
+set PATH=%THIRD_PARTY_LEAP%\lib;%PATH%
 goto endSetPath
 
 :setPath64

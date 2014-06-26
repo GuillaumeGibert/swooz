@@ -57,7 +57,7 @@ namespace swDevice
              * @param isleft
              * @return
              */
-			float getFingerCoords(cuint ui32NumFinger,cuint ui32NumCoord,bool isleft);
+            float fingersCoords(cuint ui32NumFinger,cuint ui32NumCoord,bool isleft);
 
             /**
              * @brief Return the Direction of a ui32NumFinger : X = 0, Y = 1, Z = 2 => ui32NumDir
@@ -279,10 +279,10 @@ namespace swDevice
 
 
 
-            // replacement
+            // ############################################################### replacement
 //            int m_fps;
-            std::vector<Leap::Finger> m_vLeftFingers;  /**< arrays of left fingers, order : thunb, index, middle, ring, pinky */
-            std::vector<Leap::Finger> m_vRightFingers; /**< arrays of right fingers, order : thunb, index, middle, ring, pinky */
+//            std::vector<Leap::Finger> m_vLeftFingers;  /**< arrays of left fingers, order : thunb, index, middle, ring, pinky */
+//            std::vector<Leap::Finger> m_vRightFingers; /**< arrays of right fingers, order : thunb, index, middle, ring, pinky */
 	};
 }
 
