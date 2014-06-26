@@ -27,37 +27,37 @@
 
 
 	<connection>
-        	<from>/tracking/Leap/LeapSDK/left_arm</from>
+        	<from>/tracking/leap/leapSDK/left_arm</from>
        		<to>/teleoperation/icubSim/left_arm</to>
        		<protocol>udp</protocol>
     	</connection>
 
 	<connection>
-        	<from>/tracking/Leap/LeapSDK/left_arm/hand</from>
+        	<from>/tracking/leap/leapSDK/left_arm/hand</from>
        		<to>/teleoperation/icubSim/left_arm/hand</to>
        		<protocol>udp</protocol>
     	</connection>
 
 	<connection>
-        	<from>/tracking/Leap/LeapSDK/left_arm/fingers</from>
+        	<from>/tracking/leap/leapSDK/left_arm/fingers</from>
        		<to>/teleoperation/icubSim/left_arm/fingers</to>
        		<protocol>udp</protocol>
     	</connection>
 
 	<connection>
-        	<from>/tracking/Leap/LeapSDK/right_arm</from>
+        	<from>/tracking/leap/leapSDK/right_arm</from>
        		<to>/teleoperation/icubSim/right_arm</to>
        		<protocol>udp</protocol>
     	</connection>
 
 	<connection>
-        	<from>/tracking/Leap/LeapSDK/right_arm/hand</from>
+        	<from>/tracking/leap/leapSDK/right_arm/hand</from>
        		<to>/teleoperation/icubSim/right_arm/hand</to>
        		<protocol>udp</protocol>
     	</connection>
 
 	<connection>
-        	<from>/tracking/Leap/LeapSDK/right_arm/fingers</from>
+        	<from>/tracking/leap/leapSDK/right_arm/fingers</from>
        		<to>/teleoperation/icubSim/right_arm/fingers</to>
        		<protocol>udp</protocol>
     	</connection>

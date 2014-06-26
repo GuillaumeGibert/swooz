@@ -26,45 +26,11 @@
 
 
 /**
- * \class SWFaceLabTracking
- * \brief This module sends faceLab data (head,face,gaze) on 3 differents yarp ports.
+ * \class SWLeapTracking
+ * \brief This module sends lead data...
  *
  * Bottles contents :
  *
- * Head :
- *
- *  device id : COREDATA_LIB  / get(0).asInt()
- *
- *   translation
- *       Tx / get(1).asDouble()
- *       Ty / get(2).asDouble()
- *       Tz / get(3).asDouble()
- *   rotation
- *       Rx / get(4).asDouble()
- *       Ry / get(5).asDouble()
- *       Rz / get(6).asDouble()
- *
- * Face :
- *
- *  device id : COREDATA_LIB  / get(0).asInt()
- *
- *  outer lip
- *      outerLip0 x / get(1).asDouble()
- *      outerLip0 y / get(2).asDouble()
- *      outerLip0 z / get(3).asDouble()
- *      outerLip1 x / get(4).asDouble()
- *      outerLip1 y / get(5).asDouble()
- *      outerLip1 z / get(6).asDouble()
- *      outerLip2 x / get(7).asDouble()
- *      outerLip2 y / get(8).asDouble()
- *      outerLip2 z / get(9).asDouble()
- *      outerLip3 x / get(10).asDouble()
- *      outerLip3 y / get(11).asDouble()
- *      outerLip3 z / get(12).asDouble()
- *
- *  ... (see cpp)
- *
- *  TODO : end doc
  *
  */
 class SWLeapTracking : public yarp::os::RFModule

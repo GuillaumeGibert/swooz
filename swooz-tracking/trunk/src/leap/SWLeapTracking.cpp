@@ -22,9 +22,9 @@ using namespace Leap;
 
 SWLeapTracking::SWLeapTracking() : m_bIsLeapInitialized(true), m_i32Fps(40)
 {
-    std::string l_sDeviceName  = "Leap";
-    std::string l_sLibraryName = "LeapSDK";
-	std::string l_sEffector = "left_hand";
+    std::string l_sDeviceName  = "leap";
+    std::string l_sLibraryName = "leapSDK";
+    std::string l_sEffector    = "left_hand";
 
     // set ports name
 		m_sFingerTrackingPortNameLeft =  "/tracking/" + l_sDeviceName + "/"+ l_sLibraryName + "/left_arm/fingers";

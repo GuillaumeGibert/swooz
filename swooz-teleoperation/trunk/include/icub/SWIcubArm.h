@@ -203,6 +203,10 @@ namespace swTeleop
             SWArmVelocityController *m_pVelocityController;    /**< ... */
 
             std::string m_sArm;         /**< ... */
+
+
+            //
+
     };
 }
 
