@@ -16,7 +16,7 @@ namespace swTracking
     enum DeviceLib
     {
         FOREST_LIB,EMICP_LIB,COREDATA_LIB,FASTRAK_LIB,STASM_LIB,FORTH_LIB,TOBII_LIB,FACESHIFT_LIB,OPENNI_LIB,LEAP_LIB,DUMMY_LIB,
-        RankFirst = FOREST_LIB, RankLast = LEAP_LIB
+        RankFirst = FOREST_LIB, RankLast = DUMMY_LIB
     };
 
     /**

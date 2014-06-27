@@ -237,7 +237,6 @@ bool swTeleop::SWIcubArm::init( yarp::os::ResourceFinder &oRf, bool bLeftArm)
         m_pVelocityController = new swTeleop::SWArmVelocityController(m_pIArmEncoders, m_pIArmVelocity, m_vArmJointVelocityK, 10);
         m_pVelocityController->enableArm(m_bArmActivated);
 
-
         // display parameters
             std::cout << std::endl << std::endl;
             displayDebug(m_sArm + std::string(" arm activated"), m_bArmActivated);
@@ -261,6 +260,7 @@ bool swTeleop::SWIcubArm::checkBottles()
     {
         return false;
     }
+
 
     if(!m_bInitialized)
     {
@@ -289,6 +289,7 @@ bool swTeleop::SWIcubArm::checkBottles()
             if (l_pArmTarget)
             {
                 int l_deviceId = l_pArmTarget->get(0).asInt();
+
                 switch(l_deviceId)
                 {
                     case swTracking::DUMMY_LIB :
@@ -520,10 +521,10 @@ bool swTeleop::SWIcubArm::checkBottles()
 //                        }
                     }
                     break;
-
-                    m_dArmTimeLastBottle = -1.;
-                    m_pVelocityController->enableArm(true);
                 }
+
+                m_dArmTimeLastBottle = -1.;
+                m_pVelocityController->enableArm(true);
 
             }
             else // manage timeout and reset position
@@ -564,7 +565,7 @@ bool swTeleop::SWIcubArm::checkBottles()
             m_pVelocityController->setJoints(l_vArmJoints);
 
             if(!m_pVelocityController->isRunning())
-            {
+            {                
                 m_pVelocityController->start();
             }
         }
@@ -653,7 +654,6 @@ swTeleop::SWArmVelocityController::SWArmVelocityController(yarp::dev::IEncoders 
 
 void swTeleop::SWArmVelocityController::run()
 {
-
         m_oMutex.lock();
             yarp::sig::Vector l_vArmJoints = m_vLastArmJoint; // Check values with Joint before
         m_oMutex.unlock();
@@ -664,11 +664,11 @@ void swTeleop::SWArmVelocityController::run()
 
         m_pIArmEncoders->getEncoders(l_vEncoders.data());
 
-        std::cout << "arm joints : ";
+//        std::cout << "arm joints : ";
         for(uint ii = 0; ii < l_vCommand.size(); ++ii)
         {
             l_vCommand[ii] =  m_vArmJointVelocityK[ii] * (l_vArmJoints[ii] - l_vEncoders[ii]);
-//            std::cout << l_vArmJoints[ii] << " ";
+//            std::cout << m_vArmJointVelocityK[ii] << " " << l_vArmJoints[ii] << " " << l_vEncoders[ii] << " " <<  l_vCommand[ii];
 
         }
 //        std::cout << std::endl;
@@ -686,7 +686,6 @@ void swTeleop::SWArmVelocityController::run()
 
 void swTeleop::SWArmVelocityController::enableArm(cbool bActivated)
 {
-
     m_oMutex.lock();
         m_bArmEnabled = bActivated;
     m_oMutex.unlock();

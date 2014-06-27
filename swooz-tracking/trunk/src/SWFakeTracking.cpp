@@ -95,6 +95,7 @@ int main(int argc, char* argv[])
     std::cout << "Device : " << l_sDevice << std::endl;
     std::cout << "Lib : " << l_sLib << std::endl;
     std::cout << "Robot part : " << l_sRobotPart << std::endl;
+    std::cout << "Lib device : " << l_sLIB_DEVICE << std::endl;
 
     bool l_bEndFile = false;
 
@@ -139,7 +140,6 @@ int main(int argc, char* argv[])
     }
 
     l_oFileStream.close();
-
 
     // ###################################
 
