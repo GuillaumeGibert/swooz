@@ -199,7 +199,16 @@ bool swTeleop::SWIcubHead::init( yarp::os::ResourceFinder &oRf)
         }
         if(m_bLEDActivated)
         {
-            if(m_oFaceHandlerPort.open(m_sEyelidOutputPortName.c_str()))
+            if(!m_oFaceHandlerPort.open(m_sEyelidOutputPortName.c_str()))
+            {
+                std::cerr << "-ERROR: Unable to open face handler port." << std::endl;
+                m_oRobotHead.close();
+                return (m_bInitialized=false);
+            }
+        }
+        if(m_bLEDActivated || m_bGazeActivated)
+        {
+            if(!m_oFaceTrackerPort.open(m_sFaceTrackerPortName.c_str()))
             {
                 std::cerr << "-ERROR: Unable to open face port." << std::endl;
                 m_oRobotHead.close();

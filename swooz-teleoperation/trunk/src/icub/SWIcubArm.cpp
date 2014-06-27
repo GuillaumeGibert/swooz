@@ -93,8 +93,12 @@ bool swTeleop::SWIcubArm::init( yarp::os::ResourceFinder &oRf, bool bLeftArm)
 
     // robot parts to control
 
-
         m_bArmActivated = oRf.check(std::string(m_sArm + "ArmActivated").c_str(), Value(m_bArmActivatedDefault), std::string(m_sArm + " Arm activated (int)").c_str()).asInt() != 0;
+
+        if(!m_bArmActivated)
+        {
+            return (m_bInitialized = false);
+        }
 
     // min / max values for iCub Torso joints
         for(uint ii = 0; ii < m_vArmJointVelocityAcceleration.size(); ++ii)
