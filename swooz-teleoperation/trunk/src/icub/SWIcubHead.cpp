@@ -82,7 +82,7 @@ bool swTeleop::SWIcubHead::init( yarp::os::ResourceFinder &oRf)
 {
     if(m_bInitialized)
     {
-        std::cerr << "Icub head is already initialized. " << std::endl;
+        std::cerr << "-WARNING : Icub head is already initialized. " << std::endl;
         return true;
     }
 
@@ -97,6 +97,7 @@ bool swTeleop::SWIcubHead::init( yarp::os::ResourceFinder &oRf)
 
         if(!m_bHeadActivated && !m_bGazeActivated && !m_bLEDActivated)
         {
+            std::cout << "Head, gaze and LEDS not activated, icub head initialization aborted. " << std::endl;
             return (m_bInitialized=false);
         }
 
@@ -159,14 +160,14 @@ bool swTeleop::SWIcubHead::init( yarp::os::ResourceFinder &oRf)
         m_oRobotHead.open(m_oHeadOptions);
         if(!m_oRobotHead.isValid())
         {
-            std::cerr << "-ERROR: robotHead is not valid, escape head initialization. " << std::endl;
+            std::cerr << std::endl << "-ERROR: robotHead is not valid, escape head initialization. " << std::endl<< std::endl;
             return (m_bInitialized=false);
         }
 
     // initializing controllers
         if (!m_oRobotHead.view(m_pIHeadVelocity) || !m_oRobotHead.view(m_pIHeadPosition) || !m_oRobotHead.view(m_pIHeadEncoders))
         {
-            std::cerr << "-ERROR: while getting required robot head interfaces." << std::endl;
+            std::cerr << std::endl << "-ERROR: while getting required robot head interfaces." << std::endl<< std::endl;
             m_oRobotHead.close();
             return (m_bInitialized=false);
         }
@@ -183,7 +184,7 @@ bool swTeleop::SWIcubHead::init( yarp::os::ResourceFinder &oRf)
         {
             if(!m_oHeadTrackerPort.open(m_sHeadTrackerPortName.c_str()))
             {
-                std::cerr << "-ERROR: Unable to open head port." << std::endl;
+                std::cerr << std::endl <<"-ERROR: Unable to open head port." << std::endl<< std::endl;
                 m_oRobotHead.close();
                 return (m_bInitialized=false);
             }
@@ -192,7 +193,7 @@ bool swTeleop::SWIcubHead::init( yarp::os::ResourceFinder &oRf)
         {
             if(!m_oGazeTrackerPort.open(m_sGazeTrackerPortName.c_str()))
             {
-                std::cerr << "-ERROR: Unable to open gaze port." << std::endl;
+                std::cerr << std::endl << "-ERROR: Unable to open gaze port." << std::endl<< std::endl;
                 m_oRobotHead.close();
                 return (m_bInitialized=false);
             }
@@ -201,7 +202,7 @@ bool swTeleop::SWIcubHead::init( yarp::os::ResourceFinder &oRf)
         {
             if(!m_oFaceHandlerPort.open(m_sEyelidOutputPortName.c_str()))
             {
-                std::cerr << "-ERROR: Unable to open face handler port." << std::endl;
+                std::cerr << std::endl << "-ERROR: Unable to open face handler port." << std::endl<< std::endl;
                 m_oRobotHead.close();
                 return (m_bInitialized=false);
             }
@@ -210,7 +211,7 @@ bool swTeleop::SWIcubHead::init( yarp::os::ResourceFinder &oRf)
         {
             if(!m_oFaceTrackerPort.open(m_sFaceTrackerPortName.c_str()))
             {
-                std::cerr << "-ERROR: Unable to open face port." << std::endl;
+                std::cerr << std::endl << "-ERROR: Unable to open face port." << std::endl<< std::endl;
                 m_oRobotHead.close();
                 return (m_bInitialized=false);
             }
@@ -273,7 +274,7 @@ bool swTeleop::SWIcubHead::checkBottles()
 
     if(!m_bInitialized)
     {
-        std::cerr << "Icub head control module not initialized. " << std::endl;
+        std::cerr << std::endl << "-ERROR : Icub head control module not initialized. " << std::endl << std::endl;
         return (m_bIsRunning=false);
     }
 
@@ -296,6 +297,13 @@ bool swTeleop::SWIcubHead::checkBottles()
 
                 switch(l_deviceId)
                 {
+                    case swTracking::DUMMY_LIB :
+                        {
+                            l_vHeadJoints[0] = l_pHeadTarget->get(1).asDouble();
+                            l_vHeadJoints[1] = l_pHeadTarget->get(2).asDouble();
+                            l_vHeadJoints[2] = l_pHeadTarget->get(3).asDouble();
+                        }
+                    break;
                     case swTracking::FOREST_LIB :
                         {
                             l_vHeadJoints[0] = -l_pHeadTarget->get(1).asDouble(); //head rotation "yes" [-40 30]
@@ -383,20 +391,28 @@ bool swTeleop::SWIcubHead::checkBottles()
 
                 switch(l_deviceId)
                 {
+                    case swTracking::DUMMY_LIB :
+                    {
+                        // eye position
+                            l_vHeadJoints[3] = l_pGazeTarget->get(1).asDouble();
+                            l_vHeadJoints[4] = l_pGazeTarget->get(2).asDouble();
+                            l_vHeadJoints[5] = l_pGazeTarget->get(3).asDouble();
+                    }
+                    break;
                     case swTracking::COREDATA_LIB :
-                        {
-                            // eye position
-                                l_vHeadJoints[3] = swUtil::rad2Deg( (l_pGazeTarget->get(9) .asDouble() + l_pGazeTarget->get(14).asDouble())/2.); // up/down eye [-35; +15]
-                                l_vHeadJoints[4] = swUtil::rad2Deg(-(l_pGazeTarget->get(10).asDouble() + l_pGazeTarget->get(15).asDouble())/2.); // version angle [-50; 52] = (L+R)/2
-                                l_vHeadJoints[5] = swUtil::rad2Deg( -l_pGazeTarget->get(10).asDouble() + l_pGazeTarget->get(15).asDouble());     // vergence angle [0 90] = R-L
+                    {
+                        // eye position
+                            l_vHeadJoints[3] = swUtil::rad2Deg( (l_pGazeTarget->get(9) .asDouble() + l_pGazeTarget->get(14).asDouble())/2.); // up/down eye [-35; +15]
+                            l_vHeadJoints[4] = swUtil::rad2Deg(-(l_pGazeTarget->get(10).asDouble() + l_pGazeTarget->get(15).asDouble())/2.); // version angle [-50; 52] = (L+R)/2
+                            l_vHeadJoints[5] = swUtil::rad2Deg( -l_pGazeTarget->get(10).asDouble() + l_pGazeTarget->get(15).asDouble());     // vergence angle [0 90] = R-L
 
-                            // eye closure
-                                Bottle &l_oFaceMotionBottle = m_oFaceHandlerPort.prepare();
-                                l_oFaceMotionBottle.clear();
-                                double l_dLeftEyeClosure = l_pGazeTarget->get(8).asDouble(), l_dRightEyeClosure = l_pGazeTarget->get(13).asDouble();
-                                l_oFaceMotionBottle.addString(eyesOpeningCode((1.0-(l_dLeftEyeClosure + l_dRightEyeClosure)/2.0), m_dMinEyelids, m_dMaxEyelids).c_str());
-                                m_oFaceHandlerPort.write();
-                        }
+                        // eye closure
+                            Bottle &l_oFaceMotionBottle = m_oFaceHandlerPort.prepare();
+                            l_oFaceMotionBottle.clear();
+                            double l_dLeftEyeClosure = l_pGazeTarget->get(8).asDouble(), l_dRightEyeClosure = l_pGazeTarget->get(13).asDouble();
+                            l_oFaceMotionBottle.addString(eyesOpeningCode((1.0-(l_dLeftEyeClosure + l_dRightEyeClosure)/2.0), m_dMinEyelids, m_dMaxEyelids).c_str());
+                            m_oFaceHandlerPort.write();
+                    }
                     break;
                 }
 
@@ -690,16 +706,6 @@ void swTeleop::SWHeadVelocityController::run()
     // retrieve current values
         m_pIHeadEncoders->getEncoders(l_vEncoders.data());
 
-//        std::vector<double> l_vNewK(m_vHeadJointVelocityK.size(),0.0);
-//        for(int ii = 0; ii < 1; ++ii)
-//        {
-//            double l_dLength = m_vMaxJoints[ii] - m_vMinJoints[ii];
-////            std::cout << m_vMinJoints[ii] << " " << l_vHeadJoints[ii] << " " << m_vMaxJoints[ii] << " " << (l_vHeadJoints[ii] - m_vMinJoints[ii])/l_dLength << " " << l_dLength << " | ";
-//            double l_dDiff = l_vHeadJoints[ii] - l_vEncoders[ii];
-//            double l_dAmplitude = (m_vMaxJoints[ii] - m_vMinJoints[ii]);
-//            std::cout << l_dDiff << " " << l_dAmplitude << " " << l_dDiff/l_dAmplitude << " | ";
-//        }
-
         // head rotation / gaze
             for(uint ii = 0; ii < l_vCommand.size(); ++ii)
             {
@@ -761,7 +767,7 @@ void swTeleop::SWHeadVelocityController::enableGaze(cbool bActivated)
 {
     m_oMutex.lock();
         m_bGazeEnabled = bActivated;
-        m_oMutex.unlock();
+    m_oMutex.unlock();
 }
 
 void swTeleop::SWHeadVelocityController::setMinMaxJoints(const std::vector<double> &vMinJoints, const std::vector<double> &vMaxJoints)

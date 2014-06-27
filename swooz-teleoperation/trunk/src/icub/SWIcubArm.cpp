@@ -97,6 +97,7 @@ bool swTeleop::SWIcubArm::init( yarp::os::ResourceFinder &oRf, bool bLeftArm)
 
         if(!m_bArmActivated)
         {
+            std::cout << m_sArm + " arm not activated, icub " + m_sArm + " arm initialization aborted. " << std::endl;
             return (m_bInitialized = false);
         }
 
@@ -153,7 +154,7 @@ bool swTeleop::SWIcubArm::init( yarp::os::ResourceFinder &oRf, bool bLeftArm)
         m_oRobotArm.open(m_oArmOptions);
         if(!m_oRobotArm.isValid())
         {
-            std::cerr << "-ERROR: " << m_sArm << " robotArm is not valid, escape arm initialization. " << std::endl;
+            std::cerr << std::endl <<"-ERROR: " << m_sArm << " robotArm is not valid, escape arm initialization. " << std::endl <<std::endl;
             return (m_bInitialized=false);
         }
 
@@ -166,7 +167,7 @@ bool swTeleop::SWIcubArm::init( yarp::os::ResourceFinder &oRf, bool bLeftArm)
 
         if (!m_oRobotArmCartesian.isValid())
         {
-            std::cerr << "-ERROR: " << m_sArm << " arm cartesian is not valid" << std::endl;
+            std::cerr << std::endl <<"-ERROR: " << m_sArm << " arm cartesian is not valid" << std::endl <<std::endl;
             return (m_bInitialized=false);
         }
         else
@@ -190,7 +191,7 @@ bool swTeleop::SWIcubArm::init( yarp::os::ResourceFinder &oRf, bool bLeftArm)
     // initializing controllers
         if (!m_oRobotArm.view(m_pIArmVelocity) || !m_oRobotArm.view(m_pIArmPosition) || !m_oRobotArm.view(m_pIArmEncoders))
         {
-            std::cerr <<  "-ERROR: " << m_sArm << " while getting required robot Arm interfaces." << std::endl;
+            std::cerr << std::endl <<  "-ERROR: " << m_sArm << " while getting required robot Arm interfaces." << std::endl <<std::endl;
             m_oRobotArm.close();
             return (m_bInitialized=false);
         }
@@ -215,7 +216,7 @@ bool swTeleop::SWIcubArm::init( yarp::os::ResourceFinder &oRf, bool bLeftArm)
 
         if(!l_bPortOpeningSuccess)
         {
-            std::cerr << "-ERROR: Unable to open ports." << std::endl;
+            std::cerr << std::endl <<"-ERROR: Unable to open ports." << std::endl <<std::endl;
             m_oRobotArm.close();
             m_oRobotArmCartesian.close();
             return (m_bInitialized=false);
@@ -256,10 +257,6 @@ bool swTeleop::SWIcubArm::init( yarp::os::ResourceFinder &oRf, bool bLeftArm)
 
 bool swTeleop::SWIcubArm::checkBottles()
 {
-
-
-    bool l_bAllBottleEnable = false;
-
     if(!m_bIsRunning)
     {
         return false;
@@ -275,6 +272,11 @@ bool swTeleop::SWIcubArm::checkBottles()
         yarp::sig::Vector l_vArmJoints;
         l_vArmJoints.resize(m_i32ArmJointsNb);
         l_vArmJoints = 0.;
+    // set default values to arm joint
+        for(uint ii = 0; ii < l_vArmJoints.size(); ++ii)
+        {
+            l_vArmJoints[ii] = m_vArmResetPositionDefault[ii];
+        }
 
     // defines bottles
         Bottle *l_pArmTarget = NULL,*l_pFingersTarget = NULL,*l_pHandTarget = NULL;
@@ -289,10 +291,16 @@ bool swTeleop::SWIcubArm::checkBottles()
                 int l_deviceId = l_pArmTarget->get(0).asInt();
                 switch(l_deviceId)
                 {
+                    case swTracking::DUMMY_LIB :
+                    {
+                        for(uint ii = 0; ii < l_vArmJoints.size(); ++ii)
+                        {
+                            l_vArmJoints[ii] = l_pArmTarget->get(ii+1).asDouble();
+                        }
+                    }
+                    break;
                     case swTracking::OPENNI_LIB :
                     {
-
-                        l_bAllBottleEnable = true;
                         std::vector<double> l_pointTorso(3), l_pointNeck(3), l_pointShoulder(3), l_pointElbow(3), l_pointHand(3);
                             l_pointTorso[0] = l_pArmTarget->get(1).asDouble();
                             l_pointTorso[1] = l_pArmTarget->get(2).asDouble();
@@ -321,9 +329,6 @@ bool swTeleop::SWIcubArm::checkBottles()
                         l_vArmJoints[1] = swUtil::degree180(- l_rpyShoulder[0] - 180.);
                         l_vArmJoints[2] = swUtil::degree180(l_rpyElbow[1] - 90.);
                         l_vArmJoints[3] = swUtil::degree180(- l_rpyElbow[0] + 90);
-
-                        m_dArmTimeLastBottle = -1.;
-                        m_pVelocityController->enableArm(true);
                     }
                     break;
                     case swTracking::LEAP_LIB :
@@ -344,7 +349,6 @@ bool swTeleop::SWIcubArm::checkBottles()
                             std::cout<<"TIPS : Failling to receive a Fingers bottle - Skip"<<std::endl;
                             break;
                         }
-                        l_bAllBottleEnable = true;
 
 //                        if (m_oRobotArmCartesian.isValid())
 //                        {
@@ -507,8 +511,7 @@ bool swTeleop::SWIcubArm::checkBottles()
                             */
 
                             //	m_bLeftArmCapture = true
-                            m_dArmTimeLastBottle = -1.;
-                            m_pVelocityController->enableArm(true);
+
 
 //                        }
 //                        else
@@ -518,7 +521,8 @@ bool swTeleop::SWIcubArm::checkBottles()
                     }
                     break;
 
-
+                    m_dArmTimeLastBottle = -1.;
+                    m_pVelocityController->enableArm(true);
                 }
 
             }
@@ -533,7 +537,7 @@ bool swTeleop::SWIcubArm::checkBottles()
                     if(yarp::os::Time::now() - m_dArmTimeLastBottle > 0.001 * m_i32TimeoutArmReset)
                     {
                         m_pVelocityController->enableArm(false);
-                     //   resetArmPosition(); //SET IT BACK PLEASE ! ASAP
+                        resetArmPosition();
                         m_dArmTimeLastBottle = -1.;
                     }
                 }
@@ -547,17 +551,15 @@ bool swTeleop::SWIcubArm::checkBottles()
         {
             if(l_vArmJoints[ii] < m_vArmMinJoint[ii])
             {
-                //std::cout<< l_vArmJoints[ii]<<"["<<ii<<"] < "<< m_vArmMinJoint[ii]<<std::endl;
                 l_vArmJoints[ii] = m_vArmMinJoint[ii];
             }
             if(l_vArmJoints[ii] > m_vArmMaxJoint[ii])
             {
-                //std::cout<< l_vArmJoints[ii]<<"["<<ii<<"] > "<< m_vArmMinJoint[ii]<<std::endl;
                 l_vArmJoints[ii] = m_vArmMaxJoint[ii];
             }
         }
 
-        if(l_pArmTarget && l_bAllBottleEnable)
+        if(l_pArmTarget)
         {
             m_pVelocityController->setJoints(l_vArmJoints);
 

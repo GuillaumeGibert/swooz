@@ -81,6 +81,33 @@ SWLeap::SWLeap()
     m_bisleft = true;
     m_tempRotation = std::vector<double>(3, 0.f);
 
+
+//    // test
+//    Frame frame = m_controller.frame(0);
+//    HandList handList = frame.hands();  // The list of Hand objects detected in this frame, given in arbitrary order. The list can be empty if no hands are detected.
+//    FingerList fingerList = frame.fingers();  //The list of Finger objects detected in this frame, given in arbitrary order. The list can be empty if no fingers are detected.
+
+
+//    int numberHand = handList.count();
+//    int numberFingers = fingerList.count();
+
+//    if(numberHand > 0)
+//    {
+//        Hand handLeft = handList.leftmost();
+//        Hand handRight = handList.rightmost();
+//        Vector directionHand = handLeft.direction(); // The direction from the palm position toward the fingers. The direction is
+//        //expressed as a unit vector pointing in the same direction as the directed line from the palm position to the fingers.
+
+//        float pitch = handLeft.direction().pitch();
+//        float yaw   = handLeft.direction().yaw();
+//        float roll  = handLeft.palmNormal().roll();
+
+//        Vector palmPosition  =handLeft.palmPosition();
+
+
+//        FingerList leftFingers = handLeft.fingers();
+//    }
+
 }
 
 

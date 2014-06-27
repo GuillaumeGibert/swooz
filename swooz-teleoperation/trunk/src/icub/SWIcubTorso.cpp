@@ -83,6 +83,7 @@ bool swTeleop::SWIcubTorso::init( yarp::os::ResourceFinder &oRf)
         m_bTorsoActivated = oRf.check("torsoActivated", Value(m_bTorsoActivatedDefault), "Torso activated (int)").asInt() != 0;
         if(!m_bTorsoActivated)
         {
+            std::cout << "Torso not activated, icub torso initialization aborted. " << std::endl;
             return (m_bInitialized=false);
         }
 
@@ -138,7 +139,7 @@ bool swTeleop::SWIcubTorso::init( yarp::os::ResourceFinder &oRf)
     // initializing controllers
         if (!m_oRobotTorso.view(m_pITorsoVelocity) || !m_oRobotTorso.view(m_pITorsoPosition) || !m_oRobotTorso.view(m_pITorsoEncoders))
         {
-            std::cerr << "-ERROR: while getting required robot Torso interfaces." << std::endl;
+            std::cerr << std::endl << "-ERROR: while getting required robot Torso interfaces." << std::endl << std::endl;
             m_oRobotTorso.close();
             return (m_bInitialized=false);
         }
@@ -155,7 +156,7 @@ bool swTeleop::SWIcubTorso::init( yarp::os::ResourceFinder &oRf)
 
         if(!l_bPortOpeningSuccess)
         {
-            std::cerr << "-ERROR: Unable to open ports." << std::endl;
+            std::cerr << std::endl << "-ERROR: Unable to open ports." << std::endl << std::endl;
             m_oRobotTorso.close();
             return (m_bInitialized=false);
         }
@@ -225,6 +226,14 @@ bool swTeleop::SWIcubTorso::checkBottles()
 
                 switch(l_deviceId)
                 {
+                    case swTracking::DUMMY_LIB:
+                    {
+                        for(uint ii = 0; ii < l_vTorsoJoints.size(); ++ii)
+                        {
+                            l_vTorsoJoints[ii] = l_pTorsoTarget->get(ii+1).asDouble();
+                        }
+                    }
+                    break;
                     case swTracking::OPENNI_LIB:
                     {
                         std::vector<double> l_pointTorso(3), l_pointNeck(3), l_pointLShoulder(3), l_pointRShoulder(3);
