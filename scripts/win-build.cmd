@@ -385,7 +385,17 @@ echo cd ../../scripts                                                           
 echo call win-clean-env_command.cmd                                                     >> %target_dist%\examples\detect_face_stasm.cmd
 echo cd ../dist/examples                                                                >> %target_dist%\examples\detect_face_stasm.cmd
 REM #######################################################################################
-
+REM ### display leap
+echo @echo off                                                                          >  %target_dist%\examples\display_leap.cmd
+echo %SystemRoot%\system32\xcopy /q /e /y %saved_directory%\..\swooz-config %saved_directory%\%target_dist%\data >> %target_dist%\examples\display_leap.cmd
+echo pushd ..\..\scripts                                                                >> %target_dist%\examples\display_leap.cmd
+echo call win-init_env_command.cmd %ARCH_EXE_examples%                                  >> %target_dist%\examples\display_leap.cmd
+echo cd ..\dist\bin                                                                     >> %target_dist%\examples\display_leap.cmd
+echo display_leap.exe                                                                   >> %target_dist%\examples\display_leap.cmd
+echo cd ../../scripts                                                                   >> %target_dist%\examples\display_leap.cmd
+echo call win-clean-env_command.cmd                                                     >> %target_dist%\examples\display_leap.cmd
+echo cd ../dist/examples                                                                >> %target_dist%\examples\display_leap.cmd
+REM #######################################################################################
 
 echo.
 echo Install completed !

@@ -268,3 +268,4 @@
 ../swooz-toolkit/trunk/src/devices/leap/SWLeap.cpp
 ../swooz-tracking/trunk/src/leap/SWLeapTracking.cpp
 ../swooz-tracking/trunk/include/leap/SWLeapTracking.h
+../swooz-examples/trunk/display_leap_main.cpp
