@@ -307,37 +307,115 @@ namespace swDevice
 
         public :
 
+            /**
+             * @brief SWLeap
+             */
             SWLeap();
 
+            /**
+             * @brief init
+             * @return
+             */
             bool init();
 
-
-            bool handRotation(cbool leftHand, std::vector<float> vHandRotation) const;
-
-            std::vector<float> computeEulerYPRAngles(const Leap::Bone &bone, cbool isMetacarp) const;
-
-            bool fingerRotation(cbool leftHand, const Leap::Finger::Type fingerType, std::vector<float> &rotation) const;
-
-            int numFingerType(const Leap::FingerList &fingerList, const Leap::Finger::Type fingerType) const;
-
-            bool directionFinger(cbool leftHand, const Leap::Finger::Type fingerType, std::vector<float> &vDirectionFinger) const;
-
-            bool normalPalmHand(cbool leftHand, std::vector<float> &vNormalPalmHand) const;
-
-            bool coordPalmHand(cbool leftHand, std::vector<float> &vCoordPalmHand) const;
-
+            /**
+             * @brief grab
+             * @return
+             */
             int grab();
 
+
+            //            bool directionFinger(cbool leftHand, const Leap::Finger::Type fingerType, std::vector<float> &vDirectionFinger) const;
+
+//            bool fingerRotation(cbool leftHand, const Leap::Finger::Type fingerType, std::vector<float> &rotation) const;
+
+            /**
+             * @brief normalPalmHand
+             * @param leftHand
+             * @param vNormalPalmHand
+             */
+            void normalPalmHand(cbool leftHand, std::vector<float> &vNormalPalmHand) const;
+
+            /**
+             * @brief coordPalmHand
+             * @param leftHand
+             * @param vCoordPalmHand
+             */
+            void coordPalmHand(cbool leftHand, std::vector<float> &vCoordPalmHand) const;
+
+            /**
+             * @brief fingerRotation
+             * @param leftHand
+             * @param fingerType
+             * @param fingerRotation
+             */
+            void fingerRotation(cbool leftHand, const Leap::Finger::Type fingerType, std::vector<float> &fingerRotation);
+
+            /**
+             * @brief handRotation
+             * @param leftHand
+             * @param vHandRotation
+             */
+            void handRotation(cbool leftHand, std::vector<float> &vHandRotation) const;
+
+            /**
+             * @brief fps
+             * @return
+             */
             int fps() const;
 
         private :
 
-            Leap::Controller m_leapController;
+            /**
+             * @brief numFingerType
+             * @param fingerList
+             * @param fingerType
+             * @return
+             */
+            int numFingerType(const Leap::FingerList &fingerList, const Leap::Finger::Type fingerType) const;
 
-            int m_idLeftHand;
-            int m_idRightHand;
+            /**
+             * @brief computeEulerYPRAngles
+             * @param bone
+             * @param isMetacarp
+             * @return
+             */
+            std::vector<float> computeEulerYPRAngles(const Leap::Bone &bone, cbool isMetacarp) const;
 
-            Leap::Frame m_frame;
+            /**
+             * @brief retrieveFingerRotation
+             * @param finger
+             * @param rotation
+             */
+            void retrieveFingerRotation(const Leap::Finger &finger, std::vector<float> &rotation) const;
+
+            Leap::Controller m_leapController; /**< ... */
+
+            int m_fps;  /**< ... */
+
+            // left hand
+            std::vector<float> m_vLeftHandRotation;     /**< ... */
+            std::vector<float> m_vLeftCoordPalmHand;    /**< ... */
+            std::vector<float> m_vLeftNormalPalmHand;   /**< ... */
+
+            // left hand fingers
+            std::vector<float> m_vLeftThumbRotation;    /**< ... */
+            std::vector<float> m_vLeftIndexRotation;    /**< ... */
+            std::vector<float> m_vLeftMiddleRotation;   /**< ... */
+            std::vector<float> m_vLeftRingRotation;     /**< ... */
+            std::vector<float> m_vLeftPinkyRotation;    /**< ... */
+
+            // right hand
+            std::vector<float> m_vRightHandRotation;    /**< ... */
+            std::vector<float> m_vRightCoordPalmHand;   /**< ... */
+            std::vector<float> m_vRightNormalPalmHand;  /**< ... */
+
+            // right hand fingers
+            std::vector<float> m_vRightThumbRotation;   /**< ... */
+            std::vector<float> m_vRightIndexRotation;   /**< ... */
+            std::vector<float> m_vRightMiddleRotation;  /**< ... */
+            std::vector<float> m_vRightRingRotation;    /**< ... */
+            std::vector<float> m_vRightPinkyRotation;   /**< ... */
     };
 }
 

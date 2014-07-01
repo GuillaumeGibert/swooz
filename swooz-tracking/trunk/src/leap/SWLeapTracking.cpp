@@ -285,9 +285,9 @@ bool SWLeapTracking::updateModule()
 //			l_oHandBottleRight.addDouble(static_cast<double>(m_oLeap.getPalmCoords(0,false))); //hand: x / get(1).asDouble()
 //			l_oHandBottleRight.addDouble(static_cast<double>(m_oLeap.getPalmCoords(1,false))); //hand: y / get(2).asDouble()
 //			l_oHandBottleRight.addDouble(static_cast<double>(m_oLeap.getPalmCoords(2,false))); //hand: z / get(3).asDouble()
-            l_oHandBottleLeft.addDouble(l_vPalmCoord[0]); //hand: x / get(1).asDouble()
-            l_oHandBottleLeft.addDouble(l_vPalmCoord[1]); //hand: y / get(2).asDouble()
-            l_oHandBottleLeft.addDouble(l_vPalmCoord[2]); //hand: z / get(3).asDouble()
+            l_oHandBottleRight.addDouble(l_vPalmCoord[0]); //hand: x / get(1).asDouble()
+            l_oHandBottleRight.addDouble(l_vPalmCoord[1]); //hand: y / get(2).asDouble()
+            l_oHandBottleRight.addDouble(l_vPalmCoord[2]); //hand: z / get(3).asDouble()
 
             m_oLeap.handRotation(false, l_vHandRotation);
 
@@ -295,9 +295,9 @@ bool SWLeapTracking::updateModule()
 //			l_oHandBottleRight.addDouble(static_cast<double>(m_oLeap.getHandPitch(false))); //hand: In RAD, rotation on X axis / get(4).asDouble()
 //			l_oHandBottleRight.addDouble(static_cast<double>(m_oLeap.getHandRoll(false)));  //hand: In RAD, rotation on Z axis / get(5).asDouble()
 //			l_oHandBottleRight.addDouble(static_cast<double>(m_oLeap.getHandYaw(false)));   //hand: In RAD, rotation on Y axis / get(6).asDouble()
-            l_oHandBottleLeft.addDouble(l_vHandRotation[0]); //hand: In RAD, rotation on X axis / get(4).asDouble()
-            l_oHandBottleLeft.addDouble(l_vHandRotation[1]); //hand: In RAD, rotation on Z axis / get(5).asDouble()
-            l_oHandBottleLeft.addDouble(l_vHandRotation[2]); //hand: In RAD, rotation on Y axis / get(6).asDouble()
+            l_oHandBottleRight.addDouble(l_vHandRotation[0]); //hand: In RAD, rotation on X axis / get(4).asDouble()
+            l_oHandBottleRight.addDouble(l_vHandRotation[1]); //hand: In RAD, rotation on Z axis / get(5).asDouble()
+            l_oHandBottleRight.addDouble(l_vHandRotation[2]); //hand: In RAD, rotation on Y axis / get(6).asDouble()
 
 			// Others
 
@@ -314,7 +314,6 @@ bool SWLeapTracking::updateModule()
 
 int main(int argc, char* argv[])
 {
-
 
     // initialize yarp network 
     Network l_oYarp;
@@ -334,7 +333,6 @@ int main(int argc, char* argv[])
 	
     std::cout << "Starting the Leap tracking module..." << std::endl;
     l_oLeapTracking.runModule();
-
 
     return 0;
 }
