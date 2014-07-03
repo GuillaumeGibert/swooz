@@ -193,12 +193,14 @@ namespace swTeleop
             std::string m_sArmRemotePortName;      /**< name of the arm remote port */
             std::string m_sArmControlName;         /**< control name */
 
-            std::string m_sArmTrackerPortName;      /**< name of the  Arm arm tracker port */
-            std::string m_sHandTrackerPortName;     /**< name of the  Arm hand tracker port */
-            std::string m_sFingersTrackerPortName;  /**< name of the  Arm fingers tracker port */
+            std::string m_sArmTrackerPortName;      /**< name of the arm arm tracker port */
+            std::string m_sHandTrackerPortName;     /**< name of the hand tracker port */
+            std::string m_sHandCartesianTrackerPortName;     /**< name of the hand cartesian tracker port */
+//            std::string m_sFingersTrackerPortName;  /**< name of the  Arm fingers tracker port */
             yarp::os::BufferedPort<yarp::os::Bottle> m_oArmTrackerPort;     /**< Arm yarp tracker port  */
             yarp::os::BufferedPort<yarp::os::Bottle> m_oHandTrackerPort;    /**< Hand yarp tracker port  */
-            yarp::os::BufferedPort<yarp::os::Bottle> m_oFingersTrackerPort; /**< Fingers yarp tracker port  */
+            yarp::os::BufferedPort<yarp::os::Bottle> m_oHandCartesianTrackerPort;    /**< Hand cartesian yarp tracker port  */
+//            yarp::os::BufferedPort<yarp::os::Bottle> m_oFingersTrackerPort; /**< Fingers yarp tracker port  */
 
             SWArmVelocityController *m_pVelocityController;    /**< ... */
 

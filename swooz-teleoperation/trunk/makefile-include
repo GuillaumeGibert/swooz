@@ -95,12 +95,18 @@ INC_YARP            = -I"$(THIRD_PARTY_YARP)"\include
 INC_NAO             = -I"$(THIRD_PARTY_NAOQI)"\include
 
 INC_ICUB            = -I"$(THIRD_PARTY_ICUB)"\include
+
+INC_OPENCV      = -I"$(THIRD_PARTY_OPENCV)"\modules/core/include -I"$(THIRD_PARTY_OPENCV)"\modules/imgproc/include\
+                  -I"$(THIRD_PARTY_OPENCV)"\modules/objdetect/include -I"$(THIRD_PARTY_OPENCV)"\modules/features2d/include\
+                  -I"$(THIRD_PARTY_OPENCV)"\modules/features2d/include -I"$(THIRD_PARTY_OPENCV)"\modules/flann/include\
+                  -I"$(THIRD_PARTY_OPENCV)"\modules/highgui/include -I"$(THIRD_PARTY_OPENCV)"\modules/video/include\
+
 	
 ############################ DEPENDENCIES
 
 COMMON              = $(INC_TELEOPERATION) $(INC_OTHERS) $(INC_VS)
 
-SW_TELE_ICUB        = $(COMMON) $(INC_YARP) $(INC_ICUB)
+SW_TELE_ICUB        = $(COMMON) $(INC_YARP) $(INC_ICUB) $(INC_OPENCV)
 
 SW_TELE_NAO  = $(COMMON) $(INC_NAO) $(INC_YARP)
 
@@ -121,6 +127,9 @@ CFLAGS_DYN = -nologo -O2 -GF -Gy -W3 -MD -EHsc -DWIN32 -MP$(NUMBER_OF_PROCESSORS
 LFLAGS=-nologo
 
 ############################ LIBS
+
+LIBS_CV		= $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_core245.lib\
+
 
 LIBS_YARP   =   $(THIRD_PARTY_YARP)/lib/YARP_sig.lib\
                 $(THIRD_PARTY_YARP)/lib/YARP_OS.lib\
@@ -193,7 +202,7 @@ LIBS_GSL =  $(THIRD_PARTY_GSL)/lib/gsl.lib\
             $(THIRD_PARTY_GSL)/lib/gslcblas.lib
 
 
-LIBS_TELEOP_ICUB    =   $(LIBS_YARP)  $(LIBS_ACE)  $(LIBS_COMMON) $(LIBS_ICUB) $(LIBS_GSL)
+LIBS_TELEOP_ICUB    =   $(LIBS_YARP)  $(LIBS_ACE)  $(LIBS_COMMON) $(LIBS_ICUB) $(LIBS_GSL) $(LIBS_CV)
 
 LIBS_TELEOP_NAO = $(LIBS_COMMON) $(LIBS_NAO) $(LIBS_YARP) $(LIBS_ACE)
 

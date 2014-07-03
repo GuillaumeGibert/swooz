@@ -16,6 +16,10 @@
 #include "icub/SWIcubArm.h"
 #include <yarp/math/Math.h>
 
+
+#include "opencv2/core/core.hpp"
+#include "opencvUtility.h"
+
 using namespace yarp::os;
 
 
@@ -196,10 +200,12 @@ bool swTeleop::SWIcubArm::init( yarp::os::ResourceFinder &oRf, bool bLeftArm)
             return (m_bInitialized=false);
         }
 
+
     // init ports
-        m_sArmTrackerPortName      = "/teleoperation/" + m_sRobotName + "/" + m_sArm + "_arm";
-        m_sHandTrackerPortName      = "/teleoperation/" + m_sRobotName + "/" + m_sArm + "_arm/hand";
-        m_sFingersTrackerPortName   = "/teleoperation/" + m_sRobotName + "/" + m_sArm + "_arm/fingers";
+        m_sArmTrackerPortName   = "/teleoperation/" + m_sRobotName + "/" + m_sArm + "_arm";
+        m_sHandTrackerPortName  = "/teleoperation/" + m_sRobotName + "/" + m_sArm + "_arm/hand";
+        m_sHandCartesianTrackerPortName  = "/teleoperation/" + m_sRobotName + "/" + m_sArm + "_arm/hand_cartesian";
+//        m_sFingersTrackerPortName   = "/teleoperation/" + m_sRobotName + "/" + m_sArm + "_arm/fingers";
 
     // open ports
         bool l_bPortOpeningSuccess = true;
@@ -207,11 +213,14 @@ bool swTeleop::SWIcubArm::init( yarp::os::ResourceFinder &oRf, bool bLeftArm)
         {
             l_bPortOpeningSuccess = m_oArmTrackerPort.open(m_sArmTrackerPortName.c_str());
 
-            if(l_bPortOpeningSuccess)
-                l_bPortOpeningSuccess = m_oFingersTrackerPort.open(m_sFingersTrackerPortName.c_str());
+//            if(l_bPortOpeningSuccess)
+//                l_bPortOpeningSuccess = m_oFingersTrackerPort.open(m_sFingersTrackerPortName.c_str());
 
             if(l_bPortOpeningSuccess)
                  l_bPortOpeningSuccess = m_oHandTrackerPort.open(m_sHandTrackerPortName.c_str());
+
+            if(l_bPortOpeningSuccess)
+                l_bPortOpeningSuccess = m_oHandCartesianTrackerPort.open(m_sHandCartesianTrackerPortName.c_str());
         }
 
         if(!l_bPortOpeningSuccess)
@@ -279,7 +288,140 @@ bool swTeleop::SWIcubArm::checkBottles()
         }
 
     // defines bottles
-        Bottle *l_pArmTarget = NULL,*l_pFingersTarget = NULL,*l_pHandTarget = NULL;
+        Bottle *l_pArmTarget = NULL,*l_pHandTarget = NULL, *l_pHandCartesianTarget = NULL; // *l_pFingersTarget = NULL,
+
+
+        l_pHandTarget = m_oHandTrackerPort.read(false);
+
+        if(l_pHandTarget)
+        {
+            int l_deviceId = l_pHandTarget->get(0).asInt();
+
+            // arm joint 0 shoulder_pitch
+            // arm joint 1 shoulder_roll
+            // arm joint 2 shoulder_yaw
+            // arm joint 3 elbow
+            // arm joint 4 wrist_prosup
+            // arm joint 5 wrist_pitch
+            // arm joint 6 wrist_yaw
+            // arm joint 7 hand_finger
+            // arm joint 8 thumb_oppose
+            // arm joint 9 thumb_proximal
+            // arm joint 10 thumb_distal
+            // arm joint 11 index_proximal
+            // arm joint 12 index_distal
+            // arm joint 13 middle_proximal
+            // arm joint 14 middle_distal
+            // arm joint 15 pinky
+
+            switch(l_deviceId)
+            {
+                case swTracking::DUMMY_LIB :
+
+                    // ...
+                break;
+                case swTracking::LEAP_LIB :
+
+                    std::vector<double> l_vArmDirection(3,0.), l_vHandDirection(3,0.),l_vHandDirectionE(3,0.), l_vHandPalmCoord(3,0.), l_vHandPalmNormal(3,0.), l_vHandPalmNormalE(3,0.);
+
+                    for(int ii = 0; ii < 3; ++ii)
+                    {
+                        l_vArmDirection[ii]     = l_pHandTarget->get(1 + ii).asDouble();
+                        l_vHandDirection[ii]    = l_pHandTarget->get(4 + ii).asDouble();
+                        l_vHandDirectionE[ii]   = l_pHandTarget->get(7 + ii).asDouble();
+                        l_vHandPalmCoord[ii]    = l_pHandTarget->get(10 + ii).asDouble();
+                        l_vHandPalmNormal[ii]   = l_pHandTarget->get(13 + ii).asDouble();
+                        l_vHandPalmNormalE[ii]  = l_pHandTarget->get(16 + ii).asDouble();
+                    }
+
+                    // orientation wrist
+                    //      yaw
+                    cv::Vec3d l_vecHandPalmNormal(l_vHandPalmNormal[0], l_vHandPalmNormal[1], l_vHandPalmNormal[2]);
+
+                    std::cout << l_vecHandPalmNormal << std::endl;
+//                    cv::Mat l_matTransform;
+
+
+//                    swUtil::rodriguesRotation(l_vecHandPalmNormal, l_matTransform);
+
+//                    cv::Mat l_matHandDirection(1, 3, CV_64FC1);
+//                    l_matHandDirection.at<double>(0,0) = l_vHandDirection[0];
+//                    l_matHandDirection.at<double>(0,1) = l_vHandDirection[1];
+//                    l_matHandDirection.at<double>(0,2) = l_vHandDirection[2];
+
+//                    cv::Mat l_matHandDirectionTransformed  = l_matHandDirection * l_matTransform;
+
+
+
+//                    cv::Mat l_matHandPalmNormal(1, 3, CV_32FC1);
+
+
+
+
+
+//                    cv::Mat testMat(1,3, CV_32FC1, cv::Scalar(1.f));
+//            //        cv::Mat testMat(1,1, 1);
+
+
+//                    std::vector<float> l_vNormalPalmHand;
+//                    test.normalPalmHand(true, l_vNormalPalmHand);
+
+//                    cv::Vec3f src(l_vNormalPalmHand[0],l_vNormalPalmHand[1],l_vNormalPalmHand[2]);
+
+//                    cv::Mat dest;
+//                    swUtil::rodriguesRotation(src, dest);
+
+//                    std::cout << "Mvector: " << std::endl;
+//                    std::cout << testMat << std::endl;
+//                    std::cout << "Before " << std::endl;
+//                    std::cout << src << std::endl;
+//                    std::cout << "Mat " << std::endl;
+//                    std::cout << dest << std::endl;
+//                    std::cout << "After" << std::endl;
+
+//            //        float l_fNewX,l_fNewY,l_fNewZ;
+
+//            ////        l_fNewX =   dest.at<float>(0,0) * testMat[0] +
+//            ////                    dest.at<float>(0,1) * testMat[1] +
+//            ////                    dest.at<float>(0,2) * testMat[2];
+
+//            ////        l_fNewY =   dest.at<float>(1,0) * testMat[0] +
+//            ////                    dest.at<float>(1,1) * testMat[1] +
+//            ////                    dest.at<float>(1,2) * testMat[2];
+
+//            ////        l_fNewZ =   dest.at<float>(2,0) * testMat[0] +
+//            ////                    dest.at<float>(2,1) * testMat[1] +
+//            ////                    dest.at<float>(2,2) * testMat[2];
+
+//            //        cv::Vec3f res;//(l_fNewX, l_fNewY, l_fNewZ);
+
+//            //        cv::multiply(dest, testMat, res);
+
+//                    cv::Mat res  = testMat * dest;
+
+
+//                    std::cout << res << std::endl;
+
+
+
+
+                    // all computing
+
+
+
+
+
+
+//                    l_vArmJoints
+
+
+                break;
+
+            }
+        }
+
+
+
 
         // read arm commands
         if(m_bArmActivated)
@@ -334,7 +476,7 @@ bool swTeleop::SWIcubArm::checkBottles()
                     break;
                     case swTracking::LEAP_LIB :
                     {
-
+                        /*
                         l_pHandTarget = m_oHandTrackerPort.read(false);
                         l_pFingersTarget = m_oFingersTrackerPort.read(false);
 
@@ -370,37 +512,39 @@ bool swTeleop::SWIcubArm::checkBottles()
                             m_dsmoothz+=(l_pHandTarget->get(2).asDouble()-250)/(150);//Smooth
                             */
 
-                            yarp::sig::Vector xd=x0;
+//                            yarp::sig::Vector xd=x0;
 
-                            xd[0]+=l_pHandTarget->get(3).asDouble()/(400);
-                            xd[1]+=l_pHandTarget->get(1).asDouble()/(400);
-                            xd[2]+=(l_pHandTarget->get(2).asDouble()-250)/(400);//On Y (leap), you can only move from 0 to XXX  so to get negatives position on Z (Icub) we need to substract 250 !
+//                            xd[0]+=l_pHandTarget->get(3).asDouble()/(400);
+//                            xd[1]+=l_pHandTarget->get(1).asDouble()/(400);
+//                            xd[2]+=(l_pHandTarget->get(2).asDouble()-250)/(400);//On Y (leap), you can only move from 0 to XXX  so to get negatives position on Z (Icub) we need to substract 250 !
 
-                            //std::cout<<"X : "<<l_pHandTarget->get(3).asDouble()<<" Y : "<<l_pHandTarget->get(1).asDouble()<<" Z : "<<l_pHandTarget->get(2).asDouble()<<std::endl;
-                            /*
-                            xd[0]+=m_dsmoothx/m_int32cptframe;//Smooth
-                            xd[1]+=m_dsmoothy/m_int32cptframe;//Smooth
-                            xd[2]+=m_dsmoothy/m_int32cptframe;//Smooth
-                            */
+//                            //std::cout<<"X : "<<l_pHandTarget->get(3).asDouble()<<" Y : "<<l_pHandTarget->get(1).asDouble()<<" Z : "<<l_pHandTarget->get(2).asDouble()<<std::endl;
+//                            /*
+//                            xd[0]+=m_dsmoothx/m_int32cptframe;//Smooth
+//                            xd[1]+=m_dsmoothy/m_int32cptframe;//Smooth
+//                            xd[2]+=m_dsmoothy/m_int32cptframe;//Smooth
+//                            */
 
-                            //reverse because in Icub this is [PITCH,ROLL,YAW]
+//                            //reverse because in Icub this is [PITCH,ROLL,YAW]
 
-                            od[0]=l_pHandTarget->get(4).asDouble();
-                            od[1]=l_pHandTarget->get(5).asDouble();
-                            od[2]=l_pHandTarget->get(6).asDouble();
-
-
-
-                            //l_od=iCub::ctrl::dcm2axis(iCub::ctrl::euler2dcm(od));
-
-                            // m_oqdhat.resize(m_i32ArmJointsNb); ################################################ ?
-                            yarp::sig::Vector xdhat,odhat;
-
-                            yarp::sig::Vector l_vLeftArmEncoders;
-                            l_vLeftArmEncoders.resize(m_i32ArmJointsNb);
+//                            od[0]=l_pHandTarget->get(4).asDouble();
+//                            od[1]=l_pHandTarget->get(5).asDouble();
+//                            od[2]=l_pHandTarget->get(6).asDouble();
 
 
-                            m_pIArmEncoders->getEncoders(l_vLeftArmEncoders.data());
+
+//                            //l_od=iCub::ctrl::dcm2axis(iCub::ctrl::euler2dcm(od));
+
+//                            // m_oqdhat.resize(m_i32ArmJointsNb); ################################################ ?
+//                            yarp::sig::Vector xdhat,odhat;
+
+//                            yarp::sig::Vector l_vLeftArmEncoders;
+//                            l_vLeftArmEncoders.resize(m_i32ArmJointsNb);
+
+
+//                            m_pIArmEncoders->getEncoders(l_vLeftArmEncoders.data());
+
+
 
                             //m_pIArmCartesian->askForPosition(l_vLeftArmEncoders,xd,xdhat,odhat,m_oqdhat);
                             //or
@@ -467,15 +611,25 @@ bool swTeleop::SWIcubArm::checkBottles()
                                                                     l_vArmJoints[15] = 0;//l_pFingersTarget->get(7).asDouble() + l_pFingersTarget->get(8).asDouble() + l_pFingersTarget->get(9).asDouble() + l_pFingersTarget->get(10).asDouble();
 
             */
+                            /*
+
+                            float l_directionPitch = l_pHandTarget->get(4).asDouble();
+                            float l_normalRoll     = l_pHandTarget->get(5).asDouble();
+                            float l_directionYaw   = l_pHandTarget->get(6).asDouble();
+
+//                            std::cout << l_directionPitch << " " << l_normalRoll << " " << l_directionYaw << std::endl;
+
+                            l_vArmJoints[4] = -(l_normalRoll     * 180.f / 3.1415f) + 90; // wrist_prosup
+                            l_vArmJoints[5] = -(l_directionPitch * 180.f / 3.1415f);      // wrist_pitch
+                            l_vArmJoints[6] = -(l_directionYaw   * 180.f / 3.1415f);      // wrist_yaw
+
 
                                 // USE THIS WITH THE iCub !!!!!
                                 l_vArmJoints[0] = -25;
                                 l_vArmJoints[1] = 20;
                                 l_vArmJoints[2] = 0;
                                 l_vArmJoints[3] = 50;
-                                l_vArmJoints[4] = (l_pHandTarget->get(5).asDouble()*180 / 3.1415)*(-1) + 90;
-                                l_vArmJoints[5] = (l_pHandTarget->get(4).asDouble()*180 / 3.1415)*(-1);
-                                l_vArmJoints[6] = (l_pHandTarget->get(6).asDouble()*180 / 3.1415)*(-1);
+
                                 l_vArmJoints[7] = 20;
                                 l_vArmJoints[8] = 20;
                                 l_vArmJoints[9] = 0;
@@ -490,7 +644,7 @@ bool swTeleop::SWIcubArm::checkBottles()
                                 l_vArmJoints[15] = l_pFingersTarget->get(7).asDouble() + l_pFingersTarget->get(8).asDouble() + l_pFingersTarget->get(9).asDouble() + l_pFingersTarget->get(10).asDouble();
 
 
-
+                            */
 
 
                             /*
@@ -543,8 +697,6 @@ bool swTeleop::SWIcubArm::checkBottles()
                     }
                 }
             }
-
-
         }
 
     // check each joint value to ensure it is in the right range, if not crop to the max/min values
@@ -601,7 +753,7 @@ bool swTeleop::SWIcubArm::close()
         {
             m_oArmTrackerPort.close();
             m_oHandTrackerPort.close();
-            m_oFingersTrackerPort.close();
+            m_oHandCartesianTrackerPort.close();
         }
 
     return (l_bArmPositionCloseState && l_bRobotArmCloseState && l_bRobotCartesianArmCloseState);
@@ -628,7 +780,7 @@ bool swTeleop::SWIcubArm::interruptModule()
         {
             m_oArmTrackerPort.interrupt();
             m_oHandTrackerPort.interrupt();
-            m_oFingersTrackerPort.interrupt();
+            m_oHandCartesianTrackerPort.interrupt();
         }
 
     std::cout << "--Interrupting the iCub Arm Teleoperation module..." << std::endl;

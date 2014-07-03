@@ -1,5 +1,4 @@
 
-
 /**
  * \file SWLeap.cpp
  * \brief  SWLeap implements basics Actions/Services that Leap Motion provides
@@ -1146,12 +1145,9 @@
 //}
 
 
-#include "devices/leap/SWLeap.h"
 
 
-#define PI 3.14159265f
 
-using namespace swDevice;
 
 
 //bool SWLeap::directionFinger(cbool leftHand, const Leap::Finger::Type fingerType, std::vector<float> &vDirectionFinger) const
@@ -1203,14 +1199,20 @@ using namespace swDevice;
 //}
 
 
+#include "devices/leap/SWLeap.h"
+
+
+#define PI 3.14159265f
+
+using namespace swDevice;
 
 SWLeap::SWLeap()
 {
     std::vector<float> l_vInitVector(3,0.f);
-    m_vLeftHandRotation = m_vLeftCoordPalmHand = m_vLeftNormalPalmHand = l_vInitVector;
+    m_vLeftCoordPalmHand = m_vLeftNormalPalmHand = m_vLeftDirectionArm = m_vLeftDirectionHand = m_vLeftDirectionHandE = m_vLeftNormalPalmHandE = l_vInitVector;
     m_vLeftThumbRotation =  m_vLeftIndexRotation = m_vLeftMiddleRotation = m_vLeftRingRotation =  m_vLeftPinkyRotation = l_vInitVector;
 
-    m_vRightHandRotation = m_vRightCoordPalmHand = m_vRightNormalPalmHand = l_vInitVector;
+    m_vRightCoordPalmHand = m_vRightNormalPalmHand = m_vRightDirectionArm = m_vRightDirectionHand = m_vRightDirectionHandE = m_vRightNormalPalmHandE = l_vInitVector;
     m_vRightThumbRotation =  m_vRightIndexRotation = m_vRightMiddleRotation = m_vRightRingRotation =  m_vRightPinkyRotation = l_vInitVector;
 }
 
@@ -1454,6 +1456,54 @@ int SWLeap::numFingerType(const Leap::FingerList &fingerList, const Leap::Finger
     return 0;
 }
 
+void SWLeap::directionArm(cbool leftArm, std::vector<float> &vDirectionArm) const
+{
+    if(leftArm)
+    {
+        vDirectionArm = m_vLeftDirectionArm;
+    }
+    else
+    {
+        vDirectionArm = m_vRightDirectionArm;
+    }
+}
+
+void SWLeap::directionHandEuclidian(cbool leftHand, std::vector<float> &vDirectionHandE) const
+{
+    if(leftHand)
+    {
+        vDirectionHandE = m_vLeftDirectionHandE;
+    }
+    else
+    {
+        vDirectionHandE = m_vRightDirectionHandE;
+    }
+}
+
+void SWLeap::normalPalmHandEuclidian(cbool leftHand, std::vector<float> &vNormalPalmHandE) const
+{
+    if(leftHand)
+    {
+        vNormalPalmHandE = m_vLeftNormalPalmHandE;
+    }
+    else
+    {
+        vNormalPalmHandE = m_vRightNormalPalmHandE;
+    }
+}
+
+void SWLeap::directionHand(cbool leftHand, std::vector<float> &vDirectionHand) const
+{
+    if(leftHand)
+    {
+        vDirectionHand = m_vLeftDirectionHand;
+    }
+    else
+    {
+        vDirectionHand = m_vRightDirectionHand;
+    }
+}
+
 void SWLeap::normalPalmHand(cbool leftHand, std::vector<float> &vNormalPalmHand) const
 {
     if(leftHand)
@@ -1475,19 +1525,6 @@ void SWLeap::coordPalmHand(cbool leftHand, std::vector<float> &vCoordPalmHand) c
     else
     {
         vCoordPalmHand = m_vRightCoordPalmHand;
-    }
-}
-
-
-void SWLeap::handRotation(cbool leftHand, std::vector<float> &vHandRotation) const
-{
-    if(leftHand)
-    {
-        vHandRotation = m_vLeftHandRotation;
-    }
-    else
-    {
-        vHandRotation = m_vRightHandRotation;
     }
 }
 
@@ -1587,27 +1624,40 @@ int SWLeap::grab()
 
         if(l_leftHand.isValid())
         {
-            Leap::Vector l_palmCoord  = l_leftHand.palmPosition();
-            m_vLeftCoordPalmHand = std::vector<float>(3,0.f);
+            Leap::Vector l_palmCoord     = l_leftHand.palmPosition();
+            Leap::Vector l_palmNormal    = l_leftHand.palmNormal();
+            Leap::Vector l_handDirection = l_leftHand.direction();
 
-            for(uint ii = 0; ii < m_vLeftCoordPalmHand.size(); ++ii)
+            Leap::Arm l_leftArm          = l_leftHand.arm();
+            Leap::Vector l_armDirection  = l_leftArm.direction();
+
+            std::vector<float> l_vInitVector(3,0.f);
+            m_vLeftCoordPalmHand  = l_vInitVector;
+            m_vLeftNormalPalmHand = l_vInitVector;
+            m_vLeftDirectionHand  = l_vInitVector;
+            m_vLeftDirectionArm   = l_vInitVector;
+            m_vLeftDirectionHandE = l_vInitVector;
+            m_vLeftNormalPalmHandE= l_vInitVector;
+
+            for(uint ii = 0; ii < l_vInitVector.size(); ++ii)
             {
-                m_vLeftCoordPalmHand[ii] = l_palmCoord[ii];
-            }
-
-            Leap::Vector l_palmNormal = l_leftHand.palmNormal();
-            m_vLeftNormalPalmHand = std::vector<float>(3,0.f);
-
-            for(uint ii = 0; ii < m_vLeftNormalPalmHand.size(); ++ii)
-            {
+                m_vLeftCoordPalmHand[ii]  = l_palmCoord[ii];
                 m_vLeftNormalPalmHand[ii] = l_palmNormal[ii];
+                m_vLeftDirectionHand[ii]  = l_handDirection[ii];
+
+                if(l_leftArm.isValid())
+                {
+                    m_vLeftDirectionArm[ii] = l_armDirection[ii];
+                }
             }
 
-            Leap::Vector l_direction = l_leftHand.direction();
-            m_vLeftHandRotation = std::vector<float>(3,0.f);
-            m_vLeftHandRotation[0] = l_direction.pitch();
-            m_vLeftHandRotation[1] = l_palmNormal.roll();
-            m_vLeftHandRotation[2] = l_direction.yaw();
+            m_vLeftDirectionHandE[0] = l_handDirection.pitch();
+            m_vLeftDirectionHandE[1] = l_handDirection.roll();
+            m_vLeftDirectionHandE[2] = l_handDirection.yaw();
+
+            m_vLeftNormalPalmHandE[0] = l_palmNormal.pitch();
+            m_vLeftNormalPalmHandE[1] = l_palmNormal.roll();
+            m_vLeftNormalPalmHandE[2] = l_palmNormal.yaw();
 
             // left fingers
             Leap::FingerList l_fingerList = l_leftHand.fingers();
@@ -1647,27 +1697,40 @@ int SWLeap::grab()
 
         if(l_rightHand.isValid())
         {
-            Leap::Vector l_palmCoord  = l_rightHand.palmPosition();
-            m_vRightCoordPalmHand = std::vector<float>(3,0.f);
+            Leap::Vector l_palmCoord     = l_rightHand.palmPosition();
+            Leap::Vector l_palmNormal    = l_rightHand.palmNormal();
+            Leap::Vector l_handDirection = l_rightHand.direction();
 
-            for(uint ii = 0; ii < m_vRightCoordPalmHand.size(); ++ii)
+            Leap::Arm l_rightArm         = l_rightHand.arm();
+            Leap::Vector l_armDirection  = l_rightArm.direction();
+
+            std::vector<float> l_vInitVector(3,0.f);
+            m_vRightCoordPalmHand  = l_vInitVector;
+            m_vRightNormalPalmHand = l_vInitVector;
+            m_vRightDirectionHand  = l_vInitVector;
+            m_vRightDirectionArm   = l_vInitVector;
+            m_vRightDirectionHandE = l_vInitVector;
+            m_vRightNormalPalmHandE= l_vInitVector;
+
+            for(uint ii = 0; ii < l_vInitVector.size(); ++ii)
             {
-                m_vRightCoordPalmHand[ii] = l_palmCoord[ii];
+                m_vRightCoordPalmHand[ii]  = l_palmCoord[ii];
+                m_vRightNormalPalmHand[ii] = l_palmNormal[ii];
+                m_vRightDirectionHand[ii]  = l_handDirection[ii];
+
+                if(l_rightArm.isValid())
+                {
+                    m_vRightDirectionArm[ii] = l_armDirection[ii];
+                }
             }
 
-            Leap::Vector l_palmNormal = l_rightHand.palmNormal();
-            m_vRightNormalPalmHand = std::vector<float>(3,0.f);
+            m_vRightDirectionHandE[0] = l_handDirection.pitch();
+            m_vRightDirectionHandE[1] = l_handDirection.roll();
+            m_vRightDirectionHandE[2] = l_handDirection.yaw();
 
-            for(uint ii = 0; ii < m_vLeftNormalPalmHand.size(); ++ii)
-            {
-                m_vLeftNormalPalmHand[ii] = l_palmNormal[ii];
-            }
-
-            Leap::Vector l_direction = l_rightHand.direction();
-            m_vRightHandRotation = std::vector<float>(3,0.f);
-            m_vRightHandRotation[0] = l_direction.pitch();
-            m_vRightHandRotation[1] = l_palmNormal.roll();
-            m_vRightHandRotation[2] = l_direction.yaw();
+            m_vRightNormalPalmHandE[0] = l_palmNormal.pitch();
+            m_vRightNormalPalmHandE[1] = l_palmNormal.roll();
+            m_vRightNormalPalmHandE[2] = l_palmNormal.yaw();
 
             // left fingers
             Leap::FingerList l_fingerList = l_rightHand.fingers();
@@ -1696,7 +1759,7 @@ int SWLeap::grab()
             if(l_pinky.isValid())
             {
                 retrieveFingerRotation(l_pinky,     m_vRightPinkyRotation);
-            }
+            }            
         }
     }
 

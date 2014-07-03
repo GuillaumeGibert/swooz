@@ -106,6 +106,7 @@ INC_OPENCV      = -I"$(THIRD_PARTY_OPENCV)"\modules/core/include -I"$(THIRD_PART
                   -I"$(THIRD_PARTY_OPENCV)"\modules/objdetect/include -I"$(THIRD_PARTY_OPENCV)"\modules/features2d/include\
                   -I"$(THIRD_PARTY_OPENCV)"\modules/features2d/include -I"$(THIRD_PARTY_OPENCV)"\modules/flann/include\
                   -I"$(THIRD_PARTY_OPENCV)"\modules/highgui/include -I"$(THIRD_PARTY_OPENCV)"\modules/video/include\
+                  -I"$(THIRD_PARTY_OPENCV)"\modules/calib3d/include\
 		  
 INC_QT		= -I"$(THIRD_PARTY_QT)"/include/QtOpenGL -I"$(THIRD_PARTY_QT)"/include/QtGui -I"$(THIRD_PARTY_QT)"/include/QtCore -I"$(THIRD_PARTY_QT)"/include/Qt -I"$(THIRD_PARTY_QT)"/include\
 		
@@ -144,7 +145,17 @@ LFLAGS = -nologo
 LIBS_OPENNI     = $(THIRD_PARTY_OPENNI)/Lib/openNI.lib\
 
 LIBS_CV		= $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_highgui245.lib $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_core245.lib\
-                  $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_imgproc245.lib $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_objdetect245.lib $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_video245.lib\
+                  $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_imgproc245.lib $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_objdetect245.lib\
+                  $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_video245.lib\
+                  $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_calib3d245.lib $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_features2d245.lib\
+
+#                  $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_contrib245.lib $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_flann245.lib\
+#                  $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_stitching245.lib $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_superres245.lib\
+#                  $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_ts245.lib $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_videostab245.lib\
+#                  $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_ml245.lib\
+#                  $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_nonfree245.lib\
+#                  $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_legacy245.lib\
+
 
 LIBS_QT 	= $(THIRD_PARTY_QT)/lib/QtOpenGL4.lib $(THIRD_PARTY_QT)/lib/QtCore4.lib $(THIRD_PARTY_QT)/lib/QtGui4.lib $(THIRD_PARTY_QT)/lib/qtmain.lib\
 

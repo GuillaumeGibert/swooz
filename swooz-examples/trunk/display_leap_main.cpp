@@ -535,6 +535,12 @@
 
 using namespace Leap;
 
+#include "opencv2/core/core.hpp"
+
+#include "opencvUtility.h"
+
+#include "opencv2/calib3d/calib3d.hpp"
+
 int main()
 {
     Leap::Controller leapController;
@@ -562,15 +568,220 @@ int main()
     }
 
 
-    swDevice::SWLeap test;
-    test.init();
+    swDevice::SWLeap l_leap;
+    l_leap.init();
 
     // set the display loop
     while(true)
     {
-        test.grab();
+        l_leap.grab();
 
         boost::this_thread::sleep( boost::posix_time::millisec(500) );
+
+        std::vector<float> l_vHandPalmNormal, l_vHandPalmCoord, l_vHandDirection ,l_vArmDirection, l_vHandDirectionE, l_vHandPalmNormalE;
+        l_leap.normalPalmHand(true, l_vHandPalmNormal);
+        l_leap.coordPalmHand(true, l_vHandPalmCoord);
+        l_leap.directionArm(true, l_vArmDirection);
+        l_leap.directionHand(true, l_vHandDirection);
+        l_leap.directionHandEuclidian(true, l_vHandDirectionE);
+        l_leap.normalPalmHandEuclidian(true, l_vHandPalmNormalE);
+        cv::Vec3d l_vecHandPalmNormal(l_vHandPalmNormal[0], l_vHandPalmNormal[1], l_vHandPalmNormal[2]);
+        cv::Vec3d l_vecHandPalmCoord(l_vHandPalmCoord[0], l_vHandPalmCoord[1], l_vHandPalmCoord[2]);
+        cv::Vec3d l_vecHandDirection(l_vHandDirection[0], l_vHandDirection[1], l_vHandDirection[2]);
+        cv::Vec3d l_vecArmDirection(l_vArmDirection[0], l_vArmDirection[1], l_vArmDirection[2]);
+
+        l_vecHandPalmNormal = cv::normalize(l_vecHandPalmNormal);
+        l_vecArmDirection   = cv::normalize(l_vecArmDirection);
+        l_vecHandDirection  = cv::normalize(l_vecHandDirection);
+
+        cv::Mat l_matHandDirection(l_vecHandDirection);
+        cv::Mat l_matHandPalmNormal(l_vecHandPalmNormal);
+        cv::Mat l_matArmDirection(l_vecArmDirection);
+
+        cv::Mat l_matTransfo;
+
+
+
+//        // compute the projection of the arm on the horizontal plane
+//        swUtil::rodriguesRotation(l_vecArmDirection, cv::Vec3d(0,-1.0,1.0), l_matTransfo);
+//        // apply it on the arm and the hand
+//        cv::Mat l_matNewArmDirection  = l_matTransfo * l_matArmDirection;
+//        cv::Mat l_matNewHandDirection = l_matTransfo * l_matHandDirection;
+//        // ...
+//        swUtil::rodriguesRotation(l_vecHandPalmNormal, cv::Vec3d(0,-1.0,1.0), l_matTransfo);
+//        l_matNewHandDirection = l_matTransfo * l_matNewHandDirection;
+
+////        l_matNewHandDirection.at<double>(1) = 0.0;
+
+
+//        double l_angle = (180./ 3.14) * acos(l_matNewHandDirection.dot(l_matNewArmDirection) / (cv::norm(l_matNewHandDirection) * cv::norm(l_matNewArmDirection)));
+//        std::cout << "Angle "<<l_angle << std::endl;
+
+
+        // compute the projection of the hand on the arm
+
+
+//        swUtil::rodriguesRotation(l_matNewHandDirection, l_matNewArmDirection, l_matTransfo);
+
+//        double pitch = atan2( -l_matTransfo.at<double>(2,0),  sqrt(l_matTransfo.at<double>(2,1)*l_matTransfo.at<double>(2,1) + l_matTransfo.at<double>(2,2)*l_matTransfo.at<double>(2,2)));
+//        double yaw = atan2(l_matTransfo.at<double>(1,0), l_matTransfo.at<double>(0,0));
+//        double roll = atan2(l_matTransfo.at<double>(2,1), l_matTransfo.at<double>(2,2));
+////        pitch = atan2( -r20, sqrt(r21*r21+r22*r22) );
+////        yaw   = atan2(  r10, r00 );
+////        roll  = atan2(  r21, r22 );
+
+//        std::cout << "pitch : " << (180. / 3.14) * pitch << std::endl;
+//        std::cout << "yaw : " << (180. / 3.14) * yaw << std::endl;
+//        std::cout << "roll : " << (180. / 3.14) * roll << std::endl;
+
+        // compute angle from this projection
+
+//        std::cout << " ---------- " << std::endl;
+
+//        swUtil::rodriguesRotation(l_vecHandPalmNormal, cv::Vec3d(0,-1.0,1.0), l_matTransfo);
+
+//        cv::Mat l_matNewHandDirection = l_matTransfo * l_matHandDirection;
+
+
+//        cv::Mat l_matProjectedHandDirection(l_matNewHandDirection);
+//        l_matProjectedHandDirection.at<double>(1) = 0.0;
+//        cv::Mat l_matProjectedArmDirection(l_matArmDirection);
+//        l_matProjectedArmDirection.at<double>(1) = 0.0;
+
+
+//        double l_angle = (180./ 3.14) * acos(l_matProjectedHandDirection.dot(l_matProjectedArmDirection) / (cv::norm(l_matProjectedHandDirection) * cv::norm(l_matProjectedArmDirection)));
+//        std::cout << "Angle "<<l_angle << std::endl;
+
+
+
+//        swUtil::rodriguesRotation(l_matNewHandDirection, l_matArmDirection, l_matTransfo);
+
+//        std::cout << "Transfo : " << std::endl << l_matTransfo << std::endl;
+
+//        double pitch = atan2( -l_matTransfo.at<double>(2,0),  sqrt(l_matTransfo.at<double>(2,1)*l_matTransfo.at<double>(2,1) + l_matTransfo.at<double>(2,2)*l_matTransfo.at<double>(2,2)));
+//        double yaw = atan2(l_matTransfo.at<double>(1,0), l_matTransfo.at<double>(0,0));
+//        double roll = atan2(l_matTransfo.at<double>(2,1), l_matTransfo.at<double>(2,2));
+////        pitch = atan2( -r20, sqrt(r21*r21+r22*r22) );
+////        yaw   = atan2(  r10, r00 );
+////        roll  = atan2(  r21, r22 );
+
+//        std::cout << "pitch : " << (180. / 3.14) * pitch << std::endl;
+//        std::cout << "yaw : " << (180. / 3.14) * yaw << std::endl;
+//        std::cout << "roll : " << (180. / 3.14) * roll << std::endl;
+
+
+
+
+
+//        cv::Vec3d l_vecAxis(0.,-1.,0.);
+//        cv::Vec3d l_vecAxis2(0.,1.,0.);
+
+//        std::cout << "hand dir E : " <<l_vHandDirectionE[0] * 180./3.14<< " " << l_vHandDirectionE[1]* 180./3.14 << " " << l_vHandDirectionE[2] * 180./3.14<< std::endl;
+//        std::cout << "hand norm E : " <<l_vHandPalmNormalE[0]* 180./3.14<< " " << l_vHandPalmNormalE[1] * 180./3.14<< " " << l_vHandPalmNormalE[2] * 180./3.14<< std::endl;
+
+        // pitch roll yaw
+//        float pitch = hand.direction().pitch();
+//         float yaw = hand.direction().yaw();
+//         float roll = hand.palmNormal().roll();
+//        std::cout << "hand dir : " <<l_vHandDirectionE[0] * 180./3.14<< " " << l_vHandDirectionE[2]* 180./3.14 << " " << l_vHandPalmNormalE[1] * 180./3.14<< std::endl;
+
+
+//        double l_angle2 = acos(l_vecAxis.dot(l_vecHandPalmNormal)) * 180./3.14;
+
+//        bool l_bUp = false;
+
+//        if(l_angle2 > 90.)
+//        {
+//            std::cout << "Paume vers le haut. " << std::endl;
+//            l_bUp = true;
+//        }
+//        else
+//        {
+//            std::cout << "Paume vers le bas. " << std::endl;
+//        }
+
+
+//        std::cout << "aaa : " << acos(l_vecAxis.dot(l_vecHandPalmNormal)) * 180./3.14  << std::endl;
+
+        //, l_matTransfo2;
+
+//        swUtil::rodriguesRotation(l_vecHandPalmNormal, l_vecAxis2, l_matTransfo2);
+
+
+//        swUtil::rodriguesRotation(l_vecHandPalmNormal, l_vecAxis, l_matTransfo2);
+
+
+//        cv::Mat l_matNewHandDirection  = l_matTransfo * l_matHandDirection;
+//        cv::Mat l_matNewArmDirection  = l_matArmDirection;
+
+//        cv::Mat l_matNewHandDirection2  = l_matHandDirection;
+//        cv::Mat l_matNewArmDirection2   = l_matArmDirection;
+//        l_matNewArmDirection2.at<double>(1) = 0.0;
+//        l_matNewHandDirection2.at<double>(1) = 0.0;
+
+//        cv::Mat l_matNewArmDirection   = l_matTransfo * l_matArmDirection;
+//        cv::Mat l_matNewHandDirection2 = l_matTransfo2 * l_matHandPalmNormal;
+
+//        std::cout << " 1 : " << l_matNewHandDirection << std::endl;
+//        std::cout << " 2 : " << l_matNewArmDirection << std::endl;
+//        std::cout << " n : " << cv::norm(l_matNewHandDirection) << std::endl;
+//        std::cout << " n : " << cv::norm(l_matNewArmDirection) << std::endl;
+
+//         double l_dot  = l_matNewHandDirection.dot(l_matNewArmDirection);
+
+//         std::cout << "Angle deg : " << acos(l_dot/(cv::norm(l_matNewHandDirection)* cv::norm(l_matNewArmDirection))) * 180./3.14 << std::endl;
+
+//        std::cout << " 2 : " << l_matNewHandDirection2 << std::endl;
+
+//        cv::Mat l_matNewArmDirection  = l_matTransfo * l_matArmDirection;
+
+
+//
+
+//        cv::Mat l_matCross = l_matNewHandDirection.cross(l_matArmDirection);
+
+
+//        std::cout << "cross1 : " << l_matNewHandDirection.cross(l_matArmDirection);
+
+
+//        std::cout << "cross2 : " << l_matNewArmDirection.cross(l_matNewHandDirection);
+//        std::cout << "Angle rad : " << acos(l_dot) << std::endl;
+//        std::cout << "Angle deg : " << acos(l_dot) * 180./3.14 << std::endl;
+//        if(l_matCross.at<double>(1) > 0.)
+//        {
+//            if(l_bUp)
+//            {
+//                std::cout << "Real angle deg : " << acos(l_dot) * 180./3.14 << std::endl;
+//            }
+//            else
+//            {
+//                std::cout << "Real angle deg : " << acos(l_dot) * 180./3.14  << std::endl;
+//            }
+//        }
+//        else
+//        {
+//            if(l_bUp)
+//            {
+//               std::cout << "Real angle deg : " << acos(l_dot) * 180./3.14<< std::endl;
+//            }
+//            else
+//            {
+//                std::cout << "Real angle deg : " << acos(l_dot) * 180./3.14  << std::endl;
+//            }
+//        }
+
+
+
+
+//        cv::Mat l_matTransfo2;//
+
+//        cv::Mat l_matNewArmDirection  = l_matTransfo * l_matArmDirection;
+
+//        std::cout << "l_vecHandDirection : "    <<  std::endl << l_vecHandDirection << std::endl;
+//        std::cout << "l_vecArmDirection : "     <<  std::endl << l_vecArmDirection << std::endl;
+//        std::cout << "l_matNewHandDirection : " <<  std::endl << l_matNewHandDirection << std::endl;
+//        std::cout << "l_matNewArmDirection : "  <<  std::endl << l_matNewArmDirection << std::endl;
+
     }
 
 
