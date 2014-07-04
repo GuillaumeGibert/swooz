@@ -598,7 +598,128 @@ int main()
         cv::Mat l_matHandPalmNormal(l_vecHandPalmNormal);
         cv::Mat l_matArmDirection(l_vecArmDirection);
 
+
         cv::Mat l_matTransfo;
+        cv::Vec3d l_vecAxis(0.,-1.,0.);
+
+
+
+        swUtil::rodriguesRotation(l_vecAxis, l_vecHandPalmNormal, l_matTransfo);
+//        swUtil::rodriguesRotation(l_vecHandPalmNormal, l_vecAxis, l_matTransfo);
+        l_matHandDirection  = l_matTransfo * l_matHandDirection;
+
+
+
+        double l_dot  = l_matHandDirection.dot(l_matArmDirection);
+
+        std::cout << "Angle deg : " << acos(l_dot/(cv::norm(l_matHandDirection)* cv::norm(l_matArmDirection))) * 180./3.14 << std::endl;
+
+
+        double l_angle2 = acos(l_vecAxis.dot(l_vecHandPalmNormal)) * 180./3.14;
+
+        bool l_bUp = false;
+
+        if(l_angle2 > 90.)
+        {
+            std::cout << "Paume vers le haut. " << std::endl;
+            l_bUp = true;
+        }
+        else
+        {
+            std::cout << "Paume vers le bas. " << std::endl;
+        }
+
+
+        //        std::cout << " 2 : " << l_matNewHandDirection2 << std::endl;
+
+        //        cv::Mat l_matNewArmDirection  = l_matTransfo * l_matArmDirection;
+
+
+        //
+
+        //        cv::Mat l_matCross = l_matNewHandDirection.cross(l_matArmDirection);
+
+
+        //        std::cout << "cross1 : " << l_matNewHandDirection.cross(l_matArmDirection);
+
+
+        //        std::cout << "cross2 : " << l_matNewArmDirection.cross(l_matNewHandDirection);
+        //        std::cout << "Angle rad : " << acos(l_dot) << std::endl;
+        //        std::cout << "Angle deg : " << acos(l_dot) * 180./3.14 << std::endl;
+        //        if(l_matCross.at<double>(1) > 0.)
+        //        {
+        //            if(l_bUp)
+        //            {
+        //                std::cout << "Real angle deg : " << acos(l_dot) * 180./3.14 << std::endl;
+        //            }
+        //            else
+        //            {
+        //                std::cout << "Real angle deg : " << acos(l_dot) * 180./3.14  << std::endl;
+        //            }
+        //        }
+        //        else
+        //        {
+        //            if(l_bUp)
+        //            {
+        //               std::cout << "Real angle deg : " << acos(l_dot) * 180./3.14<< std::endl;
+        //            }
+        //            else
+        //            {
+        //                std::cout << "Real angle deg : " << acos(l_dot) * 180./3.14  << std::endl;
+        //            }
+        //        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+//
+
+//        cv::Vec3d axis(0,-1.0,1.0);
+//        swUtil::rodriguesRotation(l_vecHandPalmNormal, axis, l_matTransfo);
+//        cv::Mat l_matNewHandDirection  = l_matTransfo * l_matHandDirection;
+
+////        std::cout << "l_matNewHandDirection : " << std::endl << l_matNewHandDirection << std::endl;
+////        std::cout << "l_matArmDirection : " << std::endl << l_matArmDirection << std::endl;
+
+
+////        std::cout << "dot :  " << l_matNewHandDirection.dot(l_matArmDirection) << std::endl;
+
+//        double l_angle = (180./ 3.14) * acos(l_matNewHandDirection.dot(l_matArmDirection) / (cv::norm(l_matNewHandDirection) * cv::norm(l_matArmDirection)));
+
+
+//        double l_angle2 = acos(axis.dot(l_vecHandPalmNormal)) * 180./3.14;
+
+//        bool l_bUp = false;
+
+//        if(l_angle2 > 90.)
+//        {
+//            std::cout << "Paume vers le haut. " << std::endl;
+//            l_bUp = true;
+//        }
+//        else
+//        {
+//            std::cout << "Paume vers le bas. " << std::endl;
+//        }
+
+//        std::cout << "Angle " << l_angle << std::endl;
+
+
+
+
+
+
+
+
+
 
 
 

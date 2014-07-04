@@ -135,7 +135,7 @@ bool SWLeapTracking::updateModule()
         l_oHandCartesianBottleLeft.addDouble(static_cast<double>(l_vLambda[2])); // Left hand : hand palm normal yaw   / get(18).asDouble()
     m_oHandCartesianTrackingPortLeft.write();
 
-    //      HAND  -> copy current cartesian hand
+//          HAND  -> copy current cartesian hand
     yarp::os::Bottle &l_oHandBottleLeft = m_oHandTrackingPortLeft.prepare();
         l_oHandBottleLeft.copy(l_oHandCartesianBottleLeft);
 
@@ -149,6 +149,7 @@ bool SWLeapTracking::updateModule()
 //        l_oFingerBottleRight.addDouble(static_cast<double>(l_vRotation[1])); //Finger2Rot: x / get(2).asDouble()
 
     m_oHandTrackingPortLeft.write();
+
 
 
     // RIGHT HAND

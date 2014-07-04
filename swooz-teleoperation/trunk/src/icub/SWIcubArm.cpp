@@ -202,7 +202,7 @@ bool swTeleop::SWIcubArm::init( yarp::os::ResourceFinder &oRf, bool bLeftArm)
 
 
     // init ports
-        m_sArmTrackerPortName   = "/teleoperation/" + m_sRobotName + "/" + m_sArm + "_arm";
+//        m_sArmTrackerPortName   = "/teleoperation/" + m_sRobotName + "/" + m_sArm + "_arm";
         m_sHandTrackerPortName  = "/teleoperation/" + m_sRobotName + "/" + m_sArm + "_arm/hand";
         m_sHandCartesianTrackerPortName  = "/teleoperation/" + m_sRobotName + "/" + m_sArm + "_arm/hand_cartesian";
 //        m_sFingersTrackerPortName   = "/teleoperation/" + m_sRobotName + "/" + m_sArm + "_arm/fingers";
@@ -211,7 +211,7 @@ bool swTeleop::SWIcubArm::init( yarp::os::ResourceFinder &oRf, bool bLeftArm)
         bool l_bPortOpeningSuccess = true;
         if(m_bArmActivated)
         {
-            l_bPortOpeningSuccess = m_oArmTrackerPort.open(m_sArmTrackerPortName.c_str());
+//            l_bPortOpeningSuccess = m_oArmTrackerPort.open(m_sArmTrackerPortName.c_str());
 
 //            if(l_bPortOpeningSuccess)
 //                l_bPortOpeningSuccess = m_oFingersTrackerPort.open(m_sFingersTrackerPortName.c_str());
@@ -270,7 +270,6 @@ bool swTeleop::SWIcubArm::checkBottles()
         return false;
     }
 
-
     if(!m_bInitialized)
     {
         std::cerr << "Icub Arm control module not initialized. " << std::endl;
@@ -288,10 +287,11 @@ bool swTeleop::SWIcubArm::checkBottles()
         }
 
     // defines bottles
-        Bottle *l_pArmTarget = NULL,*l_pHandTarget = NULL, *l_pHandCartesianTarget = NULL; // *l_pFingersTarget = NULL,
+        Bottle *l_pHandTarget = NULL, *l_pHandCartesianTarget = NULL; // *l_pFingersTarget = NULL, *l_pArmTarget = NULL,
 
 
         l_pHandTarget = m_oHandTrackerPort.read(false);
+
 
         if(l_pHandTarget)
         {
@@ -314,6 +314,7 @@ bool swTeleop::SWIcubArm::checkBottles()
             // arm joint 14 middle_distal
             // arm joint 15 pinky
 
+
             switch(l_deviceId)
             {
                 case swTracking::DUMMY_LIB :
@@ -322,97 +323,178 @@ bool swTeleop::SWIcubArm::checkBottles()
                 break;
                 case swTracking::LEAP_LIB :
 
-                    std::vector<double> l_vArmDirection(3,0.), l_vHandDirection(3,0.),l_vHandDirectionE(3,0.), l_vHandPalmCoord(3,0.), l_vHandPalmNormal(3,0.), l_vHandPalmNormalE(3,0.);
 
-                    for(int ii = 0; ii < 3; ++ii)
-                    {
-                        l_vArmDirection[ii]     = l_pHandTarget->get(1 + ii).asDouble();
-                        l_vHandDirection[ii]    = l_pHandTarget->get(4 + ii).asDouble();
-                        l_vHandDirectionE[ii]   = l_pHandTarget->get(7 + ii).asDouble();
-                        l_vHandPalmCoord[ii]    = l_pHandTarget->get(10 + ii).asDouble();
-                        l_vHandPalmNormal[ii]   = l_pHandTarget->get(13 + ii).asDouble();
-                        l_vHandPalmNormalE[ii]  = l_pHandTarget->get(16 + ii).asDouble();
-                    }
-
-                    // orientation wrist
-                    //      yaw
-                    cv::Vec3d l_vecHandPalmNormal(l_vHandPalmNormal[0], l_vHandPalmNormal[1], l_vHandPalmNormal[2]);
-
-                    std::cout << l_vecHandPalmNormal << std::endl;
-//                    cv::Mat l_matTransform;
+                    // set default joint values
+                        for(int ii = 0; ii < m_i32ArmJointsNb; ++ii)
+                        {
+                            l_vArmJoints[ii] = m_vArmResetPosition[ii];
+                        }
 
 
-//                    swUtil::rodriguesRotation(l_vecHandPalmNormal, l_matTransform);
+                    // retrieve leap data
+                        std::vector<double> l_vArmDirection(3,0.), l_vHandDirection(3,0.),l_vHandDirectionE(3,0.), l_vHandPalmCoord(3,0.), l_vHandPalmNormal(3,0.), l_vHandPalmNormalE(3,0.);
+                        for(int ii = 0; ii < 3; ++ii)
+                        {
+                            l_vArmDirection[ii]     = l_pHandTarget->get(1 + ii).asDouble();
+                            l_vHandDirection[ii]    = l_pHandTarget->get(4 + ii).asDouble();
+                            l_vHandDirectionE[ii]   = l_pHandTarget->get(7 + ii).asDouble();
+                            l_vHandPalmCoord[ii]    = l_pHandTarget->get(10 + ii).asDouble();
+                            l_vHandPalmNormal[ii]   = l_pHandTarget->get(13 + ii).asDouble();
+                            l_vHandPalmNormalE[ii]  = l_pHandTarget->get(16 + ii).asDouble();
+                        }
 
-//                    cv::Mat l_matHandDirection(1, 3, CV_64FC1);
-//                    l_matHandDirection.at<double>(0,0) = l_vHandDirection[0];
-//                    l_matHandDirection.at<double>(0,1) = l_vHandDirection[1];
-//                    l_matHandDirection.at<double>(0,2) = l_vHandDirection[2];
+                    // convert to vec3D
+                        cv::Vec3d l_vecHandPalmNormal(l_vHandPalmNormal[0], l_vHandPalmNormal[1], l_vHandPalmNormal[2]);
+                        cv::Vec3d l_vecHandPalmCoord(l_vHandPalmCoord[0], l_vHandPalmCoord[1], l_vHandPalmCoord[2]);
+                        cv::Vec3d l_vecHandDirection(l_vHandDirection[0], l_vHandDirection[1], l_vHandDirection[2]);
+                        cv::Vec3d l_vecArmDirection(l_vArmDirection[0], l_vArmDirection[1], l_vArmDirection[2]);
 
-//                    cv::Mat l_matHandDirectionTransformed  = l_matHandDirection * l_matTransform;
+                    // normalize vectors
+                        l_vecHandPalmNormal = cv::normalize(l_vecHandPalmNormal);
+                        l_vecArmDirection   = cv::normalize(l_vecArmDirection);
+                        l_vecHandDirection  = cv::normalize(l_vecHandDirection);
+
+                    // convert to mat
+                        cv::Mat l_matHandDirection(l_vecHandDirection);
+                        cv::Mat l_matHandPalmNormal(l_vecHandPalmNormal);
+                        cv::Mat l_matArmDirection(l_vecArmDirection);
+
+                    // check hand palm orientation
+                        bool l_bHandPalmUp = false;
+                        if((acos(cv::Vec3d(0.,-1.,0.).dot(l_vecHandPalmNormal)) * 180./3.14) > 90.)
+                        {
+                            l_bHandPalmUp = true;
+                        }
+
+                    // compute transformation for aligning arm to z axis
+                        cv::Mat l_matTransfo;
+                        cv::Vec3d l_vecAxis(0.,0.,-1.);
+                        swUtil::rodriguesRotation(l_vecArmDirection, l_vecAxis, l_matTransfo);
+                    // apply transformation to the arm and the hand
+                        cv::Mat l_matTransfoHandDirection = l_matTransfo * l_matHandDirection;
+                        cv::Mat l_matTransfoHandNormal    = l_matTransfo * l_matHandPalmNormal;
+                        cv::Mat l_matTransfoArmDirection  = l_matTransfo * l_matArmDirection;
+
+                    // compute transformation for aligning palm normal to Y axis
+                        if(!l_bHandPalmUp)
+                        {
+                            l_vecAxis = cv::Vec3d(0.,-1.,0.);
+                        }
+                        else
+                        {
+                            l_vecAxis = cv::Vec3d(0.,1.,0.);
+                        }
+
+                        cv::Vec3d l_vecTransfoHandNormal(l_matTransfoHandNormal);
+                        swUtil::rodriguesRotation(l_vecTransfoHandNormal, l_vecAxis, l_matTransfo);
+
+                        cv::Mat l_matTransfoHandDirection2 = l_matTransfo * l_matTransfoHandDirection;
+
+                    // compute angle for wrist yaw
+                        double l_dot  = l_matTransfoHandDirection2.dot(l_matTransfoArmDirection);
+                        double l_angle = acos(l_dot/(cv::norm(l_matTransfoHandDirection2)* cv::norm(l_matTransfoArmDirection))) * 180./3.14;
+                        cv::Mat l_matCross = l_matTransfoHandDirection2.cross(l_matTransfoArmDirection);
+
+                        double l_dCrossY = l_matCross.at<double>(1);
+
+                        if(m_sArm != "left")
+                        {
+                            l_dCrossY *= -1;
+                        }
+
+                        if(l_dCrossY > 0.)
+                        {
+                            if(!l_bHandPalmUp)
+                            {
+                                l_angle = -l_angle;
+                            }
+                        }
+                        else
+                        {
+                            if(l_bHandPalmUp)
+                            {
+                                l_angle = -l_angle;
+                            }
+                        }
+
+                        // set joint value
+                        l_vArmJoints[6] = l_angle;
+
+                        cv::Vec3d l_vecTransfoHandDirection(l_matTransfoHandDirection);
+                        cv::Vec3d l_vecTransfoHandRight = l_vecTransfoHandNormal.cross(l_vecTransfoHandDirection);
+
+                        bool l_bHandPalmLeft = true;
+                        if((acos(cv::Vec3d(-1.,0.,0.).dot(l_vecHandPalmNormal)) * 180./3.14) > 90.)
+                        {
+                            l_bHandPalmLeft = false;
+                        }
+
+                        // compute transformation for aligning palm normal to X axis
+                        if(l_bHandPalmLeft)
+                        {
+                            l_vecAxis = cv::Vec3d(0.,-1.,0.);
+                        }
+                        else
+                        {
+                            l_vecAxis = cv::Vec3d(0.,1.,0.);
+                        }
+
+                        swUtil::rodriguesRotation(l_vecTransfoHandRight, l_vecAxis, l_matTransfo);
+                        l_matTransfoHandDirection2 = l_matTransfo * l_matTransfoHandDirection;
+
+                    // compute angle for wrist ptich
+                        l_dot  = l_matTransfoHandDirection2.dot(l_matTransfoArmDirection);
+                        l_angle = acos(l_dot/(cv::norm(l_matTransfoHandDirection2)* cv::norm(l_matTransfoArmDirection))) * 180./3.14;
 
 
+                        l_matCross = l_matTransfoHandDirection2.cross(l_matTransfoArmDirection);
+//                        l_dCrossY = l_matCross.at<double>(1);
 
-//                    cv::Mat l_matHandPalmNormal(1, 3, CV_32FC1);
-
-
-
-
-
-//                    cv::Mat testMat(1,3, CV_32FC1, cv::Scalar(1.f));
-//            //        cv::Mat testMat(1,1, 1);
+                        if(m_sArm != "left")
+                        {
+                            l_dCrossY *= -1;
+                        }
 
 
-//                    std::vector<float> l_vNormalPalmHand;
-//                    test.normalPalmHand(true, l_vNormalPalmHand);
+                        if(l_dCrossY > 0.)
+                        {
+                            if(l_bHandPalmLeft)
+                            {
+                                 l_angle = -l_angle;
+                            }
+                            else
+                            {
+                                 l_angle = 0.0;
+                            }
 
-//                    cv::Vec3f src(l_vNormalPalmHand[0],l_vNormalPalmHand[1],l_vNormalPalmHand[2]);
+                        }
+                        else
+                        {
+                            if(l_bHandPalmLeft)
+                            {
+                                 l_angle = 0.0;
+                            }
+                            else
+                            {
+                                l_angle = -l_angle;
+                            }
+                        }
 
-//                    cv::Mat dest;
-//                    swUtil::rodriguesRotation(src, dest);
-
-//                    std::cout << "Mvector: " << std::endl;
-//                    std::cout << testMat << std::endl;
-//                    std::cout << "Before " << std::endl;
-//                    std::cout << src << std::endl;
-//                    std::cout << "Mat " << std::endl;
-//                    std::cout << dest << std::endl;
-//                    std::cout << "After" << std::endl;
-
-//            //        float l_fNewX,l_fNewY,l_fNewZ;
-
-//            ////        l_fNewX =   dest.at<float>(0,0) * testMat[0] +
-//            ////                    dest.at<float>(0,1) * testMat[1] +
-//            ////                    dest.at<float>(0,2) * testMat[2];
-
-//            ////        l_fNewY =   dest.at<float>(1,0) * testMat[0] +
-//            ////                    dest.at<float>(1,1) * testMat[1] +
-//            ////                    dest.at<float>(1,2) * testMat[2];
-
-//            ////        l_fNewZ =   dest.at<float>(2,0) * testMat[0] +
-//            ////                    dest.at<float>(2,1) * testMat[1] +
-//            ////                    dest.at<float>(2,2) * testMat[2];
-
-//            //        cv::Vec3f res;//(l_fNewX, l_fNewY, l_fNewZ);
-
-//            //        cv::multiply(dest, testMat, res);
-
-//                    cv::Mat res  = testMat * dest;
+                        // set joint value
+                        l_vArmJoints[5] = l_angle;
 
 
-//                    std::cout << res << std::endl;
+                        if(m_sArm != "left")
+                        {
+                            l_vArmJoints[4] = (l_vHandPalmNormalE[1]* 180. / 3.14 + 90.0);
+                        }
+                        else
+                        {
+                            l_vArmJoints[4] = -(l_vHandPalmNormalE[1]* 180. / 3.14 - 90.0);
+                        }
 
 
-
-
-                    // all computing
-
-
-
-
-
-
-//                    l_vArmJoints
+                        std::cout << -(l_vHandPalmNormalE[1]* 180. / 3.14 - 90.0)<< " ";
 
 
                 break;
@@ -421,7 +503,7 @@ bool swTeleop::SWIcubArm::checkBottles()
         }
 
 
-
+        /*
 
         // read arm commands
         if(m_bArmActivated)
@@ -663,7 +745,7 @@ bool swTeleop::SWIcubArm::checkBottles()
                             {
                                 m_bLeftArmCapture = false;
                             }
-                            */
+                          //
 
                             //	m_bLeftArmCapture = true
 
@@ -699,6 +781,8 @@ bool swTeleop::SWIcubArm::checkBottles()
             }
         }
 
+        */
+
     // check each joint value to ensure it is in the right range, if not crop to the max/min values
         for(uint ii = 0; ii < l_vArmJoints.size(); ++ii)
         {
@@ -712,8 +796,9 @@ bool swTeleop::SWIcubArm::checkBottles()
             }
         }
 
-        if(l_pArmTarget)
+        if(l_pHandTarget)
         {
+//            std::cout << "send joints " << std::endl;
             m_pVelocityController->setJoints(l_vArmJoints);
 
             if(!m_pVelocityController->isRunning())
@@ -751,7 +836,7 @@ bool swTeleop::SWIcubArm::close()
     // close ports
         if(m_bArmActivated)
         {
-            m_oArmTrackerPort.close();
+//            m_oArmTrackerPort.close();
             m_oHandTrackerPort.close();
             m_oHandCartesianTrackerPort.close();
         }
@@ -778,7 +863,7 @@ bool swTeleop::SWIcubArm::interruptModule()
     // close ports
         if(m_bArmActivated)
         {
-            m_oArmTrackerPort.interrupt();
+//            m_oArmTrackerPort.interrupt();
             m_oHandTrackerPort.interrupt();
             m_oHandCartesianTrackerPort.interrupt();
         }
