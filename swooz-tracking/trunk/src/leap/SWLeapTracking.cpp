@@ -137,17 +137,88 @@ bool SWLeapTracking::updateModule()
 
 //          HAND  -> copy current cartesian hand
     yarp::os::Bottle &l_oHandBottleLeft = m_oHandTrackingPortLeft.prepare();
+    l_oHandBottleLeft.clear();
         l_oHandBottleLeft.copy(l_oHandCartesianBottleLeft);
+        m_oLeap.boneDirection(true, Leap::Finger::TYPE_THUMB, Leap::Bone::TYPE_METACARPAL, l_vLambda);
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[0])); // Left hand : thumb metacarpal direction x / get(19).asDouble()
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[1])); // Left hand : thumb metacarpal direction y / get(20).asDouble()
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[2])); // Left hand : thumb metacarpal direction z / get(21).asDouble()
+        m_oLeap.boneDirection(true, Leap::Finger::TYPE_THUMB, Leap::Bone::TYPE_PROXIMAL, l_vLambda);
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[0])); // Left hand : thumb proximal direction x / get(22).asDouble()
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[1])); // Left hand : thumb proximal direction y / get(23).asDouble()
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[2])); // Left hand : thumb proximal direction z / get(24).asDouble()
+        m_oLeap.boneDirection(true, Leap::Finger::TYPE_THUMB, Leap::Bone::TYPE_DISTAL, l_vLambda);
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[0])); // Left hand : thumb distal direction x / get(25).asDouble()
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[1])); // Left hand : thumb distal direction y / get(26).asDouble()
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[2])); // Left hand : thumb distal direction z / get(27).asDouble()
 
-        // fingers ....
-        //        void fingerRotation(cbool leftHand, const Leap::Finger::Type fingerType, std::vector<float> &fingerRotation);
-//        m_oLeap.fingerRotation(false, Leap::Finger::TYPE_THUMB, l_vRotation);
+        m_oLeap.boneDirection(true, Leap::Finger::TYPE_INDEX, Leap::Bone::TYPE_METACARPAL, l_vLambda);
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[0])); // Left hand : index metacarpal direction x / get(28).asDouble()
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[1])); // Left hand : index metacarpal direction y / get(29).asDouble()
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[2])); // Left hand : index metacarpal direction z / get(30).asDouble()
+        m_oLeap.boneDirection(true, Leap::Finger::TYPE_INDEX, Leap::Bone::TYPE_PROXIMAL, l_vLambda);
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[0])); // Left hand : index proximal direction x / get(31).asDouble()
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[1])); // Left hand : index proximal direction y / get(32).asDouble()
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[2])); // Left hand : index proximal direction z / get(33).asDouble()
+        m_oLeap.boneDirection(true, Leap::Finger::TYPE_INDEX, Leap::Bone::TYPE_INTERMEDIATE, l_vLambda);
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[0])); // Left hand : index intermediate direction x / get(34).asDouble()
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[1])); // Left hand : index intermediate direction y / get(35).asDouble()
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[2])); // Left hand : index intermediate direction z / get(36).asDouble()
+        m_oLeap.boneDirection(true, Leap::Finger::TYPE_INDEX, Leap::Bone::TYPE_DISTAL, l_vLambda);
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[0])); // Left hand : index distal direction x / get(37).asDouble()
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[1])); // Left hand : index distal direction y / get(38).asDouble()
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[2])); // Left hand : index distal direction z / get(39).asDouble()
 
-////			l_oFingerBottleRight.addDouble(m_oLeap.getFingerRotation(1,1,false)); //Finger2Rot: x / get(1).asDouble()
-////			l_oFingerBottleRight.addDouble(m_oLeap.getFingerRotation(1,2,false)); //Finger2Rot: x / get(2).asDouble()
-//        l_oFingerBottleRight.addDouble(static_cast<double>(l_vRotation[0])); //Finger2Rot: x / get(1).asDouble()
-//        l_oFingerBottleRight.addDouble(static_cast<double>(l_vRotation[1])); //Finger2Rot: x / get(2).asDouble()
+        m_oLeap.boneDirection(true, Leap::Finger::TYPE_MIDDLE, Leap::Bone::TYPE_METACARPAL, l_vLambda);
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[0])); // Left hand : index metacarpal direction x / get(40).asDouble()
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[1])); // Left hand : index metacarpal direction y / get(41).asDouble()
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[2])); // Left hand : index metacarpal direction z / get(42).asDouble()
+        m_oLeap.boneDirection(true, Leap::Finger::TYPE_MIDDLE, Leap::Bone::TYPE_PROXIMAL, l_vLambda);
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[0])); // Left hand : middle proximal direction x / get(43).asDouble()
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[1])); // Left hand : middle proximal direction y / get(44).asDouble()
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[2])); // Left hand : middle proximal direction z / get(45).asDouble()
+        m_oLeap.boneDirection(true, Leap::Finger::TYPE_MIDDLE, Leap::Bone::TYPE_INTERMEDIATE, l_vLambda);
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[0])); // Left hand : middle intermediate direction x / get(46).asDouble()
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[1])); // Left hand : middle intermediate direction y / get(47).asDouble()
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[2])); // Left hand : middle intermediate direction z / get(48).asDouble()
+        m_oLeap.boneDirection(true, Leap::Finger::TYPE_MIDDLE, Leap::Bone::TYPE_DISTAL, l_vLambda);
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[0])); // Left hand : middle distal direction x / get(49).asDouble()
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[1])); // Left hand : middle distal direction y / get(50).asDouble()
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[2])); // Left hand : middle distal direction z / get(51).asDouble()
 
+        m_oLeap.boneDirection(true, Leap::Finger::TYPE_RING, Leap::Bone::TYPE_METACARPAL, l_vLambda);
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[0])); // Left hand : ring metacarpal direction x / get(52).asDouble()
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[1])); // Left hand : ring metacarpal direction y / get(53).asDouble()
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[2])); // Left hand : ring metacarpal direction z / get(54).asDouble()
+        m_oLeap.boneDirection(true, Leap::Finger::TYPE_RING, Leap::Bone::TYPE_PROXIMAL, l_vLambda);
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[0])); // Left hand : ring proximal direction x / get(55).asDouble()
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[1])); // Left hand : ring proximal direction y / get(56).asDouble()
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[2])); // Left hand : ring proximal direction z / get(57).asDouble()
+        m_oLeap.boneDirection(true, Leap::Finger::TYPE_RING, Leap::Bone::TYPE_INTERMEDIATE, l_vLambda);
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[0])); // Left hand : ring intermediate direction x / get(58).asDouble()
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[1])); // Left hand : ring intermediate direction y / get(59).asDouble()
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[2])); // Left hand : ring intermediate direction z / get(60).asDouble()
+        m_oLeap.boneDirection(true, Leap::Finger::TYPE_RING, Leap::Bone::TYPE_DISTAL, l_vLambda);
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[0])); // Left hand : ring distal direction x / get(61).asDouble()
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[1])); // Left hand : ring distal direction y / get(62).asDouble()
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[2])); // Left hand : ring distal direction z / get(63).asDouble()
+
+        m_oLeap.boneDirection(true, Leap::Finger::TYPE_PINKY, Leap::Bone::TYPE_METACARPAL, l_vLambda);
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[0])); // Left hand : pinky metacarpal direction x / get(64).asDouble()
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[1])); // Left hand : pinky metacarpal direction y / get(65).asDouble()
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[2])); // Left hand : pinky metacarpal direction z / get(66).asDouble()
+        m_oLeap.boneDirection(true, Leap::Finger::TYPE_PINKY, Leap::Bone::TYPE_PROXIMAL, l_vLambda);
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[0])); // Left hand : pinky proximal direction x / get(67).asDouble()
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[1])); // Left hand : pinky proximal direction y / get(68).asDouble()
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[2])); // Left hand : pinky proximal direction z / get(69).asDouble()
+        m_oLeap.boneDirection(true, Leap::Finger::TYPE_PINKY, Leap::Bone::TYPE_INTERMEDIATE, l_vLambda);
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[0])); // Left hand : pinky intermediate direction x / get(70).asDouble()
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[1])); // Left hand : pinky intermediate direction y / get(71).asDouble()
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[2])); // Left hand : pinky intermediate direction z / get(72).asDouble()
+        m_oLeap.boneDirection(true, Leap::Finger::TYPE_PINKY, Leap::Bone::TYPE_DISTAL, l_vLambda);
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[0])); // Left hand : pinky distal direction x / get(73).asDouble()
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[1])); // Left hand : pinky distal direction y / get(74).asDouble()
+        l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[2])); // Left hand : pinky distal direction z / get(75).asDouble()
     m_oHandTrackingPortLeft.write();
 
 
@@ -185,10 +256,88 @@ bool SWLeapTracking::updateModule()
 
     //      HAND  -> copy current cartesian hand
     yarp::os::Bottle &l_oHandBottleRight = m_oHandTrackingPortRight.prepare();
+    l_oHandBottleRight.clear();
         l_oHandBottleRight.copy(l_oHandCartesianBottleRight);
+        m_oLeap.boneDirection(false, Leap::Finger::TYPE_THUMB, Leap::Bone::TYPE_METACARPAL, l_vLambda);
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[0])); // Right hand : thumb metacarpal direction x / get(19).asDouble()
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[1])); // Right hand : thumb metacarpal direction y / get(20).asDouble()
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[2])); // Right hand : thumb metacarpal direction z / get(21).asDouble()
+        m_oLeap.boneDirection(false, Leap::Finger::TYPE_THUMB, Leap::Bone::TYPE_PROXIMAL, l_vLambda);
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[0])); // Right hand : thumb proximal direction x / get(22).asDouble()
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[1])); // Right hand : thumb proximal direction y / get(23).asDouble()
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[2])); // Right hand : thumb proximal direction z / get(24).asDouble()
+        m_oLeap.boneDirection(false, Leap::Finger::TYPE_THUMB, Leap::Bone::TYPE_DISTAL, l_vLambda);
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[0])); // Right hand : thumb distal direction x / get(25).asDouble()
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[1])); // Right hand : thumb distal direction y / get(26).asDouble()
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[2])); // Right hand : thumb distal direction z / get(27).asDouble()
 
-        // ...
+        m_oLeap.boneDirection(false, Leap::Finger::TYPE_INDEX, Leap::Bone::TYPE_METACARPAL, l_vLambda);
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[0])); // Right hand : index metacarpal direction x / get(28).asDouble()
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[1])); // Right hand : index metacarpal direction y / get(29).asDouble()
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[2])); // Right hand : index metacarpal direction z / get(30).asDouble()
+        m_oLeap.boneDirection(false, Leap::Finger::TYPE_INDEX, Leap::Bone::TYPE_PROXIMAL, l_vLambda);
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[0])); // Right hand : index proximal direction x / get(31).asDouble()
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[1])); // Right hand : index proximal direction y / get(32).asDouble()
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[2])); // Right hand : index proximal direction z / get(33).asDouble()
+        m_oLeap.boneDirection(false, Leap::Finger::TYPE_INDEX, Leap::Bone::TYPE_INTERMEDIATE, l_vLambda);
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[0])); // Right hand : index intermediate direction x / get(34).asDouble()
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[1])); // Right hand : index intermediate direction y / get(35).asDouble()
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[2])); // Right hand : index intermediate direction z / get(36).asDouble()
+        m_oLeap.boneDirection(false, Leap::Finger::TYPE_INDEX, Leap::Bone::TYPE_DISTAL, l_vLambda);
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[0])); // Right hand : index distal direction x / get(37).asDouble()
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[1])); // Right hand : index distal direction y / get(38).asDouble()
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[2])); // Right hand : index distal direction z / get(39).asDouble()
 
+        m_oLeap.boneDirection(false, Leap::Finger::TYPE_MIDDLE, Leap::Bone::TYPE_METACARPAL, l_vLambda);
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[0])); // Right hand : index metacarpal direction x / get(40).asDouble()
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[1])); // Right hand : index metacarpal direction y / get(41).asDouble()
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[2])); // Right hand : index metacarpal direction z / get(42).asDouble()
+        m_oLeap.boneDirection(false, Leap::Finger::TYPE_MIDDLE, Leap::Bone::TYPE_PROXIMAL, l_vLambda);
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[0])); // Right hand : middle proximal direction x / get(43).asDouble()
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[1])); // Right hand : middle proximal direction y / get(44).asDouble()
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[2])); // Right hand : middle proximal direction z / get(45).asDouble()
+        m_oLeap.boneDirection(false, Leap::Finger::TYPE_MIDDLE, Leap::Bone::TYPE_INTERMEDIATE, l_vLambda);
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[0])); // Right hand : middle intermediate direction x / get(46).asDouble()
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[1])); // Right hand : middle intermediate direction y / get(47).asDouble()
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[2])); // Right hand : middle intermediate direction z / get(48).asDouble()
+        m_oLeap.boneDirection(false, Leap::Finger::TYPE_MIDDLE, Leap::Bone::TYPE_DISTAL, l_vLambda);
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[0])); // Right hand : middle distal direction x / get(49).asDouble()
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[1])); // Right hand : middle distal direction y / get(50).asDouble()
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[2])); // Right hand : middle distal direction z / get(51).asDouble()
+
+        m_oLeap.boneDirection(false, Leap::Finger::TYPE_RING, Leap::Bone::TYPE_METACARPAL, l_vLambda);
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[0])); // Right hand : ring metacarpal direction x / get(52).asDouble()
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[1])); // Right hand : ring metacarpal direction y / get(53).asDouble()
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[2])); // Right hand : ring metacarpal direction z / get(54).asDouble()
+        m_oLeap.boneDirection(false, Leap::Finger::TYPE_RING, Leap::Bone::TYPE_PROXIMAL, l_vLambda);
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[0])); // Right hand : ring proximal direction x / get(55).asDouble()
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[1])); // Right hand : ring proximal direction y / get(56).asDouble()
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[2])); // Right hand : ring proximal direction z / get(57).asDouble()
+        m_oLeap.boneDirection(false, Leap::Finger::TYPE_RING, Leap::Bone::TYPE_INTERMEDIATE, l_vLambda);
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[0])); // Right hand : ring intermediate direction x / get(58).asDouble()
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[1])); // Right hand : ring intermediate direction y / get(59).asDouble()
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[2])); // Right hand : ring intermediate direction z / get(60).asDouble()
+        m_oLeap.boneDirection(false, Leap::Finger::TYPE_RING, Leap::Bone::TYPE_DISTAL, l_vLambda);
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[0])); // Right hand : ring distal direction x / get(61).asDouble()
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[1])); // Right hand : ring distal direction y / get(62).asDouble()
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[2])); // Right hand : ring distal direction z / get(63).asDouble()
+
+        m_oLeap.boneDirection(false, Leap::Finger::TYPE_PINKY, Leap::Bone::TYPE_METACARPAL, l_vLambda);
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[0])); // Right hand : pinky metacarpal direction x / get(64).asDouble()
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[1])); // Right hand : pinky metacarpal direction y / get(65).asDouble()
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[2])); // Right hand : pinky metacarpal direction z / get(66).asDouble()
+        m_oLeap.boneDirection(false, Leap::Finger::TYPE_PINKY, Leap::Bone::TYPE_PROXIMAL, l_vLambda);
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[0])); // Right hand : pinky proximal direction x / get(67).asDouble()
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[1])); // Right hand : pinky proximal direction y / get(68).asDouble()
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[2])); // Right hand : pinky proximal direction z / get(69).asDouble()
+        m_oLeap.boneDirection(false, Leap::Finger::TYPE_PINKY, Leap::Bone::TYPE_INTERMEDIATE, l_vLambda);
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[0])); // Right hand : pinky intermediate direction x / get(70).asDouble()
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[1])); // Right hand : pinky intermediate direction y / get(71).asDouble()
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[2])); // Right hand : pinky intermediate direction z / get(72).asDouble()
+        m_oLeap.boneDirection(false, Leap::Finger::TYPE_PINKY, Leap::Bone::TYPE_DISTAL, l_vLambda);
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[0])); // Right hand : pinky distal direction x / get(73).asDouble()
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[1])); // Right hand : pinky distal direction y / get(74).asDouble()
+        l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[2])); // Right hand : pinky distal direction z / get(75).asDouble()
     m_oHandTrackingPortRight.write();
 
     return true;

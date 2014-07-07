@@ -19,8 +19,7 @@
 
 #include "opencv2/core/core.hpp"
 #include "opencvUtility.h"
-
-using namespace yarp::os;
+#include "geometryUtility.h"
 
 
 swTeleop::SWIcubArm::SWIcubArm() : m_bInitialized(false), m_bIsRunning(false), m_dArmTimeLastBottle(-1.),
@@ -92,12 +91,12 @@ bool swTeleop::SWIcubArm::init( yarp::os::ResourceFinder &oRf, bool bLeftArm)
     }
 
     // gets the module name which will form the stem of all module port names
-        m_sModuleName   = oRf.check("name", Value("teleoperation_iCub"), "Teleoperation/iCub Module name (string)").asString();
-        m_sRobotName    = oRf.check("robot",Value("icubSim"),  "Robot name (string)").asString();
+        m_sModuleName   = oRf.check("name", yarp::os::Value("teleoperation_iCub"), "Teleoperation/iCub Module name (string)").asString();
+        m_sRobotName    = oRf.check("robot",yarp::os::Value("icubSim"),  "Robot name (string)").asString();
 
     // robot parts to control
 
-        m_bArmActivated = oRf.check(std::string(m_sArm + "ArmActivated").c_str(), Value(m_bArmActivatedDefault), std::string(m_sArm + " Arm activated (int)").c_str()).asInt() != 0;
+        m_bArmActivated = oRf.check(std::string(m_sArm + "ArmActivated").c_str(), yarp::os::Value(m_bArmActivatedDefault), std::string(m_sArm + " Arm activated (int)").c_str()).asInt() != 0;
 
         if(!m_bArmActivated)
         {
@@ -137,7 +136,7 @@ bool swTeleop::SWIcubArm::init( yarp::os::ResourceFinder &oRf, bool bLeftArm)
         }
 
     // miscellaneous
-        m_i32TimeoutArmReset   = oRf.check(std::string(m_sArm + "ArmTimeoutReset").c_str(),       Value(m_i32TimeoutArmResetDefault), std::string(m_sArm + " arm timeout reset iCub (int)").c_str()).asInt();
+        m_i32TimeoutArmReset   = oRf.check(std::string(m_sArm + "ArmTimeoutReset").c_str(),       yarp::os::Value(m_i32TimeoutArmResetDefault), std::string(m_sArm + " arm timeout reset iCub (int)").c_str()).asInt();
 
     // set polydriver options
         m_oArmOptions.put("robot",     m_sRobotName.c_str());
@@ -202,20 +201,13 @@ bool swTeleop::SWIcubArm::init( yarp::os::ResourceFinder &oRf, bool bLeftArm)
 
 
     // init ports
-//        m_sArmTrackerPortName   = "/teleoperation/" + m_sRobotName + "/" + m_sArm + "_arm";
         m_sHandTrackerPortName  = "/teleoperation/" + m_sRobotName + "/" + m_sArm + "_arm/hand";
         m_sHandCartesianTrackerPortName  = "/teleoperation/" + m_sRobotName + "/" + m_sArm + "_arm/hand_cartesian";
-//        m_sFingersTrackerPortName   = "/teleoperation/" + m_sRobotName + "/" + m_sArm + "_arm/fingers";
 
     // open ports
         bool l_bPortOpeningSuccess = true;
         if(m_bArmActivated)
         {
-//            l_bPortOpeningSuccess = m_oArmTrackerPort.open(m_sArmTrackerPortName.c_str());
-
-//            if(l_bPortOpeningSuccess)
-//                l_bPortOpeningSuccess = m_oFingersTrackerPort.open(m_sFingersTrackerPortName.c_str());
-
             if(l_bPortOpeningSuccess)
                  l_bPortOpeningSuccess = m_oHandTrackerPort.open(m_sHandTrackerPortName.c_str());
 
@@ -263,6 +255,441 @@ bool swTeleop::SWIcubArm::init( yarp::os::ResourceFinder &oRf, bool bLeftArm)
     return (m_bIsRunning=m_bInitialized=true);
 }
 
+void swTeleop::SWIcubArm::computeHandAngles(yarp::os::Bottle* handBottle,std::vector<double> &vHandAngles)
+{
+    vHandAngles = std::vector<double>(3,0.);
+
+    // retrieve leap data
+        std::vector<double> l_vArmDirection(3,0.), l_vHandDirection(3,0.),l_vHandDirectionE(3,0.), l_vHandPalmCoord(3,0.), l_vHandPalmNormal(3,0.), l_vHandPalmNormalE(3,0.);
+        for(int ii = 0; ii < 3; ++ii)
+        {
+            l_vArmDirection[ii]     = handBottle->get(1 + ii).asDouble();
+            l_vHandDirection[ii]    = handBottle->get(4 + ii).asDouble();
+            l_vHandDirectionE[ii]   = handBottle->get(7 + ii).asDouble();
+            l_vHandPalmCoord[ii]    = handBottle->get(10 + ii).asDouble();
+            l_vHandPalmNormal[ii]   = handBottle->get(13 + ii).asDouble();
+            l_vHandPalmNormalE[ii]  = handBottle->get(16 + ii).asDouble();
+        }
+
+    // convert to vec3D
+        cv::Vec3d l_vecHandPalmNormal(l_vHandPalmNormal[0], l_vHandPalmNormal[1], l_vHandPalmNormal[2]);
+        cv::Vec3d l_vecHandPalmCoord(l_vHandPalmCoord[0], l_vHandPalmCoord[1], l_vHandPalmCoord[2]);
+        cv::Vec3d l_vecHandDirection(l_vHandDirection[0], l_vHandDirection[1], l_vHandDirection[2]);
+        cv::Vec3d l_vecArmDirection(l_vArmDirection[0], l_vArmDirection[1], l_vArmDirection[2]);
+
+    // normalize vectors
+        l_vecHandPalmNormal = cv::normalize(l_vecHandPalmNormal);
+        l_vecArmDirection   = cv::normalize(l_vecArmDirection);
+        l_vecHandDirection  = cv::normalize(l_vecHandDirection);
+
+    // convert to mat
+        cv::Mat l_matHandDirection(l_vecHandDirection);
+        cv::Mat l_matHandPalmNormal(l_vecHandPalmNormal);
+        cv::Mat l_matArmDirection(l_vecArmDirection);
+
+    // check hand palm orientation
+        bool l_bHandPalmUp = false;
+         if(swUtil::rad2Deg(acos(cv::Vec3d(0.,-1.,0.).dot(l_vecHandPalmNormal))) > 90.)
+        {
+            l_bHandPalmUp = true;
+        }
+
+    // compute transformation for aligning arm to z axis
+        cv::Mat l_matTransfo;
+        cv::Vec3d l_vecAxis(0.,0.,-1.);
+        swUtil::rodriguesRotation(l_vecArmDirection, l_vecAxis, l_matTransfo);
+    // apply transformation to the arm and the hand
+        cv::Mat l_matTransfoHandDirection = l_matTransfo * l_matHandDirection;
+        cv::Mat l_matTransfoHandNormal    = l_matTransfo * l_matHandPalmNormal;
+        cv::Mat l_matTransfoArmDirection  = l_matTransfo * l_matArmDirection;
+
+    // compute transformation for aligning palm normal to Y axis
+        if(!l_bHandPalmUp)
+        {
+            l_vecAxis = cv::Vec3d(0.,-1.,0.);
+        }
+        else
+        {
+            l_vecAxis = cv::Vec3d(0.,1.,0.);
+        }
+
+        cv::Vec3d l_vecTransfoHandNormal(l_matTransfoHandNormal);
+        swUtil::rodriguesRotation(l_vecTransfoHandNormal, l_vecAxis, l_matTransfo);
+
+        cv::Mat l_matTransfoHandDirection2 = l_matTransfo * l_matTransfoHandDirection;
+
+    // compute angle for wrist yaw
+        double l_dot  = l_matTransfoHandDirection2.dot(l_matTransfoArmDirection);
+        double l_angle = swUtil::rad2Deg(acos(l_dot/(cv::norm(l_matTransfoHandDirection2)* cv::norm(l_matTransfoArmDirection))));
+        cv::Mat l_matCross = l_matTransfoHandDirection2.cross(l_matTransfoArmDirection);
+
+        double l_dCrossY = l_matCross.at<double>(1);
+
+        if(m_sArm != "left")
+        {
+            l_dCrossY *= -1;
+        }
+
+        if(l_dCrossY > 0.)
+        {
+            if(!l_bHandPalmUp)
+            {
+                l_angle = -l_angle;
+            }
+        }
+        else
+        {
+            if(l_bHandPalmUp)
+            {
+                l_angle = -l_angle;
+            }
+        }
+
+        // set joint value
+        vHandAngles[2] = l_angle;
+
+    // compute angle for wrist ptich
+        cv::Vec3d l_vecTransfoHandDirection(l_matTransfoHandDirection);
+        cv::Vec3d l_vecTransfoHandRight = l_vecTransfoHandNormal.cross(l_vecTransfoHandDirection);
+
+        bool l_bHandPalmLeft = true;
+        if(swUtil::rad2Deg(acos(cv::Vec3d(-1.,0.,0.).dot(l_vecHandPalmNormal))) > 90.)
+        {
+            l_bHandPalmLeft = false;
+        }
+
+        // compute transformation for aligning palm normal to X axis
+        if(l_bHandPalmLeft)
+        {
+            l_vecAxis = cv::Vec3d(0.,-1.,0.);
+        }
+        else
+        {
+            l_vecAxis = cv::Vec3d(0.,1.,0.);
+        }
+
+        swUtil::rodriguesRotation(l_vecTransfoHandRight, l_vecAxis, l_matTransfo);
+        l_matTransfoHandDirection2 = l_matTransfo * l_matTransfoHandDirection;
+
+
+        l_dot  = l_matTransfoHandDirection2.dot(l_matTransfoArmDirection);
+        l_angle = swUtil::rad2Deg(acos(l_dot/(cv::norm(l_matTransfoHandDirection2)* cv::norm(l_matTransfoArmDirection))));
+
+
+        l_matCross = l_matTransfoHandDirection2.cross(l_matTransfoArmDirection);
+
+        if(m_sArm != "left")
+        {
+            l_dCrossY *= -1;
+        }
+
+
+        if(l_dCrossY > 0.)
+        {
+            if(l_bHandPalmLeft)
+            {
+                 l_angle = -l_angle;
+            }
+            else
+            {
+                 l_angle = 0.0;
+            }
+
+        }
+        else
+        {
+            if(l_bHandPalmLeft)
+            {
+                 l_angle = 0.0;
+            }
+            else
+            {
+                l_angle = -l_angle;
+            }
+        }
+
+        // set joint value
+        vHandAngles[1] = l_angle;
+
+
+        if(m_sArm != "left")
+        {
+            vHandAngles[0] = (swUtil::rad2Deg(l_vHandPalmNormalE[1]) + 90.0);
+        }
+        else
+        {
+            vHandAngles[0] = -(swUtil::rad2Deg(l_vHandPalmNormalE[1]) - 90.0);
+        }
+}
+
+void swTeleop::SWIcubArm::computeFingerAngles(yarp::os::Bottle *handBottle, std::vector<double> &vFingerAngles)
+{
+    // arm joint 0 hand_finger
+    // arm joint 1 thumb_oppose
+    // arm joint 2 thumb_proximal
+    // arm joint 3 thumb_distal
+    // arm joint 4 index_proximal
+    // arm joint 5 index_distal
+    // arm joint 6 middle_proximal
+    // arm joint 7 middle_distal
+    // arm joint 8 pinky
+
+    // init res angles
+        vFingerAngles = std::vector<double>(9,0.);
+
+    // retrieve leap data
+        std::vector<cv::Vec3d> l_vecThumbDirections(3,    cv::Vec3d(0.,0.,0.));
+        std::vector<cv::Vec3d> l_vecIndexDirections(4,    cv::Vec3d(0.,0.,0.));
+        std::vector<cv::Vec3d> l_vecMiddleDirections(4,   cv::Vec3d(0.,0.,0.));
+        std::vector<cv::Vec3d> l_vecRingDirections(4,     cv::Vec3d(0.,0.,0.));
+        std::vector<cv::Vec3d> l_vecPinkyDirections(4,    cv::Vec3d(0.,0.,0.));
+        cv::Vec3d l_vecHandNormal    = cv::normalize(cv::Vec3d(handBottle->get(13).asDouble(), handBottle->get(14).asDouble(), handBottle->get(15).asDouble()));
+        cv::Vec3d l_vecHandDirection = cv::normalize(cv::Vec3d(handBottle->get(4).asDouble(), handBottle->get(5).asDouble(), handBottle->get(6).asDouble()));
+
+        for(int ii = 0; ii < 4; ++ii)
+        {
+            for(int jj = 0; jj < 3; ++jj)
+            {
+                if(ii < 3)
+                {
+                    l_vecThumbDirections[ii][jj] = handBottle->get(19 + ii * 3 + jj).asDouble();
+                }
+
+                l_vecIndexDirections[ii][jj] = handBottle->get(28 + ii * 3 + jj).asDouble();
+                l_vecMiddleDirections[ii][jj] = handBottle->get(40 + ii * 3 + jj).asDouble();
+                l_vecRingDirections[ii][jj] = handBottle->get(52 + ii * 3 + jj).asDouble();
+                l_vecPinkyDirections[ii][jj] = handBottle->get(64 + ii * 3 + jj).asDouble();
+            }
+
+            l_vecThumbDirections[ii]    = cv::normalize(l_vecThumbDirections[ii]);
+            l_vecIndexDirections[ii]    = cv::normalize(l_vecIndexDirections[ii]);
+            l_vecMiddleDirections[ii]   = cv::normalize(l_vecMiddleDirections[ii]);
+            l_vecRingDirections[ii]     = cv::normalize(l_vecRingDirections[ii]);
+            l_vecPinkyDirections[ii]    = cv::normalize(l_vecPinkyDirections[ii]);
+        }
+
+        std::vector<cv::Mat> l_vMatThumbDirectionsTransfo(3,    cv::Mat(cv::Vec3d(0.,0.,0.)));
+        std::vector<cv::Mat> l_vMatIndexDirectionsTransfo(4,    cv::Mat(cv::Vec3d(0.,0.,0.)));
+        std::vector<cv::Mat> l_vMatMiddleDirectionsTransfo(4,   cv::Mat(cv::Vec3d(0.,0.,0.)));
+        std::vector<cv::Mat> l_vMatRingDirectionsTransfo(4,     cv::Mat(cv::Vec3d(0.,0.,0.)));
+        std::vector<cv::Mat> l_vMatPinkyDirectionsTransfo(4,    cv::Mat(cv::Vec3d(0.,0.,0.)));
+        cv::Mat l_matHandDirectionTransfo(cv::Vec3d(0.,0.,0.));
+
+    // compute transformation for aligning palm normal to Y axis
+        cv::Vec3d l_vecAxis;
+
+        bool l_bHandPalmUp = false;
+        if(swUtil::rad2Deg(acos(cv::Vec3d(0.,-1.,0.).dot(l_vecHandNormal))) > 90.)
+        {
+            l_bHandPalmUp = true;
+        }
+
+        if(!l_bHandPalmUp)
+        {
+            l_vecAxis = cv::Vec3d(0.,-1.,0.);
+        }
+        else
+        {
+            l_vecAxis = cv::Vec3d(0.,1.,0.);
+        }
+
+        cv::Mat l_matTransfo;
+        swUtil::rodriguesRotation(l_vecHandNormal, l_vecAxis, l_matTransfo);
+
+        for(int ii = 0; ii < 4; ++ii)
+        {
+            if(ii < 3)
+            {
+                l_vMatThumbDirectionsTransfo[ii] = l_matTransfo * cv::Mat(l_vecThumbDirections[ii]);
+            }
+
+            l_vMatIndexDirectionsTransfo[ii]     = l_matTransfo * cv::Mat(l_vecIndexDirections[ii]);
+            l_vMatMiddleDirectionsTransfo[ii]    = l_matTransfo * cv::Mat(l_vecMiddleDirections[ii]);
+            l_vMatRingDirectionsTransfo[ii]      = l_matTransfo * cv::Mat(l_vecRingDirections[ii]);
+            l_vMatPinkyDirectionsTransfo[ii]     = l_matTransfo * cv::Mat(l_vecPinkyDirections[ii]);
+        }
+
+        l_matHandDirectionTransfo = l_matTransfo * cv::Mat(l_vecHandDirection);
+
+    // compute fingers interval (hand_finger)
+        // ... better not (hight risk of breaking)
+
+    // compute thumbs angles
+        // thumb metacarpal-> index metarcapal (thumb_oppose)
+            cv::Vec3d l_vecTemp1(cv::normalize(cv::Vec3d(l_vMatThumbDirectionsTransfo[0])));
+            cv::Vec3d l_vecTemp2(cv::normalize(cv::Vec3d(l_vMatIndexDirectionsTransfo[0])));
+            double l_dDot = l_vecTemp1.dot(l_vecTemp2);
+            vFingerAngles[0] = swUtil::rad2Deg(l_dDot);
+
+        // hand direction->metacarpal (thumb_proximal)
+            l_vecTemp1 = cv::normalize(cv::Vec3d(l_matHandDirectionTransfo.at<double>(0), l_matHandDirectionTransfo.at<double>(1), 0.));
+            l_vecTemp1 = cv::normalize(cv::Vec3d(l_vMatThumbDirectionsTransfo[0].at<double>(0), l_vMatThumbDirectionsTransfo[1].at<double>(1), 0.));
+            l_dDot = l_vecTemp1.dot(l_vecTemp2);
+            cv::Vec3d l_vecCross = l_vecTemp1.cross(l_vecTemp2);
+
+            if((l_vecCross[1] >= 0.0 && !l_bHandPalmUp) || (l_vecCross[1] < 0.0 && l_bHandPalmUp))
+            {
+                vFingerAngles[1] = 10.;
+            }
+            else
+            {
+                vFingerAngles[1] = swUtil::rad2Deg(l_dDot);
+            }
+        // metacarpal->proximal + proximal->distal (thumb_distal)
+            l_vecTemp1 = cv::normalize(cv::Vec3d(l_vMatThumbDirectionsTransfo[0]));
+            l_vecTemp2 = cv::normalize(cv::Vec3d(l_vMatThumbDirectionsTransfo[1]));
+            l_dDot     = l_vecTemp1.dot(l_vecTemp2);
+            l_vecCross = l_vecTemp1.cross(l_vecTemp2);
+
+            if((l_vecCross[1] >= 0.0 && !l_bHandPalmUp) || (l_vecCross[1] < 0.0 && l_bHandPalmUp))
+            {
+                vFingerAngles[3] = 10.;
+            }
+            else
+            {
+                double l_dTemp = swUtil::rad2Deg(l_dDot);
+                if(l_dTemp < 10.)
+                {
+                    vFingerAngles[3] = 0.;
+                }
+                else
+                {
+                    vFingerAngles[3] = l_dTemp;
+                }
+            }
+
+            l_vecTemp1 = cv::normalize(cv::Vec3d(l_vMatThumbDirectionsTransfo[1]));
+            l_vecTemp2 = cv::normalize(cv::Vec3d(l_vMatThumbDirectionsTransfo[2]));
+            l_dDot     = l_vecTemp1.dot(l_vecTemp2);
+            l_vecCross = l_vecTemp1.cross(l_vecTemp2);
+
+            if(!((l_vecCross[1] >= 0.0 && !l_bHandPalmUp) || (l_vecCross[1] < 0.0 && l_bHandPalmUp)))
+            {
+                vFingerAngles[3] += swUtil::rad2Deg(l_dDot);
+            }
+
+    // compute index angles
+        // metacarpal->proximal (index_proximal)
+            l_vecTemp1 = cv::normalize(cv::Vec3d(l_vMatIndexDirectionsTransfo[0]));
+            l_vecTemp2 = cv::normalize(cv::Vec3d(l_vMatIndexDirectionsTransfo[1]));
+            l_dDot     = l_vecTemp1.dot(l_vecTemp2);
+            l_vecCross = l_vecTemp1.cross(l_vecTemp2);
+
+            if((l_vecCross[1] >= 0.0 && !l_bHandPalmUp) || (l_vecCross[1] < 0.0 && l_bHandPalmUp))
+            {
+                vFingerAngles[4] = 0.;
+            }
+            else
+            {
+                vFingerAngles[4] = swUtil::rad2Deg(l_dDot);
+            }
+
+        // proximal->intermediate + intermediate->distal (index_distal)
+            l_vecTemp1 = cv::normalize(cv::Vec3d(l_vMatIndexDirectionsTransfo[1]));
+            l_vecTemp2 = cv::normalize(cv::Vec3d(l_vMatIndexDirectionsTransfo[2]));
+            l_dDot     = l_vecTemp1.dot(l_vecTemp2);
+            l_vecCross = l_vecTemp1.cross(l_vecTemp2);
+
+            if((l_vecCross[1] >= 0.0 && !l_bHandPalmUp) || (l_vecCross[1] < 0.0 && l_bHandPalmUp))
+            {
+                vFingerAngles[5] = 0.;
+            }
+            else
+            {
+                vFingerAngles[5] = swUtil::rad2Deg(l_dDot);
+            }
+            l_vecTemp1 = cv::normalize(cv::Vec3d(l_vMatIndexDirectionsTransfo[2]));
+            l_vecTemp2 = cv::normalize(cv::Vec3d(l_vMatIndexDirectionsTransfo[3]));
+            l_dDot     = l_vecTemp1.dot(l_vecTemp2);
+            l_vecCross = l_vecTemp1.cross(l_vecTemp2);
+
+            if(!((l_vecCross[1] >= 0.0 && !l_bHandPalmUp) || (l_vecCross[1] < 0.0 && l_bHandPalmUp)))
+            {
+                vFingerAngles[5] += swUtil::rad2Deg(l_dDot);
+            }
+
+
+    // compute middle angles
+        // metacarpal->proximal (middle_proximal)
+            l_vecTemp1 = cv::normalize(cv::Vec3d(l_vMatMiddleDirectionsTransfo[0]));
+            l_vecTemp2 = cv::normalize(cv::Vec3d(l_vMatMiddleDirectionsTransfo[1]));
+            l_dDot     = l_vecTemp1.dot(l_vecTemp2);
+            l_vecCross = l_vecTemp1.cross(l_vecTemp2);
+
+
+            if((l_vecCross[1] >= 0.0 && !l_bHandPalmUp) || (l_vecCross[1] < 0.0 && l_bHandPalmUp))
+            {
+                vFingerAngles[6] = 0.;
+            }
+            else
+            {
+                vFingerAngles[6] = swUtil::rad2Deg(l_dDot);
+            }
+
+        // proximal->intermediate + intermediate->distal (middle_distal)
+            l_vecTemp1 = cv::normalize(cv::Vec3d(l_vMatMiddleDirectionsTransfo[1]));
+            l_vecTemp2 = cv::normalize(cv::Vec3d(l_vMatMiddleDirectionsTransfo[2]));
+            l_dDot     = l_vecTemp1.dot(l_vecTemp2);
+            l_vecCross = l_vecTemp1.cross(l_vecTemp2);
+
+
+            if((l_vecCross[1] >= 0.0 && !l_bHandPalmUp) || (l_vecCross[1] < 0.0 && l_bHandPalmUp))
+            {
+                vFingerAngles[7] = 0.;
+            }
+            else
+            {
+                vFingerAngles[7] = swUtil::rad2Deg(l_dDot);
+            }
+
+            l_vecTemp1 = cv::normalize(cv::Vec3d(l_vMatMiddleDirectionsTransfo[2]));
+            l_vecTemp2 = cv::normalize(cv::Vec3d(l_vMatMiddleDirectionsTransfo[3]));
+            l_dDot     = l_vecTemp1.dot(l_vecTemp2);
+            l_vecCross = l_vecTemp1.cross(l_vecTemp2);
+
+            if(!((l_vecCross[1] >= 0.0 && !l_bHandPalmUp) || (l_vecCross[1] < 0.0 && l_bHandPalmUp)))
+            {
+                vFingerAngles[7] += swUtil::rad2Deg(l_dDot);
+            }
+
+
+    // compute ring + pinky angles
+        // metacarpal->proximal + proximal->intermediate + intermediate->distal (pinky)
+            l_vecTemp1 = cv::normalize(cv::Vec3d(l_vMatPinkyDirectionsTransfo[0]));
+            l_vecTemp2 = cv::normalize(cv::Vec3d(l_vMatPinkyDirectionsTransfo[1]));
+            l_dDot     = l_vecTemp1.dot(l_vecTemp2);
+            l_vecCross = l_vecTemp1.cross(l_vecTemp2);
+
+            if((l_vecCross[1] >= 0.0 && !l_bHandPalmUp) || (l_vecCross[1] < 0.0 && l_bHandPalmUp))
+            {
+                vFingerAngles[8] = 0.;
+            }
+            else
+            {
+                vFingerAngles[8] = swUtil::rad2Deg(l_dDot);
+            }
+
+            l_vecTemp1 = cv::normalize(cv::Vec3d(l_vMatPinkyDirectionsTransfo[1]));
+            l_vecTemp2 = cv::normalize(cv::Vec3d(l_vMatPinkyDirectionsTransfo[2]));
+            l_dDot     = l_vecTemp1.dot(l_vecTemp2);
+            l_vecCross = l_vecTemp1.cross(l_vecTemp2);
+
+            if(!((l_vecCross[1] >= 0.0 && !l_bHandPalmUp) || (l_vecCross[1] < 0.0 && l_bHandPalmUp)))
+            {
+                vFingerAngles[8] += swUtil::rad2Deg(l_dDot);
+            }
+
+            l_vecTemp1 = cv::normalize(cv::Vec3d(l_vMatPinkyDirectionsTransfo[2]));
+            l_vecTemp2 = cv::normalize(cv::Vec3d(l_vMatPinkyDirectionsTransfo[3]));
+            l_dDot     = l_vecTemp1.dot(l_vecTemp2);
+            l_vecCross = l_vecTemp1.cross(l_vecTemp2);
+
+            if(!((l_vecCross[1] >= 0.0 && !l_bHandPalmUp) || (l_vecCross[1] < 0.0 && l_bHandPalmUp)))
+            {
+                vFingerAngles[8] += swUtil::rad2Deg(l_dDot);
+            }
+}
+
 bool swTeleop::SWIcubArm::checkBottles()
 {
     if(!m_bIsRunning)
@@ -287,7 +714,7 @@ bool swTeleop::SWIcubArm::checkBottles()
         }
 
     // defines bottles
-        Bottle *l_pHandTarget = NULL, *l_pHandCartesianTarget = NULL; // *l_pFingersTarget = NULL, *l_pArmTarget = NULL,
+        yarp::os::Bottle *l_pHandTarget = NULL, *l_pHandCartesianTarget = NULL; // *l_pFingersTarget = NULL, *l_pArmTarget = NULL,
 
 
         l_pHandTarget = m_oHandTrackerPort.read(false);
@@ -314,7 +741,6 @@ bool swTeleop::SWIcubArm::checkBottles()
             // arm joint 14 middle_distal
             // arm joint 15 pinky
 
-
             switch(l_deviceId)
             {
                 case swTracking::DUMMY_LIB :
@@ -330,171 +756,21 @@ bool swTeleop::SWIcubArm::checkBottles()
                             l_vArmJoints[ii] = m_vArmResetPosition[ii];
                         }
 
+                        std::vector<double> l_vHandAngles;
+                        computeHandAngles(l_pHandTarget, l_vHandAngles);
 
-                    // retrieve leap data
-                        std::vector<double> l_vArmDirection(3,0.), l_vHandDirection(3,0.),l_vHandDirectionE(3,0.), l_vHandPalmCoord(3,0.), l_vHandPalmNormal(3,0.), l_vHandPalmNormalE(3,0.);
-                        for(int ii = 0; ii < 3; ++ii)
+                        for(uint ii = 0; ii < l_vHandAngles.size(); ++ii)
                         {
-                            l_vArmDirection[ii]     = l_pHandTarget->get(1 + ii).asDouble();
-                            l_vHandDirection[ii]    = l_pHandTarget->get(4 + ii).asDouble();
-                            l_vHandDirectionE[ii]   = l_pHandTarget->get(7 + ii).asDouble();
-                            l_vHandPalmCoord[ii]    = l_pHandTarget->get(10 + ii).asDouble();
-                            l_vHandPalmNormal[ii]   = l_pHandTarget->get(13 + ii).asDouble();
-                            l_vHandPalmNormalE[ii]  = l_pHandTarget->get(16 + ii).asDouble();
+                            l_vArmJoints[4 + ii] = l_vHandAngles[0];
                         }
 
-                    // convert to vec3D
-                        cv::Vec3d l_vecHandPalmNormal(l_vHandPalmNormal[0], l_vHandPalmNormal[1], l_vHandPalmNormal[2]);
-                        cv::Vec3d l_vecHandPalmCoord(l_vHandPalmCoord[0], l_vHandPalmCoord[1], l_vHandPalmCoord[2]);
-                        cv::Vec3d l_vecHandDirection(l_vHandDirection[0], l_vHandDirection[1], l_vHandDirection[2]);
-                        cv::Vec3d l_vecArmDirection(l_vArmDirection[0], l_vArmDirection[1], l_vArmDirection[2]);
+                        std::vector<double> l_vFingerAngles;
+                        computeFingerAngles(l_pHandTarget, l_vFingerAngles);
 
-                    // normalize vectors
-                        l_vecHandPalmNormal = cv::normalize(l_vecHandPalmNormal);
-                        l_vecArmDirection   = cv::normalize(l_vecArmDirection);
-                        l_vecHandDirection  = cv::normalize(l_vecHandDirection);
-
-                    // convert to mat
-                        cv::Mat l_matHandDirection(l_vecHandDirection);
-                        cv::Mat l_matHandPalmNormal(l_vecHandPalmNormal);
-                        cv::Mat l_matArmDirection(l_vecArmDirection);
-
-                    // check hand palm orientation
-                        bool l_bHandPalmUp = false;
-                        if((acos(cv::Vec3d(0.,-1.,0.).dot(l_vecHandPalmNormal)) * 180./3.14) > 90.)
+                        for(uint ii = 0; ii < l_vFingerAngles.size(); ++ii)
                         {
-                            l_bHandPalmUp = true;
+                            l_vArmJoints[7 + ii] = l_vFingerAngles[0];
                         }
-
-                    // compute transformation for aligning arm to z axis
-                        cv::Mat l_matTransfo;
-                        cv::Vec3d l_vecAxis(0.,0.,-1.);
-                        swUtil::rodriguesRotation(l_vecArmDirection, l_vecAxis, l_matTransfo);
-                    // apply transformation to the arm and the hand
-                        cv::Mat l_matTransfoHandDirection = l_matTransfo * l_matHandDirection;
-                        cv::Mat l_matTransfoHandNormal    = l_matTransfo * l_matHandPalmNormal;
-                        cv::Mat l_matTransfoArmDirection  = l_matTransfo * l_matArmDirection;
-
-                    // compute transformation for aligning palm normal to Y axis
-                        if(!l_bHandPalmUp)
-                        {
-                            l_vecAxis = cv::Vec3d(0.,-1.,0.);
-                        }
-                        else
-                        {
-                            l_vecAxis = cv::Vec3d(0.,1.,0.);
-                        }
-
-                        cv::Vec3d l_vecTransfoHandNormal(l_matTransfoHandNormal);
-                        swUtil::rodriguesRotation(l_vecTransfoHandNormal, l_vecAxis, l_matTransfo);
-
-                        cv::Mat l_matTransfoHandDirection2 = l_matTransfo * l_matTransfoHandDirection;
-
-                    // compute angle for wrist yaw
-                        double l_dot  = l_matTransfoHandDirection2.dot(l_matTransfoArmDirection);
-                        double l_angle = acos(l_dot/(cv::norm(l_matTransfoHandDirection2)* cv::norm(l_matTransfoArmDirection))) * 180./3.14;
-                        cv::Mat l_matCross = l_matTransfoHandDirection2.cross(l_matTransfoArmDirection);
-
-                        double l_dCrossY = l_matCross.at<double>(1);
-
-                        if(m_sArm != "left")
-                        {
-                            l_dCrossY *= -1;
-                        }
-
-                        if(l_dCrossY > 0.)
-                        {
-                            if(!l_bHandPalmUp)
-                            {
-                                l_angle = -l_angle;
-                            }
-                        }
-                        else
-                        {
-                            if(l_bHandPalmUp)
-                            {
-                                l_angle = -l_angle;
-                            }
-                        }
-
-                        // set joint value
-                        l_vArmJoints[6] = l_angle;
-
-                        cv::Vec3d l_vecTransfoHandDirection(l_matTransfoHandDirection);
-                        cv::Vec3d l_vecTransfoHandRight = l_vecTransfoHandNormal.cross(l_vecTransfoHandDirection);
-
-                        bool l_bHandPalmLeft = true;
-                        if((acos(cv::Vec3d(-1.,0.,0.).dot(l_vecHandPalmNormal)) * 180./3.14) > 90.)
-                        {
-                            l_bHandPalmLeft = false;
-                        }
-
-                        // compute transformation for aligning palm normal to X axis
-                        if(l_bHandPalmLeft)
-                        {
-                            l_vecAxis = cv::Vec3d(0.,-1.,0.);
-                        }
-                        else
-                        {
-                            l_vecAxis = cv::Vec3d(0.,1.,0.);
-                        }
-
-                        swUtil::rodriguesRotation(l_vecTransfoHandRight, l_vecAxis, l_matTransfo);
-                        l_matTransfoHandDirection2 = l_matTransfo * l_matTransfoHandDirection;
-
-                    // compute angle for wrist ptich
-                        l_dot  = l_matTransfoHandDirection2.dot(l_matTransfoArmDirection);
-                        l_angle = acos(l_dot/(cv::norm(l_matTransfoHandDirection2)* cv::norm(l_matTransfoArmDirection))) * 180./3.14;
-
-
-                        l_matCross = l_matTransfoHandDirection2.cross(l_matTransfoArmDirection);
-//                        l_dCrossY = l_matCross.at<double>(1);
-
-                        if(m_sArm != "left")
-                        {
-                            l_dCrossY *= -1;
-                        }
-
-
-                        if(l_dCrossY > 0.)
-                        {
-                            if(l_bHandPalmLeft)
-                            {
-                                 l_angle = -l_angle;
-                            }
-                            else
-                            {
-                                 l_angle = 0.0;
-                            }
-
-                        }
-                        else
-                        {
-                            if(l_bHandPalmLeft)
-                            {
-                                 l_angle = 0.0;
-                            }
-                            else
-                            {
-                                l_angle = -l_angle;
-                            }
-                        }
-
-                        // set joint value
-                        l_vArmJoints[5] = l_angle;
-
-
-                        if(m_sArm != "left")
-                        {
-                            l_vArmJoints[4] = (l_vHandPalmNormalE[1]* 180. / 3.14 + 90.0);
-                        }
-                        else
-                        {
-                            l_vArmJoints[4] = -(l_vHandPalmNormalE[1]* 180. / 3.14 - 90.0);
-                        }
-
-
-                        std::cout << -(l_vHandPalmNormalE[1]* 180. / 3.14 - 90.0)<< " ";
 
 
                 break;
@@ -937,3 +1213,169 @@ void swTeleop::SWArmVelocityController::setJoints(const yarp::sig::Vector &vJoin
 }
 
 
+
+
+
+
+
+//// retrieve leap data
+//    std::vector<double> l_vArmDirection(3,0.), l_vHandDirection(3,0.),l_vHandDirectionE(3,0.), l_vHandPalmCoord(3,0.), l_vHandPalmNormal(3,0.), l_vHandPalmNormalE(3,0.);
+//    for(int ii = 0; ii < 3; ++ii)
+//    {
+//        l_vArmDirection[ii]     = l_pHandTarget->get(1 + ii).asDouble();
+//        l_vHandDirection[ii]    = l_pHandTarget->get(4 + ii).asDouble();
+//        l_vHandDirectionE[ii]   = l_pHandTarget->get(7 + ii).asDouble();
+//        l_vHandPalmCoord[ii]    = l_pHandTarget->get(10 + ii).asDouble();
+//        l_vHandPalmNormal[ii]   = l_pHandTarget->get(13 + ii).asDouble();
+//        l_vHandPalmNormalE[ii]  = l_pHandTarget->get(16 + ii).asDouble();
+//    }
+
+//// convert to vec3D
+//    cv::Vec3d l_vecHandPalmNormal(l_vHandPalmNormal[0], l_vHandPalmNormal[1], l_vHandPalmNormal[2]);
+//    cv::Vec3d l_vecHandPalmCoord(l_vHandPalmCoord[0], l_vHandPalmCoord[1], l_vHandPalmCoord[2]);
+//    cv::Vec3d l_vecHandDirection(l_vHandDirection[0], l_vHandDirection[1], l_vHandDirection[2]);
+//    cv::Vec3d l_vecArmDirection(l_vArmDirection[0], l_vArmDirection[1], l_vArmDirection[2]);
+
+//// normalize vectors
+//    l_vecHandPalmNormal = cv::normalize(l_vecHandPalmNormal);
+//    l_vecArmDirection   = cv::normalize(l_vecArmDirection);
+//    l_vecHandDirection  = cv::normalize(l_vecHandDirection);
+
+//// convert to mat
+//    cv::Mat l_matHandDirection(l_vecHandDirection);
+//    cv::Mat l_matHandPalmNormal(l_vecHandPalmNormal);
+//    cv::Mat l_matArmDirection(l_vecArmDirection);
+
+//// check hand palm orientation
+//    bool l_bHandPalmUp = false;
+//    if((acos(cv::Vec3d(0.,-1.,0.).dot(l_vecHandPalmNormal)) * 180./3.14) > 90.)
+//    {
+//        l_bHandPalmUp = true;
+//    }
+
+//// compute transformation for aligning arm to z axis
+//    cv::Mat l_matTransfo;
+//    cv::Vec3d l_vecAxis(0.,0.,-1.);
+//    swUtil::rodriguesRotation(l_vecArmDirection, l_vecAxis, l_matTransfo);
+//// apply transformation to the arm and the hand
+//    cv::Mat l_matTransfoHandDirection = l_matTransfo * l_matHandDirection;
+//    cv::Mat l_matTransfoHandNormal    = l_matTransfo * l_matHandPalmNormal;
+//    cv::Mat l_matTransfoArmDirection  = l_matTransfo * l_matArmDirection;
+
+//// compute transformation for aligning palm normal to Y axis
+//    if(!l_bHandPalmUp)
+//    {
+//        l_vecAxis = cv::Vec3d(0.,-1.,0.);
+//    }
+//    else
+//    {
+//        l_vecAxis = cv::Vec3d(0.,1.,0.);
+//    }
+
+//    cv::Vec3d l_vecTransfoHandNormal(l_matTransfoHandNormal);
+//    swUtil::rodriguesRotation(l_vecTransfoHandNormal, l_vecAxis, l_matTransfo);
+
+//    cv::Mat l_matTransfoHandDirection2 = l_matTransfo * l_matTransfoHandDirection;
+
+//// compute angle for wrist yaw
+//    double l_dot  = l_matTransfoHandDirection2.dot(l_matTransfoArmDirection);
+//    double l_angle = acos(l_dot/(cv::norm(l_matTransfoHandDirection2)* cv::norm(l_matTransfoArmDirection))) * 180./3.14;
+//    cv::Mat l_matCross = l_matTransfoHandDirection2.cross(l_matTransfoArmDirection);
+
+//    double l_dCrossY = l_matCross.at<double>(1);
+
+//    if(m_sArm != "left")
+//    {
+//        l_dCrossY *= -1;
+//    }
+
+//    if(l_dCrossY > 0.)
+//    {
+//        if(!l_bHandPalmUp)
+//        {
+//            l_angle = -l_angle;
+//        }
+//    }
+//    else
+//    {
+//        if(l_bHandPalmUp)
+//        {
+//            l_angle = -l_angle;
+//        }
+//    }
+
+//    // set joint value
+//    l_vArmJoints[6] = l_angle;
+
+//    cv::Vec3d l_vecTransfoHandDirection(l_matTransfoHandDirection);
+//    cv::Vec3d l_vecTransfoHandRight = l_vecTransfoHandNormal.cross(l_vecTransfoHandDirection);
+
+//    bool l_bHandPalmLeft = true;
+//    if((acos(cv::Vec3d(-1.,0.,0.).dot(l_vecHandPalmNormal)) * 180./3.14) > 90.)
+//    {
+//        l_bHandPalmLeft = false;
+//    }
+
+//    // compute transformation for aligning palm normal to X axis
+//    if(l_bHandPalmLeft)
+//    {
+//        l_vecAxis = cv::Vec3d(0.,-1.,0.);
+//    }
+//    else
+//    {
+//        l_vecAxis = cv::Vec3d(0.,1.,0.);
+//    }
+
+//    swUtil::rodriguesRotation(l_vecTransfoHandRight, l_vecAxis, l_matTransfo);
+//    l_matTransfoHandDirection2 = l_matTransfo * l_matTransfoHandDirection;
+
+//// compute angle for wrist ptich
+//    l_dot  = l_matTransfoHandDirection2.dot(l_matTransfoArmDirection);
+//    l_angle = acos(l_dot/(cv::norm(l_matTransfoHandDirection2)* cv::norm(l_matTransfoArmDirection))) * 180./3.14;
+
+
+//    l_matCross = l_matTransfoHandDirection2.cross(l_matTransfoArmDirection);
+////                        l_dCrossY = l_matCross.at<double>(1);
+
+//    if(m_sArm != "left")
+//    {
+//        l_dCrossY *= -1;
+//    }
+
+
+//    if(l_dCrossY > 0.)
+//    {
+//        if(l_bHandPalmLeft)
+//        {
+//             l_angle = -l_angle;
+//        }
+//        else
+//        {
+//             l_angle = 0.0;
+//        }
+
+//    }
+//    else
+//    {
+//        if(l_bHandPalmLeft)
+//        {
+//             l_angle = 0.0;
+//        }
+//        else
+//        {
+//            l_angle = -l_angle;
+//        }
+//    }
+
+//    // set joint value
+//    l_vArmJoints[5] = l_angle;
+
+
+//    if(m_sArm != "left")
+//    {
+//        l_vArmJoints[4] = (l_vHandPalmNormalE[1]* 180. / 3.14 + 90.0);
+//    }
+//    else
+//    {
+//        l_vArmJoints[4] = -(l_vHandPalmNormalE[1]* 180. / 3.14 - 90.0);
+//    }

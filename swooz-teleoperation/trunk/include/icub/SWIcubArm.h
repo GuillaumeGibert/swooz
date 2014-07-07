@@ -142,6 +142,20 @@ namespace swTeleop
         private :
 
 
+            /**
+             * @brief SWIcubArm::computeHandAngles
+             * @param handBottle
+             * @param vHandAngles
+             */
+            void computeHandAngles(yarp::os::Bottle* handBottle,std::vector<double> &vHandAngles);
+
+            /**
+             * @brief computeFingerAngles
+             * @param handBottle
+             * @param vFingerAngles
+             */
+            void computeFingerAngles(yarp::os::Bottle* handBottle,std::vector<double> &vFingerAngles);
+
             bool m_bInitialized;            /**< .... */
             bool m_bIsRunning;              /**< ... */
 

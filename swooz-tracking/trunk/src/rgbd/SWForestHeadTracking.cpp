@@ -706,6 +706,7 @@ int main(int argc, char* argv[])
     glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_CONTINUE_EXECUTION);
 
     glutCreateWindow("Forest head tracking (press h for list of available commands)");
+    std::cout << "!IMPORTANT : Do not use Ctr+c for leaving, click on the window's cross instead. " << std::endl;
     glutDisplayFunc(draw);
     glutMouseFunc(mb);
     glutMotionFunc(mm);

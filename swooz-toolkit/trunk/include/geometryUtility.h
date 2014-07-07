@@ -18,7 +18,7 @@
 
 namespace swUtil
 {
-    #define PI_ 3.14159265359
+    #define PI 3.14159265359
 
     template <typename T>
     static void inverse(std::vector<T> &v)
@@ -294,7 +294,7 @@ namespace swUtil
     template <typename T>
     T rad2Deg(T angle)
     {
-        return angle * static_cast<T>(180 / PI_);
+        return angle * static_cast<T>(180 / PI);
     }
 
     /*

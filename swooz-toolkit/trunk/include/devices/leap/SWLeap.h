@@ -372,7 +372,17 @@ namespace swDevice
              * @param fingerType
              * @param fingerRotation
              */
-            void fingerRotation(cbool leftHand, const Leap::Finger::Type fingerType, std::vector<float> &fingerRotation);
+//            void fingerRotation(cbool leftHand, const Leap::Finger::Type fingerType, std::vector<float> &fingerRotation);
+
+            /**
+             * @brief boneDirection
+             * @param bLeftHand
+             * @param fingerType
+             * @param boneType
+             * @param vBoneDirection
+             */
+            void boneDirection(const bool bLeftHand, const Leap::Finger::Type fingerType, const Leap::Bone::Type boneType, std::vector<float> &vBoneDirection);
+
 
             /**
              * @brief fps
@@ -381,6 +391,15 @@ namespace swDevice
             int fps() const;
 
         private :
+
+            /**
+             * @brief finger
+             * @param bLeftHand
+             * @param fingerType
+             * @param oFinger
+             */
+            void finger(const bool bLeftHand, const Leap::Finger::Type fingerType, Leap::Finger &oFinger);
+
 
             /**
              * @brief numFingerType
@@ -396,14 +415,14 @@ namespace swDevice
              * @param isMetacarp
              * @return
              */
-            std::vector<float> computeEulerYPRAngles(const Leap::Bone &bone, cbool isMetacarp) const;
+//            std::vector<float> computeEulerYPRAngles(const Leap::Bone &bone, cbool isMetacarp) const;
 
             /**
              * @brief retrieveFingerRotation
              * @param finger
              * @param rotation
              */
-            void retrieveFingerRotation(const Leap::Finger &finger, std::vector<float> &rotation) const;
+//            void retrieveFingerRotation(const Leap::Finger &finger, std::vector<float> &rotation) const;
 
             Leap::Controller m_leapController; /**< ... */
 
@@ -424,6 +443,18 @@ namespace swDevice
             std::vector<float> m_vLeftMiddleRotation;   /**< ... */
             std::vector<float> m_vLeftRingRotation;     /**< ... */
             std::vector<float> m_vLeftPinkyRotation;    /**< ... */
+
+            Leap::Finger m_vLeftThumb;
+            Leap::Finger m_vLeftIndex;
+            Leap::Finger m_vLeftMiddle;
+            Leap::Finger m_vLeftRing;
+            Leap::Finger m_vLeftPinky;
+
+            Leap::Finger m_vRightThumb;
+            Leap::Finger m_vRightIndex;
+            Leap::Finger m_vRightMiddle;
+            Leap::Finger m_vRightRing;
+            Leap::Finger m_vRightPinky;
 
             // right
             //      arm

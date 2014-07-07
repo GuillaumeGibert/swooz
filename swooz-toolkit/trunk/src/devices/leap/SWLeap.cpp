@@ -6,6 +6,407 @@
  * \date 07/04/14
  */
 
+
+#include "devices/leap/SWLeap.h"
+
+
+using namespace swDevice;
+
+SWLeap::SWLeap()
+{
+    std::vector<float> l_vInitVector(3,0.f);
+    m_vLeftCoordPalmHand = m_vLeftNormalPalmHand = m_vLeftDirectionArm = m_vLeftDirectionHand = m_vLeftDirectionHandE = m_vLeftNormalPalmHandE = l_vInitVector;
+    m_vLeftThumbRotation =  m_vLeftIndexRotation = m_vLeftMiddleRotation = m_vLeftRingRotation =  m_vLeftPinkyRotation = l_vInitVector;
+
+    m_vRightCoordPalmHand = m_vRightNormalPalmHand = m_vRightDirectionArm = m_vRightDirectionHand = m_vRightDirectionHandE = m_vRightNormalPalmHandE = l_vInitVector;
+    m_vRightThumbRotation =  m_vRightIndexRotation = m_vRightMiddleRotation = m_vRightRingRotation =  m_vRightPinkyRotation = l_vInitVector;
+}
+
+bool SWLeap::init()
+{
+    m_leapController.setPolicyFlags(Leap::Controller::POLICY_BACKGROUND_FRAMES);
+
+    int l_i32TimeOut = 0;
+
+    while(!m_leapController.isConnected())
+    {
+        if(l_i32TimeOut > 10)
+        {
+            std::cerr << "No leap device detected, initialization aborted. " << std::endl;
+            return false;
+        }
+
+        ++l_i32TimeOut;
+
+        std::cout << "Waiting for leap device..." << std::endl;
+        boost::this_thread::sleep( boost::posix_time::seconds(1) );
+    }
+
+    return true;
+}
+
+
+void SWLeap::finger(const bool bLeftHand, const Leap::Finger::Type fingerType, Leap::Finger &oFinger)
+{
+    if(bLeftHand)
+    {
+        switch(fingerType)
+        {
+            case Leap::Finger::TYPE_THUMB :
+                oFinger = m_vLeftThumb;
+            break;
+            case Leap::Finger::TYPE_INDEX:
+                oFinger = m_vLeftIndex;
+            break;
+            case Leap::Finger::TYPE_MIDDLE :
+                oFinger = m_vLeftMiddle;
+            break;
+            case Leap::Finger::TYPE_RING :
+                oFinger = m_vLeftRing;
+            break;
+            case Leap::Finger::TYPE_PINKY :
+                oFinger = m_vLeftPinky;
+            break;
+        }
+    }
+    else
+    {
+        switch(fingerType)
+        {
+            case Leap::Finger::TYPE_THUMB :
+                oFinger = m_vRightThumb;
+            break;
+            case Leap::Finger::TYPE_INDEX:
+                oFinger = m_vRightIndex;
+            break;
+            case Leap::Finger::TYPE_MIDDLE :
+                oFinger = m_vRightMiddle;
+            break;
+            case Leap::Finger::TYPE_RING :
+                oFinger = m_vRightRing;
+            break;
+            case Leap::Finger::TYPE_PINKY :
+                oFinger = m_vRightPinky;
+            break;
+        }
+    }
+}
+
+
+void SWLeap::boneDirection(const bool bLeftHand, const Leap::Finger::Type fingerType, const Leap::Bone::Type boneType, std::vector<float> &vBoneDirection)
+{
+    Leap::Finger l_oFinger;
+    finger(bLeftHand, fingerType, l_oFinger);
+
+    Leap::Bone l_oBone = l_oFinger.bone(boneType);
+
+    Leap::Vector l_vDirection = l_oBone.direction();
+
+    vBoneDirection = std::vector<float>(3,0.f);
+    vBoneDirection[0] = l_vDirection.x;
+    vBoneDirection[1] = l_vDirection.y;
+    vBoneDirection[2] = l_vDirection.z;
+}
+
+
+int SWLeap::numFingerType(const Leap::FingerList &fingerList, const Leap::Finger::Type fingerType) const
+{
+    for(int ii = 0; ii < fingerList.count(); ++ii)
+    {
+        if(fingerList[ii].type() == fingerType)
+        {
+            return ii;
+        }
+    }
+
+    return 0;
+}
+
+void SWLeap::directionArm(cbool leftArm, std::vector<float> &vDirectionArm) const
+{
+    if(leftArm)
+    {
+        vDirectionArm = m_vLeftDirectionArm;
+    }
+    else
+    {
+        vDirectionArm = m_vRightDirectionArm;
+    }
+}
+
+void SWLeap::directionHandEuclidian(cbool leftHand, std::vector<float> &vDirectionHandE) const
+{
+    if(leftHand)
+    {
+        vDirectionHandE = m_vLeftDirectionHandE;
+    }
+    else
+    {
+        vDirectionHandE = m_vRightDirectionHandE;
+    }
+}
+
+void SWLeap::normalPalmHandEuclidian(cbool leftHand, std::vector<float> &vNormalPalmHandE) const
+{
+    if(leftHand)
+    {
+        vNormalPalmHandE = m_vLeftNormalPalmHandE;
+    }
+    else
+    {
+        vNormalPalmHandE = m_vRightNormalPalmHandE;
+    }
+}
+
+void SWLeap::directionHand(cbool leftHand, std::vector<float> &vDirectionHand) const
+{
+    if(leftHand)
+    {
+        vDirectionHand = m_vLeftDirectionHand;
+    }
+    else
+    {
+        vDirectionHand = m_vRightDirectionHand;
+    }
+}
+
+void SWLeap::normalPalmHand(cbool leftHand, std::vector<float> &vNormalPalmHand) const
+{
+    if(leftHand)
+    {
+        vNormalPalmHand = m_vLeftNormalPalmHand;
+    }
+    else
+    {
+        vNormalPalmHand = m_vRightNormalPalmHand;
+    }
+}
+
+void SWLeap::coordPalmHand(cbool leftHand, std::vector<float> &vCoordPalmHand) const
+{
+    if(leftHand)
+    {
+        vCoordPalmHand = m_vLeftCoordPalmHand;
+    }
+    else
+    {
+        vCoordPalmHand = m_vRightCoordPalmHand;
+    }
+}
+
+int SWLeap::grab()
+{
+    Leap::Frame l_frame = m_leapController.frame(0);
+    Leap::HandList handList = l_frame.hands();
+
+    if(handList.count() == 0)
+    {
+        // no hands detected
+        return -1;
+    }
+
+    int currentIdLeftHand  = -1;
+    int currentIdRightHand = -1;
+
+    if(handList[0].isLeft())
+    {
+        currentIdLeftHand = handList[0].id();
+
+        if(handList.count() == 2)
+        {
+            currentIdRightHand = handList[1].id();
+        }
+        else
+        {
+            currentIdRightHand = -1;
+        }
+    }
+    else
+    {
+        currentIdRightHand = handList[0].id();
+
+        if(handList.count() == 2)
+        {
+            currentIdLeftHand = handList[1].id();
+        }
+        else
+        {
+            currentIdLeftHand = -1;
+        }
+    }
+
+    // update left hand
+    if(currentIdLeftHand != -1)
+    {
+        Leap::Hand l_leftHand = l_frame.hand(currentIdLeftHand);
+
+        if(l_leftHand.isValid())
+        {
+            Leap::Vector l_palmCoord     = l_leftHand.palmPosition();
+            Leap::Vector l_palmNormal    = l_leftHand.palmNormal();
+            Leap::Vector l_handDirection = l_leftHand.direction();
+
+            Leap::Arm l_leftArm          = l_leftHand.arm();
+            Leap::Vector l_armDirection  = l_leftArm.direction();
+
+            std::vector<float> l_vInitVector(3,0.f);
+            m_vLeftCoordPalmHand  = l_vInitVector;
+            m_vLeftNormalPalmHand = l_vInitVector;
+            m_vLeftDirectionHand  = l_vInitVector;
+            m_vLeftDirectionArm   = l_vInitVector;
+            m_vLeftDirectionHandE = l_vInitVector;
+            m_vLeftNormalPalmHandE= l_vInitVector;
+
+            for(uint ii = 0; ii < l_vInitVector.size(); ++ii)
+            {
+                m_vLeftCoordPalmHand[ii]  = l_palmCoord[ii];
+                m_vLeftNormalPalmHand[ii] = l_palmNormal[ii];
+                m_vLeftDirectionHand[ii]  = l_handDirection[ii];
+
+                if(l_leftArm.isValid())
+                {
+                    m_vLeftDirectionArm[ii] = l_armDirection[ii];
+                }
+            }
+
+            m_vLeftDirectionHandE[0] = l_handDirection.pitch();
+            m_vLeftDirectionHandE[1] = l_handDirection.roll();
+            m_vLeftDirectionHandE[2] = l_handDirection.yaw();
+
+            m_vLeftNormalPalmHandE[0] = l_palmNormal.pitch();
+            m_vLeftNormalPalmHandE[1] = l_palmNormal.roll();
+            m_vLeftNormalPalmHandE[2] = l_palmNormal.yaw();
+
+            // left fingers
+            Leap::FingerList l_fingerList = l_leftHand.fingers();
+            Leap::Finger l_thumb  = l_fingerList[numFingerType(l_fingerList, Leap::Finger::TYPE_THUMB)];
+            Leap::Finger l_index  = l_fingerList[numFingerType(l_fingerList, Leap::Finger::TYPE_INDEX)];
+            Leap::Finger l_middle = l_fingerList[numFingerType(l_fingerList, Leap::Finger::TYPE_MIDDLE)];
+            Leap::Finger l_ring   = l_fingerList[numFingerType(l_fingerList, Leap::Finger::TYPE_RING)];
+            Leap::Finger l_pinky  = l_fingerList[numFingerType(l_fingerList, Leap::Finger::TYPE_PINKY)];
+
+            if(l_thumb.isValid())
+            {
+                m_vLeftThumb = l_thumb;
+            }
+            if(l_index.isValid())
+            {
+                m_vLeftIndex = l_index;
+            }
+            if(l_middle.isValid())
+            {
+                m_vLeftMiddle = l_middle;
+            }
+            if(l_ring.isValid())
+            {
+                m_vLeftRing = l_ring;
+            }
+            if(l_pinky.isValid())
+            {
+                m_vLeftPinky = l_pinky;
+            }
+        }
+    }
+
+    // update right hand
+    if(currentIdRightHand != -1)
+    {
+        Leap::Hand l_rightHand = l_frame.hand(currentIdRightHand);
+
+        if(l_rightHand.isValid())
+        {
+            Leap::Vector l_palmCoord     = l_rightHand.palmPosition();
+            Leap::Vector l_palmNormal    = l_rightHand.palmNormal();
+            Leap::Vector l_handDirection = l_rightHand.direction();
+
+            Leap::Arm l_rightArm         = l_rightHand.arm();
+            Leap::Vector l_armDirection  = l_rightArm.direction();
+
+            std::vector<float> l_vInitVector(3,0.f);
+            m_vRightCoordPalmHand  = l_vInitVector;
+            m_vRightNormalPalmHand = l_vInitVector;
+            m_vRightDirectionHand  = l_vInitVector;
+            m_vRightDirectionArm   = l_vInitVector;
+            m_vRightDirectionHandE = l_vInitVector;
+            m_vRightNormalPalmHandE= l_vInitVector;
+
+            for(uint ii = 0; ii < l_vInitVector.size(); ++ii)
+            {
+                m_vRightCoordPalmHand[ii]  = l_palmCoord[ii];
+                m_vRightNormalPalmHand[ii] = l_palmNormal[ii];
+                m_vRightDirectionHand[ii]  = l_handDirection[ii];
+
+                if(l_rightArm.isValid())
+                {
+                    m_vRightDirectionArm[ii] = l_armDirection[ii];
+                }
+            }
+
+            m_vRightDirectionHandE[0] = l_handDirection.pitch();
+            m_vRightDirectionHandE[1] = l_handDirection.roll();
+            m_vRightDirectionHandE[2] = l_handDirection.yaw();
+
+            m_vRightNormalPalmHandE[0] = l_palmNormal.pitch();
+            m_vRightNormalPalmHandE[1] = l_palmNormal.roll();
+            m_vRightNormalPalmHandE[2] = l_palmNormal.yaw();
+
+            // left fingers
+            Leap::FingerList l_fingerList = l_rightHand.fingers();
+            Leap::Finger l_thumb  = l_fingerList[numFingerType(l_fingerList, Leap::Finger::TYPE_THUMB)];
+            Leap::Finger l_index  = l_fingerList[numFingerType(l_fingerList, Leap::Finger::TYPE_INDEX)];
+            Leap::Finger l_middle = l_fingerList[numFingerType(l_fingerList, Leap::Finger::TYPE_MIDDLE)];
+            Leap::Finger l_ring   = l_fingerList[numFingerType(l_fingerList, Leap::Finger::TYPE_RING)];
+            Leap::Finger l_pinky  = l_fingerList[numFingerType(l_fingerList, Leap::Finger::TYPE_PINKY)];
+
+            if(l_thumb.isValid())
+            {
+                m_vRightThumb = l_thumb;
+            }
+            if(l_index.isValid())
+            {
+                m_vRightIndex = l_index;
+            }
+            if(l_middle.isValid())
+            {
+                m_vRightMiddle = l_middle;
+            }
+            if(l_ring.isValid())
+            {
+                m_vRightIndex = l_index;
+            }
+            if(l_pinky.isValid())
+            {
+                m_vRightPinky = l_pinky;
+            }
+        }
+    }
+
+    m_fps = static_cast<int>(l_frame.currentFramesPerSecond());
+
+    return 0;
+}
+
+int SWLeap::fps() const
+{
+    return m_fps;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//#define PI 3.14159265f
+
+
 //#include "devices/leap/SWLeap.h"
 //#include <iostream>
 //#include <vector>
@@ -1199,576 +1600,255 @@
 //}
 
 
-#include "devices/leap/SWLeap.h"
-
-
-#define PI 3.14159265f
-
-using namespace swDevice;
-
-SWLeap::SWLeap()
-{
-    std::vector<float> l_vInitVector(3,0.f);
-    m_vLeftCoordPalmHand = m_vLeftNormalPalmHand = m_vLeftDirectionArm = m_vLeftDirectionHand = m_vLeftDirectionHandE = m_vLeftNormalPalmHandE = l_vInitVector;
-    m_vLeftThumbRotation =  m_vLeftIndexRotation = m_vLeftMiddleRotation = m_vLeftRingRotation =  m_vLeftPinkyRotation = l_vInitVector;
-
-    m_vRightCoordPalmHand = m_vRightNormalPalmHand = m_vRightDirectionArm = m_vRightDirectionHand = m_vRightDirectionHandE = m_vRightNormalPalmHandE = l_vInitVector;
-    m_vRightThumbRotation =  m_vRightIndexRotation = m_vRightMiddleRotation = m_vRightRingRotation =  m_vRightPinkyRotation = l_vInitVector;
-}
-
-bool SWLeap::init()
-{
-    m_leapController.setPolicyFlags(Leap::Controller::POLICY_BACKGROUND_FRAMES);
-
-    int l_i32TimeOut = 0;
-
-    while(!m_leapController.isConnected())
-    {
-        if(l_i32TimeOut > 10)
-        {
-            std::cerr << "No leap device detected, initialization aborted. " << std::endl;
-            return false;
-        }
-
-        ++l_i32TimeOut;
-
-        std::cout << "Waiting for leap device..." << std::endl;
-        boost::this_thread::sleep( boost::posix_time::seconds(1) );
-    }
-
-    return true;
-}
-
-
-std::vector<float> SWLeap::computeEulerYPRAngles(const Leap::Bone &bone, cbool isMetacarp) const
-{
-    Leap::Matrix boneBasis = bone.basis();
-    Leap::Vector xBasis = boneBasis.xBasis;
-    Leap::Vector yBasis = boneBasis.yBasis;
-    Leap::Vector zBasis = boneBasis.zBasis;
-
-    float l_matrix[3][3];
-
-    for(int ii = 0;ii<3;ii++)
-    {
-        for(int jj = 0;jj<3;jj++)
-        {
-            if(ii==0) l_matrix[ii][jj]=xBasis[jj];
-            if(ii==1) l_matrix[ii][jj]=yBasis[jj];
-            if(ii==2) l_matrix[ii][jj]=zBasis[jj];
-        }
-    }
-
-    float yaw,pitch,roll;
-    int rowFlag = static_cast<int>(l_matrix[2][0]);
-
-    switch (rowFlag)
-    {
-        case 1:
-            roll    = std::atan2f(-l_matrix[0][1], l_matrix[1][1]) * 180.f / PI;
-            yaw     = -90.f;
-            pitch   = 0.f;
-        break;
-        case -1:
-            roll    = std::atan2f(-l_matrix[0][1], l_matrix[1][1]) * 180.f / PI;
-            yaw     = 90.f;
-            pitch   = 0.f;
-        break;
-        default:
-            roll    = std::atan2f(l_matrix[1][0], l_matrix[0][0]) * 180.f / PI;
-            yaw     = std::asinf(-l_matrix[2][0]) * 180.f / PI;
-            pitch   = std::atan2f(l_matrix[2][1], l_matrix[2][2]) * 180.f / PI;
-        break;
-    }
-
-    //For the Roll, the matrice gives us value from [X<0,X>-180][X<180,X>0]
-    //that's why we do this. The issue come probably from the matrice.
-    if(roll < 0.f)
-    {
-        roll = -180.f - roll;
-    }
-    else
-    {
-        roll = 180.f - roll;
-    }
-
-    std::vector<float> l_rotation;
-    l_rotation = std::vector<float>(3, 0.f);
-    l_rotation[0] = pitch;
-    l_rotation[1] = yaw;
-    l_rotation[2] = roll;
-
-    if(isMetacarp)
-    {
-        return l_rotation;
-    }
-
-
-    float l_matrixTempAlpha[3][3];
-    float l_matrixTempBeta[3][3];
-    float l_matrixTempGamma[3][3];
-
-    float l_matrixRotation[3][3];
-    float l_matrixFinal[3][3];
-
-    //Matrice INIT
-    for(int ii = 0; ii < 3; ii++)
-    {
-        for(int jj = 0; jj < 3; jj++)
-        {
-            l_matrixTempAlpha[ii][jj] = 0.f;
-            l_matrixTempBeta[ii][jj]  = 0.f;
-            l_matrixTempGamma[ii][jj] = 0.f;
-            l_matrixRotation[ii][jj]  = 0.f;
-            l_matrixFinal[ii][jj]     = 0.f;
-        }
-    }
-
-    //MATRIX ROTATION ABOUT X
-    l_matrixTempAlpha[0][0] = 1.f;
-    l_matrixTempAlpha[1][1] = std::cos(PI * pitch / 180.f);
-    l_matrixTempAlpha[2][2] = std::cos(PI * pitch / 180.f);
-    l_matrixTempAlpha[2][1] = std::sin(PI * pitch / 180.f);
-    l_matrixTempAlpha[1][2] = - std::sin(PI * pitch / 180.f);
-
-    //MATRIX ROTATION ABOUT Y
-    l_matrixTempBeta[0][0] = std::cos(PI * yaw / 180.f);
-    l_matrixTempBeta[1][1] = 1.f;
-    l_matrixTempBeta[2][2] = std::cos(PI * yaw / 180.f);
-    l_matrixTempBeta[0][2] = std::sin(PI * yaw / 180.f);
-    l_matrixTempBeta[2][0] = - std::sin(PI * yaw / 180.f);
-
-    //MATRIX ROTATION ABOUT Z
-    l_matrixTempGamma[0][0] = std::cos(PI * roll / 180.f);
-    l_matrixTempGamma[1][1] = std::cos(PI * roll / 180.f);
-    l_matrixTempGamma[2][2] = 1.f;
-    l_matrixTempGamma[1][0] = std::sin(PI * roll / 180.f);
-    l_matrixTempGamma[0][1] = - std::sin(PI * roll / 180.f);
-
-
-    //A * B = TEMP
-    for(int ii = 0; ii < 3; ii++)
-    {
-        for(int jj = 0; jj < 3; jj++)
-        {
-            l_matrixRotation[ii][jj] = l_matrixTempAlpha[ii][0]*l_matrixTempBeta[0][jj] +
-                                       l_matrixTempAlpha[ii][1]*l_matrixTempBeta[1][jj] +
-                                       l_matrixTempAlpha[ii][2]*l_matrixTempBeta[2][jj];
-        }
-    }
-
-    //TEMP * C = FINAL
-    for(int ii = 0; ii < 3; ii++)
-    {
-        for(int jj = 0; jj < 3; jj++)
-        {
-            l_matrixFinal[ii][jj] = l_matrixRotation[ii][0]*l_matrixTempGamma[0][jj] +
-                                    l_matrixRotation[ii][1]*l_matrixTempGamma[1][jj] +
-                                    l_matrixRotation[ii][2]*l_matrixTempGamma[2][jj];
-        }
-    }
-
-    float oldAngles[3];
-    float newAngles[3];
-    oldAngles[0]=roll;
-    oldAngles[1]=pitch;
-    oldAngles[2]=yaw;
-
-    for(int ii = 0; ii < 3; ii++)
-    {
-        newAngles[ii]= l_matrixFinal[ii][0] * oldAngles[0] +  l_matrixFinal[ii][1] * oldAngles[1] +  l_matrixFinal[ii][2] * oldAngles[2];
-    }
-
-    l_rotation[0] = newAngles[0];
-    l_rotation[1] = newAngles[1];
-    l_rotation[2] = newAngles[2];
-
-    return l_rotation;
-}
-
-void SWLeap::retrieveFingerRotation(const Leap::Finger &finger, std::vector<float> &rotation) const
-{
-//        Leap::Bone l_MetacarpalT    = finger.bone(static_cast<Leap::Bone::Type>(0));
-    Leap::Bone l_ProximalT      = finger.bone(static_cast<Leap::Bone::Type>(1));
-    Leap::Bone l_IntermediateT  = finger.bone(static_cast<Leap::Bone::Type>(2));
-    Leap::Bone l_DistalT        = finger.bone(static_cast<Leap::Bone::Type>(3));
-
-//        std::vector<float> l_metacarpalRotation     = computeEulerYPRAngles(l_MetacarpalT,  true);
-    std::vector<float> l_proximalRotation       = computeEulerYPRAngles(l_ProximalT,    false);
-    std::vector<float> l_intermediateRotation   = computeEulerYPRAngles(l_IntermediateT,false);
-    std::vector<float> l_distalRotation         = computeEulerYPRAngles(l_DistalT,      false);
-
-    switch(finger.type())
-    {
-        case Leap::Finger::TYPE_THUMB :
-            rotation[0] =  l_proximalRotation[1];
-            rotation[1] = (l_intermediateRotation[1] - l_proximalRotation[1]) + (l_distalRotation[1] - l_intermediateRotation[1]);
-        break;
-        case Leap::Finger::TYPE_PINKY :
-            rotation[0] =  l_proximalRotation[1];
-            rotation[1] = (l_intermediateRotation[1] - l_proximalRotation[1]) + (l_distalRotation[1] - l_intermediateRotation[1]);
-
-            if(rotation[1] < 0.f)
-            {
-                rotation[1] = -rotation[1];
-            }
-        break;
-        case Leap::Finger::TYPE_INDEX :
-            rotation[0] = l_proximalRotation[0] + l_proximalRotation[1] + l_proximalRotation[2];
-            rotation[1] = (l_intermediateRotation[1] - l_proximalRotation[1]) + (l_distalRotation[1] - l_intermediateRotation[1]);
-            if(rotation[1] < 0.f)
-            {
-                rotation[1] = -rotation[1];
-            }
-        break;
-        case Leap::Finger::TYPE_MIDDLE :
-            rotation[0] = l_proximalRotation[0] + l_proximalRotation[1] + l_proximalRotation[2];
-            rotation[1] = (l_intermediateRotation[1] - l_proximalRotation[1]) + (l_distalRotation[1] - l_intermediateRotation[1]);
-
-            if(rotation[1] < 0.f)
-            {
-                rotation[1] = -rotation[1];
-            }
-        break;
-        case Leap::Finger::TYPE_RING :
-            rotation[0] = l_proximalRotation[1];
-            rotation[1] = (l_intermediateRotation[1] - l_proximalRotation[1]) + (l_distalRotation[1] - l_intermediateRotation[1]);
-
-            if(rotation[1] < 0.f)
-            {
-                rotation[1] = -rotation[1];
-            }
-        break;
-    }
-}
-
-
-int SWLeap::numFingerType(const Leap::FingerList &fingerList, const Leap::Finger::Type fingerType) const
-{
-    for(int ii = 0; ii < fingerList.count(); ++ii)
-    {
-        if(fingerList[ii].type() == fingerType)
-        {
-            return ii;
-        }
-    }
-
-    return 0;
-}
-
-void SWLeap::directionArm(cbool leftArm, std::vector<float> &vDirectionArm) const
-{
-    if(leftArm)
-    {
-        vDirectionArm = m_vLeftDirectionArm;
-    }
-    else
-    {
-        vDirectionArm = m_vRightDirectionArm;
-    }
-}
-
-void SWLeap::directionHandEuclidian(cbool leftHand, std::vector<float> &vDirectionHandE) const
-{
-    if(leftHand)
-    {
-        vDirectionHandE = m_vLeftDirectionHandE;
-    }
-    else
-    {
-        vDirectionHandE = m_vRightDirectionHandE;
-    }
-}
-
-void SWLeap::normalPalmHandEuclidian(cbool leftHand, std::vector<float> &vNormalPalmHandE) const
-{
-    if(leftHand)
-    {
-        vNormalPalmHandE = m_vLeftNormalPalmHandE;
-    }
-    else
-    {
-        vNormalPalmHandE = m_vRightNormalPalmHandE;
-    }
-}
-
-void SWLeap::directionHand(cbool leftHand, std::vector<float> &vDirectionHand) const
-{
-    if(leftHand)
-    {
-        vDirectionHand = m_vLeftDirectionHand;
-    }
-    else
-    {
-        vDirectionHand = m_vRightDirectionHand;
-    }
-}
-
-void SWLeap::normalPalmHand(cbool leftHand, std::vector<float> &vNormalPalmHand) const
-{
-    if(leftHand)
-    {
-        vNormalPalmHand = m_vLeftNormalPalmHand;
-    }
-    else
-    {
-        vNormalPalmHand = m_vRightNormalPalmHand;
-    }
-}
-
-void SWLeap::coordPalmHand(cbool leftHand, std::vector<float> &vCoordPalmHand) const
-{
-    if(leftHand)
-    {
-        vCoordPalmHand = m_vLeftCoordPalmHand;
-    }
-    else
-    {
-        vCoordPalmHand = m_vRightCoordPalmHand;
-    }
-}
-
-void SWLeap::fingerRotation(cbool leftHand, const Leap::Finger::Type fingerType, std::vector<float> &fingerRotation)
-{
-    fingerRotation = std::vector<float>(2, 0.f);
-
-    if(leftHand)
-    {
-        switch(fingerType)
-        {
-            case Leap::Finger::TYPE_THUMB :
-                fingerRotation = m_vLeftThumbRotation;
-            break;
-            case Leap::Finger::TYPE_INDEX :
-                fingerRotation = m_vLeftIndexRotation;
-            break;
-            case Leap::Finger::TYPE_MIDDLE :
-                fingerRotation = m_vLeftMiddleRotation;
-            break;
-            case Leap::Finger::TYPE_RING :
-                fingerRotation = m_vLeftRingRotation;
-            break;
-            case Leap::Finger::TYPE_PINKY :
-                fingerRotation = m_vLeftPinkyRotation;
-            break;
-        }
-    }
-    else
-    {
-        switch(fingerType)
-        {
-            case Leap::Finger::TYPE_THUMB :
-                fingerRotation = m_vRightThumbRotation;
-            break;
-            case Leap::Finger::TYPE_INDEX :
-                fingerRotation = m_vRightIndexRotation;
-            break;
-            case Leap::Finger::TYPE_MIDDLE :
-                fingerRotation = m_vRightMiddleRotation;
-            break;
-            case Leap::Finger::TYPE_RING :
-                fingerRotation = m_vRightRingRotation;
-            break;
-            case Leap::Finger::TYPE_PINKY :
-                fingerRotation = m_vRightPinkyRotation;
-            break;
-        }
-    }
-}
-
-int SWLeap::grab()
-{
-    Leap::Frame l_frame = m_leapController.frame(0);
-    Leap::HandList handList = l_frame.hands();
-
-    if(handList.count() == 0)
-    {
-        // no hands detected
-        return -1;
-    }
-
-    int currentIdLeftHand  = -1;
-    int currentIdRightHand = -1;
-
-    if(handList[0].isLeft())
-    {
-        currentIdLeftHand = handList[0].id();
-
-        if(handList.count() == 2)
-        {
-            currentIdRightHand = handList[1].id();
-        }
-        else
-        {
-            currentIdRightHand = -1;
-        }
-    }
-    else
-    {
-        currentIdRightHand = handList[0].id();
-
-        if(handList.count() == 2)
-        {
-            currentIdLeftHand = handList[1].id();
-        }
-        else
-        {
-            currentIdLeftHand = -1;
-        }
-    }
-
-    // update left hand
-    if(currentIdLeftHand != -1)
-    {
-        Leap::Hand l_leftHand = l_frame.hand(currentIdLeftHand);
-
-        if(l_leftHand.isValid())
-        {
-            Leap::Vector l_palmCoord     = l_leftHand.palmPosition();
-            Leap::Vector l_palmNormal    = l_leftHand.palmNormal();
-            Leap::Vector l_handDirection = l_leftHand.direction();
-
-            Leap::Arm l_leftArm          = l_leftHand.arm();
-            Leap::Vector l_armDirection  = l_leftArm.direction();
-
-            std::vector<float> l_vInitVector(3,0.f);
-            m_vLeftCoordPalmHand  = l_vInitVector;
-            m_vLeftNormalPalmHand = l_vInitVector;
-            m_vLeftDirectionHand  = l_vInitVector;
-            m_vLeftDirectionArm   = l_vInitVector;
-            m_vLeftDirectionHandE = l_vInitVector;
-            m_vLeftNormalPalmHandE= l_vInitVector;
-
-            for(uint ii = 0; ii < l_vInitVector.size(); ++ii)
-            {
-                m_vLeftCoordPalmHand[ii]  = l_palmCoord[ii];
-                m_vLeftNormalPalmHand[ii] = l_palmNormal[ii];
-                m_vLeftDirectionHand[ii]  = l_handDirection[ii];
-
-                if(l_leftArm.isValid())
-                {
-                    m_vLeftDirectionArm[ii] = l_armDirection[ii];
-                }
-            }
-
-            m_vLeftDirectionHandE[0] = l_handDirection.pitch();
-            m_vLeftDirectionHandE[1] = l_handDirection.roll();
-            m_vLeftDirectionHandE[2] = l_handDirection.yaw();
-
-            m_vLeftNormalPalmHandE[0] = l_palmNormal.pitch();
-            m_vLeftNormalPalmHandE[1] = l_palmNormal.roll();
-            m_vLeftNormalPalmHandE[2] = l_palmNormal.yaw();
-
-            // left fingers
-            Leap::FingerList l_fingerList = l_leftHand.fingers();
-            Leap::Finger l_thumb  = l_fingerList[numFingerType(l_fingerList, Leap::Finger::TYPE_THUMB)];
-            Leap::Finger l_index  = l_fingerList[numFingerType(l_fingerList, Leap::Finger::TYPE_INDEX)];
-            Leap::Finger l_middle = l_fingerList[numFingerType(l_fingerList, Leap::Finger::TYPE_MIDDLE)];
-            Leap::Finger l_ring   = l_fingerList[numFingerType(l_fingerList, Leap::Finger::TYPE_RING)];
-            Leap::Finger l_pinky  = l_fingerList[numFingerType(l_fingerList, Leap::Finger::TYPE_PINKY)];
-
-            if(l_thumb.isValid())
-            {
-                retrieveFingerRotation(l_thumb,     m_vLeftIndexRotation);
-            }
-            if(l_index.isValid())
-            {
-                retrieveFingerRotation(l_index,     m_vLeftIndexRotation);
-            }
-            if(l_middle.isValid())
-            {
-                retrieveFingerRotation(l_middle,    m_vLeftMiddleRotation);
-            }
-            if(l_ring.isValid())
-            {
-                retrieveFingerRotation(l_ring,      m_vLeftRingRotation);
-            }
-            if(l_pinky.isValid())
-            {
-                retrieveFingerRotation(l_pinky,     m_vLeftPinkyRotation);
-            }
-        }
-    }
-
-    // update right hand
-    if(currentIdRightHand != -1)
-    {
-        Leap::Hand l_rightHand = l_frame.hand(currentIdRightHand);
-
-        if(l_rightHand.isValid())
-        {
-            Leap::Vector l_palmCoord     = l_rightHand.palmPosition();
-            Leap::Vector l_palmNormal    = l_rightHand.palmNormal();
-            Leap::Vector l_handDirection = l_rightHand.direction();
-
-            Leap::Arm l_rightArm         = l_rightHand.arm();
-            Leap::Vector l_armDirection  = l_rightArm.direction();
-
-            std::vector<float> l_vInitVector(3,0.f);
-            m_vRightCoordPalmHand  = l_vInitVector;
-            m_vRightNormalPalmHand = l_vInitVector;
-            m_vRightDirectionHand  = l_vInitVector;
-            m_vRightDirectionArm   = l_vInitVector;
-            m_vRightDirectionHandE = l_vInitVector;
-            m_vRightNormalPalmHandE= l_vInitVector;
-
-            for(uint ii = 0; ii < l_vInitVector.size(); ++ii)
-            {
-                m_vRightCoordPalmHand[ii]  = l_palmCoord[ii];
-                m_vRightNormalPalmHand[ii] = l_palmNormal[ii];
-                m_vRightDirectionHand[ii]  = l_handDirection[ii];
-
-                if(l_rightArm.isValid())
-                {
-                    m_vRightDirectionArm[ii] = l_armDirection[ii];
-                }
-            }
-
-            m_vRightDirectionHandE[0] = l_handDirection.pitch();
-            m_vRightDirectionHandE[1] = l_handDirection.roll();
-            m_vRightDirectionHandE[2] = l_handDirection.yaw();
-
-            m_vRightNormalPalmHandE[0] = l_palmNormal.pitch();
-            m_vRightNormalPalmHandE[1] = l_palmNormal.roll();
-            m_vRightNormalPalmHandE[2] = l_palmNormal.yaw();
-
-            // left fingers
-            Leap::FingerList l_fingerList = l_rightHand.fingers();
-            Leap::Finger l_thumb  = l_fingerList[numFingerType(l_fingerList, Leap::Finger::TYPE_THUMB)];
-            Leap::Finger l_index  = l_fingerList[numFingerType(l_fingerList, Leap::Finger::TYPE_INDEX)];
-            Leap::Finger l_middle = l_fingerList[numFingerType(l_fingerList, Leap::Finger::TYPE_MIDDLE)];
-            Leap::Finger l_ring   = l_fingerList[numFingerType(l_fingerList, Leap::Finger::TYPE_RING)];
-            Leap::Finger l_pinky  = l_fingerList[numFingerType(l_fingerList, Leap::Finger::TYPE_PINKY)];
-
-            if(l_thumb.isValid())
-            {
-                retrieveFingerRotation(l_thumb,     m_vRightThumbRotation);
-            }
-            if(l_index.isValid())
-            {
-                retrieveFingerRotation(l_index,     m_vRightIndexRotation);
-            }
-            if(l_middle.isValid())
-            {
-                retrieveFingerRotation(l_middle,    m_vRightMiddleRotation);
-            }
-            if(l_ring.isValid())
-            {
-                retrieveFingerRotation(l_ring,      m_vRightRingRotation);
-            }
-            if(l_pinky.isValid())
-            {
-                retrieveFingerRotation(l_pinky,     m_vRightPinkyRotation);
-            }            
-        }
-    }
-
-    m_fps = static_cast<int>(l_frame.currentFramesPerSecond());
-
-    return 0;
-}
-
-int SWLeap::fps() const
-{
-    return m_fps;
-}
+
+
+//std::vector<float> SWLeap::computeEulerYPRAngles(const Leap::Bone &bone, cbool isMetacarp) const
+//{
+//    Leap::Matrix boneBasis = bone.basis();
+//    Leap::Vector xBasis = boneBasis.xBasis;
+//    Leap::Vector yBasis = boneBasis.yBasis;
+//    Leap::Vector zBasis = boneBasis.zBasis;
+
+//    float l_matrix[3][3];
+
+//    for(int ii = 0;ii<3;ii++)
+//    {
+//        for(int jj = 0;jj<3;jj++)
+//        {
+//            if(ii==0) l_matrix[ii][jj]=xBasis[jj];
+//            if(ii==1) l_matrix[ii][jj]=yBasis[jj];
+//            if(ii==2) l_matrix[ii][jj]=zBasis[jj];
+//        }
+//    }
+
+//    float yaw,pitch,roll;
+//    int rowFlag = static_cast<int>(l_matrix[2][0]);
+
+//    switch (rowFlag)
+//    {
+//        case 1:
+//            roll    = std::atan2f(-l_matrix[0][1], l_matrix[1][1]) * 180.f / PI;
+//            yaw     = -90.f;
+//            pitch   = 0.f;
+//        break;
+//        case -1:
+//            roll    = std::atan2f(-l_matrix[0][1], l_matrix[1][1]) * 180.f / PI;
+//            yaw     = 90.f;
+//            pitch   = 0.f;
+//        break;
+//        default:
+//            roll    = std::atan2f(l_matrix[1][0], l_matrix[0][0]) * 180.f / PI;
+//            yaw     = std::asinf(-l_matrix[2][0]) * 180.f / PI;
+//            pitch   = std::atan2f(l_matrix[2][1], l_matrix[2][2]) * 180.f / PI;
+//        break;
+//    }
+
+//    //For the Roll, the matrice gives us value from [X<0,X>-180][X<180,X>0]
+//    //that's why we do this. The issue come probably from the matrice.
+//    if(roll < 0.f)
+//    {
+//        roll = -180.f - roll;
+//    }
+//    else
+//    {
+//        roll = 180.f - roll;
+//    }
+
+//    std::vector<float> l_rotation;
+//    l_rotation = std::vector<float>(3, 0.f);
+//    l_rotation[0] = pitch;
+//    l_rotation[1] = yaw;
+//    l_rotation[2] = roll;
+
+//    if(isMetacarp)
+//    {
+//        return l_rotation;
+//    }
+
+
+//    float l_matrixTempAlpha[3][3];
+//    float l_matrixTempBeta[3][3];
+//    float l_matrixTempGamma[3][3];
+
+//    float l_matrixRotation[3][3];
+//    float l_matrixFinal[3][3];
+
+//    //Matrice INIT
+//    for(int ii = 0; ii < 3; ii++)
+//    {
+//        for(int jj = 0; jj < 3; jj++)
+//        {
+//            l_matrixTempAlpha[ii][jj] = 0.f;
+//            l_matrixTempBeta[ii][jj]  = 0.f;
+//            l_matrixTempGamma[ii][jj] = 0.f;
+//            l_matrixRotation[ii][jj]  = 0.f;
+//            l_matrixFinal[ii][jj]     = 0.f;
+//        }
+//    }
+
+//    //MATRIX ROTATION ABOUT X
+//    l_matrixTempAlpha[0][0] = 1.f;
+//    l_matrixTempAlpha[1][1] = std::cos(PI * pitch / 180.f);
+//    l_matrixTempAlpha[2][2] = std::cos(PI * pitch / 180.f);
+//    l_matrixTempAlpha[2][1] = std::sin(PI * pitch / 180.f);
+//    l_matrixTempAlpha[1][2] = - std::sin(PI * pitch / 180.f);
+
+//    //MATRIX ROTATION ABOUT Y
+//    l_matrixTempBeta[0][0] = std::cos(PI * yaw / 180.f);
+//    l_matrixTempBeta[1][1] = 1.f;
+//    l_matrixTempBeta[2][2] = std::cos(PI * yaw / 180.f);
+//    l_matrixTempBeta[0][2] = std::sin(PI * yaw / 180.f);
+//    l_matrixTempBeta[2][0] = - std::sin(PI * yaw / 180.f);
+
+//    //MATRIX ROTATION ABOUT Z
+//    l_matrixTempGamma[0][0] = std::cos(PI * roll / 180.f);
+//    l_matrixTempGamma[1][1] = std::cos(PI * roll / 180.f);
+//    l_matrixTempGamma[2][2] = 1.f;
+//    l_matrixTempGamma[1][0] = std::sin(PI * roll / 180.f);
+//    l_matrixTempGamma[0][1] = - std::sin(PI * roll / 180.f);
+
+
+//    //A * B = TEMP
+//    for(int ii = 0; ii < 3; ii++)
+//    {
+//        for(int jj = 0; jj < 3; jj++)
+//        {
+//            l_matrixRotation[ii][jj] = l_matrixTempAlpha[ii][0]*l_matrixTempBeta[0][jj] +
+//                                       l_matrixTempAlpha[ii][1]*l_matrixTempBeta[1][jj] +
+//                                       l_matrixTempAlpha[ii][2]*l_matrixTempBeta[2][jj];
+//        }
+//    }
+
+//    //TEMP * C = FINAL
+//    for(int ii = 0; ii < 3; ii++)
+//    {
+//        for(int jj = 0; jj < 3; jj++)
+//        {
+//            l_matrixFinal[ii][jj] = l_matrixRotation[ii][0]*l_matrixTempGamma[0][jj] +
+//                                    l_matrixRotation[ii][1]*l_matrixTempGamma[1][jj] +
+//                                    l_matrixRotation[ii][2]*l_matrixTempGamma[2][jj];
+//        }
+//    }
+
+//    float oldAngles[3];
+//    float newAngles[3];
+//    oldAngles[0]=roll;
+//    oldAngles[1]=pitch;
+//    oldAngles[2]=yaw;
+
+//    for(int ii = 0; ii < 3; ii++)
+//    {
+//        newAngles[ii]= l_matrixFinal[ii][0] * oldAngles[0] +  l_matrixFinal[ii][1] * oldAngles[1] +  l_matrixFinal[ii][2] * oldAngles[2];
+//    }
+
+//    l_rotation[0] = newAngles[0];
+//    l_rotation[1] = newAngles[1];
+//    l_rotation[2] = newAngles[2];
+
+//    return l_rotation;
+//}
+
+//void SWLeap::retrieveFingerRotation(const Leap::Finger &finger, std::vector<float> &rotation) const
+//{
+////        Leap::Bone l_MetacarpalT    = finger.bone(static_cast<Leap::Bone::Type>(0));
+//    Leap::Bone l_ProximalT      = finger.bone(static_cast<Leap::Bone::Type>(1));
+//    Leap::Bone l_IntermediateT  = finger.bone(static_cast<Leap::Bone::Type>(2));
+//    Leap::Bone l_DistalT        = finger.bone(static_cast<Leap::Bone::Type>(3));
+
+////        std::vector<float> l_metacarpalRotation     = computeEulerYPRAngles(l_MetacarpalT,  true);
+//    std::vector<float> l_proximalRotation       = computeEulerYPRAngles(l_ProximalT,    false);
+//    std::vector<float> l_intermediateRotation   = computeEulerYPRAngles(l_IntermediateT,false);
+//    std::vector<float> l_distalRotation         = computeEulerYPRAngles(l_DistalT,      false);
+
+//    switch(finger.type())
+//    {
+//        case Leap::Finger::TYPE_THUMB :
+//            rotation[0] =  l_proximalRotation[1];
+//            rotation[1] = (l_intermediateRotation[1] - l_proximalRotation[1]) + (l_distalRotation[1] - l_intermediateRotation[1]);
+//        break;
+//        case Leap::Finger::TYPE_PINKY :
+//            rotation[0] =  l_proximalRotation[1];
+//            rotation[1] = (l_intermediateRotation[1] - l_proximalRotation[1]) + (l_distalRotation[1] - l_intermediateRotation[1]);
+
+//            if(rotation[1] < 0.f)
+//            {
+//                rotation[1] = -rotation[1];
+//            }
+//        break;
+//        case Leap::Finger::TYPE_INDEX :
+//            rotation[0] = l_proximalRotation[0] + l_proximalRotation[1] + l_proximalRotation[2];
+//            rotation[1] = (l_intermediateRotation[1] - l_proximalRotation[1]) + (l_distalRotation[1] - l_intermediateRotation[1]);
+//            if(rotation[1] < 0.f)
+//            {
+//                rotation[1] = -rotation[1];
+//            }
+//        break;
+//        case Leap::Finger::TYPE_MIDDLE :
+//            rotation[0] = l_proximalRotation[0] + l_proximalRotation[1] + l_proximalRotation[2];
+//            rotation[1] = (l_intermediateRotation[1] - l_proximalRotation[1]) + (l_distalRotation[1] - l_intermediateRotation[1]);
+
+//            if(rotation[1] < 0.f)
+//            {
+//                rotation[1] = -rotation[1];
+//            }
+//        break;
+//        case Leap::Finger::TYPE_RING :
+//            rotation[0] = l_proximalRotation[1];
+//            rotation[1] = (l_intermediateRotation[1] - l_proximalRotation[1]) + (l_distalRotation[1] - l_intermediateRotation[1]);
+
+//            if(rotation[1] < 0.f)
+//            {
+//                rotation[1] = -rotation[1];
+//            }
+//        break;
+//    }
+//}
+
+//void SWLeap::fingerRotation(cbool leftHand, const Leap::Finger::Type fingerType, std::vector<float> &fingerRotation)
+//{
+//    fingerRotation = std::vector<float>(2, 0.f);
+
+//    if(leftHand)
+//    {
+//        switch(fingerType)
+//        {
+//            case Leap::Finger::TYPE_THUMB :
+//                fingerRotation = m_vLeftThumbRotation;
+//            break;
+//            case Leap::Finger::TYPE_INDEX :
+//                fingerRotation = m_vLeftIndexRotation;
+//            break;
+//            case Leap::Finger::TYPE_MIDDLE :
+//                fingerRotation = m_vLeftMiddleRotation;
+//            break;
+//            case Leap::Finger::TYPE_RING :
+//                fingerRotation = m_vLeftRingRotation;
+//            break;
+//            case Leap::Finger::TYPE_PINKY :
+//                fingerRotation = m_vLeftPinkyRotation;
+//            break;
+//        }
+//    }
+//    else
+//    {
+//        switch(fingerType)
+//        {
+//            case Leap::Finger::TYPE_THUMB :
+//                fingerRotation = m_vRightThumbRotation;
+//            break;
+//            case Leap::Finger::TYPE_INDEX :
+//                fingerRotation = m_vRightIndexRotation;
+//            break;
+//            case Leap::Finger::TYPE_MIDDLE :
+//                fingerRotation = m_vRightMiddleRotation;
+//            break;
+//            case Leap::Finger::TYPE_RING :
+//                fingerRotation = m_vRightRingRotation;
+//            break;
+//            case Leap::Finger::TYPE_PINKY :
+//                fingerRotation = m_vRightPinkyRotation;
+//            break;
+//        }
+//    }
+//}
+
