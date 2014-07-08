@@ -118,7 +118,7 @@ void SWEmicpHeadTrackingWorker::doWork()
             cv::Mat l_oBGR   = m_oKinectThread.bgrImage();
 
 
-            for(int ii = 0; ii < l_oBGR.rows/3.5; ++ii)
+            for(int ii = 0; ii < l_oBGR.rows/5; ++ii)
             {
                 for(int jj = 0; jj < l_oBGR.cols; ++jj)
                 {
@@ -470,7 +470,7 @@ void SWEmicpHeadTrackingInterface::updateImageDisplay()
 
     // apply a filter on the zones where detection could fail
 
-    for(int ii = 0; ii < l_oRgb.rows/3.5; ++ii)
+    for(int ii = 0; ii < l_oRgb.rows/5; ++ii)
     {
         for(int jj = 0; jj < l_oRgb.cols; ++jj)
         {

@@ -16,6 +16,7 @@ using namespace swCloud;
 using namespace swDevice;
 using namespace cv;
 
+
 // ############################################# CONSTRUCTORS / DESTRUCTORS
  
 SWCaptureHeadMotion::SWCaptureHeadMotion(cfloat fAlignmentReducCoeff, cfloat fScoreReducCoeff) :
@@ -40,12 +41,11 @@ int SWCaptureHeadMotion::computeHeadMotion(SWRigidMotion &oHeadRigidMotion, cons
     // DEBUG
 //        clock_t l_oFirstTime = clock();
 
-    cv::Rect l_oFaceRectangle;
     cv::Mat l_oRgbForeGround    = swImage::swUtil::removeBackground(oRgb, oDepth, 1.5);//, 5, cv::Vec3b(0,255,0 ));
     oDisplayDetectFace          = l_oRgbForeGround.clone();
 
     // detect face
-        if(!m_CFaceDetectPtr->detect(l_oRgbForeGround))
+        if(!m_CFaceDetectPtr->detectFace(l_oRgbForeGround))
         {
             if(m_oLastDetectedRectFace.width == 0)
             {
@@ -58,53 +58,79 @@ int SWCaptureHeadMotion::computeHeadMotion(SWRigidMotion &oHeadRigidMotion, cons
                 {
                     std::cout << "Face not detected. Use previous face rectangle. " << std::endl;
                 }
-                l_oFaceRectangle = m_oLastDetectedRectFace;
             }
         }
         else
         {
-            l_oFaceRectangle = m_CFaceDetectPtr->faceRect();
-            m_oLastDetectedRectFace = l_oFaceRectangle;
+            m_oLastDetectedRectFace = m_CFaceDetectPtr->faceRect();
         }
 
-        // DEBUG
-//            std::cout << "detect face: " << (float)(clock() - l_oFirstTime) / CLOCKS_PER_SEC << std::endl;
+
+    // detect nose
+       cv::Rect l_oCurrentNoseRect = m_CFaceDetectPtr->detectNose(l_oRgbForeGround(m_oLastDetectedRectFace));
+
+
+       // compute nose tip
+           int l_i32IdNoseX, l_i32IdNoseY;
+           cv::Point3f l_oNoseTip;
+
+           cv::Rect l_oRectangleFromNoseTip;
+
+           if(l_oCurrentNoseRect.width > 0)
+           {
+                l_oNoseTip = m_CFaceDetectPtr->computeNoseTip((oDepth(m_oLastDetectedRectFace))(l_oCurrentNoseRect), l_i32IdNoseX, l_i32IdNoseY);
+
+                l_oRectangleFromNoseTip.x = m_oLastDetectedRectFace.x + l_oCurrentNoseRect.x + l_i32IdNoseX - 30;
+                l_oRectangleFromNoseTip.y = m_oLastDetectedRectFace.y + l_oCurrentNoseRect.y + l_i32IdNoseY - 50;
+           }
+           else
+           {
+                l_oNoseTip = m_CFaceDetectPtr->computeNoseTip(oDepth(m_oLastDetectedRectFace), l_i32IdNoseX, l_i32IdNoseY);
+                l_oRectangleFromNoseTip.x = m_oLastDetectedRectFace.x + l_i32IdNoseX - 30;
+                l_oRectangleFromNoseTip.y = m_oLastDetectedRectFace.y + l_i32IdNoseY - 50;
+           }
+
+//           l_oRectangleFromNoseTip.width   = 60;
+//           l_oRectangleFromNoseTip.height  = 70;
+//           m_oLastRectNose = l_oRectangleFromNoseTip;
+
+
 
     // compute nose tip
-        int l_i32IdNoseX, l_i32IdNoseY;        
-        cv::Point3f l_oNoseTip = m_CFaceDetectPtr->computeNoseTip(oDepth(l_oFaceRectangle), l_i32IdNoseX, l_i32IdNoseY);
+//        int l_i32IdNoseX, l_i32IdNoseY;
+//        cv::Point3f l_oNoseTip = m_CFaceDetectPtr->computeNoseTip(oDepth(m_oLastDetectedRectFace), l_i32IdNoseX, l_i32IdNoseY);
 
-        cv::Rect l_oNoseRectangle;
+//        cv::Rect l_oNoseRectangle;
 //        l_oNoseRectangle.x      =       l_oFaceRectangle.x + l_i32IdNoseX -30;
 //        l_oNoseRectangle.y      = (int)(l_oFaceRectangle.y + l_oFaceRectangle.height*0.2);// + l_i32IdNoseY + l_oFaceRectangle.height*0.5;//-40;
 //        l_oNoseRectangle.width  = 60;
 //        l_oNoseRectangle.height = (int)(l_oFaceRectangle.height*0.6);//95;
 
 
-        l_oNoseRectangle.x = l_oFaceRectangle.x + l_i32IdNoseX -30;
-        l_oNoseRectangle.width  = 60;
-        l_oNoseRectangle.y = l_oFaceRectangle.y + l_i32IdNoseY - 50;
-        l_oNoseRectangle.height  = 70;
+//        l_oNoseRectangle.x = m_oLastDetectedRectFace.x + l_i32IdNoseX -30;
+        l_oRectangleFromNoseTip.width  = 60;
+//        l_oNoseRectangle.y = m_oLastDetectedRectFace.y + l_i32IdNoseY - 50;
+        l_oRectangleFromNoseTip.height  = 70;
 
     // display
-        if(swUtil::isInside(l_oFaceRectangle, oDisplayDetectFace))
+        if(swUtil::isInside(m_oLastDetectedRectFace, oDisplayDetectFace))
         {
-            cv::rectangle(oDisplayDetectFace, Point(l_oFaceRectangle.x, l_oFaceRectangle.y),
-                cv::Point(l_oFaceRectangle.x+l_oFaceRectangle.width, l_oFaceRectangle.y+l_oFaceRectangle.height), RED,1);
+            cv::rectangle(oDisplayDetectFace, cv::Point(m_oLastDetectedRectFace.x, m_oLastDetectedRectFace.y),
+                cv::Point(m_oLastDetectedRectFace.x+m_oLastDetectedRectFace.width, m_oLastDetectedRectFace.y+m_oLastDetectedRectFace.height), RED,1);
         }
 
-        if(swUtil::isInside(l_oNoseRectangle,oDisplayDetectFace))
+        if(swUtil::isInside(l_oRectangleFromNoseTip,oDisplayDetectFace))
         {
-            cv::rectangle(oDisplayDetectFace, cv::Point(l_oNoseRectangle.x, l_oNoseRectangle.y),
-                    cv::Point(l_oNoseRectangle.x + l_oNoseRectangle.width, l_oNoseRectangle.y + l_oNoseRectangle.height), GREEN,1);
+            cv::rectangle(oDisplayDetectFace, cv::Point(l_oRectangleFromNoseTip.x, l_oRectangleFromNoseTip.y),
+                    cv::Point(l_oRectangleFromNoseTip.x + l_oRectangleFromNoseTip.width, l_oRectangleFromNoseTip.y + l_oRectangleFromNoseTip.height), GREEN,1);
         }
 
     // update rectangles returned by the getRect function
-        m_oFaceRectToDisplay = l_oFaceRectangle;
-        m_oNoseRectToDisplay = l_oNoseRectangle;
+        m_oFaceRectToDisplay = m_oLastDetectedRectFace;
+        m_oNoseRectToDisplay = l_oRectangleFromNoseTip;
 
     // init face depth images
-        cv::Mat l_oFaceDepth      = oDepth(l_oNoseRectangle);
+        cv::Mat l_oFaceDepth      = oDepth(l_oRectangleFromNoseTip);
 
     // create cloud
         SWCloud l_oFaceCloud;
