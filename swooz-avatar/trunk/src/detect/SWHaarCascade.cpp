@@ -36,7 +36,7 @@ SWHaarCascade::SWHaarCascade(const string &sCascadeFile, const uint ui32NumberOf
 		}
 		catch (const cv::Exception &e)
 		{
-			cerr << e.what() << endl;
+            cerr << "-ERROR : (SWHaarCascade::SWHaarCascade) -> " << e.what() << endl;
 			m_initFile = false;
 		}
 //	}
@@ -68,7 +68,7 @@ bool SWHaarCascade::detectCPU(const Mat& oRgbImg, vector<Rect> &oRects)
 {	
 	if(!m_initFile)
 	{
-		cerr << "Cascade classifier not initialized. " << endl;
+        cerr << "-ERROR : (SWHaarCascade::detectCPU) -> Cascade classifier not initialized. " << endl;
 		return false;
 	}
 	

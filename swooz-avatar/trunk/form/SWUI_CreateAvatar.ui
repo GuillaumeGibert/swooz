@@ -105,7 +105,7 @@
            <item>
             <widget class="QTabWidget" name="twParameters">
              <property name="currentIndex">
-              <number>2</number>
+              <number>4</number>
              </property>
              <widget class="QWidget" name="tabFilters">
               <attribute name="title">
@@ -724,6 +724,9 @@
                    </property>
                    <property name="text">
                     <string>Enable STASM</string>
+                   </property>
+                   <property name="checked">
+                    <bool>true</bool>
                    </property>
                   </widget>
                  </item>

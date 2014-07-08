@@ -17,6 +17,7 @@
 #include "detect/SWFaceDetection_thread.h"
 #include "opencvUtility.h"
 
+
 int main()
 {
     // create an opencv window

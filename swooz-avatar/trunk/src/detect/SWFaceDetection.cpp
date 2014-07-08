@@ -12,10 +12,15 @@
 using namespace swDetect;
 using namespace swExcept;
 
-SWFaceDetection::SWFaceDetection(const cv::Size &oMinDetectFaceSize, cbool bVerbose, std::string sClassifierFile) : m_oMinDetectFaceSize(oMinDetectFaceSize), m_bVerbose(bVerbose)
+SWFaceDetection::SWFaceDetection(const cv::Size &oMinDetectFaceSize, cbool bVerbose, std::string sClassifierFilePath) : m_oMinDetectFaceSize(oMinDetectFaceSize), m_bVerbose(bVerbose)
 {	
-	// init cascade files path
-    std::string l_sCascadeFaceFile  = sClassifierFile;
+    // init cascade files paths
+        std::string l_sCascadeFaceFile  = sClassifierFilePath;
+        std::string l_sCascadeNoseFile  = "../data/classifier/haarcascade_mcs_nose.xml";
+
+    // set sizes for the nose
+        m_oMinDetectNoseSize = cv::Size(30,30);
+        m_oMaxDetectNoseSize = cv::Size(100,100);
 	
     if(m_bVerbose)
     {
@@ -27,7 +32,8 @@ SWFaceDetection::SWFaceDetection(const cv::Size &oMinDetectFaceSize, cbool bVerb
 	try
 	{
 		// init face cascade detection
-        m_CHaarCascadeFacePtr = SWHaarCascadePtr(new SWHaarCascade(l_sCascadeFaceFile,1, m_oMinDetectFaceSize));
+        m_CHaarCascadeFacePtr = SWHaarCascadePtr(new SWHaarCascade(l_sCascadeFaceFile, 1, m_oMinDetectFaceSize));
+        m_CHaarCascadeNosePtr = SWHaarCascadePtr(new SWHaarCascade(l_sCascadeNoseFile, 1, m_oMinDetectNoseSize,m_oMaxDetectNoseSize));
 		m_bHaarCascadeFilesLoaded = true;
 	}
 	catch(const haarFileInitError &e)
@@ -48,13 +54,19 @@ SWFaceDetection::SWFaceDetection(const cv::Size &oMinDetectFaceSize, cbool bVerb
 	
     // init rects
     m_oLastDetectFace.width = 0;
+    m_oLastDetectNose.width = 0;
 }
 
 SWFaceDetection::SWFaceDetection(const cv::Size &oMinDetectFaceSize, const cv::Size &oMaxDetectFaceSize, cbool bVerbose, std::string sClassifierFilePath):
     m_oMinDetectFaceSize(oMinDetectFaceSize),m_oMaxDetectFaceSize(oMaxDetectFaceSize), m_bVerbose(bVerbose)
 {
-    // init cascade files path
-    std::string l_sCascadeFaceFile  = sClassifierFilePath;
+    // init cascade files paths
+        std::string l_sCascadeFaceFile  = sClassifierFilePath;
+        std::string l_sCascadeNoseFile  = "../data/classifier/haarcascade_mcs_nose.xml";
+
+    // set sizes for the nose
+        m_oMinDetectNoseSize = cv::Size(30,30);
+        m_oMaxDetectNoseSize = cv::Size(100,100);
 
     if(m_bVerbose)
     {
@@ -67,6 +79,7 @@ SWFaceDetection::SWFaceDetection(const cv::Size &oMinDetectFaceSize, const cv::S
     {
         // init face cascade detection
         m_CHaarCascadeFacePtr = SWHaarCascadePtr(new SWHaarCascade(l_sCascadeFaceFile,1, m_oMinDetectFaceSize,m_oMaxDetectFaceSize));
+        m_CHaarCascadeNosePtr = SWHaarCascadePtr(new SWHaarCascade(l_sCascadeNoseFile, 1, m_oMinDetectNoseSize,m_oMaxDetectNoseSize));
         m_bHaarCascadeFilesLoaded = true;
     }
     catch(const haarFileInitError &e)
@@ -75,18 +88,18 @@ SWFaceDetection::SWFaceDetection(const cv::Size &oMinDetectFaceSize, const cv::S
     }
 
     // init detection ratios
-    m_fWidthRatioImageToDetect  = 0.9f;
-    m_fHeightRatioImageToDetect = 0.9f;
-
-    m_fFaceHeightRatio 	        = 0.0f;
-    m_fFaceWidthRatio           = 0.0f;
+        m_fWidthRatioImageToDetect  = 0.9f;
+        m_fHeightRatioImageToDetect = 0.9f;
+        m_fFaceHeightRatio 	        = 0.0f;
+        m_fFaceWidthRatio           = 0.0f;
 
     // init rectangle offset
-    m_i32WidthRectFaceOffset  = 10;
-    m_i32HeightRectFaceOffset = 15;
+        m_i32WidthRectFaceOffset  = 10;
+        m_i32HeightRectFaceOffset = 15;
 
     // init rects
-    m_oLastDetectFace.width = 0;
+        m_oLastDetectFace.width = 0;
+        m_oLastDetectNose.width = 0;
 }
 
 void SWFaceDetection::setRectRatios(cfloat fWidthRatio, cfloat fHeightRatio)
@@ -97,29 +110,29 @@ void SWFaceDetection::setRectRatios(cfloat fWidthRatio, cfloat fHeightRatio)
 
 cv::Rect SWFaceDetection::faceRect() const
 {
-//    return m_oRects[0];
     return m_oLastDetectFace;
 }
 
-bool SWFaceDetection::detect(const cv::Mat &oRgbImg)
+cv::Rect SWFaceDetection::noseRect() const
 {
-    return detectFace(oRgbImg);
+    return m_oLastDetectNose;
 }
 
 bool SWFaceDetection::detectFace(const cv::Mat &oRgbImg)
 {
     if(!m_bHaarCascadeFilesLoaded)
     {
-        std::cerr << "Haar cascade files not loaded, the face detection can't be done" << std::endl;
+        std::cerr << "-ERROR : (SWFaceDetection::detectFace) -> Haar cascade files not loaded, the face detection can't be done" << std::endl;
         return false;
     }
 
     if(m_oMinDetectFaceSize.width > oRgbImg.cols || m_oMinDetectFaceSize.height > oRgbImg.rows)
     {
-        std::cerr << "The input rgb image is too small for the wanted minimum face size,  the face detection can't be done. " << std::endl;
+        std::cerr << "-ERROR : (SWFaceDetection::detectFace) -> The input rgb image is too small for the wanted minimum face size,  the face detection can't be done. " << std::endl;
         return false;
     }
 
+    m_oRects.clear();
     if(m_CHaarCascadeFacePtr->detect(oRgbImg, m_oRects))
     {
         if(m_oRects[0].x < oRgbImg.cols * (1-m_fWidthRatioImageToDetect)  || m_oRects[0].x + m_oRects[0].width  > m_fWidthRatioImageToDetect  * oRgbImg.cols ||
@@ -157,57 +170,41 @@ bool SWFaceDetection::detectFace(const cv::Mat &oRgbImg)
         }
 
         m_oLastDetectFace = m_oRects[0];
-
-
-        // TESTS
-//        //
-//        m_lFaceRects.push_front(m_oLastDetectFace);
-
-//        // 	pop first result in the list if the size is over the k window
-//        while(5 < m_lFaceRects.size())
-//        {
-//            m_lFaceRects.pop_back();
-//        }
-
-//        cv::Rect l_oSmoothedRect;
-//        l_oSmoothedRect.x = 0;
-//        l_oSmoothedRect.y = 0;
-//        l_oSmoothedRect.width = 0;
-//        l_oSmoothedRect.height = 0;
-
-//        for (std::list<cv::Rect>::iterator it= m_lFaceRects.begin(); it != m_lFaceRects.end(); ++it)
-//        {
-//            l_oSmoothedRect.x += (*it).x;
-//            l_oSmoothedRect.y += (*it).y;
-//            l_oSmoothedRect.width += (*it).width;
-//            l_oSmoothedRect.height += (*it).height;
-//        }
-
-//        l_oSmoothedRect.x /= m_lFaceRects.size();
-//        l_oSmoothedRect.y /= m_lFaceRects.size();
-//        l_oSmoothedRect.width /= m_lFaceRects.size();
-//        l_oSmoothedRect.height /= m_lFaceRects.size();
-
-////        if((m_oLastDetectFace.x - l_oSmoothedRect.x)*(m_oLastDetectFace.x - l_oSmoothedRect.x) == 1)
-////        {
-////            l_oSmoothedRect.x = m_oLastDetectFace.x;
-////        }
-
-////        if((m_oLastDetectFace.y - l_oSmoothedRect.y)*(m_oLastDetectFace.y - l_oSmoothedRect.y) == 1)
-////        {
-////            l_oSmoothedRect.y = m_oLastDetectFace.y;
-////        }
-
-//        m_oLastDetectFace = l_oSmoothedRect;
-
         return true;
     }
 
 
-    m_oRects.clear();
-
     return  false;
 }
+
+
+cv::Rect SWFaceDetection::detectNose(const cv::Mat &oRgbImg)
+{
+    cv::Rect l_oNullRect;
+    l_oNullRect.width = 0;
+
+    if(!m_bHaarCascadeFilesLoaded)
+    {
+        std::cerr << "-ERROR : (SWFaceDetection::detectNose) -> Haar cascade files not loaded, the nose detection can't be done" << std::endl;
+        return l_oNullRect;
+    }
+
+    if(m_oMinDetectNoseSize.width > oRgbImg.cols || m_oMinDetectNoseSize.height > oRgbImg.rows)
+    {
+        std::cerr << "-ERROR : (SWFaceDetection::detectNose) -> The input rgb image is too small for the wanted minimum nose size, the nose detection can't be done. " << std::endl;
+        return l_oNullRect;
+    }
+
+    m_oRects.clear();
+
+    if(m_CHaarCascadeNosePtr->detect(oRgbImg, m_oRects))
+    {
+        m_oLastDetectNose = m_oRects[0];
+    }
+
+    return m_oLastDetectNose;
+}
+
 
 void SWFaceDetection::displayFace(cv::Mat &oRgbImg, cv::Scalar oColor)
 {
@@ -254,18 +251,18 @@ void SWFaceDetection::displayFace(cv::Mat &oRgbImg, cv::Scalar oColor)
 //}
 
 
-cv::Point3f SWFaceDetection::computeNoseTip(cv::Mat &oFaceDepth, int &idX, int &idY)
+cv::Point3f SWFaceDetection::computeNoseTip(cv::Mat &oMatDepth, int &idX, int &idY)
 {
     float l_fMinDist = FLT_MAX;
     cv::Point3f l_oNoseTip;
 
     // find the closest point
 
-    for(int ii = 0; ii < oFaceDepth.rows; ++ii)
+    for(int ii = 0; ii < oMatDepth.rows; ++ii)
     {
-        for(int jj = 0; jj < oFaceDepth.cols; ++jj)
+        for(int jj = 0; jj < oMatDepth.cols; ++jj)
         {
-            float l_fCurrDepth = oFaceDepth.at<cv::Vec3f>(ii,jj)[2]; // retrieve current depth
+            float l_fCurrDepth = oMatDepth.at<cv::Vec3f>(ii,jj)[2]; // retrieve current depth
 
             if(l_fCurrDepth == 0)
             {
@@ -291,11 +288,11 @@ cv::Point3f SWFaceDetection::computeNoseTip(cv::Mat &oFaceDepth, int &idX, int &
 
     std::vector<PointCoordinate> l_oMinPoints;
 
-    for(int ii = 0; ii < oFaceDepth.rows; ++ii)
+    for(int ii = 0; ii < oMatDepth.rows; ++ii)
     {
-        for(int jj = 0; jj < oFaceDepth.cols; ++jj)
+        for(int jj = 0; jj < oMatDepth.cols; ++jj)
         {
-            float l_fCurrDepth = oFaceDepth.at<cv::Vec3f>(ii,jj)[2]; // retrieve current depth
+            float l_fCurrDepth = oMatDepth.at<cv::Vec3f>(ii,jj)[2]; // retrieve current depth
 
             if(l_fCurrDepth == 0)
             {
@@ -330,7 +327,7 @@ cv::Point3f SWFaceDetection::computeNoseTip(cv::Mat &oFaceDepth, int &idX, int &
     idY = l_i32SumII;
     idX = l_i32SumJJ;
 
-    l_oNoseTip = oFaceDepth.at<cv::Vec3f>(l_i32SumII,l_i32SumJJ);
+    l_oNoseTip = oMatDepth.at<cv::Vec3f>(l_i32SumII,l_i32SumJJ);
 
     return l_oNoseTip;
 

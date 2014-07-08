@@ -28,7 +28,6 @@
 using namespace cv;
 using namespace swDevice;
 
-
 SWCreateAvatarWorker::SWCreateAvatarWorker(swDevice::SWKinect_thread *pRGBDDeviceThread) :
     m_pRGBDDeviceThread(pRGBDDeviceThread)
 {	    
@@ -434,7 +433,7 @@ void SWCreateAvatarWorker::setDepthCloud(const double dVal)
     m_CAvatarPtr->setDepthCloud((float)dVal);
 }
 
-void SWCreateAvatarWorker::addPointToDeleteRadialProj(const QPoint oPtToAdd, const QSize oSize)
+void SWCreateAvatarWorker::addPointToDeleteRadialProj(const QPoint oPtToAdd, const QSize oSize, const bool leftClick)
 {
     std::vector<int> l_vPt(2);
     l_vPt[0] = oPtToAdd.x() / (oSize.width() *1.f / m_CAvatarPtr->m_i32WidthRadialProj);

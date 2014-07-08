@@ -25,21 +25,47 @@ namespace swDetect
     {
         public :
 
+        /**
+         * @brief SWFaceDetection_thread
+         * @param oMinDetectFaceSize
+         * @param bVerbose
+         * @param sClassifierFilePath
+         */
         SWFaceDetection_thread(const cv::Size &oMinDetectFaceSize = cv::Size(80,80), cbool bVerbose = false,
                                std::string sClassifierFilePath = std::string("../data/classifier/haarcascade_frontalface_alt2.xml"));
 
+        /**
+         * @brief SWFaceDetection_thread
+         * @param oMinDetectFaceSize
+         * @param oMaxDetectFaceSize
+         * @param bVerbose
+         * @param sClassifierFilePath
+         */
         SWFaceDetection_thread(const cv::Size &oMinDetectFaceSize, const cv::Size &oMaxDetectFaceSize, cbool bVerbose,
                                std::string sClassifierFilePath);
 
         ~SWFaceDetection_thread();
 
+        /**
+         * @brief startDetection
+         */
         void startDetection();
 
+        /**
+         * @brief stopDetection
+         */
         void stopDetection();
 
+        /**
+         * @brief setNewRGB
+         * @param oRGB
+         */
         void setNewRGB(const cv::Mat &oRGB);
 
-
+        /**
+         * @brief getLastRect
+         * @return
+         */
         cv::Rect getLastRect();
 
         /**
@@ -51,11 +77,13 @@ namespace swDetect
 
         private :
 
-
+        /**
+         * @brief doWork
+         */
         void doWork();
 
 
-        SWFaceDetection *m_pFaceDetection;
+        SWFaceDetection *m_pFaceDetection;      /**< ... */
 
 
         bool m_bListening;	/**< is the listening thread launched ? */
@@ -63,8 +91,8 @@ namespace swDetect
         boost::shared_ptr<boost::thread> m_pThread;	/**<  thread */
         boost::mutex m_oMutex;					/**< mutex */
 
-        cv::Mat m_oRGB;
-        bool m_bIsNewRGBAvailable;
+        cv::Mat m_oRGB;             /**< ... */
+        bool m_bIsNewRGBAvailable;  /**< ... */
 
     };
 

@@ -87,28 +87,6 @@ namespace swUtil
         return l_oScaledRect;
     }
 
-    static void rodriguesRotation(const cv::Vec3d &oVec, cv::Mat &oMat)
-    {        
-        double l_theta = sqrt(oVec[0]* oVec[0] + oVec[1]*oVec[1] + oVec[2]*oVec[2]);
-        std::cout << "th : " << l_theta <<  " " << cv::norm(oVec) << std::endl;
-        double l_cosTheta = cos(l_theta);
-        double l_sinTheta = sin(l_theta);
-        cv::Vec3d l_r = cv::normalize(oVec);
-
-        oMat = cv::Mat::eye(3,3,CV_64FC1);
-        oMat *= l_cosTheta;
-
-        cv::Mat l_rTr(l_r*l_r.t());
-
-        l_rTr *= 1.0 - l_cosTheta;
-
-        oMat += l_rTr;
-
-        oMat.at<double>(0,1) -= sin(l_theta) * l_r[2]; oMat.at<double>(0,2) += sin(l_theta) * l_r[1];
-        oMat.at<double>(1,0) += sin(l_theta) * l_r[2]; oMat.at<double>(1,2) -= sin(l_theta) * l_r[0];
-        oMat.at<double>(2,0) -= sin(l_theta) * l_r[1]; oMat.at<double>(2,1) += sin(l_theta) * l_r[0];
-    }
-
     static void rodriguesRotation(const cv::Vec3d &oU, const cv::Vec3d &oV, cv::Mat &oRot)
     {
         cv::Vec3d u = cv::normalize(oU);

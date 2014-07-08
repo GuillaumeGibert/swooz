@@ -167,7 +167,8 @@ class SWCreateAvatarWorker : public QObject
         /**
          * @brief addPointToDeleteRadialProj
          */
-        void addPointToDeleteRadialProj(const QPoint, const QSize);
+        void addPointToDeleteRadialProj(const QPoint, const QSize, const bool);
+
 
         /**
          * @brief resetDeletedPointsRadialProj

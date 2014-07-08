@@ -17,7 +17,6 @@
 #include "cloud/SWImageProcessing.h"
 
 
-
 SWCreateAvatarInterface::SWCreateAvatarInterface(QWidget *oQWRelative) : QMainWindow(oQWRelative), m_uiCreateAvatar(new Ui::SWUI_WCreateAvatar),
   m_oTimer(new QBasicTimer)
 {
@@ -47,7 +46,7 @@ SWCreateAvatarInterface::SWCreateAvatarInterface(QWidget *oQWRelative) : QMainWi
     m_WRGBDisplay =  new SWDisplayImageWidget(this);
     m_uiCreateAvatar->hlRGB->addWidget(m_WRGBDisplay);
     //      radial proj
-    m_WRadialProjDisplay =  new SWDisplayImageWidget(this, true, true);
+    m_WRadialProjDisplay =  new SWDisplayImageWidget(this, false, true);
     m_uiCreateAvatar->hlRadial->addWidget(m_WRadialProjDisplay);
     //      face texture
     m_WFaceTextureDisplay =  new SWDisplayImageWidget(this);
@@ -143,7 +142,7 @@ SWCreateAvatarInterface::SWCreateAvatarInterface(QWidget *oQWRelative) : QMainWi
         QObject::connect(m_WCreateAvatar,   SIGNAL(endResetKinect()),   this,       SLOT(releaseKinectMutex()));
 
     //      others
-        QObject::connect(m_WRadialProjDisplay, SIGNAL(clickPoint(QPoint, QSize)), m_WCreateAvatar,   SLOT(addPointToDeleteRadialProj(QPoint, QSize)));
+        QObject::connect(m_WRadialProjDisplay, SIGNAL(clickPoint(QPoint, QSize, bool)), m_WCreateAvatar,   SLOT(addPointToDeleteRadialProj(QPoint, QSize, bool)));
 
     // init worker parameters values
         // radial projection width / height
@@ -284,7 +283,7 @@ void SWCreateAvatarInterface::updateDisplay()
     if(l_bDoDetect)
     {
         // detect
-            m_CFaceDetectPtr->detect(l_oBGRForeGround);
+            m_CFaceDetectPtr->detectFace(l_oBGRForeGround);
 
         // cloud
             deleteAndNullify(m_pCloudToDisplay);

@@ -170,7 +170,7 @@ namespace swUtil
     template <typename T>
     static double vectorAngle(const std::vector<T> &v1, const std::vector<T> &v2)
     {
-        return acos(dotProduct(v1,v2)/((double)norm(v1)*(double)norm(v2))) * 180.0 / PI_;
+        return acos(dotProduct(v1,v2)/((double)norm(v1)*(double)norm(v2))) * 180.0 / PI;
     }
 
 

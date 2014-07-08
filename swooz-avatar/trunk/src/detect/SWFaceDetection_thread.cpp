@@ -4,7 +4,8 @@
 #include <time.h>
 
 
-swDetect::SWFaceDetection_thread::SWFaceDetection_thread(const cv::Size &oMinDetectFaceSize, cbool bVerbose, std::string sClassifierFile) : m_bListening(false), m_bIsNewRGBAvailable(false)
+swDetect::SWFaceDetection_thread::SWFaceDetection_thread(const cv::Size &oMinDetectFaceSize, cbool bVerbose, std::string sClassifierFile)
+    : m_bListening(false), m_bIsNewRGBAvailable(false)
 {
     m_pFaceDetection = new swDetect::SWFaceDetection(oMinDetectFaceSize, bVerbose, sClassifierFile);
 }
@@ -24,6 +25,7 @@ swDetect::SWFaceDetection_thread::~SWFaceDetection_thread()
 
     deleteAndNullify(m_pFaceDetection);
 }
+
 
 void swDetect::SWFaceDetection_thread::startDetection()
 {
@@ -88,7 +90,7 @@ void swDetect::SWFaceDetection_thread::doWork()
 
             if(m_bIsNewRGBAvailable)
             {
-                m_pFaceDetection->detect(m_oRGB);
+                m_pFaceDetection->detectFace(m_oRGB);
                 m_bIsNewRGBAvailable = false;
 //                std::cout << (((float)(clock() - time) / CLOCKS_PER_SEC)) << " ";
             }
