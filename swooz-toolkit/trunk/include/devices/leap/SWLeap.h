@@ -392,13 +392,15 @@ namespace swDevice
 
         private :
 
+            void toStdVector(std::vector<float> &oSTDVec, Leap::Vector &oVector);
+
             /**
              * @brief finger
              * @param bLeftHand
              * @param fingerType
              * @param oFinger
              */
-            void finger(const bool bLeftHand, const Leap::Finger::Type fingerType, Leap::Finger &oFinger);
+//            void finger(const bool bLeftHand, const Leap::Finger::Type fingerType, Leap::Finger &oFinger);
 
 
             /**
@@ -437,24 +439,12 @@ namespace swDevice
             std::vector<float> m_vLeftDirectionHand;    /**< ... */
             std::vector<float> m_vLeftNormalPalmHandE;  /**< ... */
             std::vector<float> m_vLeftDirectionHandE;   /**< ... */
-            //      hand fingers
-            std::vector<float> m_vLeftThumbRotation;    /**< ... */
-            std::vector<float> m_vLeftIndexRotation;    /**< ... */
-            std::vector<float> m_vLeftMiddleRotation;   /**< ... */
-            std::vector<float> m_vLeftRingRotation;     /**< ... */
-            std::vector<float> m_vLeftPinkyRotation;    /**< ... */
-
-            Leap::Finger m_vLeftThumb;
-            Leap::Finger m_vLeftIndex;
-            Leap::Finger m_vLeftMiddle;
-            Leap::Finger m_vLeftRing;
-            Leap::Finger m_vLeftPinky;
-
-            Leap::Finger m_vRightThumb;
-            Leap::Finger m_vRightIndex;
-            Leap::Finger m_vRightMiddle;
-            Leap::Finger m_vRightRing;
-            Leap::Finger m_vRightPinky;
+            //      hand fingers directions
+            std::vector<std::vector<float> > m_vLeftThumbDirections;    /**< ... */
+            std::vector<std::vector<float> > m_vLeftIndexDirections;    /**< ... */
+            std::vector<std::vector<float> > m_vLeftMiddleDirections;   /**< ... */
+            std::vector<std::vector<float> > m_vLeftRingDirections;     /**< ... */
+            std::vector<std::vector<float> > m_vLeftPinkyDirections;    /**< ... */
 
             // right
             //      arm
@@ -465,12 +455,12 @@ namespace swDevice
             std::vector<float> m_vRightDirectionHand;   /**< ... */
             std::vector<float> m_vRightDirectionHandE;  /**< ... */
             std::vector<float> m_vRightNormalPalmHandE; /**< ... */
-            //       hand fingers
-            std::vector<float> m_vRightThumbRotation;   /**< ... */
-            std::vector<float> m_vRightIndexRotation;   /**< ... */
-            std::vector<float> m_vRightMiddleRotation;  /**< ... */
-            std::vector<float> m_vRightRingRotation;    /**< ... */
-            std::vector<float> m_vRightPinkyRotation;   /**< ... */
+            //      hand fingers directions
+            std::vector<std::vector<float> > m_vRightThumbDirections;   /**< ... */
+            std::vector<std::vector<float> > m_vRightIndexDirections;   /**< ... */
+            std::vector<std::vector<float> > m_vRightMiddleDirections;  /**< ... */
+            std::vector<std::vector<float> > m_vRightRingDirections;    /**< ... */
+            std::vector<std::vector<float> > m_vRightPinkyDirections;   /**< ... */
     };
 }
 

@@ -139,49 +139,60 @@ bool SWLeapTracking::updateModule()
     yarp::os::Bottle &l_oHandBottleLeft = m_oHandTrackingPortLeft.prepare();
     l_oHandBottleLeft.clear();
         l_oHandBottleLeft.copy(l_oHandCartesianBottleLeft);
-        m_oLeap.boneDirection(true, Leap::Finger::TYPE_THUMB, Leap::Bone::TYPE_METACARPAL, l_vLambda);
+        m_oLeap.boneDirection(true, Leap::Finger::TYPE_THUMB, Leap::Bone::TYPE_PROXIMAL, l_vLambda);
+//        std::cout << "1 -> " << l_vLambda[0] << " " << l_vLambda[1] << " " << l_vLambda[2] << " ";
         l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[0])); // Left hand : thumb metacarpal direction x / get(19).asDouble()
         l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[1])); // Left hand : thumb metacarpal direction y / get(20).asDouble()
         l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[2])); // Left hand : thumb metacarpal direction z / get(21).asDouble()
-        m_oLeap.boneDirection(true, Leap::Finger::TYPE_THUMB, Leap::Bone::TYPE_PROXIMAL, l_vLambda);
+        m_oLeap.boneDirection(true, Leap::Finger::TYPE_THUMB, Leap::Bone::TYPE_INTERMEDIATE, l_vLambda);
+//        std::cout << "2 -> " << l_vLambda[0] << " " << l_vLambda[1] << " " << l_vLambda[2] << " ";
         l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[0])); // Left hand : thumb proximal direction x / get(22).asDouble()
         l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[1])); // Left hand : thumb proximal direction y / get(23).asDouble()
         l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[2])); // Left hand : thumb proximal direction z / get(24).asDouble()
         m_oLeap.boneDirection(true, Leap::Finger::TYPE_THUMB, Leap::Bone::TYPE_DISTAL, l_vLambda);
+//        std::cout << "3 -> " << l_vLambda[0] << " " << l_vLambda[1] << " " << l_vLambda[2] << std::endl;
         l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[0])); // Left hand : thumb distal direction x / get(25).asDouble()
         l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[1])); // Left hand : thumb distal direction y / get(26).asDouble()
         l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[2])); // Left hand : thumb distal direction z / get(27).asDouble()
 
         m_oLeap.boneDirection(true, Leap::Finger::TYPE_INDEX, Leap::Bone::TYPE_METACARPAL, l_vLambda);
+//        std::cout << "4 -> " << l_vLambda[0] << " " << l_vLambda[1] << " " << l_vLambda[2] << std::endl;
         l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[0])); // Left hand : index metacarpal direction x / get(28).asDouble()
         l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[1])); // Left hand : index metacarpal direction y / get(29).asDouble()
         l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[2])); // Left hand : index metacarpal direction z / get(30).asDouble()
         m_oLeap.boneDirection(true, Leap::Finger::TYPE_INDEX, Leap::Bone::TYPE_PROXIMAL, l_vLambda);
+//        std::cout << "5 -> " << l_vLambda[0] << " " << l_vLambda[1] << " " << l_vLambda[2] << std::endl;
         l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[0])); // Left hand : index proximal direction x / get(31).asDouble()
         l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[1])); // Left hand : index proximal direction y / get(32).asDouble()
         l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[2])); // Left hand : index proximal direction z / get(33).asDouble()
         m_oLeap.boneDirection(true, Leap::Finger::TYPE_INDEX, Leap::Bone::TYPE_INTERMEDIATE, l_vLambda);
+//        std::cout << "6 -> " << l_vLambda[0] << " " << l_vLambda[1] << " " << l_vLambda[2] << std::endl;
         l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[0])); // Left hand : index intermediate direction x / get(34).asDouble()
         l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[1])); // Left hand : index intermediate direction y / get(35).asDouble()
         l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[2])); // Left hand : index intermediate direction z / get(36).asDouble()
         m_oLeap.boneDirection(true, Leap::Finger::TYPE_INDEX, Leap::Bone::TYPE_DISTAL, l_vLambda);
+//        std::cout << "7 -> " << l_vLambda[0] << " " << l_vLambda[1] << " " << l_vLambda[2] << std::endl;
         l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[0])); // Left hand : index distal direction x / get(37).asDouble()
         l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[1])); // Left hand : index distal direction y / get(38).asDouble()
         l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[2])); // Left hand : index distal direction z / get(39).asDouble()
 
         m_oLeap.boneDirection(true, Leap::Finger::TYPE_MIDDLE, Leap::Bone::TYPE_METACARPAL, l_vLambda);
+//        std::cout << "8 -> " << l_vLambda[0] << " " << l_vLambda[1] << " " << l_vLambda[2] << std::endl;
         l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[0])); // Left hand : index metacarpal direction x / get(40).asDouble()
         l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[1])); // Left hand : index metacarpal direction y / get(41).asDouble()
         l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[2])); // Left hand : index metacarpal direction z / get(42).asDouble()
         m_oLeap.boneDirection(true, Leap::Finger::TYPE_MIDDLE, Leap::Bone::TYPE_PROXIMAL, l_vLambda);
+//        std::cout << "9 -> " << l_vLambda[0] << " " << l_vLambda[1] << " " << l_vLambda[2] << std::endl;
         l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[0])); // Left hand : middle proximal direction x / get(43).asDouble()
         l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[1])); // Left hand : middle proximal direction y / get(44).asDouble()
         l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[2])); // Left hand : middle proximal direction z / get(45).asDouble()
         m_oLeap.boneDirection(true, Leap::Finger::TYPE_MIDDLE, Leap::Bone::TYPE_INTERMEDIATE, l_vLambda);
+//        std::cout << "10 -> " << l_vLambda[0] << " " << l_vLambda[1] << " " << l_vLambda[2] << std::endl;
         l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[0])); // Left hand : middle intermediate direction x / get(46).asDouble()
         l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[1])); // Left hand : middle intermediate direction y / get(47).asDouble()
         l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[2])); // Left hand : middle intermediate direction z / get(48).asDouble()
         m_oLeap.boneDirection(true, Leap::Finger::TYPE_MIDDLE, Leap::Bone::TYPE_DISTAL, l_vLambda);
+//        std::cout << "11 -> " << l_vLambda[0] << " " << l_vLambda[1] << " " << l_vLambda[2] << std::endl;
         l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[0])); // Left hand : middle distal direction x / get(49).asDouble()
         l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[1])); // Left hand : middle distal direction y / get(50).asDouble()
         l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[2])); // Left hand : middle distal direction z / get(51).asDouble()
@@ -220,7 +231,6 @@ bool SWLeapTracking::updateModule()
         l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[1])); // Left hand : pinky distal direction y / get(74).asDouble()
         l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[2])); // Left hand : pinky distal direction z / get(75).asDouble()
     m_oHandTrackingPortLeft.write();
-
 
 
     // RIGHT HAND

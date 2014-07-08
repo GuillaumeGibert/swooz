@@ -15,11 +15,28 @@ using namespace swDevice;
 SWLeap::SWLeap()
 {
     std::vector<float> l_vInitVector(3,0.f);
+    std::vector<std::vector<float> > l_vBonesInitVector3(3, l_vInitVector);
+    std::vector<std::vector<float> > l_vBonesInitVector4(4, l_vInitVector);
+
     m_vLeftCoordPalmHand = m_vLeftNormalPalmHand = m_vLeftDirectionArm = m_vLeftDirectionHand = m_vLeftDirectionHandE = m_vLeftNormalPalmHandE = l_vInitVector;
-    m_vLeftThumbRotation =  m_vLeftIndexRotation = m_vLeftMiddleRotation = m_vLeftRingRotation =  m_vLeftPinkyRotation = l_vInitVector;
+//    m_vLeftThumbRotation =  m_vLeftIndexRotation = m_vLeftMiddleRotation = m_vLeftRingRotation =  m_vLeftPinkyRotation = l_vInitVector;
 
     m_vRightCoordPalmHand = m_vRightNormalPalmHand = m_vRightDirectionArm = m_vRightDirectionHand = m_vRightDirectionHandE = m_vRightNormalPalmHandE = l_vInitVector;
-    m_vRightThumbRotation =  m_vRightIndexRotation = m_vRightMiddleRotation = m_vRightRingRotation =  m_vRightPinkyRotation = l_vInitVector;
+//    m_vRightThumbRotation =  m_vRightIndexRotation = m_vRightMiddleRotation = m_vRightRingRotation =  m_vRightPinkyRotation = l_vInitVector;
+
+    m_vLeftThumbDirections = m_vRightThumbDirections = l_vBonesInitVector3;
+    m_vLeftIndexDirections = m_vLeftMiddleDirections = m_vLeftRingDirections = m_vLeftPinkyDirections = l_vBonesInitVector4;
+    m_vRightIndexDirections = m_vRightMiddleDirections = m_vRightRingDirections = m_vRightPinkyDirections = l_vBonesInitVector4;
+}
+
+void SWLeap::toStdVector(std::vector<float> &oSTDVec, Leap::Vector &oVector)
+{
+    if(oVector.x != 0 && oVector.y != 0 && oVector.z != 0)
+    {
+        oSTDVec[0] = oVector.x;
+        oSTDVec[1] = oVector.y;
+        oSTDVec[2] = oVector.z;
+    }
 }
 
 bool SWLeap::init()
@@ -46,26 +63,140 @@ bool SWLeap::init()
 }
 
 
-void SWLeap::finger(const bool bLeftHand, const Leap::Finger::Type fingerType, Leap::Finger &oFinger)
+//void SWLeap::finger(const bool bLeftHand, const Leap::Finger::Type fingerType, Leap::Finger &oFinger)
+//{
+//    if(bLeftHand)
+//    {
+//        switch(fingerType)
+//        {
+//            case Leap::Finger::TYPE_THUMB :
+//                oFinger = m_vLeftThumb;
+//            break;
+//            case Leap::Finger::TYPE_INDEX:
+//                oFinger = m_vLeftIndex;
+//            break;
+//            case Leap::Finger::TYPE_MIDDLE :
+//                oFinger = m_vLeftMiddle;
+//            break;
+//            case Leap::Finger::TYPE_RING :
+//                oFinger = m_vLeftRing;
+//            break;
+//            case Leap::Finger::TYPE_PINKY :
+//                oFinger = m_vLeftPinky;
+//            break;
+//        }
+//    }
+//    else
+//    {
+//        switch(fingerType)
+//        {
+//            case Leap::Finger::TYPE_THUMB :
+//                oFinger = m_vRightThumb;
+//            break;
+//            case Leap::Finger::TYPE_INDEX:
+//                oFinger = m_vRightIndex;
+//            break;
+//            case Leap::Finger::TYPE_MIDDLE :
+//                oFinger = m_vRightMiddle;
+//            break;
+//            case Leap::Finger::TYPE_RING :
+//                oFinger = m_vRightRing;
+//            break;
+//            case Leap::Finger::TYPE_PINKY :
+//                oFinger = m_vRightPinky;
+//            break;
+//        }
+//    }
+//}
+
+
+void SWLeap::boneDirection(const bool bLeftHand, const Leap::Finger::Type fingerType, const Leap::Bone::Type boneType, std::vector<float> &vBoneDirection)
 {
     if(bLeftHand)
     {
         switch(fingerType)
         {
-            case Leap::Finger::TYPE_THUMB :
-                oFinger = m_vLeftThumb;
+            case  Leap::Finger::TYPE_THUMB :
+                switch(boneType)
+                {
+                    case Leap::Bone::TYPE_PROXIMAL :
+                        vBoneDirection = m_vLeftThumbDirections[0];
+                    break;
+                    case Leap::Bone::TYPE_INTERMEDIATE :
+                        vBoneDirection = m_vLeftThumbDirections[1];
+                    break;
+                    case Leap::Bone::TYPE_DISTAL :
+                        vBoneDirection = m_vLeftThumbDirections[2];
+                    break;
+                }
             break;
-            case Leap::Finger::TYPE_INDEX:
-                oFinger = m_vLeftIndex;
+            case  Leap::Finger::TYPE_INDEX :
+                switch(boneType)
+                {
+                    case Leap::Bone::TYPE_METACARPAL :
+                        vBoneDirection = m_vLeftIndexDirections[0];
+                    break;
+                    case Leap::Bone::TYPE_PROXIMAL :
+                        vBoneDirection = m_vLeftIndexDirections[1];
+                    break;
+                    case Leap::Bone::TYPE_INTERMEDIATE :
+                        vBoneDirection = m_vLeftIndexDirections[2];
+                    break;
+                    case Leap::Bone::TYPE_DISTAL :
+                        vBoneDirection = m_vLeftIndexDirections[3];
+                    break;
+                }
             break;
-            case Leap::Finger::TYPE_MIDDLE :
-                oFinger = m_vLeftMiddle;
+            case  Leap::Finger::TYPE_MIDDLE :
+                switch(boneType)
+                {
+                    case Leap::Bone::TYPE_METACARPAL :
+                        vBoneDirection = m_vLeftMiddleDirections[0];
+                    break;
+                    case Leap::Bone::TYPE_PROXIMAL :
+                        vBoneDirection = m_vLeftMiddleDirections[1];
+                    break;
+                    case Leap::Bone::TYPE_INTERMEDIATE :
+                        vBoneDirection = m_vLeftMiddleDirections[2];
+                    break;
+                    case Leap::Bone::TYPE_DISTAL :
+                        vBoneDirection = m_vLeftMiddleDirections[3];
+                    break;
+                }
             break;
-            case Leap::Finger::TYPE_RING :
-                oFinger = m_vLeftRing;
+            case  Leap::Finger::TYPE_RING :
+                switch(boneType)
+                {
+                    case Leap::Bone::TYPE_METACARPAL :
+                        vBoneDirection = m_vLeftRingDirections[0];
+                    break;
+                    case Leap::Bone::TYPE_PROXIMAL :
+                        vBoneDirection = m_vLeftRingDirections[1];
+                    break;
+                    case Leap::Bone::TYPE_INTERMEDIATE :
+                        vBoneDirection = m_vLeftRingDirections[2];
+                    break;
+                    case Leap::Bone::TYPE_DISTAL :
+                        vBoneDirection = m_vLeftRingDirections[3];
+                    break;
+                }
             break;
-            case Leap::Finger::TYPE_PINKY :
-                oFinger = m_vLeftPinky;
+            case  Leap::Finger::TYPE_PINKY :
+                switch(boneType)
+                {
+                    case Leap::Bone::TYPE_METACARPAL :
+                        vBoneDirection = m_vLeftPinkyDirections[0];
+                    break;
+                    case Leap::Bone::TYPE_PROXIMAL :
+                        vBoneDirection = m_vLeftPinkyDirections[1];
+                    break;
+                    case Leap::Bone::TYPE_INTERMEDIATE :
+                        vBoneDirection = m_vLeftPinkyDirections[2];
+                    break;
+                    case Leap::Bone::TYPE_DISTAL :
+                        vBoneDirection = m_vLeftPinkyDirections[3];
+                    break;
+                }
             break;
         }
     }
@@ -73,39 +204,90 @@ void SWLeap::finger(const bool bLeftHand, const Leap::Finger::Type fingerType, L
     {
         switch(fingerType)
         {
-            case Leap::Finger::TYPE_THUMB :
-                oFinger = m_vRightThumb;
+            case  Leap::Finger::TYPE_THUMB :
+                switch(boneType)
+                {
+                    case Leap::Bone::TYPE_PROXIMAL :
+                        vBoneDirection = m_vRightThumbDirections[0];
+                    break;
+                    case Leap::Bone::TYPE_INTERMEDIATE :
+                        vBoneDirection = m_vRightThumbDirections[1];
+                    break;
+                    case Leap::Bone::TYPE_DISTAL :
+                        vBoneDirection = m_vRightThumbDirections[2];
+                    break;
+                }
             break;
-            case Leap::Finger::TYPE_INDEX:
-                oFinger = m_vRightIndex;
+            case  Leap::Finger::TYPE_INDEX :
+                switch(boneType)
+                {
+                    case Leap::Bone::TYPE_METACARPAL :
+                        vBoneDirection = m_vRightIndexDirections[0];
+                    break;
+                    case Leap::Bone::TYPE_PROXIMAL :
+                        vBoneDirection = m_vRightIndexDirections[1];
+                    break;
+                    case Leap::Bone::TYPE_INTERMEDIATE :
+                        vBoneDirection = m_vRightIndexDirections[2];
+                    break;
+                    case Leap::Bone::TYPE_DISTAL :
+                        vBoneDirection = m_vRightIndexDirections[3];
+                    break;
+                }
             break;
-            case Leap::Finger::TYPE_MIDDLE :
-                oFinger = m_vRightMiddle;
+            case  Leap::Finger::TYPE_MIDDLE :
+                switch(boneType)
+                {
+                    case Leap::Bone::TYPE_METACARPAL :
+                        vBoneDirection = m_vRightMiddleDirections[0];
+                    break;
+                    case Leap::Bone::TYPE_PROXIMAL :
+                        vBoneDirection = m_vRightMiddleDirections[1];
+                    break;
+                    case Leap::Bone::TYPE_INTERMEDIATE :
+                        vBoneDirection = m_vRightMiddleDirections[2];
+                    break;
+                    case Leap::Bone::TYPE_DISTAL :
+                        vBoneDirection = m_vRightMiddleDirections[3];
+                    break;
+                }
             break;
-            case Leap::Finger::TYPE_RING :
-                oFinger = m_vRightRing;
+            case  Leap::Finger::TYPE_RING :
+                switch(boneType)
+                {
+                    case Leap::Bone::TYPE_METACARPAL :
+                        vBoneDirection = m_vRightRingDirections[0];
+                    break;
+                    case Leap::Bone::TYPE_PROXIMAL :
+                        vBoneDirection = m_vRightRingDirections[1];
+                    break;
+                    case Leap::Bone::TYPE_INTERMEDIATE :
+                        vBoneDirection = m_vRightRingDirections[2];
+                    break;
+                    case Leap::Bone::TYPE_DISTAL :
+                        vBoneDirection = m_vRightRingDirections[3];
+                    break;
+                }
             break;
-            case Leap::Finger::TYPE_PINKY :
-                oFinger = m_vRightPinky;
+            case  Leap::Finger::TYPE_PINKY :
+                switch(boneType)
+                {
+                    case Leap::Bone::TYPE_METACARPAL :
+                        vBoneDirection = m_vRightPinkyDirections[0];
+                    break;
+                    case Leap::Bone::TYPE_PROXIMAL :
+                        vBoneDirection = m_vRightPinkyDirections[1];
+                    break;
+                    case Leap::Bone::TYPE_INTERMEDIATE :
+                        vBoneDirection = m_vRightPinkyDirections[2];
+                    break;
+                    case Leap::Bone::TYPE_DISTAL :
+                        vBoneDirection = m_vRightPinkyDirections[3];
+                    break;
+                }
             break;
         }
     }
-}
-
-
-void SWLeap::boneDirection(const bool bLeftHand, const Leap::Finger::Type fingerType, const Leap::Bone::Type boneType, std::vector<float> &vBoneDirection)
-{
-    Leap::Finger l_oFinger;
-    finger(bLeftHand, fingerType, l_oFinger);
-
-    Leap::Bone l_oBone = l_oFinger.bone(boneType);
-
-    Leap::Vector l_vDirection = l_oBone.direction();
-
-    vBoneDirection = std::vector<float>(3,0.f);
-    vBoneDirection[0] = l_vDirection.x;
-    vBoneDirection[1] = l_vDirection.y;
-    vBoneDirection[2] = l_vDirection.z;
 }
 
 
@@ -285,25 +467,117 @@ int SWLeap::grab()
             Leap::Finger l_ring   = l_fingerList[numFingerType(l_fingerList, Leap::Finger::TYPE_RING)];
             Leap::Finger l_pinky  = l_fingerList[numFingerType(l_fingerList, Leap::Finger::TYPE_PINKY)];
 
+            Leap::Bone l_oBone;
+
             if(l_thumb.isValid())
             {
-                m_vLeftThumb = l_thumb;
+                l_oBone = l_thumb.bone(Leap::Bone::TYPE_PROXIMAL);
+                if(l_oBone.isValid())
+                {
+                    toStdVector(m_vLeftThumbDirections[0], l_oBone.direction());
+                }
+                l_oBone = l_thumb.bone(Leap::Bone::TYPE_INTERMEDIATE);
+                if(l_oBone.isValid())
+                {
+                    toStdVector(m_vLeftThumbDirections[1], l_oBone.direction());
+                }
+                l_oBone = l_thumb.bone(Leap::Bone::TYPE_DISTAL);
+                if(l_oBone.isValid())
+                {
+                    toStdVector(m_vLeftThumbDirections[2], l_oBone.direction());
+                }
             }
             if(l_index.isValid())
             {
-                m_vLeftIndex = l_index;
+                l_oBone = l_index.bone(Leap::Bone::TYPE_METACARPAL);
+                if(l_oBone.isValid())
+                {
+                    toStdVector(m_vLeftIndexDirections[0], l_oBone.direction());
+                }
+                l_oBone = l_index.bone(Leap::Bone::TYPE_PROXIMAL);
+                if(l_oBone.isValid())
+                {
+                    toStdVector(m_vLeftIndexDirections[1], l_oBone.direction());
+                }
+                l_oBone = l_index.bone(Leap::Bone::TYPE_INTERMEDIATE);
+                if(l_oBone.isValid())
+                {
+                    toStdVector(m_vLeftIndexDirections[2], l_oBone.direction());
+                }
+                l_oBone = l_index.bone(Leap::Bone::TYPE_DISTAL);
+                if(l_oBone.isValid())
+                {
+                    toStdVector(m_vLeftIndexDirections[3], l_oBone.direction());
+                }
             }
             if(l_middle.isValid())
             {
-                m_vLeftMiddle = l_middle;
+                l_oBone = l_middle.bone(Leap::Bone::TYPE_METACARPAL);
+                if(l_oBone.isValid())
+                {
+                    toStdVector(m_vLeftMiddleDirections[0], l_oBone.direction());
+                }
+                l_oBone = l_middle.bone(Leap::Bone::TYPE_PROXIMAL);
+                if(l_oBone.isValid())
+                {
+                    toStdVector(m_vLeftMiddleDirections[1], l_oBone.direction());
+                }
+                l_oBone = l_middle.bone(Leap::Bone::TYPE_INTERMEDIATE);
+                if(l_oBone.isValid())
+                {
+                    toStdVector(m_vLeftMiddleDirections[2], l_oBone.direction());
+                }
+                l_oBone = l_middle.bone(Leap::Bone::TYPE_DISTAL);
+                if(l_oBone.isValid())
+                {
+                    toStdVector(m_vLeftMiddleDirections[3], l_oBone.direction());
+                }
             }
             if(l_ring.isValid())
-            {
-                m_vLeftRing = l_ring;
+            {                
+                l_oBone = l_ring.bone(Leap::Bone::TYPE_METACARPAL);
+                if(l_oBone.isValid())
+                {
+                    toStdVector(m_vLeftRingDirections[0], l_oBone.direction());
+                }
+                l_oBone = l_ring.bone(Leap::Bone::TYPE_PROXIMAL);
+                if(l_oBone.isValid())
+                {
+                    toStdVector(m_vLeftRingDirections[1], l_oBone.direction());
+                }
+                l_oBone = l_ring.bone(Leap::Bone::TYPE_INTERMEDIATE);
+                if(l_oBone.isValid())
+                {
+                    toStdVector(m_vLeftRingDirections[2], l_oBone.direction());
+                }
+                l_oBone = l_ring.bone(Leap::Bone::TYPE_DISTAL);
+                if(l_oBone.isValid())
+                {
+                    toStdVector(m_vLeftRingDirections[3], l_oBone.direction());
+                }
             }
             if(l_pinky.isValid())
             {
-                m_vLeftPinky = l_pinky;
+                l_oBone = l_pinky.bone(Leap::Bone::TYPE_METACARPAL);
+                if(l_oBone.isValid())
+                {
+                    toStdVector(m_vLeftPinkyDirections[0], l_oBone.direction());
+                }
+                l_oBone = l_pinky.bone(Leap::Bone::TYPE_PROXIMAL);
+                if(l_oBone.isValid())
+                {
+                    toStdVector(m_vLeftPinkyDirections[1], l_oBone.direction());
+                }
+                l_oBone = l_pinky.bone(Leap::Bone::TYPE_INTERMEDIATE);
+                if(l_oBone.isValid())
+                {
+                    toStdVector(m_vLeftPinkyDirections[2], l_oBone.direction());
+                }
+                l_oBone = l_pinky.bone(Leap::Bone::TYPE_DISTAL);
+                if(l_oBone.isValid())
+                {
+                    toStdVector(m_vLeftPinkyDirections[3], l_oBone.direction());
+                }
             }
         }
     }
@@ -358,25 +632,117 @@ int SWLeap::grab()
             Leap::Finger l_ring   = l_fingerList[numFingerType(l_fingerList, Leap::Finger::TYPE_RING)];
             Leap::Finger l_pinky  = l_fingerList[numFingerType(l_fingerList, Leap::Finger::TYPE_PINKY)];
 
+            Leap::Bone l_oBone;
+
             if(l_thumb.isValid())
             {
-                m_vRightThumb = l_thumb;
+                l_oBone = l_thumb.bone(Leap::Bone::TYPE_PROXIMAL);
+                if(l_oBone.isValid())
+                {
+                    toStdVector(m_vRightThumbDirections[0], l_oBone.direction());
+                }
+                l_oBone = l_thumb.bone(Leap::Bone::TYPE_INTERMEDIATE);
+                if(l_oBone.isValid())
+                {
+                    toStdVector(m_vRightThumbDirections[1], l_oBone.direction());
+                }
+                l_oBone = l_thumb.bone(Leap::Bone::TYPE_DISTAL);
+                if(l_oBone.isValid())
+                {
+                    toStdVector(m_vRightThumbDirections[2], l_oBone.direction());
+                }
             }
             if(l_index.isValid())
             {
-                m_vRightIndex = l_index;
+                l_oBone = l_index.bone(Leap::Bone::TYPE_METACARPAL);
+                if(l_oBone.isValid())
+                {
+                    toStdVector(m_vRightIndexDirections[0], l_oBone.direction());
+                }
+                l_oBone = l_index.bone(Leap::Bone::TYPE_PROXIMAL);
+                if(l_oBone.isValid())
+                {
+                    toStdVector(m_vRightIndexDirections[1], l_oBone.direction());
+                }
+                l_oBone = l_index.bone(Leap::Bone::TYPE_INTERMEDIATE);
+                if(l_oBone.isValid())
+                {
+                    toStdVector(m_vRightIndexDirections[2], l_oBone.direction());
+                }
+                l_oBone = l_index.bone(Leap::Bone::TYPE_DISTAL);
+                if(l_oBone.isValid())
+                {
+                    toStdVector(m_vRightIndexDirections[3], l_oBone.direction());
+                }
             }
             if(l_middle.isValid())
             {
-                m_vRightMiddle = l_middle;
+                l_oBone = l_middle.bone(Leap::Bone::TYPE_METACARPAL);
+                if(l_oBone.isValid())
+                {
+                    toStdVector(m_vRightMiddleDirections[0], l_oBone.direction());
+                }
+                l_oBone = l_middle.bone(Leap::Bone::TYPE_PROXIMAL);
+                if(l_oBone.isValid())
+                {
+                    toStdVector(m_vRightMiddleDirections[1], l_oBone.direction());
+                }
+                l_oBone = l_middle.bone(Leap::Bone::TYPE_INTERMEDIATE);
+                if(l_oBone.isValid())
+                {
+                    toStdVector(m_vRightMiddleDirections[2], l_oBone.direction());
+                }
+                l_oBone = l_middle.bone(Leap::Bone::TYPE_DISTAL);
+                if(l_oBone.isValid())
+                {
+                    toStdVector(m_vRightMiddleDirections[3], l_oBone.direction());
+                }
             }
             if(l_ring.isValid())
             {
-                m_vRightIndex = l_index;
+                l_oBone = l_ring.bone(Leap::Bone::TYPE_METACARPAL);
+                if(l_oBone.isValid())
+                {
+                    toStdVector(m_vRightRingDirections[0], l_oBone.direction());
+                }
+                l_oBone = l_ring.bone(Leap::Bone::TYPE_PROXIMAL);
+                if(l_oBone.isValid())
+                {
+                    toStdVector(m_vRightRingDirections[1], l_oBone.direction());
+                }
+                l_oBone = l_ring.bone(Leap::Bone::TYPE_INTERMEDIATE);
+                if(l_oBone.isValid())
+                {
+                    toStdVector(m_vRightRingDirections[2], l_oBone.direction());
+                }
+                l_oBone = l_ring.bone(Leap::Bone::TYPE_DISTAL);
+                if(l_oBone.isValid())
+                {
+                    toStdVector(m_vRightRingDirections[3], l_oBone.direction());
+                }
             }
             if(l_pinky.isValid())
             {
-                m_vRightPinky = l_pinky;
+                l_oBone = l_pinky.bone(Leap::Bone::TYPE_METACARPAL);
+                if(l_oBone.isValid())
+                {
+                    toStdVector(m_vRightPinkyDirections[0], l_oBone.direction());
+                }
+                l_oBone = l_pinky.bone(Leap::Bone::TYPE_PROXIMAL);
+                if(l_oBone.isValid())
+                {
+                    toStdVector(m_vRightPinkyDirections[1], l_oBone.direction());
+                }
+                l_oBone = l_pinky.bone(Leap::Bone::TYPE_INTERMEDIATE);
+                if(l_oBone.isValid())
+                {
+                    toStdVector(m_vRightPinkyDirections[2], l_oBone.direction());
+                }
+                l_oBone = l_pinky.bone(Leap::Bone::TYPE_DISTAL);
+                if(l_oBone.isValid())
+                {
+                    toStdVector(m_vRightPinkyDirections[3], l_oBone.direction());
+                }
             }
         }
     }

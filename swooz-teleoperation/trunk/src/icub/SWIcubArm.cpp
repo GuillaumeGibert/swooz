@@ -446,6 +446,7 @@ void swTeleop::SWIcubArm::computeFingerAngles(yarp::os::Bottle *handBottle, std:
         cv::Vec3d l_vecHandNormal    = cv::normalize(cv::Vec3d(handBottle->get(13).asDouble(), handBottle->get(14).asDouble(), handBottle->get(15).asDouble()));
         cv::Vec3d l_vecHandDirection = cv::normalize(cv::Vec3d(handBottle->get(4).asDouble(), handBottle->get(5).asDouble(), handBottle->get(6).asDouble()));
 
+        std::cout << "aaa" << std::endl;
         for(int ii = 0; ii < 4; ++ii)
         {
             for(int jj = 0; jj < 3; ++jj)
@@ -461,12 +462,29 @@ void swTeleop::SWIcubArm::computeFingerAngles(yarp::os::Bottle *handBottle, std:
                 l_vecPinkyDirections[ii][jj] = handBottle->get(64 + ii * 3 + jj).asDouble();
             }
 
-            l_vecThumbDirections[ii]    = cv::normalize(l_vecThumbDirections[ii]);
-            l_vecIndexDirections[ii]    = cv::normalize(l_vecIndexDirections[ii]);
-            l_vecMiddleDirections[ii]   = cv::normalize(l_vecMiddleDirections[ii]);
-            l_vecRingDirections[ii]     = cv::normalize(l_vecRingDirections[ii]);
-            l_vecPinkyDirections[ii]    = cv::normalize(l_vecPinkyDirections[ii]);
+            if(l_vecThumbDirections[ii][0] != 0 && l_vecThumbDirections[ii][1] != 0 && l_vecThumbDirections[ii][2] != 0)
+            {
+                l_vecThumbDirections[ii]    = cv::normalize(l_vecThumbDirections[ii]);
+            }
+            if(l_vecIndexDirections[ii][0] != 0 && l_vecIndexDirections[ii][1] != 0 && l_vecIndexDirections[ii][2] != 0)
+            {
+                l_vecIndexDirections[ii]    = cv::normalize(l_vecIndexDirections[ii]);
+            }
+            if(l_vecMiddleDirections[ii][0] != 0 && l_vecMiddleDirections[ii][1] != 0 && l_vecMiddleDirections[ii][2] != 0)
+            {
+                l_vecMiddleDirections[ii]   = cv::normalize(l_vecMiddleDirections[ii]);
+            }
+            if(l_vecRingDirections[ii][0] != 0 && l_vecRingDirections[ii][1] != 0 && l_vecRingDirections[ii][2] != 0)
+            {
+                l_vecRingDirections[ii]     = cv::normalize(l_vecRingDirections[ii]);
+            }
+            if(l_vecPinkyDirections[ii][0] != 0 && l_vecPinkyDirections[ii][1] != 0 && l_vecPinkyDirections[ii][2] != 0)
+            {
+                l_vecPinkyDirections[ii]    = cv::normalize(l_vecPinkyDirections[ii]);
+            }
         }
+        std::cout << "---" << std::endl;
+
 
         std::vector<cv::Mat> l_vMatThumbDirectionsTransfo(3,    cv::Mat(cv::Vec3d(0.,0.,0.)));
         std::vector<cv::Mat> l_vMatIndexDirectionsTransfo(4,    cv::Mat(cv::Vec3d(0.,0.,0.)));
@@ -474,6 +492,7 @@ void swTeleop::SWIcubArm::computeFingerAngles(yarp::os::Bottle *handBottle, std:
         std::vector<cv::Mat> l_vMatRingDirectionsTransfo(4,     cv::Mat(cv::Vec3d(0.,0.,0.)));
         std::vector<cv::Mat> l_vMatPinkyDirectionsTransfo(4,    cv::Mat(cv::Vec3d(0.,0.,0.)));
         cv::Mat l_matHandDirectionTransfo(cv::Vec3d(0.,0.,0.));
+
 
     // compute transformation for aligning palm normal to Y axis
         cv::Vec3d l_vecAxis;
@@ -493,6 +512,9 @@ void swTeleop::SWIcubArm::computeFingerAngles(yarp::os::Bottle *handBottle, std:
             l_vecAxis = cv::Vec3d(0.,1.,0.);
         }
 
+
+        std::cout << "Palm up : " << l_bHandPalmUp << std::endl;
+
         cv::Mat l_matTransfo;
         swUtil::rodriguesRotation(l_vecHandNormal, l_vecAxis, l_matTransfo);
 
@@ -501,15 +523,25 @@ void swTeleop::SWIcubArm::computeFingerAngles(yarp::os::Bottle *handBottle, std:
             if(ii < 3)
             {
                 l_vMatThumbDirectionsTransfo[ii] = l_matTransfo * cv::Mat(l_vecThumbDirections[ii]);
+                std::cout << l_vMatThumbDirectionsTransfo[ii] << std::endl;
             }
 
             l_vMatIndexDirectionsTransfo[ii]     = l_matTransfo * cv::Mat(l_vecIndexDirections[ii]);
             l_vMatMiddleDirectionsTransfo[ii]    = l_matTransfo * cv::Mat(l_vecMiddleDirections[ii]);
             l_vMatRingDirectionsTransfo[ii]      = l_matTransfo * cv::Mat(l_vecRingDirections[ii]);
             l_vMatPinkyDirectionsTransfo[ii]     = l_matTransfo * cv::Mat(l_vecPinkyDirections[ii]);
+
+            std::cout << l_vMatIndexDirectionsTransfo[ii] << std::endl;
+            std::cout << l_vMatMiddleDirectionsTransfo[ii] << std::endl;
+            std::cout << l_vMatRingDirectionsTransfo[ii] << std::endl;
+            std::cout << l_vMatPinkyDirectionsTransfo[ii] << std::endl;
         }
 
         l_matHandDirectionTransfo = l_matTransfo * cv::Mat(l_vecHandDirection);
+
+        std::cout << "eeeeeee " << std::endl;
+
+         /*
 
     // compute fingers interval (hand_finger)
         // ... better not (hight risk of breaking)
@@ -519,7 +551,8 @@ void swTeleop::SWIcubArm::computeFingerAngles(yarp::os::Bottle *handBottle, std:
             cv::Vec3d l_vecTemp1(cv::normalize(cv::Vec3d(l_vMatThumbDirectionsTransfo[0])));
             cv::Vec3d l_vecTemp2(cv::normalize(cv::Vec3d(l_vMatIndexDirectionsTransfo[0])));
             double l_dDot = l_vecTemp1.dot(l_vecTemp2);
-            vFingerAngles[0] = swUtil::rad2Deg(l_dDot);
+//            vFingerAngles[2] = swUtil::rad2Deg(l_dDot);
+
 
         // hand direction->metacarpal (thumb_proximal)
             l_vecTemp1 = cv::normalize(cv::Vec3d(l_matHandDirectionTransfo.at<double>(0), l_matHandDirectionTransfo.at<double>(1), 0.));
@@ -527,14 +560,17 @@ void swTeleop::SWIcubArm::computeFingerAngles(yarp::os::Bottle *handBottle, std:
             l_dDot = l_vecTemp1.dot(l_vecTemp2);
             cv::Vec3d l_vecCross = l_vecTemp1.cross(l_vecTemp2);
 
-            if((l_vecCross[1] >= 0.0 && !l_bHandPalmUp) || (l_vecCross[1] < 0.0 && l_bHandPalmUp))
+
+            if((l_vecCross[1] >= 0.0 && l_bHandPalmUp) || (l_vecCross[1] < 0.0 && !l_bHandPalmUp))
             {
-                vFingerAngles[1] = 10.;
+//                vFingerAngles[1] = 10.;
             }
             else
             {
-                vFingerAngles[1] = swUtil::rad2Deg(l_dDot);
+//                vFingerAngles[1] = swUtil::rad2Deg(l_dDot);
             }
+
+
         // metacarpal->proximal + proximal->distal (thumb_distal)
             l_vecTemp1 = cv::normalize(cv::Vec3d(l_vMatThumbDirectionsTransfo[0]));
             l_vecTemp2 = cv::normalize(cv::Vec3d(l_vMatThumbDirectionsTransfo[1]));
@@ -543,19 +579,11 @@ void swTeleop::SWIcubArm::computeFingerAngles(yarp::os::Bottle *handBottle, std:
 
             if((l_vecCross[1] >= 0.0 && !l_bHandPalmUp) || (l_vecCross[1] < 0.0 && l_bHandPalmUp))
             {
-                vFingerAngles[3] = 10.;
+//                vFingerAngles[3] = 0.;
             }
             else
             {
-                double l_dTemp = swUtil::rad2Deg(l_dDot);
-                if(l_dTemp < 10.)
-                {
-                    vFingerAngles[3] = 0.;
-                }
-                else
-                {
-                    vFingerAngles[3] = l_dTemp;
-                }
+//                vFingerAngles[3] = swUtil::rad2Deg(l_dDot);
             }
 
             l_vecTemp1 = cv::normalize(cv::Vec3d(l_vMatThumbDirectionsTransfo[1]));
@@ -565,24 +593,30 @@ void swTeleop::SWIcubArm::computeFingerAngles(yarp::os::Bottle *handBottle, std:
 
             if(!((l_vecCross[1] >= 0.0 && !l_bHandPalmUp) || (l_vecCross[1] < 0.0 && l_bHandPalmUp)))
             {
-                vFingerAngles[3] += swUtil::rad2Deg(l_dDot);
+//                vFingerAngles[3] += swUtil::rad2Deg(l_dDot);
             }
+
+
 
     // compute index angles
         // metacarpal->proximal (index_proximal)
+            std::cout << l_vMatIndexDirectionsTransfo[0] << std::endl;
+            std::cout << l_vMatIndexDirectionsTransfo[1] << std::endl;
             l_vecTemp1 = cv::normalize(cv::Vec3d(l_vMatIndexDirectionsTransfo[0]));
             l_vecTemp2 = cv::normalize(cv::Vec3d(l_vMatIndexDirectionsTransfo[1]));
             l_dDot     = l_vecTemp1.dot(l_vecTemp2);
             l_vecCross = l_vecTemp1.cross(l_vecTemp2);
 
-            if((l_vecCross[1] >= 0.0 && !l_bHandPalmUp) || (l_vecCross[1] < 0.0 && l_bHandPalmUp))
-            {
-                vFingerAngles[4] = 0.;
-            }
-            else
-            {
-                vFingerAngles[4] = swUtil::rad2Deg(l_dDot);
-            }
+//            if((l_vecCross[1] >= 0.0 && !l_bHandPalmUp) || (l_vecCross[1] < 0.0 && l_bHandPalmUp))
+//            {
+//                vFingerAngles[4] = 0.;
+//            }
+//            else
+//            {
+//                vFingerAngles[4] = swUtil::rad2Deg(l_dDot);
+//            }
+
+
 
         // proximal->intermediate + intermediate->distal (index_distal)
             l_vecTemp1 = cv::normalize(cv::Vec3d(l_vMatIndexDirectionsTransfo[1]));
@@ -688,6 +722,8 @@ void swTeleop::SWIcubArm::computeFingerAngles(yarp::os::Bottle *handBottle, std:
             {
                 vFingerAngles[8] += swUtil::rad2Deg(l_dDot);
             }
+/*
+        */
 }
 
 bool swTeleop::SWIcubArm::checkBottles()
@@ -759,18 +795,21 @@ bool swTeleop::SWIcubArm::checkBottles()
                         std::vector<double> l_vHandAngles;
                         computeHandAngles(l_pHandTarget, l_vHandAngles);
 
+
                         for(uint ii = 0; ii < l_vHandAngles.size(); ++ii)
                         {
-                            l_vArmJoints[4 + ii] = l_vHandAngles[0];
+                            l_vArmJoints[4 + ii] = l_vHandAngles[ii];
                         }
 
-                        std::vector<double> l_vFingerAngles;
-                        computeFingerAngles(l_pHandTarget, l_vFingerAngles);
+//                        std::vector<double> l_vFingerAngles;
+//                        computeFingerAngles(l_pHandTarget, l_vFingerAngles);
 
-                        for(uint ii = 0; ii < l_vFingerAngles.size(); ++ii)
-                        {
-                            l_vArmJoints[7 + ii] = l_vFingerAngles[0];
-                        }
+//                        for(uint ii = 0; ii < l_vFingerAngles.size(); ++ii)
+//                        {
+//                            l_vArmJoints[7 + ii] = l_vFingerAngles[ii];
+//                            std::cout <<l_vArmJoints[7 + ii]<< " ";
+//                        }
+//                        std::cout << std::endl;
 
 
                 break;
