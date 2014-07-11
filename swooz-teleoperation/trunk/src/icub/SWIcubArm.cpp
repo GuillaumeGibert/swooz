@@ -146,11 +146,11 @@ bool swTeleop::SWIcubArm::init( yarp::os::ResourceFinder &oRf, bool bLeftArm)
         m_oArmOptions.put("remote",   ("/" + m_sRobotName + "/" + m_sArm + "_arm").c_str());
 
     //set cartesian polydriver options
-        m_oArmCartesianOptions.put("robot",     m_sRobotName.c_str());
-        m_oArmCartesianOptions.put("device",    "cartesiancontrollerclient");
-        m_oArmCartesianOptions.put("local",    ("/cartesian_client/" + m_sArm + "_arm"));
-        m_oArmCartesianOptions.put("name",     ("/" + m_sRobotName + "/cartesianController/" + m_sArm + "_arm").c_str());
-        m_oArmCartesianOptions.put("remote",   ("/" + m_sRobotName + "/cartesianController/" + m_sArm + "_arm").c_str());
+//        m_oArmCartesianOptions.put("robot",     m_sRobotName.c_str());
+//        m_oArmCartesianOptions.put("device",    "cartesiancontrollerclient");
+//        m_oArmCartesianOptions.put("local",    ("/cartesian_client/" + m_sArm + "_arm"));
+//        m_oArmCartesianOptions.put("name",     ("/" + m_sRobotName + "/cartesianController/" + m_sArm + "_arm").c_str());
+//        m_oArmCartesianOptions.put("remote",   ("/" + m_sRobotName + "/cartesianController/" + m_sArm + "_arm").c_str());
 
 
     // init polydriver
@@ -163,32 +163,32 @@ bool swTeleop::SWIcubArm::init( yarp::os::ResourceFinder &oRf, bool bLeftArm)
 
     //init cartesian polydriver
 
-        if(!m_oRobotArmCartesian.open(m_oArmCartesianOptions))
-        {
-            std::cout<<"Failing at OPENING polydriver (RobotArmCartesian)"<<std::endl;
-        }
+//        if(!m_oRobotArmCartesian.open(m_oArmCartesianOptions))
+//        {
+//            std::cout<<"Failing at OPENING polydriver (RobotArmCartesian)"<<std::endl;
+//        }
 
-        if (!m_oRobotArmCartesian.isValid())
-        {
-            std::cerr << std::endl <<"-ERROR: " << m_sArm << " arm cartesian is not valid" << std::endl <<std::endl;
-            return (m_bInitialized=false);
-        }
-        else
-        {
-                // initializing controllers
-                if (!m_oRobotArmCartesian.view(m_pIArmCartesian))
-                {
-                    std::cerr << "-ERROR: Couldn't open the "<< m_sArm <<" Arm ICartesianControl client!" << std::endl;
-                    return false;
-                }
-                //  limit the torso DOF for the cartesian controller
-                yarp::sig::Vector l_torsoDof(3);
-                l_torsoDof = 2.; // This values tells the kinematic solver to skip the torso
-                if( m_pIArmCartesian->setDOF(l_torsoDof, l_torsoDof))
-                {
-                    std::cerr << "-WARNING: Unable to set the torso DOFs";
-                }
-        }
+//        if (!m_oRobotArmCartesian.isValid())
+//        {
+//            std::cerr << std::endl <<"-ERROR: " << m_sArm << " arm cartesian is not valid" << std::endl <<std::endl;
+//            return (m_bInitialized=false);
+//        }
+//        else
+//        {
+//                // initializing controllers
+//                if (!m_oRobotArmCartesian.view(m_pIArmCartesian))
+//                {
+//                    std::cerr << "-ERROR: Couldn't open the "<< m_sArm <<" Arm ICartesianControl client!" << std::endl;
+//                    return false;
+//                }
+//                //  limit the torso DOF for the cartesian controller
+//                yarp::sig::Vector l_torsoDof(3);
+//                l_torsoDof = 2.; // This values tells the kinematic solver to skip the torso
+//                if( m_pIArmCartesian->setDOF(l_torsoDof, l_torsoDof))
+//                {
+//                    std::cerr << "-WARNING: Unable to set the torso DOFs";
+//                }
+//        }
 
 
     // initializing controllers
@@ -202,7 +202,7 @@ bool swTeleop::SWIcubArm::init( yarp::os::ResourceFinder &oRf, bool bLeftArm)
 
     // init ports
         m_sHandTrackerPortName  = "/teleoperation/" + m_sRobotName + "/" + m_sArm + "_arm/hand";
-        m_sHandCartesianTrackerPortName  = "/teleoperation/" + m_sRobotName + "/" + m_sArm + "_arm/hand_cartesian";
+//        m_sHandCartesianTrackerPortName  = "/teleoperation/" + m_sRobotName + "/" + m_sArm + "_arm/hand_cartesian";
 
     // open ports
         bool l_bPortOpeningSuccess = true;
@@ -211,15 +211,15 @@ bool swTeleop::SWIcubArm::init( yarp::os::ResourceFinder &oRf, bool bLeftArm)
             if(l_bPortOpeningSuccess)
                  l_bPortOpeningSuccess = m_oHandTrackerPort.open(m_sHandTrackerPortName.c_str());
 
-            if(l_bPortOpeningSuccess)
-                l_bPortOpeningSuccess = m_oHandCartesianTrackerPort.open(m_sHandCartesianTrackerPortName.c_str());
+//            if(l_bPortOpeningSuccess)
+//                l_bPortOpeningSuccess = m_oHandCartesianTrackerPort.open(m_sHandCartesianTrackerPortName.c_str());
         }
 
         if(!l_bPortOpeningSuccess)
         {
             std::cerr << std::endl <<"-ERROR: Unable to open ports." << std::endl <<std::endl;
             m_oRobotArm.close();
-            m_oRobotArmCartesian.close();
+//            m_oRobotArmCartesian.close();
             return (m_bInitialized=false);
         }
 
@@ -257,7 +257,7 @@ bool swTeleop::SWIcubArm::init( yarp::os::ResourceFinder &oRf, bool bLeftArm)
 
 void swTeleop::SWIcubArm::computeHandAngles(yarp::os::Bottle* handBottle,std::vector<double> &vHandAngles)
 {
-    vHandAngles = std::vector<double>(3,0.);
+    vHandAngles = std::vector<double>(4,0.);
 
     // retrieve leap data
         std::vector<double> l_vArmDirection(3,0.), l_vHandDirection(3,0.),l_vHandDirectionE(3,0.), l_vHandPalmCoord(3,0.), l_vHandPalmNormal(3,0.), l_vHandPalmNormalE(3,0.);
@@ -346,7 +346,7 @@ void swTeleop::SWIcubArm::computeHandAngles(yarp::os::Bottle* handBottle,std::ve
         }
 
         // set joint value
-        vHandAngles[2] = l_angle;
+        vHandAngles[3] = l_angle;
 
     // compute angle for wrist ptich
         cv::Vec3d l_vecTransfoHandDirection(l_matTransfoHandDirection);
@@ -409,17 +409,22 @@ void swTeleop::SWIcubArm::computeHandAngles(yarp::os::Bottle* handBottle,std::ve
         }
 
         // set joint value
-        vHandAngles[1] = l_angle;
+        vHandAngles[2] = l_angle;
 
 
         if(m_sArm != "left")
         {
-            vHandAngles[0] = (swUtil::rad2Deg(l_vHandPalmNormalE[1]) + 90.0);
+            vHandAngles[1] = (swUtil::rad2Deg(l_vHandPalmNormalE[1]) + 90.0);
         }
         else
         {
-            vHandAngles[0] = -(swUtil::rad2Deg(l_vHandPalmNormalE[1]) - 90.0);
+            vHandAngles[1] = -(swUtil::rad2Deg(l_vHandPalmNormalE[1]) - 90.0);
         }
+
+        double l_dAngle = swUtil::rad2Deg(acos(cv::normalize(cv::Vec3d(0.0,l_vArmDirection[1],l_vArmDirection[2])).dot(cv::Vec3d(0.0,0.0,1.0))));
+        l_dAngle *= -1.0;
+        l_dAngle += 180.0 + 60.0;
+        vHandAngles[0] = l_dAngle;
 }
 
 void swTeleop::SWIcubArm::computeFingerAngles(yarp::os::Bottle *handBottle, std::vector<double> &vFingerAngles)
@@ -446,7 +451,6 @@ void swTeleop::SWIcubArm::computeFingerAngles(yarp::os::Bottle *handBottle, std:
         cv::Vec3d l_vecHandNormal    = cv::normalize(cv::Vec3d(handBottle->get(13).asDouble(), handBottle->get(14).asDouble(), handBottle->get(15).asDouble()));
         cv::Vec3d l_vecHandDirection = cv::normalize(cv::Vec3d(handBottle->get(4).asDouble(), handBottle->get(5).asDouble(), handBottle->get(6).asDouble()));
 
-        std::cout << "aaa" << std::endl;
         for(int ii = 0; ii < 4; ++ii)
         {
             for(int jj = 0; jj < 3; ++jj)
@@ -483,7 +487,6 @@ void swTeleop::SWIcubArm::computeFingerAngles(yarp::os::Bottle *handBottle, std:
                 l_vecPinkyDirections[ii]    = cv::normalize(l_vecPinkyDirections[ii]);
             }
         }
-        std::cout << "---" << std::endl;
 
 
         std::vector<cv::Mat> l_vMatThumbDirectionsTransfo(3,    cv::Mat(cv::Vec3d(0.,0.,0.)));
@@ -502,6 +505,13 @@ void swTeleop::SWIcubArm::computeFingerAngles(yarp::os::Bottle *handBottle, std:
         {
             l_bHandPalmUp = true;
         }
+        bool l_bHandPalmLeft = true;
+        if(swUtil::rad2Deg(acos(cv::Vec3d(-1.,0.,0.).dot(l_vecHandNormal))) > 90.)
+        {
+            l_bHandPalmLeft = false;
+        }
+
+
 
         if(!l_bHandPalmUp)
         {
@@ -513,8 +523,6 @@ void swTeleop::SWIcubArm::computeFingerAngles(yarp::os::Bottle *handBottle, std:
         }
 
 
-        std::cout << "Palm up : " << l_bHandPalmUp << std::endl;
-
         cv::Mat l_matTransfo;
         swUtil::rodriguesRotation(l_vecHandNormal, l_vecAxis, l_matTransfo);
 
@@ -523,207 +531,243 @@ void swTeleop::SWIcubArm::computeFingerAngles(yarp::os::Bottle *handBottle, std:
             if(ii < 3)
             {
                 l_vMatThumbDirectionsTransfo[ii] = l_matTransfo * cv::Mat(l_vecThumbDirections[ii]);
-                std::cout << l_vMatThumbDirectionsTransfo[ii] << std::endl;
             }
 
             l_vMatIndexDirectionsTransfo[ii]     = l_matTransfo * cv::Mat(l_vecIndexDirections[ii]);
             l_vMatMiddleDirectionsTransfo[ii]    = l_matTransfo * cv::Mat(l_vecMiddleDirections[ii]);
             l_vMatRingDirectionsTransfo[ii]      = l_matTransfo * cv::Mat(l_vecRingDirections[ii]);
             l_vMatPinkyDirectionsTransfo[ii]     = l_matTransfo * cv::Mat(l_vecPinkyDirections[ii]);
-
-            std::cout << l_vMatIndexDirectionsTransfo[ii] << std::endl;
-            std::cout << l_vMatMiddleDirectionsTransfo[ii] << std::endl;
-            std::cout << l_vMatRingDirectionsTransfo[ii] << std::endl;
-            std::cout << l_vMatPinkyDirectionsTransfo[ii] << std::endl;
         }
 
         l_matHandDirectionTransfo = l_matTransfo * cv::Mat(l_vecHandDirection);
 
-        std::cout << "eeeeeee " << std::endl;
 
-         /*
+
 
     // compute fingers interval (hand_finger)
         // ... better not (hight risk of breaking)
 
     // compute thumbs angles
         // thumb metacarpal-> index metarcapal (thumb_oppose)
-            cv::Vec3d l_vecTemp1(cv::normalize(cv::Vec3d(l_vMatThumbDirectionsTransfo[0])));
+            cv::Vec3d l_vecTemp1(cv::normalize(cv::Vec3d(l_vMatThumbDirectionsTransfo[0]))); // TODO :...
             cv::Vec3d l_vecTemp2(cv::normalize(cv::Vec3d(l_vMatIndexDirectionsTransfo[0])));
             double l_dDot = l_vecTemp1.dot(l_vecTemp2);
-//            vFingerAngles[2] = swUtil::rad2Deg(l_dDot);
+            double l_dAngle = swUtil::rad2Deg(acos(l_dDot));
+            vFingerAngles[2] = 90.0 - l_dAngle;
 
-
-        // hand direction->metacarpal (thumb_proximal)
-            l_vecTemp1 = cv::normalize(cv::Vec3d(l_matHandDirectionTransfo.at<double>(0), l_matHandDirectionTransfo.at<double>(1), 0.));
-            l_vecTemp1 = cv::normalize(cv::Vec3d(l_vMatThumbDirectionsTransfo[0].at<double>(0), l_vMatThumbDirectionsTransfo[1].at<double>(1), 0.));
+        // proximal->intermediate (thumb_proximal)
+            l_vecTemp1 = cv::normalize(l_vecThumbDirections[0]);
+            l_vecTemp2 = cv::normalize(l_vecThumbDirections[1]);
             l_dDot = l_vecTemp1.dot(l_vecTemp2);
             cv::Vec3d l_vecCross = l_vecTemp1.cross(l_vecTemp2);
+            l_dAngle = swUtil::rad2Deg(acos(l_dDot));
+//            vFingerAngles[1] += l_dAngle;
 
-
-            if((l_vecCross[1] >= 0.0 && l_bHandPalmUp) || (l_vecCross[1] < 0.0 && !l_bHandPalmUp))
-            {
-//                vFingerAngles[1] = 10.;
-            }
-            else
-            {
-//                vFingerAngles[1] = swUtil::rad2Deg(l_dDot);
-            }
-
-
-        // metacarpal->proximal + proximal->distal (thumb_distal)
-            l_vecTemp1 = cv::normalize(cv::Vec3d(l_vMatThumbDirectionsTransfo[0]));
-            l_vecTemp2 = cv::normalize(cv::Vec3d(l_vMatThumbDirectionsTransfo[1]));
+        // intermediate->distal (thumb_distal)
+            l_vecTemp1 = cv::normalize(l_vecThumbDirections[1]);
+            l_vecTemp2 = cv::normalize(l_vecThumbDirections[2]);
             l_dDot     = l_vecTemp1.dot(l_vecTemp2);
             l_vecCross = l_vecTemp1.cross(l_vecTemp2);
-
-            if((l_vecCross[1] >= 0.0 && !l_bHandPalmUp) || (l_vecCross[1] < 0.0 && l_bHandPalmUp))
-            {
-//                vFingerAngles[3] = 0.;
-            }
-            else
-            {
-//                vFingerAngles[3] = swUtil::rad2Deg(l_dDot);
-            }
-
-            l_vecTemp1 = cv::normalize(cv::Vec3d(l_vMatThumbDirectionsTransfo[1]));
-            l_vecTemp2 = cv::normalize(cv::Vec3d(l_vMatThumbDirectionsTransfo[2]));
-            l_dDot     = l_vecTemp1.dot(l_vecTemp2);
-            l_vecCross = l_vecTemp1.cross(l_vecTemp2);
-
-            if(!((l_vecCross[1] >= 0.0 && !l_bHandPalmUp) || (l_vecCross[1] < 0.0 && l_bHandPalmUp)))
-            {
-//                vFingerAngles[3] += swUtil::rad2Deg(l_dDot);
-            }
-
-
+            l_dAngle = swUtil::rad2Deg(acos(l_dDot));
+            vFingerAngles[3] += l_dAngle;
 
     // compute index angles
         // metacarpal->proximal (index_proximal)
-            std::cout << l_vMatIndexDirectionsTransfo[0] << std::endl;
-            std::cout << l_vMatIndexDirectionsTransfo[1] << std::endl;
-            l_vecTemp1 = cv::normalize(cv::Vec3d(l_vMatIndexDirectionsTransfo[0]));
-            l_vecTemp2 = cv::normalize(cv::Vec3d(l_vMatIndexDirectionsTransfo[1]));
+            l_vecTemp1 = cv::normalize(l_vecIndexDirections[0]);
+            l_vecTemp2 = cv::normalize(l_vecIndexDirections[1]);
             l_dDot     = l_vecTemp1.dot(l_vecTemp2);
             l_vecCross = l_vecTemp1.cross(l_vecTemp2);
+            l_dAngle = swUtil::rad2Deg(acos(l_dDot));
 
-//            if((l_vecCross[1] >= 0.0 && !l_bHandPalmUp) || (l_vecCross[1] < 0.0 && l_bHandPalmUp))
-//            {
-//                vFingerAngles[4] = 0.;
-//            }
-//            else
-//            {
-//                vFingerAngles[4] = swUtil::rad2Deg(l_dDot);
-//            }
-
-
-
-        // proximal->intermediate + intermediate->distal (index_distal)
-            l_vecTemp1 = cv::normalize(cv::Vec3d(l_vMatIndexDirectionsTransfo[1]));
-            l_vecTemp2 = cv::normalize(cv::Vec3d(l_vMatIndexDirectionsTransfo[2]));
-            l_dDot     = l_vecTemp1.dot(l_vecTemp2);
-            l_vecCross = l_vecTemp1.cross(l_vecTemp2);
-
-            if((l_vecCross[1] >= 0.0 && !l_bHandPalmUp) || (l_vecCross[1] < 0.0 && l_bHandPalmUp))
+            if(!l_bHandPalmLeft)
             {
-                vFingerAngles[5] = 0.;
+                if(l_vecCross[1] < 0.)
+                {
+                    vFingerAngles[4] += l_dAngle;
+                }
             }
             else
             {
-                vFingerAngles[5] = swUtil::rad2Deg(l_dDot);
+                if(l_vecCross[1] >= 0.)
+                {
+                    vFingerAngles[4] += l_dAngle;
+                }
             }
-            l_vecTemp1 = cv::normalize(cv::Vec3d(l_vMatIndexDirectionsTransfo[2]));
-            l_vecTemp2 = cv::normalize(cv::Vec3d(l_vMatIndexDirectionsTransfo[3]));
+
+        // proximal->intermediate + intermediate->distal (index_distal)
+            l_vecTemp1 = cv::normalize(l_vecIndexDirections[1]);
+            l_vecTemp2 = cv::normalize(l_vecIndexDirections[2]);
             l_dDot     = l_vecTemp1.dot(l_vecTemp2);
             l_vecCross = l_vecTemp1.cross(l_vecTemp2);
+            l_dAngle   = swUtil::rad2Deg(acos(l_dDot));
 
-            if(!((l_vecCross[1] >= 0.0 && !l_bHandPalmUp) || (l_vecCross[1] < 0.0 && l_bHandPalmUp)))
+            if(!l_bHandPalmLeft)
             {
-                vFingerAngles[5] += swUtil::rad2Deg(l_dDot);
+                if(l_vecCross[1] < 0.)
+                {
+                    vFingerAngles[5] += l_dAngle;
+                }
+            }
+            else
+            {
+                if(l_vecCross[1] >= 0.)
+                {
+                    vFingerAngles[5] += l_dAngle;
+                }
             }
 
+            l_vecTemp1 = cv::normalize(l_vecIndexDirections[2]);
+            l_vecTemp2 = cv::normalize(l_vecIndexDirections[3]);
+            l_dDot     = l_vecTemp1.dot(l_vecTemp2);
+            l_vecCross = l_vecTemp1.cross(l_vecTemp2);
+            l_dAngle   = swUtil::rad2Deg(acos(l_dDot));
+
+            if(!l_bHandPalmLeft)
+            {
+                if(l_vecCross[1] < 0.)
+                {
+                    vFingerAngles[5] += l_dAngle;
+                }
+            }
+            else
+            {
+                if(l_vecCross[1] >= 0.)
+                {
+                    vFingerAngles[5] += l_dAngle;
+                }
+            }
 
     // compute middle angles
         // metacarpal->proximal (middle_proximal)
-            l_vecTemp1 = cv::normalize(cv::Vec3d(l_vMatMiddleDirectionsTransfo[0]));
-            l_vecTemp2 = cv::normalize(cv::Vec3d(l_vMatMiddleDirectionsTransfo[1]));
+            l_vecTemp1 = cv::normalize(l_vecMiddleDirections[0]);
+            l_vecTemp2 = cv::normalize(l_vecMiddleDirections[1]);
             l_dDot     = l_vecTemp1.dot(l_vecTemp2);
             l_vecCross = l_vecTemp1.cross(l_vecTemp2);
+            l_dAngle   = swUtil::rad2Deg(acos(l_dDot));
 
-
-            if((l_vecCross[1] >= 0.0 && !l_bHandPalmUp) || (l_vecCross[1] < 0.0 && l_bHandPalmUp))
+            if(!l_bHandPalmLeft)
             {
-                vFingerAngles[6] = 0.;
+                if(l_vecCross[1] < 0.)
+                {
+                    vFingerAngles[6] += l_dAngle;
+                }
             }
             else
             {
-                vFingerAngles[6] = swUtil::rad2Deg(l_dDot);
+                if(l_vecCross[1] >= 0.)
+                {
+                    vFingerAngles[6] += l_dAngle;
+                }
             }
 
         // proximal->intermediate + intermediate->distal (middle_distal)
-            l_vecTemp1 = cv::normalize(cv::Vec3d(l_vMatMiddleDirectionsTransfo[1]));
-            l_vecTemp2 = cv::normalize(cv::Vec3d(l_vMatMiddleDirectionsTransfo[2]));
+            l_vecTemp1 = cv::normalize(l_vecMiddleDirections[1]);
+            l_vecTemp2 = cv::normalize(l_vecMiddleDirections[2]);
             l_dDot     = l_vecTemp1.dot(l_vecTemp2);
             l_vecCross = l_vecTemp1.cross(l_vecTemp2);
+            l_dAngle   = swUtil::rad2Deg(acos(l_dDot));
 
-
-            if((l_vecCross[1] >= 0.0 && !l_bHandPalmUp) || (l_vecCross[1] < 0.0 && l_bHandPalmUp))
+            if(!l_bHandPalmLeft)
             {
-                vFingerAngles[7] = 0.;
+                if(l_vecCross[1] < 0.)
+                {
+                    vFingerAngles[7] += l_dAngle;
+                }
             }
             else
             {
-                vFingerAngles[7] = swUtil::rad2Deg(l_dDot);
+                if(l_vecCross[1] >= 0.)
+                {
+                    vFingerAngles[7] += l_dAngle;
+                }
             }
 
-            l_vecTemp1 = cv::normalize(cv::Vec3d(l_vMatMiddleDirectionsTransfo[2]));
-            l_vecTemp2 = cv::normalize(cv::Vec3d(l_vMatMiddleDirectionsTransfo[3]));
+            l_vecTemp1 = cv::normalize(l_vecMiddleDirections[2]);
+            l_vecTemp2 = cv::normalize(l_vecMiddleDirections[3]);
             l_dDot     = l_vecTemp1.dot(l_vecTemp2);
             l_vecCross = l_vecTemp1.cross(l_vecTemp2);
+            l_dAngle   = swUtil::rad2Deg(acos(l_dDot));
 
-            if(!((l_vecCross[1] >= 0.0 && !l_bHandPalmUp) || (l_vecCross[1] < 0.0 && l_bHandPalmUp)))
+            if(!l_bHandPalmLeft)
             {
-                vFingerAngles[7] += swUtil::rad2Deg(l_dDot);
+                if(l_vecCross[1] < 0.)
+                {
+                    vFingerAngles[7] += l_dAngle;
+                }
+            }
+            else
+            {
+                if(l_vecCross[1] >= 0.)
+                {
+                    vFingerAngles[7] += l_dAngle;
+                }
             }
 
 
     // compute ring + pinky angles
         // metacarpal->proximal + proximal->intermediate + intermediate->distal (pinky)
-            l_vecTemp1 = cv::normalize(cv::Vec3d(l_vMatPinkyDirectionsTransfo[0]));
-            l_vecTemp2 = cv::normalize(cv::Vec3d(l_vMatPinkyDirectionsTransfo[1]));
+            l_vecTemp1 = cv::normalize(l_vecPinkyDirections[0]);
+            l_vecTemp2 = cv::normalize(l_vecPinkyDirections[1]);
             l_dDot     = l_vecTemp1.dot(l_vecTemp2);
             l_vecCross = l_vecTemp1.cross(l_vecTemp2);
+            l_dAngle   = swUtil::rad2Deg(acos(l_dDot));
 
-            if((l_vecCross[1] >= 0.0 && !l_bHandPalmUp) || (l_vecCross[1] < 0.0 && l_bHandPalmUp))
+            if(!l_bHandPalmLeft)
             {
-                vFingerAngles[8] = 0.;
+                if(l_vecCross[1] < 0.)
+                {
+                    vFingerAngles[8] += l_dAngle;
+                }
             }
             else
             {
-                vFingerAngles[8] = swUtil::rad2Deg(l_dDot);
+                if(l_vecCross[1] >= 0.)
+                {
+                    vFingerAngles[8] += l_dAngle;
+                }
             }
 
-            l_vecTemp1 = cv::normalize(cv::Vec3d(l_vMatPinkyDirectionsTransfo[1]));
-            l_vecTemp2 = cv::normalize(cv::Vec3d(l_vMatPinkyDirectionsTransfo[2]));
+            l_vecTemp1 = cv::normalize(l_vecPinkyDirections[1]);
+            l_vecTemp2 = cv::normalize(l_vecPinkyDirections[2]);
             l_dDot     = l_vecTemp1.dot(l_vecTemp2);
             l_vecCross = l_vecTemp1.cross(l_vecTemp2);
+            l_dAngle   = swUtil::rad2Deg(acos(l_dDot));
 
-            if(!((l_vecCross[1] >= 0.0 && !l_bHandPalmUp) || (l_vecCross[1] < 0.0 && l_bHandPalmUp)))
+            if(!l_bHandPalmLeft)
             {
-                vFingerAngles[8] += swUtil::rad2Deg(l_dDot);
+                if(l_vecCross[1] < 0.)
+                {
+                    vFingerAngles[8] += l_dAngle;
+                }
+            }
+            else
+            {
+                if(l_vecCross[1] >= 0.)
+                {
+                    vFingerAngles[8] += l_dAngle;
+                }
             }
 
-            l_vecTemp1 = cv::normalize(cv::Vec3d(l_vMatPinkyDirectionsTransfo[2]));
-            l_vecTemp2 = cv::normalize(cv::Vec3d(l_vMatPinkyDirectionsTransfo[3]));
+            l_vecTemp1 = cv::normalize(l_vecPinkyDirections[2]);
+            l_vecTemp2 = cv::normalize(l_vecPinkyDirections[3]);
             l_dDot     = l_vecTemp1.dot(l_vecTemp2);
             l_vecCross = l_vecTemp1.cross(l_vecTemp2);
+            l_dAngle   = swUtil::rad2Deg(acos(l_dDot));
 
-            if(!((l_vecCross[1] >= 0.0 && !l_bHandPalmUp) || (l_vecCross[1] < 0.0 && l_bHandPalmUp)))
+            if(!l_bHandPalmLeft)
             {
-                vFingerAngles[8] += swUtil::rad2Deg(l_dDot);
+                if(l_vecCross[1] < 0.)
+                {
+                    vFingerAngles[8] += l_dAngle;
+                }
             }
-/*
-        */
+            else
+            {
+                if(l_vecCross[1] >= 0.)
+                {
+                    vFingerAngles[8] += l_dAngle;
+                }
+            }
 }
 
 bool swTeleop::SWIcubArm::checkBottles()
@@ -750,7 +794,7 @@ bool swTeleop::SWIcubArm::checkBottles()
         }
 
     // defines bottles
-        yarp::os::Bottle *l_pHandTarget = NULL, *l_pHandCartesianTarget = NULL; // *l_pFingersTarget = NULL, *l_pArmTarget = NULL,
+        yarp::os::Bottle *l_pHandTarget = NULL;//, *l_pHandCartesianTarget = NULL; // *l_pFingersTarget = NULL, *l_pArmTarget = NULL,
 
 
         l_pHandTarget = m_oHandTrackerPort.read(false);
@@ -795,308 +839,25 @@ bool swTeleop::SWIcubArm::checkBottles()
                         std::vector<double> l_vHandAngles;
                         computeHandAngles(l_pHandTarget, l_vHandAngles);
 
-
                         for(uint ii = 0; ii < l_vHandAngles.size(); ++ii)
                         {
-                            l_vArmJoints[4 + ii] = l_vHandAngles[ii];
+                            l_vArmJoints[3 + ii] = l_vHandAngles[ii];
                         }
 
-//                        std::vector<double> l_vFingerAngles;
-//                        computeFingerAngles(l_pHandTarget, l_vFingerAngles);
+                        std::vector<double> l_vFingerAngles;
+                        computeFingerAngles(l_pHandTarget, l_vFingerAngles);
 
-//                        for(uint ii = 0; ii < l_vFingerAngles.size(); ++ii)
-//                        {
-//                            l_vArmJoints[7 + ii] = l_vFingerAngles[ii];
-//                            std::cout <<l_vArmJoints[7 + ii]<< " ";
-//                        }
-//                        std::cout << std::endl;
 
+                        for(uint ii = 0; ii < l_vFingerAngles.size(); ++ii)
+                        {
+                            l_vArmJoints[7 + ii] = l_vFingerAngles[ii];
+                        }
 
                 break;
 
             }
         }
 
-
-        /*
-
-        // read arm commands
-        if(m_bArmActivated)
-        {
-            l_pArmTarget = m_oArmTrackerPort.read(false);
-
-            if (l_pArmTarget)
-            {
-                int l_deviceId = l_pArmTarget->get(0).asInt();
-
-                switch(l_deviceId)
-                {
-                    case swTracking::DUMMY_LIB :
-                    {
-                        for(uint ii = 0; ii < l_vArmJoints.size(); ++ii)
-                        {
-                            l_vArmJoints[ii] = l_pArmTarget->get(ii+1).asDouble();
-                        }
-                    }
-                    break;
-                    case swTracking::OPENNI_LIB :
-                    {
-                        std::vector<double> l_pointTorso(3), l_pointNeck(3), l_pointShoulder(3), l_pointElbow(3), l_pointHand(3);
-                            l_pointTorso[0] = l_pArmTarget->get(1).asDouble();
-                            l_pointTorso[1] = l_pArmTarget->get(2).asDouble();
-                            l_pointTorso[2] = l_pArmTarget->get(3).asDouble();
-                            l_pointNeck[0] = l_pArmTarget->get(4).asDouble();
-                            l_pointNeck[1] = l_pArmTarget->get(5).asDouble();
-                            l_pointNeck[2] = l_pArmTarget->get(6).asDouble();
-                            l_pointShoulder[0] = l_pArmTarget->get(7).asDouble();
-                            l_pointShoulder[1] = l_pArmTarget->get(8).asDouble();
-                            l_pointShoulder[2] = l_pArmTarget->get(9).asDouble();
-                            l_pointElbow[0] = l_pArmTarget->get(10).asDouble();
-                            l_pointElbow[1] = l_pArmTarget->get(11).asDouble();
-                            l_pointElbow[2] = l_pArmTarget->get(12).asDouble();
-                            l_pointHand[0] = l_pArmTarget->get(13).asDouble();
-                            l_pointHand[1] = l_pArmTarget->get(14).asDouble();
-                            l_pointHand[2] = l_pArmTarget->get(15).asDouble();
-
-                        std::vector<double> l_vecTorso = swUtil::vec(l_pointTorso, l_pointNeck);
-                        std::vector<double> l_vecForearm = swUtil::vec(l_pointElbow, l_pointHand);
-                        std::vector<double> l_vecArm = swUtil::vec(l_pointShoulder, l_pointElbow);
-
-                        std::vector<double> l_rpyShoulder = swUtil::computeRollPitchYaw(l_vecArm, l_vecTorso);
-                        std::vector<double> l_rpyElbow = swUtil::computeRollPitchYaw(l_vecForearm, l_vecArm);
-
-                        l_vArmJoints[0] = swUtil::degree180(l_rpyShoulder[1] - 180.);
-                        l_vArmJoints[1] = swUtil::degree180(- l_rpyShoulder[0] - 180.);
-                        l_vArmJoints[2] = swUtil::degree180(l_rpyElbow[1] - 90.);
-                        l_vArmJoints[3] = swUtil::degree180(- l_rpyElbow[0] + 90);
-                    }
-                    break;
-                    case swTracking::LEAP_LIB :
-                    {
-                        /*
-                        l_pHandTarget = m_oHandTrackerPort.read(false);
-                        l_pFingersTarget = m_oFingersTrackerPort.read(false);
-
-                        if(!l_pHandTarget)
-                        {
-
-                            std::cout<<"TIPS : Failling to receive an Hand bottle - Skip "<<std::endl;
-                            break;
-                        }
-                        if(!l_pFingersTarget)
-                        {
-
-                            std::cout<<"TIPS : Failling to receive a Fingers bottle - Skip"<<std::endl;
-                            break;
-                        }
-
-//                        if (m_oRobotArmCartesian.isValid())
-//                        {
-
-                        //	m_int32cptframe++; //smooth function
-
-                            yarp::sig::Vector x0,o0;
-                            yarp::sig::Vector od(3);
-                            yarp::sig::Vector l_od(4);
-                        //	yarp::sig::Vector l_aLeftArmTmp;
-
-
-                            //m_pIArmCartesian->getPose(x0,o0); //getting the position X/Y/Z and the orientation of the hand
-
-                            /*
-                            m_dsmoothx+=l_pHandTarget->get(3).asDouble()/(150);//Smooth
-                            m_dsmoothy+=l_pHandTarget->get(1).asDouble()/(150);//Smooth
-                            m_dsmoothz+=(l_pHandTarget->get(2).asDouble()-250)/(150);//Smooth
-                            */
-
-//                            yarp::sig::Vector xd=x0;
-
-//                            xd[0]+=l_pHandTarget->get(3).asDouble()/(400);
-//                            xd[1]+=l_pHandTarget->get(1).asDouble()/(400);
-//                            xd[2]+=(l_pHandTarget->get(2).asDouble()-250)/(400);//On Y (leap), you can only move from 0 to XXX  so to get negatives position on Z (Icub) we need to substract 250 !
-
-//                            //std::cout<<"X : "<<l_pHandTarget->get(3).asDouble()<<" Y : "<<l_pHandTarget->get(1).asDouble()<<" Z : "<<l_pHandTarget->get(2).asDouble()<<std::endl;
-//                            /*
-//                            xd[0]+=m_dsmoothx/m_int32cptframe;//Smooth
-//                            xd[1]+=m_dsmoothy/m_int32cptframe;//Smooth
-//                            xd[2]+=m_dsmoothy/m_int32cptframe;//Smooth
-//                            */
-
-//                            //reverse because in Icub this is [PITCH,ROLL,YAW]
-
-//                            od[0]=l_pHandTarget->get(4).asDouble();
-//                            od[1]=l_pHandTarget->get(5).asDouble();
-//                            od[2]=l_pHandTarget->get(6).asDouble();
-
-
-
-//                            //l_od=iCub::ctrl::dcm2axis(iCub::ctrl::euler2dcm(od));
-
-//                            // m_oqdhat.resize(m_i32ArmJointsNb); ################################################ ?
-//                            yarp::sig::Vector xdhat,odhat;
-
-//                            yarp::sig::Vector l_vLeftArmEncoders;
-//                            l_vLeftArmEncoders.resize(m_i32ArmJointsNb);
-
-
-//                            m_pIArmEncoders->getEncoders(l_vLeftArmEncoders.data());
-
-
-
-                            //m_pIArmCartesian->askForPosition(l_vLeftArmEncoders,xd,xdhat,odhat,m_oqdhat);
-                            //or
-                            //m_pIArmCartesian->goToPosition(xd,0.8);
-
-
-                            //Setting Speeds and Accelerations for each joints
-                /*
-                            l_aLeftArmTmp.resize(m_i32ArmJointsNb);
-                            for (int i = 0; i < m_i32ArmJointsNb ; i++)
-                            {
-
-                                l_aLeftArmTmp[i] = 100;
-                            }
-                            m_pIArmPosition->setRefAccelerations(l_aLeftArmTmp.data());
-                            m_pIArmPosition->setRefSpeeds(l_aLeftArmTmp.data());
-    */
-
-
-
-                            /*
-                            TIPS : When we get m_oqdhat, the joints from 0 to 2 are use to control the torso (This is possible with the cartesian Controler) that's why we start from the 4th.
-                            Askforposition/pose gives you the joint configuration with the base of the DOF of the arm. */
-                            /*
-                            double l_SumFingerDist;
-                            double l_finger1 = l_pFingersTarget->get(1).asDouble();
-                            double l_finger2 = l_pFingersTarget->get(4).asDouble();
-                            double l_finger3 = l_pFingersTarget->get(7).asDouble();
-                            double l_finger4 = l_pFingersTarget->get(10).asDouble();
-                            double l_finger5 = l_pFingersTarget->get(13).asDouble();
-
-                            l_SumFingerDist = (l_finger5 - l_finger4) + (l_finger4 - l_finger3) + (l_finger3 - l_finger2) + (l_finger2 - l_finger1);
-                            */
-                            //std::cout<<"The average distance between finger is : "<<m_faveragediff/m_int32cptframe<<std::endl;
-
-
-
-                            /*
-
-                            //TEMPLATE
-                                                                //Arm
-                                                                    l_vArmJoints[ 0] = m_oqdhat[ 3];
-                                                                    l_vArmJoints[ 1] = m_oqdhat[ 4];
-                                                                    l_vArmJoints[ 2] = m_oqdhat[ 5];
-                                                                    l_vArmJoints[ 3] = m_oqdhat[ 6];
-
-
-                                                                //Roll Pitch Yaw
-                                                                    l_vArmJoints[ 4] = m_oqdhat[ 7];//(l_pHandTarget->get(5).asDouble()*180 / 3.1415)/2*(-1);   // RAD TO DEG | [-180:180] / 2 | [-90:90] * (-1) | [90:-90]
-                                                                    l_vArmJoints[ 5] = m_oqdhat[ 8];//(l_pHandTarget->get(4).asDouble()*180 / 3.1415)*(-1);     // RAD TO DEG | [-180:180]
-                                                                    l_vArmJoints[ 6] = m_oqdhat[ 9];//(l_pHandTarget->get(6).asDouble()*180 / 3.1415)*(-1);     // RAD TO DEG | [-180:180]
-
-                                                                //Fingers (0 hand open)
-                                                                    //Space Between Fingers
-                                                                    l_vArmJoints[ 7] = 15 ;// 60 - (((l_SumFingerDist/60)-1)*30);						 // [60:180] /60 | [1:3]  - 1 | [0:2] * 30  | 60  - [0:60]	| [60:0]
-
-                                                                    l_vArmJoints[ 8] = l_pFingersTarget->get(1).asDouble();
-                                                                    l_vArmJoints[ 9] = 0;															 //thumb orientation
-                                                                    l_vArmJoints[10] = l_pFingersTarget->get(2).asDouble();
-                                                                    l_vArmJoints[11] = 0;//l_pFingersTarget->get(3).asDouble();
-                                                                    l_vArmJoints[12] = 0;//l_pFingersTarget->get(4).asDouble();
-                                                                    l_vArmJoints[13] = 0;//l_pFingersTarget->get(5).asDouble();
-                                                                    l_vArmJoints[14] = 0;//l_pFingersTarget->get(6).asDouble();
-                                                                    l_vArmJoints[15] = 0;//l_pFingersTarget->get(7).asDouble() + l_pFingersTarget->get(8).asDouble() + l_pFingersTarget->get(9).asDouble() + l_pFingersTarget->get(10).asDouble();
-
-            */
-                            /*
-
-                            float l_directionPitch = l_pHandTarget->get(4).asDouble();
-                            float l_normalRoll     = l_pHandTarget->get(5).asDouble();
-                            float l_directionYaw   = l_pHandTarget->get(6).asDouble();
-
-//                            std::cout << l_directionPitch << " " << l_normalRoll << " " << l_directionYaw << std::endl;
-
-                            l_vArmJoints[4] = -(l_normalRoll     * 180.f / 3.1415f) + 90; // wrist_prosup
-                            l_vArmJoints[5] = -(l_directionPitch * 180.f / 3.1415f);      // wrist_pitch
-                            l_vArmJoints[6] = -(l_directionYaw   * 180.f / 3.1415f);      // wrist_yaw
-
-
-                                // USE THIS WITH THE iCub !!!!!
-                                l_vArmJoints[0] = -25;
-                                l_vArmJoints[1] = 20;
-                                l_vArmJoints[2] = 0;
-                                l_vArmJoints[3] = 50;
-
-                                l_vArmJoints[7] = 20;
-                                l_vArmJoints[8] = 20;
-                                l_vArmJoints[9] = 0;
-                                l_vArmJoints[10] = 20;
-
-                                l_vArmJoints[11] = l_pFingersTarget->get(3).asDouble();
-                                l_vArmJoints[12] = l_pFingersTarget->get(4).asDouble();
-
-                                l_vArmJoints[13] = l_pFingersTarget->get(5).asDouble();
-                                l_vArmJoints[14] = l_pFingersTarget->get(6).asDouble();
-
-                                l_vArmJoints[15] = l_pFingersTarget->get(7).asDouble() + l_pFingersTarget->get(8).asDouble() + l_pFingersTarget->get(9).asDouble() + l_pFingersTarget->get(10).asDouble();
-
-
-                            */
-
-
-                            /*
-
-
-                            if(m_int32cptframe==4)
-                            {
-                                m_bLeftArmCapture = true;//Smooth
-                                m_int32cptframe = 0;//Smooth
-                                m_dsmoothx=0;//Smooth
-                                m_dsmoothy=0;//Smooth
-                                m_dsmoothz=0;//Smooth
-
-                            }
-                            else
-                            {
-                                m_bLeftArmCapture = false;
-                            }
-                          //
-
-                            //	m_bLeftArmCapture = true
-
-
-//                        }
-//                        else
-//                        {
-//                            std::cerr << "Left hand cartesian controller not initialized, could not process leap data." << std::endl;
-//                        }
-                    }
-                    break;
-                }
-
-                m_dArmTimeLastBottle = -1.;
-                m_pVelocityController->enableArm(true);
-
-            }
-            else // manage timeout and reset position
-            {
-                if(m_dArmTimeLastBottle < 0.)
-                {
-                    m_dArmTimeLastBottle = yarp::os::Time::now();
-                }
-                else
-                {
-                    if(yarp::os::Time::now() - m_dArmTimeLastBottle > 0.001 * m_i32TimeoutArmReset)
-                    {
-                        m_pVelocityController->enableArm(false);
-                        resetArmPosition();
-                        m_dArmTimeLastBottle = -1.;
-                    }
-                }
-            }
-        }
-
-        */
 
     // check each joint value to ensure it is in the right range, if not crop to the max/min values
         for(uint ii = 0; ii < l_vArmJoints.size(); ++ii)
@@ -1141,7 +902,7 @@ bool swTeleop::SWIcubArm::close()
 
     bool l_bArmPositionCloseState       = m_pIArmPosition->stop();
     bool l_bRobotArmCloseState          = m_oRobotArm.close();
-    bool l_bRobotCartesianArmCloseState = m_oRobotArmCartesian.close();
+//    bool l_bRobotCartesianArmCloseState = m_oRobotArmCartesian.close();
 
     if(m_pVelocityController->isRunning())
     {
@@ -1153,10 +914,10 @@ bool swTeleop::SWIcubArm::close()
         {
 //            m_oArmTrackerPort.close();
             m_oHandTrackerPort.close();
-            m_oHandCartesianTrackerPort.close();
+//            m_oHandCartesianTrackerPort.close();
         }
 
-    return (l_bArmPositionCloseState && l_bRobotArmCloseState && l_bRobotCartesianArmCloseState);
+    return (l_bArmPositionCloseState && l_bRobotArmCloseState);// && l_bRobotCartesianArmCloseState);
 }
 
 bool swTeleop::SWIcubArm::interruptModule()
@@ -1180,7 +941,6 @@ bool swTeleop::SWIcubArm::interruptModule()
         {
 //            m_oArmTrackerPort.interrupt();
             m_oHandTrackerPort.interrupt();
-            m_oHandCartesianTrackerPort.interrupt();
         }
 
     std::cout << "--Interrupting the iCub Arm Teleoperation module..." << std::endl;
@@ -1206,34 +966,32 @@ swTeleop::SWArmVelocityController::SWArmVelocityController(yarp::dev::IEncoders 
 
 void swTeleop::SWArmVelocityController::run()
 {
-        m_oMutex.lock();
-            yarp::sig::Vector l_vArmJoints = m_vLastArmJoint; // Check values with Joint before
-        m_oMutex.unlock();
+    m_oMutex.lock();
+        yarp::sig::Vector l_vArmJoints = m_vLastArmJoint; // Check values with Joint before
+    m_oMutex.unlock();
 
-        yarp::sig::Vector l_vEncoders, l_vCommand;
-        l_vEncoders.resize(l_vArmJoints.size());
-        l_vCommand.resize(l_vArmJoints.size());
+    yarp::sig::Vector l_vEncoders, l_vCommand;
+    l_vEncoders.resize(l_vArmJoints.size());
+    l_vCommand.resize(l_vArmJoints.size());
 
-        m_pIArmEncoders->getEncoders(l_vEncoders.data());
+    m_pIArmEncoders->getEncoders(l_vEncoders.data());
 
-//        std::cout << "arm joints : ";
-        for(uint ii = 0; ii < l_vCommand.size(); ++ii)
+    for(uint ii = 0; ii < l_vCommand.size(); ++ii)
+    {
+        l_vCommand[ii] =  m_vArmJointVelocityK[ii] * (l_vArmJoints[ii] - l_vEncoders[ii]);
+
+    }
+
+    // ...
+    l_vCommand[7] = 0;
+
+    if(m_bArmEnabled)
+    {
+        for(uint ii = 0; ii < l_vArmJoints.size(); ++ii)
         {
-            l_vCommand[ii] =  m_vArmJointVelocityK[ii] * (l_vArmJoints[ii] - l_vEncoders[ii]);
-//            std::cout << m_vArmJointVelocityK[ii] << " " << l_vArmJoints[ii] << " " << l_vEncoders[ii] << " " <<  l_vCommand[ii];
-
+            m_pIArmVelocity->velocityMove(ii, l_vCommand[ii]);
         }
-//        std::cout << std::endl;
-
-        l_vCommand[7]=0;//NEEDS TO BE REMOVE / ONLY TO BLOCK FINGER APPERTURE
-
-        if(m_bArmEnabled)
-        {
-            for(uint ii = 0; ii < l_vArmJoints.size(); ++ii)
-            {
-                m_pIArmVelocity->velocityMove(ii, l_vCommand[ii]);
-            }
-        }
+    }
 }
 
 void swTeleop::SWArmVelocityController::enableArm(cbool bActivated)

@@ -383,6 +383,14 @@ namespace swDevice
              */
             void boneDirection(const bool bLeftHand, const Leap::Finger::Type fingerType, const Leap::Bone::Type boneType, std::vector<float> &vBoneDirection);
 
+            /**
+             * @brief bonePosition
+             * @param bLeftHand
+             * @param fingerType
+             * @param boneType
+             * @param vBonePosition
+             */
+            void bonePosition(const bool bLeftHand, const Leap::Finger::Type fingerType, const Leap::Bone::Type boneType, std::vector<float> &vBonePosition);
 
             /**
              * @brief fps
@@ -446,6 +454,12 @@ namespace swDevice
             std::vector<std::vector<float> > m_vLeftRingDirections;     /**< ... */
             std::vector<std::vector<float> > m_vLeftPinkyDirections;    /**< ... */
 
+            std::vector<std::vector<float> > m_vLeftThumbPositions; /**< ... */
+            std::vector<std::vector<float> > m_vLeftIndexPositions; /**< ... */
+            std::vector<std::vector<float> > m_vLeftMiddlePositions;/**< ... */
+            std::vector<std::vector<float> > m_vLeftRingPositions;  /**< ... */
+            std::vector<std::vector<float> > m_vLeftPinkyPositions; /**< ... */
+
             // right
             //      arm
             std::vector<float> m_vRightDirectionArm;    /**< ... */
@@ -461,6 +475,12 @@ namespace swDevice
             std::vector<std::vector<float> > m_vRightMiddleDirections;  /**< ... */
             std::vector<std::vector<float> > m_vRightRingDirections;    /**< ... */
             std::vector<std::vector<float> > m_vRightPinkyDirections;   /**< ... */
+
+            std::vector<std::vector<float> > m_vRightThumbPositions; /**< ... */
+            std::vector<std::vector<float> > m_vRightIndexPositions; /**< ... */
+            std::vector<std::vector<float> > m_vRightMiddlePositions;/**< ... */
+            std::vector<std::vector<float> > m_vRightRingPositions;  /**< ... */
+            std::vector<std::vector<float> > m_vRightPinkyPositions; /**< ... */
     };
 }
 

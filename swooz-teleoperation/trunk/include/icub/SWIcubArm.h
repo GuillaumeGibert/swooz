@@ -192,13 +192,13 @@ namespace swTeleop
 
             // arm control
             yarp::os::Property m_oArmOptions;                   /**< robot interfaces properties */
-            yarp::os::Property m_oArmCartesianOptions;          /**< robot cartesan interfaces properties */
+//            yarp::os::Property m_oArmCartesianOptions;          /**< robot cartesan interfaces properties */
             yarp::dev::PolyDriver        m_oRobotArm;           /**< robot arm controller */
-            yarp::dev::PolyDriver        m_oRobotArmCartesian;  /**< robot arm cartesian controller */
+//            yarp::dev::PolyDriver        m_oRobotArmCartesian;  /**< robot arm cartesian controller */
             yarp::dev::IEncoders        *m_pIArmEncoders;       /**< ... */
             yarp::dev::IPositionControl *m_pIArmPosition;       /**< ... */
             yarp::dev::IVelocityControl *m_pIArmVelocity;       /**< ... */
-            yarp::dev::ICartesianControl *m_pIArmCartesian;     /**< ... */
+//            yarp::dev::ICartesianControl *m_pIArmCartesian;     /**< ... */
 
 
             // yarp ports / bottles
@@ -207,13 +207,13 @@ namespace swTeleop
             std::string m_sArmRemotePortName;      /**< name of the arm remote port */
             std::string m_sArmControlName;         /**< control name */
 
-            std::string m_sArmTrackerPortName;      /**< name of the arm arm tracker port */
+//            std::string m_sArmTrackerPortName;      /**< name of the arm arm tracker port */
             std::string m_sHandTrackerPortName;     /**< name of the hand tracker port */
-            std::string m_sHandCartesianTrackerPortName;     /**< name of the hand cartesian tracker port */
+//            std::string m_sHandCartesianTrackerPortName;     /**< name of the hand cartesian tracker port */
 //            std::string m_sFingersTrackerPortName;  /**< name of the  Arm fingers tracker port */
-            yarp::os::BufferedPort<yarp::os::Bottle> m_oArmTrackerPort;     /**< Arm yarp tracker port  */
+//            yarp::os::BufferedPort<yarp::os::Bottle> m_oArmTrackerPort;     /**< Arm yarp tracker port  */
             yarp::os::BufferedPort<yarp::os::Bottle> m_oHandTrackerPort;    /**< Hand yarp tracker port  */
-            yarp::os::BufferedPort<yarp::os::Bottle> m_oHandCartesianTrackerPort;    /**< Hand cartesian yarp tracker port  */
+//            yarp::os::BufferedPort<yarp::os::Bottle> m_oHandCartesianTrackerPort;    /**< Hand cartesian yarp tracker port  */
 //            yarp::os::BufferedPort<yarp::os::Bottle> m_oFingersTrackerPort; /**< Fingers yarp tracker port  */
 
             SWArmVelocityController *m_pVelocityController;    /**< ... */

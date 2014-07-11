@@ -578,56 +578,82 @@ int main()
 
         boost::this_thread::sleep( boost::posix_time::millisec(500) );
 
-        std::vector<float> l_vHandPalmNormal, l_vHandPalmCoord, l_vHandDirection ,l_vArmDirection, l_vHandDirectionE, l_vHandPalmNormalE;
-        l_leap.normalPalmHand(true, l_vHandPalmNormal);
-        l_leap.coordPalmHand(true, l_vHandPalmCoord);
-        l_leap.directionArm(true, l_vArmDirection);
-        l_leap.directionHand(true, l_vHandDirection);
-        l_leap.directionHandEuclidian(true, l_vHandDirectionE);
-        l_leap.normalPalmHandEuclidian(true, l_vHandPalmNormalE);
-        cv::Vec3d l_vecHandPalmNormal(l_vHandPalmNormal[0], l_vHandPalmNormal[1], l_vHandPalmNormal[2]);
-        cv::Vec3d l_vecHandPalmCoord(l_vHandPalmCoord[0], l_vHandPalmCoord[1], l_vHandPalmCoord[2]);
-        cv::Vec3d l_vecHandDirection(l_vHandDirection[0], l_vHandDirection[1], l_vHandDirection[2]);
-        cv::Vec3d l_vecArmDirection(l_vArmDirection[0], l_vArmDirection[1], l_vArmDirection[2]);
 
-        l_vecHandPalmNormal = cv::normalize(l_vecHandPalmNormal);
-        l_vecArmDirection   = cv::normalize(l_vecArmDirection);
-        l_vecHandDirection  = cv::normalize(l_vecHandDirection);
+        std::vector<float> vPosition1,vPosition2,vPosition3;
+        l_leap.bonePosition(true, Leap::Finger::TYPE_THUMB, Leap::Bone::TYPE_PROXIMAL, vPosition1);
+//        displayVectorDebug("Thumb 0 : ", vPosition);
+        l_leap.bonePosition(true, Leap::Finger::TYPE_THUMB, Leap::Bone::TYPE_INTERMEDIATE, vPosition2);
+//        displayVectorDebug("Thumb 1 : ", vPosition);
+        l_leap.bonePosition(true, Leap::Finger::TYPE_THUMB, Leap::Bone::TYPE_DISTAL, vPosition3);
+//        displayVectorDebug("Thumb 2 : ", vPosition);
 
-        cv::Mat l_matHandDirection(l_vecHandDirection);
-        cv::Mat l_matHandPalmNormal(l_vecHandPalmNormal);
-        cv::Mat l_matArmDirection(l_vecArmDirection);
+        cv::Vec3d l_v1(vPosition1[0],vPosition1[1],vPosition1[2]);
+        cv::Vec3d l_v2(vPosition2[0],vPosition2[1],vPosition2[2]);
+        cv::Vec3d l_v3(vPosition3[0],vPosition3[1],vPosition3[2]);
 
 
-        cv::Mat l_matTransfo;
-        cv::Vec3d l_vecAxis(0.,-1.,0.);
+        cv::Vec3d l_d1 = l_v2 - l_v1;
+        cv::Vec3d l_d2 = l_v3 - l_v2;
 
+        l_d1 = cv::normalize(l_d1);
+        l_d2 = cv::normalize(l_d2);
 
+        std::cout << acos(l_d1.dot(l_d2)) * 180.0 / 3.14 << " ";
 
-        swUtil::rodriguesRotation(l_vecAxis, l_vecHandPalmNormal, l_matTransfo);
-//        swUtil::rodriguesRotation(l_vecHandPalmNormal, l_vecAxis, l_matTransfo);
-        l_matHandDirection  = l_matTransfo * l_matHandDirection;
+//        l_leap.bonePosition(true, Leap::Finger::TYPE_THUMB, Leap::Bone::TYPE_METACARPAL, vPosition);
 
 
 
-        double l_dot  = l_matHandDirection.dot(l_matArmDirection);
+//        std::vector<float> l_vHandPalmNormal, l_vHandPalmCoord, l_vHandDirection ,l_vArmDirection, l_vHandDirectionE, l_vHandPalmNormalE;
+//        l_leap.normalPalmHand(true, l_vHandPalmNormal);
+//        l_leap.coordPalmHand(true, l_vHandPalmCoord);
+//        l_leap.directionArm(true, l_vArmDirection);
+//        l_leap.directionHand(true, l_vHandDirection);
+//        l_leap.directionHandEuclidian(true, l_vHandDirectionE);
+//        l_leap.normalPalmHandEuclidian(true, l_vHandPalmNormalE);
+//        cv::Vec3d l_vecHandPalmNormal(l_vHandPalmNormal[0], l_vHandPalmNormal[1], l_vHandPalmNormal[2]);
+//        cv::Vec3d l_vecHandPalmCoord(l_vHandPalmCoord[0], l_vHandPalmCoord[1], l_vHandPalmCoord[2]);
+//        cv::Vec3d l_vecHandDirection(l_vHandDirection[0], l_vHandDirection[1], l_vHandDirection[2]);
+//        cv::Vec3d l_vecArmDirection(l_vArmDirection[0], l_vArmDirection[1], l_vArmDirection[2]);
 
-        std::cout << "Angle deg : " << acos(l_dot/(cv::norm(l_matHandDirection)* cv::norm(l_matArmDirection))) * 180./3.14 << std::endl;
+//        l_vecHandPalmNormal = cv::normalize(l_vecHandPalmNormal);
+//        l_vecArmDirection   = cv::normalize(l_vecArmDirection);
+//        l_vecHandDirection  = cv::normalize(l_vecHandDirection);
+
+//        cv::Mat l_matHandDirection(l_vecHandDirection);
+//        cv::Mat l_matHandPalmNormal(l_vecHandPalmNormal);
+//        cv::Mat l_matArmDirection(l_vecArmDirection);
 
 
-        double l_angle2 = acos(l_vecAxis.dot(l_vecHandPalmNormal)) * 180./3.14;
+//        cv::Mat l_matTransfo;
+//        cv::Vec3d l_vecAxis(0.,-1.,0.);
 
-        bool l_bUp = false;
 
-        if(l_angle2 > 90.)
-        {
-            std::cout << "Paume vers le haut. " << std::endl;
-            l_bUp = true;
-        }
-        else
-        {
-            std::cout << "Paume vers le bas. " << std::endl;
-        }
+
+//        swUtil::rodriguesRotation(l_vecAxis, l_vecHandPalmNormal, l_matTransfo);
+////        swUtil::rodriguesRotation(l_vecHandPalmNormal, l_vecAxis, l_matTransfo);
+//        l_matHandDirection  = l_matTransfo * l_matHandDirection;
+
+
+
+//        double l_dot  = l_matHandDirection.dot(l_matArmDirection);
+
+//        std::cout << "Angle deg : " << acos(l_dot/(cv::norm(l_matHandDirection)* cv::norm(l_matArmDirection))) * 180./3.14 << std::endl;
+
+
+//        double l_angle2 = acos(l_vecAxis.dot(l_vecHandPalmNormal)) * 180./3.14;
+
+//        bool l_bUp = false;
+
+//        if(l_angle2 > 90.)
+//        {
+//            std::cout << "Paume vers le haut. " << std::endl;
+//            l_bUp = true;
+//        }
+//        else
+//        {
+//            std::cout << "Paume vers le bas. " << std::endl;
+//        }
 
 
         //        std::cout << " 2 : " << l_matNewHandDirection2 << std::endl;
