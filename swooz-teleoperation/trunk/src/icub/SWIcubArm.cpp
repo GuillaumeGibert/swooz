@@ -22,7 +22,7 @@
 #include "geometryUtility.h"
 
 
-swTeleop::SWIcubArm::SWIcubArm() : m_bInitialized(false), m_bIsRunning(false), m_dArmTimeLastBottle(-1.),
+swTeleop::SWIcubArm::SWIcubArm() : m_bInitialized(false), m_bIsRunning(false),
                                        m_pIArmVelocity(NULL), m_pIArmEncoders(NULL), m_pIArmPosition(NULL), m_pVelocityController(NULL)
 {
     // set ini file defaults values
@@ -145,14 +145,6 @@ bool swTeleop::SWIcubArm::init( yarp::os::ResourceFinder &oRf, bool bLeftArm)
         m_oArmOptions.put("name",     ("/" + m_sRobotName + "/" + m_sArm + "_arm").c_str());
         m_oArmOptions.put("remote",   ("/" + m_sRobotName + "/" + m_sArm + "_arm").c_str());
 
-    //set cartesian polydriver options
-//        m_oArmCartesianOptions.put("robot",     m_sRobotName.c_str());
-//        m_oArmCartesianOptions.put("device",    "cartesiancontrollerclient");
-//        m_oArmCartesianOptions.put("local",    ("/cartesian_client/" + m_sArm + "_arm"));
-//        m_oArmCartesianOptions.put("name",     ("/" + m_sRobotName + "/cartesianController/" + m_sArm + "_arm").c_str());
-//        m_oArmCartesianOptions.put("remote",   ("/" + m_sRobotName + "/cartesianController/" + m_sArm + "_arm").c_str());
-
-
     // init polydriver
         m_oRobotArm.open(m_oArmOptions);
         if(!m_oRobotArm.isValid())
@@ -160,36 +152,6 @@ bool swTeleop::SWIcubArm::init( yarp::os::ResourceFinder &oRf, bool bLeftArm)
             std::cerr << std::endl <<"-ERROR: " << m_sArm << " robotArm is not valid, escape arm initialization. " << std::endl <<std::endl;
             return (m_bInitialized=false);
         }
-
-    //init cartesian polydriver
-
-//        if(!m_oRobotArmCartesian.open(m_oArmCartesianOptions))
-//        {
-//            std::cout<<"Failing at OPENING polydriver (RobotArmCartesian)"<<std::endl;
-//        }
-
-//        if (!m_oRobotArmCartesian.isValid())
-//        {
-//            std::cerr << std::endl <<"-ERROR: " << m_sArm << " arm cartesian is not valid" << std::endl <<std::endl;
-//            return (m_bInitialized=false);
-//        }
-//        else
-//        {
-//                // initializing controllers
-//                if (!m_oRobotArmCartesian.view(m_pIArmCartesian))
-//                {
-//                    std::cerr << "-ERROR: Couldn't open the "<< m_sArm <<" Arm ICartesianControl client!" << std::endl;
-//                    return false;
-//                }
-//                //  limit the torso DOF for the cartesian controller
-//                yarp::sig::Vector l_torsoDof(3);
-//                l_torsoDof = 2.; // This values tells the kinematic solver to skip the torso
-//                if( m_pIArmCartesian->setDOF(l_torsoDof, l_torsoDof))
-//                {
-//                    std::cerr << "-WARNING: Unable to set the torso DOFs";
-//                }
-//        }
-
 
     // initializing controllers
         if (!m_oRobotArm.view(m_pIArmVelocity) || !m_oRobotArm.view(m_pIArmPosition) || !m_oRobotArm.view(m_pIArmEncoders))
@@ -201,25 +163,23 @@ bool swTeleop::SWIcubArm::init( yarp::os::ResourceFinder &oRf, bool bLeftArm)
 
 
     // init ports
-        m_sHandTrackerPortName  = "/teleoperation/" + m_sRobotName + "/" + m_sArm + "_arm/hand";
-//        m_sHandCartesianTrackerPortName  = "/teleoperation/" + m_sRobotName + "/" + m_sArm + "_arm/hand_cartesian";
+        m_sHandTrackerPortName         = "/teleoperation/" + m_sRobotName + "/" + m_sArm + "_arm/hand";
+        m_sHandFingersTrackerPortName  = "/teleoperation/" + m_sRobotName + "/" + m_sArm + "_arm/hand_fingers";
 
     // open ports
         bool l_bPortOpeningSuccess = true;
         if(m_bArmActivated)
-        {
+        {            
+            l_bPortOpeningSuccess = m_oHandFingersTrackerPort.open(m_sHandFingersTrackerPortName.c_str());
+
             if(l_bPortOpeningSuccess)
                  l_bPortOpeningSuccess = m_oHandTrackerPort.open(m_sHandTrackerPortName.c_str());
-
-//            if(l_bPortOpeningSuccess)
-//                l_bPortOpeningSuccess = m_oHandCartesianTrackerPort.open(m_sHandCartesianTrackerPortName.c_str());
         }
 
         if(!l_bPortOpeningSuccess)
         {
             std::cerr << std::endl <<"-ERROR: Unable to open ports." << std::endl <<std::endl;
             m_oRobotArm.close();
-//            m_oRobotArmCartesian.close();
             return (m_bInitialized=false);
         }
 
@@ -427,7 +387,7 @@ void swTeleop::SWIcubArm::computeHandAngles(yarp::os::Bottle* handBottle,std::ve
         vHandAngles[0] = l_dAngle;
 }
 
-void swTeleop::SWIcubArm::computeFingerAngles(yarp::os::Bottle *handBottle, std::vector<double> &vFingerAngles)
+void swTeleop::SWIcubArm::computeFingerAngles(yarp::os::Bottle *handFingersBottle, std::vector<double> &vFingerAngles)
 {
     // arm joint 0 hand_finger
     // arm joint 1 thumb_oppose
@@ -448,8 +408,8 @@ void swTeleop::SWIcubArm::computeFingerAngles(yarp::os::Bottle *handBottle, std:
         std::vector<cv::Vec3d> l_vecMiddleDirections(4,   cv::Vec3d(0.,0.,0.));
         std::vector<cv::Vec3d> l_vecRingDirections(4,     cv::Vec3d(0.,0.,0.));
         std::vector<cv::Vec3d> l_vecPinkyDirections(4,    cv::Vec3d(0.,0.,0.));
-        cv::Vec3d l_vecHandNormal    = cv::normalize(cv::Vec3d(handBottle->get(13).asDouble(), handBottle->get(14).asDouble(), handBottle->get(15).asDouble()));
-        cv::Vec3d l_vecHandDirection = cv::normalize(cv::Vec3d(handBottle->get(4).asDouble(), handBottle->get(5).asDouble(), handBottle->get(6).asDouble()));
+        cv::Vec3d l_vecHandNormal    = cv::normalize(cv::Vec3d(handFingersBottle->get(13).asDouble(), handFingersBottle->get(14).asDouble(), handFingersBottle->get(15).asDouble()));
+        cv::Vec3d l_vecHandDirection = cv::normalize(cv::Vec3d(handFingersBottle->get(4).asDouble(), handFingersBottle->get(5).asDouble(), handFingersBottle->get(6).asDouble()));
 
         for(int ii = 0; ii < 4; ++ii)
         {
@@ -457,13 +417,13 @@ void swTeleop::SWIcubArm::computeFingerAngles(yarp::os::Bottle *handBottle, std:
             {
                 if(ii < 3)
                 {
-                    l_vecThumbDirections[ii][jj] = handBottle->get(19 + ii * 3 + jj).asDouble();
+                    l_vecThumbDirections[ii][jj] = handFingersBottle->get(19 + ii * 3 + jj).asDouble();
                 }
 
-                l_vecIndexDirections[ii][jj] = handBottle->get(28 + ii * 3 + jj).asDouble();
-                l_vecMiddleDirections[ii][jj] = handBottle->get(40 + ii * 3 + jj).asDouble();
-                l_vecRingDirections[ii][jj] = handBottle->get(52 + ii * 3 + jj).asDouble();
-                l_vecPinkyDirections[ii][jj] = handBottle->get(64 + ii * 3 + jj).asDouble();
+                l_vecIndexDirections[ii][jj] = handFingersBottle->get(28 + ii * 3 + jj).asDouble();
+                l_vecMiddleDirections[ii][jj] = handFingersBottle->get(40 + ii * 3 + jj).asDouble();
+                l_vecRingDirections[ii][jj] = handFingersBottle->get(52 + ii * 3 + jj).asDouble();
+                l_vecPinkyDirections[ii][jj] = handFingersBottle->get(64 + ii * 3 + jj).asDouble();
             }
 
             if(l_vecThumbDirections[ii][0] != 0 && l_vecThumbDirections[ii][1] != 0 && l_vecThumbDirections[ii][2] != 0)
@@ -510,8 +470,6 @@ void swTeleop::SWIcubArm::computeFingerAngles(yarp::os::Bottle *handBottle, std:
         {
             l_bHandPalmLeft = false;
         }
-
-
 
         if(!l_bHandPalmUp)
         {
@@ -702,7 +660,6 @@ void swTeleop::SWIcubArm::computeFingerAngles(yarp::os::Bottle *handBottle, std:
                     vFingerAngles[7] += l_dAngle;
                 }
             }
-
 
     // compute ring + pinky angles
         // metacarpal->proximal + proximal->intermediate + intermediate->distal (pinky)

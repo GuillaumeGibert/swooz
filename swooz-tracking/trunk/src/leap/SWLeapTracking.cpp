@@ -26,16 +26,16 @@ SWLeapTracking::SWLeapTracking() : m_bIsLeapInitialized(true), m_i32Fps(40)
     std::string l_sLibraryName = "leapSDK";
 
     // set ports name
+        m_sHandFingersTrackingPortNameLeft    = "/tracking/" + l_sDeviceName + "/"+ l_sLibraryName + "/left_arm/hand_fingers";
+        m_sHandFingersTrackingPortNameRight   = "/tracking/" + l_sDeviceName + "/"+ l_sLibraryName + "/right_arm/hand_fingers";
         m_sHandTrackingPortNameLeft           = "/tracking/" + l_sDeviceName + "/"+ l_sLibraryName + "/left_arm/hand";
-        m_sHandCartesianTrackingPortNameLeft  = "/tracking/" + l_sDeviceName + "/"+ l_sLibraryName + "/left_arm/hand_cartesian";
         m_sHandTrackingPortNameRight          = "/tracking/" + l_sDeviceName + "/"+ l_sLibraryName + "/right_arm/hand";
-        m_sHandCartesianTrackingPortNameRight = "/tracking/" + l_sDeviceName + "/"+ l_sLibraryName + "/right_arm/hand_cartesian";
 
     // open ports
-        m_oHandTrackingPortLeft          .open(m_sHandTrackingPortNameLeft.c_str());
-        m_oHandCartesianTrackingPortLeft .open(m_sHandCartesianTrackingPortNameLeft.c_str());
-        m_oHandTrackingPortRight         .open(m_sHandTrackingPortNameRight.c_str());
-        m_oHandCartesianTrackingPortRight.open(m_sHandCartesianTrackingPortNameRight.c_str());
+        m_oHandFingersTrackingPortLeft  .open(m_sHandFingersTrackingPortNameLeft.c_str());
+        m_oHandTrackingPortLeft         .open(m_sHandTrackingPortNameLeft.c_str());
+        m_oHandFingersTrackingPortRight .open(m_sHandFingersTrackingPortNameRight.c_str());
+        m_oHandTrackingPortRight        .open(m_sHandTrackingPortNameRight.c_str());
 
     initLeap();
 
@@ -54,10 +54,11 @@ bool SWLeapTracking::isLeapInitialized() const
 
 bool SWLeapTracking::close()
 {
+    m_oHandFingersTrackingPortLeft.close();
+    m_oHandFingersTrackingPortRight.close();
+
     m_oHandTrackingPortLeft.close();
-    m_oHandCartesianTrackingPortLeft.close();
-    m_oHandTrackingPortRight.close();
-    m_oHandCartesianTrackingPortRight.close();
+    m_oHandTrackingPortRight.close();    
 
     // terminate network
     Network::fini();
@@ -105,8 +106,8 @@ bool SWLeapTracking::updateModule()
     std::vector<float> l_vLambda;
 
     // LEFT HAND
-    //      HAND CARTESIAN
-    yarp::os::Bottle &l_oHandCartesianBottleLeft = m_oHandCartesianTrackingPortLeft.prepare();
+    //      HAND
+    yarp::os::Bottle &l_oHandCartesianBottleLeft = m_oHandTrackingPortLeft.prepare();
     l_oHandCartesianBottleLeft.clear();
         l_oHandCartesianBottleLeft.addInt(swTracking::LEAP_LIB);                 // Left hand : LEAP_LIB id / get(0).asInt()
         m_oLeap.directionArm(true, l_vLambda);
@@ -133,10 +134,10 @@ bool SWLeapTracking::updateModule()
         l_oHandCartesianBottleLeft.addDouble(static_cast<double>(l_vLambda[0])); // Left hand : hand palm normal pitch / get(16).asDouble()
         l_oHandCartesianBottleLeft.addDouble(static_cast<double>(l_vLambda[1])); // Left hand : hand palm normal roll  / get(17).asDouble()
         l_oHandCartesianBottleLeft.addDouble(static_cast<double>(l_vLambda[2])); // Left hand : hand palm normal yaw   / get(18).asDouble()
-    m_oHandCartesianTrackingPortLeft.write();
+    m_oHandTrackingPortLeft.write();
 
-//          HAND  -> copy current cartesian hand
-    yarp::os::Bottle &l_oHandBottleLeft = m_oHandTrackingPortLeft.prepare();
+//          HAND FINGERS -> copy current HAND
+    yarp::os::Bottle &l_oHandBottleLeft = m_oHandFingersTrackingPortLeft.prepare();
     l_oHandBottleLeft.clear();
         l_oHandBottleLeft.copy(l_oHandCartesianBottleLeft);
         m_oLeap.boneDirection(true, Leap::Finger::TYPE_THUMB, Leap::Bone::TYPE_PROXIMAL, l_vLambda);
@@ -230,12 +231,12 @@ bool SWLeapTracking::updateModule()
         l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[0])); // Left hand : pinky distal direction x / get(73).asDouble()
         l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[1])); // Left hand : pinky distal direction y / get(74).asDouble()
         l_oHandBottleLeft.addDouble(static_cast<double>(l_vLambda[2])); // Left hand : pinky distal direction z / get(75).asDouble()
-    m_oHandTrackingPortLeft.write();
+    m_oHandFingersTrackingPortLeft.write();
 
 
     // RIGHT HAND
-    //      HAND CARTESIAN
-    yarp::os::Bottle &l_oHandCartesianBottleRight = m_oHandCartesianTrackingPortRight.prepare();
+    //      HAND
+    yarp::os::Bottle &l_oHandCartesianBottleRight = m_oHandTrackingPortRight.prepare();
     l_oHandCartesianBottleRight.clear();
         l_oHandCartesianBottleRight.addInt(swTracking::LEAP_LIB);                 // Right hand : LEAP_LIB id / get(0).asInt()
         m_oLeap.directionArm(false, l_vLambda);
@@ -262,10 +263,10 @@ bool SWLeapTracking::updateModule()
         l_oHandCartesianBottleRight.addDouble(static_cast<double>(l_vLambda[0])); // Right hand : hand palm normal pitch / get(16).asDouble()
         l_oHandCartesianBottleRight.addDouble(static_cast<double>(l_vLambda[1])); // Right hand : hand palm normal roll  / get(17).asDouble()
         l_oHandCartesianBottleRight.addDouble(static_cast<double>(l_vLambda[2])); // Right hand : hand palm normal yaw   / get(18).asDouble()
-    m_oHandCartesianTrackingPortRight.write();
+    m_oHandTrackingPortRight.write();
 
-    //      HAND  -> copy current cartesian hand
-    yarp::os::Bottle &l_oHandBottleRight = m_oHandTrackingPortRight.prepare();
+    //      HAND FINGERS -> copy current HAND
+    yarp::os::Bottle &l_oHandBottleRight = m_oHandFingersTrackingPortRight.prepare();
     l_oHandBottleRight.clear();
         l_oHandBottleRight.copy(l_oHandCartesianBottleRight);
         m_oLeap.boneDirection(false, Leap::Finger::TYPE_THUMB, Leap::Bone::TYPE_METACARPAL, l_vLambda);
@@ -348,7 +349,7 @@ bool SWLeapTracking::updateModule()
         l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[0])); // Right hand : pinky distal direction x / get(73).asDouble()
         l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[1])); // Right hand : pinky distal direction y / get(74).asDouble()
         l_oHandBottleRight.addDouble(static_cast<double>(l_vLambda[2])); // Right hand : pinky distal direction z / get(75).asDouble()
-    m_oHandTrackingPortRight.write();
+    m_oHandFingersTrackingPortRight.write();
 
     return true;
 }
@@ -358,7 +359,7 @@ int main(int argc, char* argv[])
 {
 
     // initialize yarp network 
-    Network l_oYarp;
+    yarp::os::Network l_oYarp;
     if (!l_oYarp.checkNetwork())
     {
         std::cerr << "-ERROR: Problem connecting to YARP server" << std::endl;

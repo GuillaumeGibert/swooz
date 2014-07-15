@@ -89,33 +89,18 @@ class SWLeapTracking : public yarp::os::RFModule
 
     private :
 
-        bool m_bIsLeapInitialized;                  /**< is leap initialized ? */
-        int m_i32Fps;                               /**< refresh rate of updateModule calling */
+        bool m_bIsLeapInitialized;  /**< is leap initialized ? */
+        int m_i32Fps;               /**< refresh rate of updateModule calling */
 
-        std::string m_sHandTrackingPortNameLeft;            /**< ... */
-        std::string m_sHandCartesianTrackingPortNameLeft;   /**< ... */
-        std::string m_sHandTrackingPortNameRight;           /**< ... */
-        std::string m_sHandCartesianTrackingPortNameRight;  /**< ... */
+        std::string m_sHandFingersTrackingPortNameLeft;  /**< ... */
+        std::string m_sHandFingersTrackingPortNameRight; /**< ... */
+        std::string m_sHandTrackingPortNameLeft;         /**< ... */
+        std::string m_sHandTrackingPortNameRight;        /**< ... */
 
-
-//		std::string m_sFingerTrackingPortNameLeft;	/**< yarp finger tracking port name */
-//		std::string m_sHandTrackingPortNameLeft;	/**< yarp hand tracking port name */
-//		std::string m_sArmTrackingPortNameLeft;		/**< yarp Arm tracking port name */
-//		std::string m_sFingerTrackingPortNameRight;	/**< yarp finger tracking port name */
-//		std::string m_sHandTrackingPortNameRight;	/**< yarp hand tracking port name */
-//        std::string m_sArmTrackingPortNameRight;    /**< yarp Arm tracking port name */
-	
-        yarp::os::BufferedPort<yarp::os::Bottle> m_oHandTrackingPortLeft;           /**< ... */
-        yarp::os::BufferedPort<yarp::os::Bottle> m_oHandCartesianTrackingPortLeft;  /**< ... */
+        yarp::os::BufferedPort<yarp::os::Bottle> m_oHandFingersTrackingPortLeft;    /**< ... */
+        yarp::os::BufferedPort<yarp::os::Bottle> m_oHandFingersTrackingPortRight;   /**< ... */
         yarp::os::BufferedPort<yarp::os::Bottle> m_oHandTrackingPortRight;          /**< ... */
-        yarp::os::BufferedPort<yarp::os::Bottle> m_oHandCartesianTrackingPortRight; /**< ... */
-
-//        yarp::os::BufferedPort<yarp::os::Bottle> m_oFingerTrackingPortLeft;     /**< yarp finger tracking port */
-//        yarp::os::BufferedPort<yarp::os::Bottle> m_oHandTrackingPortLeft;       /**< yarp hand tracking port */
-//        yarp::os::BufferedPort<yarp::os::Bottle> m_oArmTrackingPortLeft;        /**< yarp Arm tracking port */
-//        yarp::os::BufferedPort<yarp::os::Bottle> m_oFingerTrackingPortRight;    /**< yarp finger tracking port */
-//        yarp::os::BufferedPort<yarp::os::Bottle> m_oHandTrackingPortRight;      /**< yarp hand tracking port */
-//        yarp::os::BufferedPort<yarp::os::Bottle> m_oArmTrackingPortRight;       /**< yarp Arm tracking port */
+        yarp::os::BufferedPort<yarp::os::Bottle> m_oHandTrackingPortLeft;           /**< ... */
 
         swDevice::SWLeap m_oLeap;         /**< Leap device */ 
 		

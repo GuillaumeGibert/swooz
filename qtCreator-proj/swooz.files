@@ -269,3 +269,4 @@
 ../swooz-tracking/trunk/src/leap/SWLeapTracking.cpp
 ../swooz-tracking/trunk/include/leap/SWLeapTracking.h
 ../swooz-examples/trunk/display_leap_main.cpp
+../swooz-config/gyarpmanager/cartesianSolverLeap.xml
