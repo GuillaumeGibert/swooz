@@ -34,6 +34,33 @@
 		<to>/icubSim/face/raw/in</to>
 		<protocol>tcp</protocol>
 	</connection>
+
+        <!---  LEAP -->
+            <!---  LEFT ARM -->
+        <connection>
+                <from>/tracking/leap/leapSDK/left_arm/hand</from>
+                <to>/teleoperation/icubSim/left_arm/hand</to>
+                <protocol>udp</protocol>
+        </connection>
+
+        <connection>
+                <from>/tracking/leap/leapSDK/left_arm/hand_fingers</from>
+                <to>/teleoperation/icubSim/left_arm/hand_fingers</to>
+                <protocol>udp</protocol>
+        </connection>
+
+            <!---  RIGHT ARM -->
+        <connection>
+                <from>/tracking/leap/leapSDK/right_arm/hand</from>
+                <to>/teleoperation/icubSim/right_arm/hand</to>
+                <protocol>udp</protocol>
+        </connection>
+
+        <connection>
+                <from>/tracking/leap/leapSDK/right_arm/hand_fingers</from>
+                <to>/teleoperation/icubSim/right_arm/hand_fingers</to>
+                <protocol>udp</protocol>
+        </connection>
 	
         <!---  FACELAB -->
             <!---  HEAD -->
@@ -107,4 +134,8 @@
 
 
 </application>
+
+
+
+
 

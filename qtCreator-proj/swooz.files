@@ -264,3 +264,9 @@
 ../swooz-config/shaders/cloudViewer.frag
 ../swooz-avatar/trunk/include/mesh/SWRenderMesh.h
 ../swooz-tracking/trunk/src/SWFakeTracking.cpp
+../swooz-toolkit/trunk/include/devices/leap/SWLeap.h
+../swooz-toolkit/trunk/src/devices/leap/SWLeap.cpp
+../swooz-tracking/trunk/src/leap/SWLeapTracking.cpp
+../swooz-tracking/trunk/include/leap/SWLeapTracking.h
+../swooz-examples/trunk/display_leap_main.cpp
+../swooz-config/gyarpmanager/cartesianSolverLeap.xml

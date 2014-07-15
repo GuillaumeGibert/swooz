@@ -12,6 +12,8 @@
 
 #include <limits.h>
 #include <float.h>
+#include <string>
+#include <vector>
 
 #define NULL 0 /**< define NULL to 0*/
 
@@ -126,6 +128,25 @@ static double check0Div(cdouble dVal)
 
     return dVal;
 }
+
+
+template< class T >
+static void displayDebug(const std::string &sNameValue, const T vValue)
+{
+    std::cout << sNameValue << " : " << vValue << " | ";
+}
+
+template< class T >
+static void displayVectorDebug(const std::string &sNameVector, const std::vector<T> &vVector)
+{
+    std::cout << sNameVector << " : ";
+    for(uint ii = 0; ii < vVector.size(); ++ii)
+    {
+        std::cout << vVector[ii] << " ";
+    }
+    std::cout << std::endl;
+}
+
 
 
 #endif

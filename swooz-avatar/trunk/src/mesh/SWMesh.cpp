@@ -157,7 +157,7 @@ SWMesh::SWMesh(const std::string &sPathObjFile) : m_ui32TrianglesNumber(0), m_ui
 
     // build links data
         buildEdgeVertexGraph();
-        buildVerticesNeighbors();    
+        buildVerticesNeighbors();
 }
 
 SWMesh::SWMesh(const std::vector<std::vector<float> > &v3FPoints,
@@ -436,6 +436,11 @@ float *SWMesh::vertexBuffer() const
 
 uint32 *SWMesh::indexVertexTriangleBuffer() const
 {
+    if(m_aIdFaces.size() == 0)
+    {
+        return NULL;
+    }
+
     uint32 *l_aUI32Index = new uint32[m_aIdFaces.size()];
 
     for(uint ii = 0; ii < m_aIdFaces.size(); ++ii)
@@ -448,6 +453,11 @@ uint32 *SWMesh::indexVertexTriangleBuffer() const
 
 float *SWMesh::normalBuffer() const
 {
+    if(m_a3FNormals.size() == 0)
+    {
+        return NULL;
+    }
+
     float *l_aFNormal = new float[m_a3FNormals.size()];
 
     for(uint ii = 0; ii < m_a3FNormals.size(); ++ii)
@@ -460,6 +470,11 @@ float *SWMesh::normalBuffer() const
 
 float *SWMesh::textureBuffer() const
 {
+    if(m_a2FTextures.size() == 0)
+    {
+        return NULL;
+    }
+
     float *l_aFTexture = new float[m_a2FTextures.size()];
 
     for(uint ii = 0; ii < m_a2FTextures.size(); ++ii)

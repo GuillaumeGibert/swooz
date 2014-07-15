@@ -14,22 +14,12 @@
 
 #include <QCheckBox>
 
-SWViewerInterface::SWViewerInterface() : m_uiViewer(new Ui::SWUI_Viewer)
+
+SWViewerInterface::SWViewerInterface() : m_uiViewer(new Ui::SWUI_Viewer), m_bDesactiveUpdateParameters(false)
 {
     // init main widget
     m_uiViewer->setupUi(this);
     this->setWindowTitle(QString("SWoOz : Viewer"));
-
-    // set default values
-    // ...
-
-    // parameters
-        // spinbox
-        // ...
-
-        // checkbox
-        // ...
-
 
     // middle container
         QHBoxLayout *l_pGLContainerLayout = new QHBoxLayout();
@@ -76,6 +66,29 @@ SWViewerInterface::SWViewerInterface() : m_uiViewer(new Ui::SWUI_Viewer)
             QObject::connect(m_uiViewer->sbColorB, SIGNAL(valueChanged(int)), this, SLOT(updateParameters(int)));
             QObject::connect(m_uiViewer->sbColorG, SIGNAL(valueChanged(int)), this, SLOT(updateParameters(int)));
             QObject::connect(m_uiViewer->sbColorR, SIGNAL(valueChanged(int)), this, SLOT(updateParameters(int)));
+
+            QObject::connect(m_uiViewer->dsbLightX, SIGNAL(valueChanged(double)), this, SLOT(updateParameters(double)));
+            QObject::connect(m_uiViewer->dsbLightY, SIGNAL(valueChanged(double)), this, SLOT(updateParameters(double)));
+            QObject::connect(m_uiViewer->dsbLightZ, SIGNAL(valueChanged(double)), this, SLOT(updateParameters(double)));
+
+            QObject::connect(m_uiViewer->leTexturePath, SIGNAL(textChanged(QString)), this, SLOT(updateParameters(QString)));
+
+            QObject::connect(m_uiViewer->dsbAmbiantLight1, SIGNAL(valueChanged(double)), this, SLOT(updateParameters(double)));
+            QObject::connect(m_uiViewer->dsbAmbiantLight2, SIGNAL(valueChanged(double)), this, SLOT(updateParameters(double)));
+            QObject::connect(m_uiViewer->dsbAmbiantLight3, SIGNAL(valueChanged(double)), this, SLOT(updateParameters(double)));
+            QObject::connect(m_uiViewer->dsbDiffusLight1, SIGNAL(valueChanged(double)), this, SLOT(updateParameters(double)));
+            QObject::connect(m_uiViewer->dsbDiffusLight2, SIGNAL(valueChanged(double)), this, SLOT(updateParameters(double)));
+            QObject::connect(m_uiViewer->dsbDiffusLight3, SIGNAL(valueChanged(double)), this, SLOT(updateParameters(double)));
+            QObject::connect(m_uiViewer->dsbSpecularLight1, SIGNAL(valueChanged(double)), this, SLOT(updateParameters(double)));
+            QObject::connect(m_uiViewer->dsbSpecularLight2, SIGNAL(valueChanged(double)), this, SLOT(updateParameters(double)));
+            QObject::connect(m_uiViewer->dsbSpecularLight3, SIGNAL(valueChanged(double)), this, SLOT(updateParameters(double)));
+            QObject::connect(m_uiViewer->dsbAmbiantK, SIGNAL(valueChanged(double)), this, SLOT(updateParameters(double)));
+            QObject::connect(m_uiViewer->dsbDiffusK, SIGNAL(valueChanged(double)), this, SLOT(updateParameters(double)));
+            QObject::connect(m_uiViewer->dsbSpecularK, SIGNAL(valueChanged(double)), this, SLOT(updateParameters(double)));
+            QObject::connect(m_uiViewer->dsbSpecularP, SIGNAL(valueChanged(double)), this, SLOT(updateParameters(double)));
+        // push buttons
+            QObject::connect(m_uiViewer->pbSetCamera, SIGNAL(clicked()), this, SLOT(setCameraToCurrentItem()));
+            QObject::connect(m_uiViewer->pbResetCamera, SIGNAL(clicked()), m_pGLMultiObject, SLOT(resetCamera()));
 }
 
 SWViewerInterface::~SWViewerInterface()
@@ -164,6 +177,9 @@ void SWViewerInterface::deleteCloud()
         m_uiViewer->sbColorR->setEnabled(false);
         m_uiViewer->sbColorG->setEnabled(false);
         m_uiViewer->sbColorB->setEnabled(false);
+        m_uiViewer->dsbLightX->setEnabled(false);
+        m_uiViewer->dsbLightY->setEnabled(false);
+        m_uiViewer->dsbLightZ->setEnabled(false);
 
     // reset text
         m_uiViewer->leNameItem->setText(QString("..."));
@@ -206,6 +222,9 @@ void SWViewerInterface::deleteMesh()
         m_uiViewer->sbColorR->setEnabled(false);
         m_uiViewer->sbColorG->setEnabled(false);
         m_uiViewer->sbColorB->setEnabled(false);
+        m_uiViewer->dsbLightX->setEnabled(false);
+        m_uiViewer->dsbLightY->setEnabled(false);
+        m_uiViewer->dsbLightZ->setEnabled(false);
 
     // reset text
         m_uiViewer->leNameItem->setText(QString("..."));
@@ -223,8 +242,18 @@ void SWViewerInterface::updateParameters(double dInused)
     updateParameters();
 }
 
+void SWViewerInterface::updateParameters(QString sInused)
+{
+    updateParameters();
+}
+
 void SWViewerInterface::updateParameters()
 {
+    if(m_bDesactiveUpdateParameters)
+    {
+        return;
+    }
+
     SWGLObjectParameters l_oParams;
     l_oParams.m_bVisible       = (m_uiViewer->cbVisible->checkState() == Qt::Checked);
     l_oParams.m_bDisplayLines  = (m_uiViewer->cbDisplayLines->checkState() == Qt::Checked);
@@ -232,6 +261,17 @@ void SWViewerInterface::updateParameters()
     l_oParams.m_vRotation      = QVector3D(m_uiViewer->dsbRX->value(), m_uiViewer->dsbRY->value(), m_uiViewer->dsbRZ->value());
     l_oParams.m_dScaling       = m_uiViewer->dsbScaling->value();
     l_oParams.m_vUnicolor      = QVector3D(m_uiViewer->sbColorR->value(), m_uiViewer->sbColorG->value(), m_uiViewer->sbColorB->value());
+    l_oParams.m_sTexturePath   = QString(m_uiViewer->leTexturePath->text());
+
+    // lights
+        l_oParams.m_vSourceLight   = QVector3D(m_uiViewer->dsbLightX->value(),m_uiViewer->dsbLightY->value(),m_uiViewer->dsbLightZ->value());
+        l_oParams.m_vAmbiantLight  = QVector3D(m_uiViewer->dsbAmbiantLight1->value(),m_uiViewer->dsbAmbiantLight2->value(),m_uiViewer->dsbAmbiantLight3->value());
+        l_oParams.m_vDiffusLight   = QVector3D(m_uiViewer->dsbDiffusLight1->value(),m_uiViewer->dsbDiffusLight2->value(),m_uiViewer->dsbDiffusLight3->value());
+        l_oParams.m_vSpecularLight = QVector3D(m_uiViewer->dsbSpecularLight1->value(),m_uiViewer->dsbSpecularLight2->value(),m_uiViewer->dsbSpecularLight3->value());
+        l_oParams.m_dAmbiantK = m_uiViewer->dsbAmbiantK->value();
+        l_oParams.m_dDiffusK = m_uiViewer->dsbDiffusK->value();
+        l_oParams.m_dSpecularK = m_uiViewer->dsbSpecularK->value();
+        l_oParams.m_dSpecularP = m_uiViewer->dsbSpecularP->value();
 
     GLObjectDisplayMode l_oDisplayMode;
     if(m_uiViewer->rbDisplayOriginalColor->isChecked())
@@ -282,6 +322,23 @@ void SWViewerInterface::updateCloudInterfaceParameters(QListWidgetItem *)
     // lock
         m_uiViewer->rbDisplayTexture->setEnabled(false);
         m_uiViewer->pbSetTexture->setEnabled(false);
+        m_uiViewer->leTexturePath->setEnabled(false);
+        m_uiViewer->dsbLightX->setEnabled(false);
+        m_uiViewer->dsbLightY->setEnabled(false);
+        m_uiViewer->dsbLightZ->setEnabled(false);        
+        m_uiViewer->dsbAmbiantLight1->setEnabled(false);
+        m_uiViewer->dsbAmbiantLight2->setEnabled(false);
+        m_uiViewer->dsbAmbiantLight3->setEnabled(false);
+        m_uiViewer->dsbDiffusLight1->setEnabled(false);
+        m_uiViewer->dsbDiffusLight2->setEnabled(false);
+        m_uiViewer->dsbDiffusLight3->setEnabled(false);
+        m_uiViewer->dsbSpecularLight1->setEnabled(false);
+        m_uiViewer->dsbSpecularLight2->setEnabled(false);
+        m_uiViewer->dsbSpecularLight3->setEnabled(false);
+        m_uiViewer->dsbAmbiantK->setEnabled(false);
+        m_uiViewer->dsbDiffusK->setEnabled(false);
+        m_uiViewer->dsbSpecularK->setEnabled(false);
+        m_uiViewer->dsbSpecularP->setEnabled(false);
 
     // unlock
         m_uiViewer->cbDisplayLines->setEnabled(false);
@@ -313,6 +370,7 @@ void SWViewerInterface::updateMeshInterfaceParameters(QListWidgetItem *)
     // unlock
         m_uiViewer->rbDisplayTexture->setEnabled(true);
         m_uiViewer->pbSetTexture->setEnabled(true);
+        m_uiViewer->leTexturePath->setEnabled(true);
         m_uiViewer->cbDisplayLines->setEnabled(true);
         m_uiViewer->cbVisible->setEnabled(true);
         m_uiViewer->rbDisplayOriginalColor->setEnabled(true);
@@ -327,6 +385,22 @@ void SWViewerInterface::updateMeshInterfaceParameters(QListWidgetItem *)
         m_uiViewer->sbColorR->setEnabled(true);
         m_uiViewer->sbColorG->setEnabled(true);
         m_uiViewer->sbColorB->setEnabled(true);
+        m_uiViewer->dsbLightX->setEnabled(true);
+        m_uiViewer->dsbLightY->setEnabled(true);
+        m_uiViewer->dsbLightZ->setEnabled(true);
+        m_uiViewer->dsbAmbiantLight1->setEnabled(true);
+        m_uiViewer->dsbAmbiantLight2->setEnabled(true);
+        m_uiViewer->dsbAmbiantLight3->setEnabled(true);
+        m_uiViewer->dsbDiffusLight1->setEnabled(true);
+        m_uiViewer->dsbDiffusLight2->setEnabled(true);
+        m_uiViewer->dsbDiffusLight3->setEnabled(true);
+        m_uiViewer->dsbSpecularLight1->setEnabled(true);
+        m_uiViewer->dsbSpecularLight2->setEnabled(true);
+        m_uiViewer->dsbSpecularLight3->setEnabled(true);
+        m_uiViewer->dsbAmbiantK->setEnabled(true);
+        m_uiViewer->dsbDiffusK->setEnabled(true);
+        m_uiViewer->dsbSpecularK->setEnabled(true);
+        m_uiViewer->dsbSpecularP->setEnabled(true);
 
     updateInterfaceParameters();
 }
@@ -376,31 +450,65 @@ void SWViewerInterface::updateInterfaceParameters()
         m_uiViewer->rbDisplayTexture->setChecked(true);
     }
 
-    m_uiViewer->cbVisible->setChecked(l_oParams.m_bVisible);
-    m_uiViewer->cbDisplayLines->setChecked(l_oParams.m_bDisplayLines);
+    m_bDesactiveUpdateParameters = true;
+        m_uiViewer->cbVisible->setChecked(l_oParams.m_bVisible);
+        m_uiViewer->cbDisplayLines->setChecked(l_oParams.m_bDisplayLines);
 
-    m_uiViewer->dsbTrX->setValue(l_oParams.m_vTranslation.x());
-    m_uiViewer->dsbTrY->setValue(l_oParams.m_vTranslation.y());
-    m_uiViewer->dsbTrZ->setValue(l_oParams.m_vTranslation.z());
 
-    m_uiViewer->dsbRX->setValue(l_oParams.m_vRotation.x());
-    m_uiViewer->dsbRY->setValue(l_oParams.m_vRotation.y());
-    m_uiViewer->dsbRZ->setValue(l_oParams.m_vRotation.z());
+        m_uiViewer->dsbTrX->setValue(l_oParams.m_vTranslation.x());
+        m_uiViewer->dsbTrY->setValue(l_oParams.m_vTranslation.y());
+        m_uiViewer->dsbTrZ->setValue(l_oParams.m_vTranslation.z());
 
-    m_uiViewer->dsbScaling->setValue(l_oParams.m_dScaling);
+        m_uiViewer->dsbRX->setValue(l_oParams.m_vRotation.x());
+        m_uiViewer->dsbRY->setValue(l_oParams.m_vRotation.y());
+        m_uiViewer->dsbRZ->setValue(l_oParams.m_vRotation.z());
 
-    m_uiViewer->sbColorR->setValue(l_oParams.m_vUnicolor.x());
-    m_uiViewer->sbColorG->setValue(l_oParams.m_vUnicolor.y());
-    m_uiViewer->sbColorB->setValue(l_oParams.m_vUnicolor.z());
+        m_uiViewer->dsbScaling->setValue(l_oParams.m_dScaling);
+
+        m_uiViewer->sbColorR->setValue(l_oParams.m_vUnicolor.x());
+        m_uiViewer->sbColorG->setValue(l_oParams.m_vUnicolor.y());
+        m_uiViewer->sbColorB->setValue(l_oParams.m_vUnicolor.z());
+
+        m_uiViewer->leTexturePath->setText(l_oParams.m_sTexturePath);
+
+        m_uiViewer->dsbLightX->setValue(l_oParams.m_vSourceLight.x());
+        m_uiViewer->dsbLightY->setValue(l_oParams.m_vSourceLight.y());
+        m_uiViewer->dsbLightZ->setValue(l_oParams.m_vSourceLight.z());
+
+        m_uiViewer->dsbAmbiantLight1->setValue(l_oParams.m_vAmbiantLight.x());
+        m_uiViewer->dsbAmbiantLight2->setValue(l_oParams.m_vAmbiantLight.y());
+        m_uiViewer->dsbAmbiantLight3->setValue(l_oParams.m_vAmbiantLight.z());
+        m_uiViewer->dsbDiffusLight1->setValue(l_oParams.m_vDiffusLight.x());
+        m_uiViewer->dsbDiffusLight2->setValue(l_oParams.m_vDiffusLight.y());
+        m_uiViewer->dsbDiffusLight3->setValue(l_oParams.m_vDiffusLight.z());
+        m_uiViewer->dsbSpecularLight1->setValue(l_oParams.m_vSpecularLight.x());
+        m_uiViewer->dsbSpecularLight2->setValue(l_oParams.m_vSpecularLight.y());
+        m_uiViewer->dsbSpecularLight3->setValue(l_oParams.m_vSpecularLight.z());
+        m_uiViewer->dsbAmbiantK->setValue(l_oParams.m_dAmbiantK);
+        m_uiViewer->dsbDiffusK->setValue(l_oParams.m_dDiffusK);
+        m_uiViewer->dsbSpecularK->setValue(l_oParams.m_dSpecularK);
+        m_uiViewer->dsbSpecularP->setValue(l_oParams.m_dSpecularP);
+    m_bDesactiveUpdateParameters = false;
 }
 
 void SWViewerInterface::setTexture()
 {
     // retrieve obj path
         QString l_sPathTexture = QFileDialog::getOpenFileName(this, "Load texture", QString(), "Texture file (*.png)");
+        m_uiViewer->leTexturePath->setText(l_sPathTexture);
+}
 
-        qDebug() << l_sPathTexture;
-//        l_sPathTexture
+
+void SWViewerInterface::setCameraToCurrentItem()
+{
+    if(m_bIsCloudLastSelection)
+    {
+        m_pGLMultiObject->setCameraItem(true, m_uiViewer->lwClouds->currentRow());
+    }
+    else
+    {
+        m_pGLMultiObject->setCameraItem(false, m_uiViewer->lwMeshes->currentRow());
+    }
 }
 
 int main(int argc, char* argv[])

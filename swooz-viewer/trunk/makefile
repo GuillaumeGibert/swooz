@@ -28,7 +28,7 @@ all: $(QTGENW)/SWUI_Viewer.h $(MOCDIR)/moc_SWViewerInterface.cpp $(BINDIR)/SWVie
 !endif
 
 !if "$(ARCH)" == "amd64"
-all:
+all: $(QTGENW)/SWUI_Viewer.h $(MOCDIR)/moc_SWViewerInterface.cpp $(BINDIR)/SWViewer-x64.exe
 !endif
 
 ############################################################################## exe files
@@ -38,6 +38,10 @@ WIN_CONFIG = $(SETARGV) $(BINMODE) $(WINLIBS)
 # exec files to be generated
 $(BINDIR)/SWViewer.exe: $(VIEWER_LINK_D_OBJ) $(LIBS_VIEWER)
         $(LINK) /OUT:$(BINDIR)/SWViewer.exe $(LFLAGS_VIEWER) $(VIEWER_LINK_D_OBJ) $(LIBS_VIEWER) $(WIN_CONFIG)
+
+
+$(BINDIR)/SWViewer-x64.exe: $(VIEWER_LINK_D_OBJ) $(LIBS_VIEWER)
+        $(LINK) /OUT:$(BINDIR)/SWViewer-x64.exe $(LFLAGS_VIEWER) $(VIEWER_LINK_D_OBJ) $(LIBS_VIEWER) $(WIN_CONFIG)
 
 ##################################################### devices
 

@@ -18,7 +18,7 @@
 
 namespace swUtil
 {
-    #define PI_ 3.14159265359
+    #define PI 3.14159265359
 
     template <typename T>
     static void inverse(std::vector<T> &v)
@@ -170,7 +170,7 @@ namespace swUtil
     template <typename T>
     static double vectorAngle(const std::vector<T> &v1, const std::vector<T> &v2)
     {
-        return acos(dotProduct(v1,v2)/((double)norm(v1)*(double)norm(v2))) * 180.0 / PI_;
+        return acos(dotProduct(v1,v2)/((double)norm(v1)*(double)norm(v2))) * 180.0 / PI;
     }
 
 
@@ -294,7 +294,7 @@ namespace swUtil
     template <typename T>
     T rad2Deg(T angle)
     {
-        return angle * static_cast<T>(180 / PI_);
+        return angle * static_cast<T>(180 / PI);
     }
 
     /*

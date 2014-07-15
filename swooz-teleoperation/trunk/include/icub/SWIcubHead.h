@@ -108,13 +108,10 @@ namespace swTeleop
              * @param pIHeadEncoders
              * @param pIHeadVelocity
              * @param vHeadJointVelocityK
-             * @param dVelocityToleranceHead
-             * @param dVelocityToleranceGaze
              * @param i32Rate
              */
             SWHeadVelocityController(yarp::dev::IEncoders *pIHeadEncoders, yarp::dev::IVelocityControl *pIHeadVelocity,
-                                 std::vector<double> &vHeadJointVelocityK, double dVelocityToleranceHead = 15.,
-                                 double dVelocityToleranceGaze = 15., int i32Rate = 10);
+                                 std::vector<double> &vHeadJointVelocityK, int i32Rate = 10);
 
             /**
              * @brief run
@@ -139,14 +136,18 @@ namespace swTeleop
              */
             void enableGaze(cbool bActivated);
 
+            /**
+             * @brief setMinMaxJoints
+             * @param vMinJoints
+             * @param vMaxJoints
+             */
+            void setMinMaxJoints(const std::vector<double> &vMinJoints, const std::vector<double> &vMaxJoints);
+
 
         private :
 
             bool m_bGazeEnabled;
             bool m_bHeadEnabled;
-
-            double m_dVelocityToleranceHead;                /**< ... */
-            double m_dVelocityToleranceGaze;                /**< ... */
 
             yarp::os::Mutex m_oMutex;                       /**< ... */
             yarp::dev::IEncoders *m_pIHeadEncoders;         /**< ... */
@@ -154,6 +155,8 @@ namespace swTeleop
             yarp::sig::Vector m_vLastHeadJoint;             /**< ... */
 
             std::vector<double> m_vHeadJointVelocityK;      /**< ... */
+            std::vector<double> m_vMinJoints;
+            std::vector<double> m_vMaxJoints;
     };
 
     /**
@@ -266,26 +269,21 @@ namespace swTeleop
             double m_dMinEyelidsSimDefault; /**< ... */
             double m_dMaxEyelidsSimDefault; /**< ... */
 
-            double m_dVelocityToleranceHead;        /**< ... */
-            double m_dVelocityToleranceHeadDefault; /**< ... */
-
-            double m_dVelocityToleranceGaze;        /**< ... */
-            double m_dVelocityToleranceGazeDefault; /**< ... */
-
-            std::vector<double> m_vHeadMinJoint;            /**< ... */            
-            std::vector<double> m_vHeadMaxJoint;            /**< ... */
-            std::vector<double> m_vHeadMinJointDefault;     /**< ... */
-            std::vector<double> m_vHeadMaxJointDefault;     /**< ... */
-
+            std::vector<double> m_vHeadMinJoint;                        /**< ... */
+            std::vector<double> m_vHeadMaxJoint;                        /**< ... */
+            std::vector<double> m_vHeadResetPosition;                   /**< ... */
             std::vector<double> m_vHeadJointVelocityAcceleration;       /**< ... */
             std::vector<double> m_vHeadJointPositionAcceleration;       /**< ... */
             std::vector<double> m_vHeadJointPositionSpeed;              /**< ... */
+            std::vector<double> m_vHeadJointVelocityK;                  /**< ... */
+
+            std::vector<double> m_vHeadMinJointDefault;                 /**< ... */
+            std::vector<double> m_vHeadMaxJointDefault;                 /**< ... */
+            std::vector<double> m_vHeadResetPositionDefault;            /**< ... */
             std::vector<double> m_vHeadJointVelocityAccelerationDefault;/**< ... */
             std::vector<double> m_vHeadJointPositionAccelerationDefault;/**< ... */
             std::vector<double> m_vHeadJointPositionSpeedDefault;       /**< ... */
-
-            std::vector<double> m_vHeadJointVelocityK;         /**< ... */
-            std::vector<double> m_vHeadJointVelocityKDefault;  /**< ... */
+            std::vector<double> m_vHeadJointVelocityKDefault;           /**< ... */
 
             std::string m_sModuleName;              /**< name of the mondule (config) */
             std::string m_sRobotName;               /**< name of the robot (config) */

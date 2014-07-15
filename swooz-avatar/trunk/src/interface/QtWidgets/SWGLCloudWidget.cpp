@@ -15,6 +15,7 @@
 
 using namespace swExcept;
 
+
 SWGLCloudWidget::SWGLCloudWidget(QGLContext *context, QWidget* parent) :
     SWGLWidget(context, parent), m_bInitCamWithCloudPosition(true), m_bNewCloud(false)
 {
@@ -66,7 +67,7 @@ void SWGLCloudWidget::paintGL()
     l_oViewMatrix.setToIdentity();
 
     // set camera vue
-    l_oViewMatrix.lookAt( m_pCamera->eyePosition(), m_pCamera->viewDirection(), m_pCamera->up());
+    l_oViewMatrix.lookAt( m_pCamera->eyePosition(), m_pCamera->lookAt(), m_pCamera->up());
 
     // comput MVP matrix
     QMatrix4x4 l_oModelMatrix;
@@ -108,7 +109,7 @@ void SWGLCloudWidget::setCloud(swCloud::SWCloud *oCloud)
         l_oEye.setZ(l_oEye.z() - 0.25f);
         l_oLookAt.setZ(l_oLookAt.z() + 1.f);
 
-        resetCamera(l_oEye,l_oLookAt);
+        setCamera(l_oEye,l_oLookAt);
 
         m_bInitCamWithCloudPosition = false;
     }
@@ -199,6 +200,7 @@ void SWGLCloudWidget::setDepthRect(const double dDepth)
 {
     m_fDepthRect = static_cast<float>(dDepth);
 }
+
 
 void SWGLCloudWidget::drawCloud(QGLShaderProgram &oShader, cfloat fSizePoint, QMatrix4x4 &mvpMatrix)
 {   

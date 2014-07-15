@@ -28,7 +28,7 @@ TOOLKIT_DYN_OBJ=\
     $(LIBDIR)/SWKinect_d.obj $(LIBDIR)/SWKinect_thread_d.obj $(LIBDIR)/SWSaveKinectData_d.obj \
     $(LIBDIR)/SWLoadKinectData_d.obj $(LIBDIR)/SWKinectSkeleton_d.obj $(LIBDIR)/FaceLab_d.obj \
     $(LIBDIR)/SWFaceLab_d.obj $(LIBDIR)/SWFastrak_d.obj $(LIBDIR)/SWFastrak_thread_d.obj\
-    $(LIBDIR)/Tobii_d.obj\
+    $(LIBDIR)/Tobii_d.obj $(LIBDIR)/SWLeap_d.obj\
 
 KINECT_DIMENCO_OBJ=\
     $(LIBDIR)/SWKinect.obj\
@@ -124,4 +124,5 @@ $(LIBDIR)/SWFaceLab_d.obj: ./src/devices/faceLab/SWFaceLab.cpp
 $(LIBDIR)/SWKinectSkeleton_d.obj: ./src/devices/rgbd/SWKinectSkeleton.cpp
         $(CC) -c ./src/devices/rgbd/SWKinectSkeleton.cpp $(CFLAGS_DYN) $(SW_KINECT_SKELETON) -Fo"$(LIBDIR)/SWKinectSkeleton_d.obj"
 
-
+$(LIBDIR)/SWLeap_d.obj: ./src/devices/leap/SWLeap.cpp
+        $(CC) -c ./src/devices/leap/SWLeap.cpp $(CFLAGS_DYN) $(SW_LEAP) -Fo"$(LIBDIR)/SWLeap_d.obj"

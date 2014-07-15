@@ -106,10 +106,13 @@ INC_OPENCV      = -I"$(THIRD_PARTY_OPENCV)"\modules/core/include -I"$(THIRD_PART
                   -I"$(THIRD_PARTY_OPENCV)"\modules/objdetect/include -I"$(THIRD_PARTY_OPENCV)"\modules/features2d/include\
                   -I"$(THIRD_PARTY_OPENCV)"\modules/features2d/include -I"$(THIRD_PARTY_OPENCV)"\modules/flann/include\
                   -I"$(THIRD_PARTY_OPENCV)"\modules/highgui/include -I"$(THIRD_PARTY_OPENCV)"\modules/video/include\
+                  -I"$(THIRD_PARTY_OPENCV)"\modules/calib3d/include\
 		  
 INC_QT		= -I"$(THIRD_PARTY_QT)"/include/QtOpenGL -I"$(THIRD_PARTY_QT)"/include/QtGui -I"$(THIRD_PARTY_QT)"/include/QtCore -I"$(THIRD_PARTY_QT)"/include/Qt -I"$(THIRD_PARTY_QT)"/include\
 		
 INC_YARP	= -I"$(THIRD_PARTY_YARP)"/include\
+
+INC_LEAP        = -I"$(THIRD_PARTY_LEAP)"/include\
 
 ############################ DEPENDENCIES
 
@@ -124,7 +127,8 @@ INC_MAIN_DATA_SAVER_KINECT = $(COMMON) $(OPENNI) $(INC_OPENCV) $(INC_BOOST)
 INC_MAIN_DATA_LOADER_KINECT = $(COMMON) $(INC_OPENCV) $(INC_BOOST)
 #       detect face stasm
 INC_MAIN_DETECT_FACE_STASM = $(COMMON) $(INC_OPENCV) $(INC_BOOST)
-
+#       display leap
+INC_MAIN_DISPLAY_LEAP = $(COMMON) $(INC_OPENCV) $(INC_BOOST) $(INC_LEAP)
 ################################################################################################################# RELEASE MODE
 
 !IF  "$(CFG)" == "Release"
@@ -141,7 +145,16 @@ LFLAGS = -nologo
 LIBS_OPENNI     = $(THIRD_PARTY_OPENNI)/Lib/openNI.lib\
 
 LIBS_CV		= $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_highgui245.lib $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_core245.lib\
-                  $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_imgproc245.lib $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_objdetect245.lib $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_video245.lib\
+                  $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_imgproc245.lib $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_objdetect245.lib\
+                  $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_video245.lib\
+
+#                  $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_contrib245.lib $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_flann245.lib\
+#                  $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_stitching245.lib $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_superres245.lib\
+#                  $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_ts245.lib $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_videostab245.lib\
+#                  $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_ml245.lib\
+#                  $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_nonfree245.lib\
+#                  $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_legacy245.lib\
+
 
 LIBS_QT 	= $(THIRD_PARTY_QT)/lib/QtOpenGL4.lib $(THIRD_PARTY_QT)/lib/QtCore4.lib $(THIRD_PARTY_QT)/lib/QtGui4.lib $(THIRD_PARTY_QT)/lib/qtmain.lib\
 
@@ -171,6 +184,8 @@ LIBS_YARP	= $(THIRD_PARTY_YARP)/lib/YARP_sig.lib $(THIRD_PARTY_YARP)/lib/YARP_OS
 LIBS_SWOOZ      = $(DIST_LIBDIR)/SWToolkit_d.lib $(DIST_LIBDIR)/SWAvatar_d.lib\
 
 
+LIBS_LEAP	= $(THIRD_PARTY_LEAP)/Lib/Leap.lib\
+
 LIBS_MAIN_DISPLAY_KINECT = $(LIBS_OPENNI) $(LIBS_CV) $(LIBS_SWOOZ)
 
 LIBS_MAIN_DISPLAY_THREAD_KINECT = $(LIBS_OPENNI) $(LIBS_CV) $(LIBS_SWOOZ) $(LIBS_BOOST_D)
@@ -180,6 +195,8 @@ LIBS_MAIN_DATA_SAVER_KINECT = $(LIBS_OPENNI) $(LIBS_CV) $(LIBS_BOOST_D) $(LIBS_S
 LIBS_MAIN_DATA_LOADER_KINECT = $(LIBS_CV) $(LIBS_BOOST_D) $(LIBS_SWOOZ)
 
 LIBS_MAIN_DETECT_FACE_STASM = $(LIBS_CV) $(LIBS_BOOST_D) $(LIBS_SWOOZ)
+
+LIBS_MAIN_DISPLAY_LEAP = $(LIBS_OPENNI) $(LIBS_CV) $(LIBS_BOOST_D) $(LIBS_SWOOZ) $(LIBS_LEAP)
 
 !ENDIF
 

@@ -4,22 +4,59 @@
   <description>teleoperation FaceLab iCub </description>
 	
 
-      <connection>
+        <!---  FOREST -->
+            <!---  HEAD -->
+        <connection>
+                <from>/tracking/rgbd/forest/head</from>
+                <to>/teleoperation/icub/head</to>
+                <protocol>tcp</protocol>
+        </connection>
+
+        <!---  FACELAB -->
+            <!---  HEAD -->
+        <connection>
                 <from>/tracking/facelab/coredata/head</from>
                 <to>/teleoperation/icub/head</to>
                 <protocol>tcp</protocol>
         </connection>
-	
+            <!---  FACE -->
 	<connection>
                 <from>/tracking/facelab/coredata/face</from>
                 <to>/teleoperation/icub/face</to>
                 <protocol>tcp</protocol>
         </connection>
-
+            <!---  GAZE -->
         <connection>
                 <from>/tracking/facelab/coredata/gaze</from>
                 <to>/teleoperation/icub/gaze</to>
                 <protocol>tcp</protocol>
+        </connection>
+
+        <!---  LEAP -->
+            <!---  LEFT ARM -->
+        <connection>
+                <from>/tracking/leap/leapSDK/left_arm/hand</from>
+                <to>/teleoperation/icub/left_arm/hand</to>
+                <protocol>udp</protocol>
+        </connection>
+
+        <connection>
+                <from>/tracking/leap/leapSDK/left_arm/hand_fingers</from>
+                <to>/teleoperation/icub/left_arm/hand_fingers</to>
+                <protocol>udp</protocol>
+        </connection>
+
+            <!---  RIGHT ARM -->
+        <connection>
+                <from>/tracking/leap/leapSDK/right_arm/hand</from>
+                <to>/teleoperation/icub/right_arm/hand</to>
+                <protocol>udp</protocol>
+        </connection>
+
+        <connection>
+                <from>/tracking/leap/leapSDK/right_arm/hand_fingers</from>
+                <to>/teleoperation/icub/right_arm/hand_fingers</to>
+                <protocol>udp</protocol>
         </connection>
 
 

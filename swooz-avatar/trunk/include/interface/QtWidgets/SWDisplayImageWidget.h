@@ -80,7 +80,7 @@ class SWDisplayImageWidget : public QWidget
 
     signals :
 
-        void clickPoint(QPoint, QSize);
+        void clickPoint(QPoint, QSize, bool);
 
 
 	private:
@@ -91,6 +91,8 @@ class SWDisplayImageWidget : public QWidget
         QSize m_oSize;  /**< ... */
 
         bool m_bMouseClicked;
+        bool m_bMouseLeftClick;
+        bool m_bMouseRightClick;
 
         bool m_bScaleImage;
 

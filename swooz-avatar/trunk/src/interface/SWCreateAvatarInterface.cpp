@@ -46,7 +46,7 @@ SWCreateAvatarInterface::SWCreateAvatarInterface(QWidget *oQWRelative) : QMainWi
     m_WRGBDisplay =  new SWDisplayImageWidget(this);
     m_uiCreateAvatar->hlRGB->addWidget(m_WRGBDisplay);
     //      radial proj
-    m_WRadialProjDisplay =  new SWDisplayImageWidget(this, true, true);
+    m_WRadialProjDisplay =  new SWDisplayImageWidget(this, false, true);
     m_uiCreateAvatar->hlRadial->addWidget(m_WRadialProjDisplay);
     //      face texture
     m_WFaceTextureDisplay =  new SWDisplayImageWidget(this);
@@ -57,7 +57,9 @@ SWCreateAvatarInterface::SWCreateAvatarInterface(QWidget *oQWRelative) : QMainWi
 //    m_WCloudGL->setMaximumSize(640,480);
     m_uiCreateAvatar->hlCloud->addWidget(m_WCloudGL);
     // mesh gl widget
-    m_WMeshGL = new SWGLMeshWidget(l_glContext2, this, "../data/shaders/createAvatarMesh.vert", "../data/shaders/createAvatarMesh.frag");
+    m_WMeshGL = new SWGLMeshWidget(l_glContext2, this, "../data/shaders/createAvatarMesh.vert", "../data/shaders/createAvatarMesh.frag");  
+    m_WMeshGL->setCameraMode(SWQtCamera::TRACKBALL_CAMERA);
+
     m_uiCreateAvatar->hlMesh->addWidget(m_WMeshGL);
 
 	// init workers
@@ -91,7 +93,7 @@ SWCreateAvatarInterface::SWCreateAvatarInterface(QWidget *oQWRelative) : QMainWi
         QObject::connect(m_WCreateAvatar, SIGNAL(sendCloud(swCloud::SWCloud*)), m_WCloudGL, SLOT(setCloud(swCloud::SWCloud*)));
 
     //      mesh
-        QObject::connect(m_WCreateAvatar, SIGNAL(sendMesh(swMesh::SWMesh*)), m_WMeshGL, SLOT(setMesh(swMesh::SWMesh*)));
+        QObject::connect(m_WCreateAvatar, SIGNAL(sendMesh(swMesh::SWMesh*,bool)), m_WMeshGL, SLOT(setMesh(swMesh::SWMesh*,bool)));
         QObject::connect(m_uiCreateAvatar->pbSaveAvatar, SIGNAL(clicked()), this,   SLOT(saveMeshFile()));
         QObject::connect(this,  SIGNAL(saveMeshFileSignal(QString)),  m_WCreateAvatar, SLOT(saveMeshFile(QString)));
 
@@ -140,7 +142,7 @@ SWCreateAvatarInterface::SWCreateAvatarInterface(QWidget *oQWRelative) : QMainWi
         QObject::connect(m_WCreateAvatar,   SIGNAL(endResetKinect()),   this,       SLOT(releaseKinectMutex()));
 
     //      others
-        QObject::connect(m_WRadialProjDisplay, SIGNAL(clickPoint(QPoint, QSize)), m_WCreateAvatar,   SLOT(addPointToDeleteRadialProj(QPoint, QSize)));
+        QObject::connect(m_WRadialProjDisplay, SIGNAL(clickPoint(QPoint, QSize, bool)), m_WCreateAvatar,   SLOT(addPointToDeleteRadialProj(QPoint, QSize, bool)));
 
     // init worker parameters values
         // radial projection width / height
@@ -281,7 +283,7 @@ void SWCreateAvatarInterface::updateDisplay()
     if(l_bDoDetect)
     {
         // detect
-            m_CFaceDetectPtr->detect(l_oBGRForeGround);
+            m_CFaceDetectPtr->detectFace(l_oBGRForeGround);
 
         // cloud
             deleteAndNullify(m_pCloudToDisplay);

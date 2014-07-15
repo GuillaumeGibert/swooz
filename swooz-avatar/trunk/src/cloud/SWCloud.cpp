@@ -44,8 +44,8 @@ SWRigidMotion::SWRigidMotion()
     m_aFRotation[4] = 1.f;
     m_aFRotation[8] = 1.f;
 
-    computeRotationAngles();
-    computeQuaternions();
+    computeRotationAnglesWithRotationMatrix();
+    computeQuaternionsWithRotationMatrix();
 }
 
 SWRigidMotion::SWRigidMotion(cfloat *aFRotation, cfloat *aFTranslation, bool bRotMat)
@@ -62,7 +62,7 @@ SWRigidMotion::SWRigidMotion(cfloat *aFRotation, cfloat *aFTranslation, bool bRo
             }
         }
 
-        computeRotationAngles();
+        computeRotationAnglesWithRotationMatrix();
     }
     else
     {
@@ -72,40 +72,89 @@ SWRigidMotion::SWRigidMotion(cfloat *aFRotation, cfloat *aFTranslation, bool bRo
             m_aFTranslation[ii] = aFTranslation[ii];
         }
 
-        computeRotationMatrix();
+        computeRotationMatrixWithRotationAngles();
     }
 
-    computeQuaternions();
+    computeQuaternionsWithRotationMatrix();
 }
 
-SWRigidMotion::SWRigidMotion(cfloat fRotation, vector<float> v3FAxe) // TODO : test
+//SWRigidMotion::SWRigidMotion(cfloat fRotation, vector<float> v3FAxe) // TODO : test
+//{
+//    swUtil::normalize(v3FAxe);
+
+//    float c = cos(fRotation), s = sin(fRotation);
+//    float ux = v3FAxe[0], uy = v3FAxe[1], uz = v3FAxe[2];
+
+//    m_aFRotation[0] = ux * ux + (1 - ux * ux) * c;
+//    m_aFRotation[1] = ux * uy + (1 - c) - uz * s;
+//    m_aFRotation[2] = ux * uz * (1 - c) + uy * s;
+
+//    m_aFRotation[3] = ux * uy * (1 - c) + uz * s;
+//    m_aFRotation[4] = uy * uy + (1 - uy * uy) * c;
+//    m_aFRotation[5] = uy * uz * (1 - c) - ux * s;
+
+//    m_aFRotation[6] = ux * uz * (1 - c) - uy * s;
+//    m_aFRotation[7] = uy * uz * (1 - c) + ux * s;
+//    m_aFRotation[8] = uz * uz + (1 - uz * uz) * c;
+
+//    m_aFTranslation[0] = 0.f;
+//    m_aFTranslation[1] = 0.f;
+//    m_aFTranslation[2] = 0.f;
+//}
+
+SWRigidMotion::SWRigidMotion(cfloat fAngle, vector<float> v3FAxe)
 {
-    swUtil::normalize(v3FAxe);
+    float sina = sin(fAngle / 2);
+    float cosa = cos(fAngle / 2);
 
-    float c = cos(fRotation), s = sin(fRotation);
-    float ux = v3FAxe[0], uy = v3FAxe[1], uz = v3FAxe[2];
+    std::vector<float> l_aFQuarternions(4);
+    l_aFQuarternions[0] = v3FAxe[0] * sina;
+    l_aFQuarternions[1] = v3FAxe[1] * sina;
+    l_aFQuarternions[2] = v3FAxe[2] * sina;
+    l_aFQuarternions[3] = cosa;
 
-    m_aFRotation[0] = ux * ux + (1 - ux * ux) * c;
-    m_aFRotation[1] = ux * uy + (1 - c) - uz * s;
-    m_aFRotation[2] = ux * uz * (1 - c) + uy * s;
 
-    m_aFRotation[3] = ux * uy * (1 - c) + uz * s;
-    m_aFRotation[4] = uy * uy + (1 - uy * uy) * c;
-    m_aFRotation[5] = uy * uz * (1 - c) - ux * s;
+    swUtil::normalize(l_aFQuarternions);
 
-    m_aFRotation[6] = ux * uz * (1 - c) - uy * s;
-    m_aFRotation[7] = uy * uz * (1 - c) + ux * s;
-    m_aFRotation[8] = uz * uz + (1 - uz * uz) * c;
+    for(int ii = 0; ii < 4; ++ii)
+    {
+        if(ii < 3)
+        {
+            m_aFTranslation[ii] = 0;
+        }
 
-    m_aFTranslation[0] = 0.f;
-    m_aFTranslation[1] = 0.f;
-    m_aFTranslation[2] = 0.f;
+        m_aFQuaternions[ii] = l_aFQuarternions[ii];
+    }
+
+    computeRotationMatrixWithQuaternions();
+    computeRotationAnglesWithRotationMatrix();
 }
+
+
+
+//SWRigidMotion::SWRigidMotion(cfloat fLati, cfloat fLong, cfloat fAngle,  cbool bTest)
+//{
+//    float sina = sin(fAngle / 2);
+//    float cosa = cos(fAngle /2);
+
+//    float sinlat = sin(fLati);
+//    float coslat = cos(fLati);
+
+//    float sinlong = sin(fLong);
+//    float coslong = cos(fLong);
+
+//    m_aFQuaternions[0] = sina * coslat * sinlong;
+//    m_aFQuaternions[1] = sina * sinlat;
+//    m_aFQuaternions[2] = sina * sinlat * coslong;
+//    m_aFQuaternions[3] = cosa;
+
+//    computeRotationMatrixWithQuaternions();
+//    computeRotationAnglesWithRotationMatrix();
+//}
+
 
 SWRigidMotion::SWRigidMotion(cfloat fRotationX, cfloat fRotationY, cfloat fRotationZ)
 {
-    std::vector<float> l_vFXRot(9,0.f), l_vFYRot(9,0.f), l_vFZRot(9,0.f),l_vFXY(9,0.f);
-
     for(uint ii = 0; ii < 9; ++ii)
     {
         m_aFRotation[ii] = 0.f;
@@ -120,8 +169,8 @@ SWRigidMotion::SWRigidMotion(cfloat fRotationX, cfloat fRotationY, cfloat fRotat
     m_aFRotAngles[1] = fRotationY;
     m_aFRotAngles[2] = fRotationZ;
 
-    computeRotationMatrix();
-    computeQuaternions();
+    computeRotationMatrixWithRotationAngles();
+    computeQuaternionsWithRotationMatrix();
 }
 
 SWRigidMotion::SWRigidMotion(const SWRigidMotion &oRigidMotion)
@@ -146,9 +195,39 @@ SWRigidMotion::SWRigidMotion(const SWRigidMotion &oRigidMotion)
 SWRigidMotion::~SWRigidMotion()
 {}
 
+
 // ############################################# METHODS - SWRigidMotion
 
-void SWRigidMotion::computeRotationAngles()
+void SWRigidMotion::computeRotationMatrixWithQuaternions()
+{
+    float xx = m_aFQuaternions[0] * m_aFQuaternions[0];
+    float xy = m_aFQuaternions[0] * m_aFQuaternions[1];
+    float xz = m_aFQuaternions[0] * m_aFQuaternions[2];
+    float xw = m_aFQuaternions[0] * m_aFQuaternions[3];
+
+    float yy = m_aFQuaternions[1] * m_aFQuaternions[1];
+    float yz = m_aFQuaternions[1] * m_aFQuaternions[2];
+    float yw = m_aFQuaternions[1] * m_aFQuaternions[3];
+
+    float zz = m_aFQuaternions[2] * m_aFQuaternions[2];
+    float zw = m_aFQuaternions[2] * m_aFQuaternions[3];
+
+
+    m_aFRotation[0] = 1 - 2 * ( yy + zz );
+    m_aFRotation[1] =     2 * ( xy - zw );
+    m_aFRotation[2] =     2 * ( xz + yw );
+
+    m_aFRotation[3] =     2 * ( xy + zw );
+    m_aFRotation[4] = 1 - 2 * ( xx + zz );
+    m_aFRotation[5] =     2 * ( yz - xw );
+
+    m_aFRotation[6] =     2 * ( xz - yw );
+    m_aFRotation[7] =     2 * ( yz + xw );
+    m_aFRotation[8] = 1 - 2 * ( xx + yy );
+}
+
+
+void SWRigidMotion::computeRotationAnglesWithRotationMatrix()
 {
     float C,D,RAD = 180.f / (float)PI;
     float trX, trY;
@@ -182,7 +261,7 @@ void SWRigidMotion::computeRotationAngles()
     }        
 }
 
-void SWRigidMotion::computeRotationMatrix()
+void SWRigidMotion::computeRotationMatrixWithRotationAngles()
 {
     float A = cos((float)PI * m_aFRotAngles[0] / 180.f);
     float B = sin((float)PI * m_aFRotAngles[0] / 180.f);
@@ -207,7 +286,7 @@ void SWRigidMotion::computeRotationMatrix()
     m_aFRotation[8] =  A  * C;
 }
 
-void SWRigidMotion::computeQuaternions()
+void SWRigidMotion::computeQuaternionsWithRotationMatrix()
 {
     float l_fTrace = m_aFRotation[0] + m_aFRotation[4] + m_aFRotation[8] + 1;
     float l_fS;
@@ -262,8 +341,8 @@ void SWRigidMotion::set(cfloat *aFRotation, cfloat *aFTranslation)
         }
     }
 
-    computeRotationAngles();
-    computeQuaternions();
+    computeRotationAnglesWithRotationMatrix();
+    computeQuaternionsWithRotationMatrix();
 }
 
 void SWRigidMotion::display()
@@ -1392,6 +1471,11 @@ void SWCloud::bBox2DFilter(const SWCloudBBox &oBBox)
 
 float *SWCloud::vertexBuffer() const
 {
+    if(size() == 0)
+    {
+        return NULL;
+    }
+
 	float *l_aFVertex = new float[m_ui32ArraySize];
 	
 	for(uint ii = 0; ii < m_ui32NumberOfPoints; ++ii)
@@ -1406,6 +1490,11 @@ float *SWCloud::vertexBuffer() const
 
 uint32 *SWCloud::indexBuffer() const
 {
+    if(size() == 0)
+    {
+        return NULL;
+    }
+
 	uint32 *l_aUI32Index = new uint32[m_ui32NumberOfPoints];
 	
 	for(uint ii = 0; ii < m_ui32NumberOfPoints; ++ii)
@@ -1418,6 +1507,11 @@ uint32 *SWCloud::indexBuffer() const
 
 float *SWCloud::colorBuffer() const
 {
+    if(size() == 0)
+    {
+        return NULL;
+    }
+
 	float *l_aFColor = new float[m_ui32ArraySize];
 	
 	for(uint ii = 0; ii < m_ui32NumberOfPoints; ++ii)

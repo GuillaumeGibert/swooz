@@ -1,7 +1,9 @@
 
 ################ projects
 
+swooz-3rdParty.exe
 qtCreator-proj/
+
 releases/
 
 ################ scripts
@@ -9,6 +11,7 @@ releases/
 scripts/NULL
 scripts/win-init_env_command.cmd
 scripts/SW_build_order.txt
+scripts/SW_clean_order.txt
 
 ################ thirdParty
 
@@ -73,4 +76,6 @@ swooz-avatar/trunk/data/images/
 swooz-avatar/trunk/data/meshes/
 # tracking
 swooz-tracking/trunk/data/trees/
+
+
 

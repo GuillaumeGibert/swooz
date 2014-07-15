@@ -1,11 +1,13 @@
-![SWoOZ (Super Wizard of OZ)](http://uppix.net/E8C3ed.bmp "SWoOZ")
+![SWoOZ (Super Wizard of OZ)](http://i.imgur.com/C1RM1dc.jpg "SWoOZ")
 
 Links :
 -------
 
- * [SWoOZ Website](http://swooz.free.fr/)
- * [SWoOZ Wiki](https://github.com/GuillaumeGibert/swooz/wiki)
- * [SWoOZ Videos](https://github.com/GuillaumeGibert/swooz/wiki/videos)
+ * [Website](http://swooz.free.fr/)
+ * [Wiki](https://github.com/GuillaumeGibert/swooz/wiki)
+ * Videos :
+    * [Robotic teleoperation](https://github.com/GuillaumeGibert/swooz/wiki/videos_teleop)
+    * [Avatars](https://github.com/GuillaumeGibert/swooz/wiki/videos_avatars)
 
 Description :
 -------------
@@ -16,20 +18,21 @@ SWoOZ is a software platform written in C++ used for behavioral experiments base
 Content :
 ---------
  * A toolkit for working with tracking devices :
-   * [interfaces](https://github.com/GuillaumeGibert/swooz/wiki/toolkit#wiki-devices) (Kinect/Xtion, FaceLab, Fastrak Polhemus, Tobii..)
+   * [interfaces](https://github.com/GuillaumeGibert/swooz/wiki/toolkit#wiki-devices) (Kinect/Xtion, Leap, FaceLab, Fastrak Polhemus, Tobii..)
    * [depth sensor data recorder/loader](https://github.com/GuillaumeGibert/swooz/wiki/samplesCode#data-recorderloader) 
  * Modules based on yarp :
-   * [Tracking](https://github.com/GuillaumeGibert/swooz/wiki/tracking) human movements without intrusive devices : head rigid/non-rigid motion, arms, torso
+   * [Tracking](https://github.com/GuillaumeGibert/swooz/wiki/tracking) human movements without intrusive devices : head, gaze, face, torso, arms, hands, fingers
    * [Teleoperation](https://github.com/GuillaumeGibert/swooz/wiki/teleoperation) for iCub, NAO, 3D Avatars(not online now) based on the tracking modules
    * [Manipulation](https://github.com/GuillaumeGibert/swooz/wiki/manipulation) for manipulating tracking data and create planifications
  * Avatar creation/morphing :
    * [Creation](https://github.com/GuillaumeGibert/swooz/wiki/avatar#wiki-creation) from depths sensors devices(Kinect/Xtion) data
    * [Morphing](https://github.com/GuillaumeGibert/swooz/wiki/avatar#wiki-morphing) for fitting references avatars meshes
+   * [Animation/Viewer]()  
 
-
+<!---
 ![](http://uppix.net/GuA0bAs.jpg) ![](http://uppix.net/CKLxdcs.jpg) ![](http://uppix.net/r5JVoTs.jpg) ![](http://uppix.net/gkMAQWs.jpg) ![](http://uppix.net/Qyp88ds.png) ![](http://uppix.net/kgWN89s.jpg)
 ![](http://uppix.net/2RndHKs.jpg) ![](http://uppix.net/194DGks.jpg)
-
+-->
 
 
 Research :

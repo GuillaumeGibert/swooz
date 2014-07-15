@@ -291,18 +291,41 @@ echo cd ../../scripts                                                           
 echo call win-clean-env_command.cmd                                                   >> %target_dist%\swooz-trackingFake.cmd
 echo cd ../dist                                                                         >> %target_dist%\swooz-trackingFake.cmd
 REM #######################################################################################
+REM ### Leap tracking
+echo @echo off                                                                          >  %target_dist%\swooz-trackingLeap.cmd
+echo %SystemRoot%\system32\xcopy /q /e /y %saved_directory%\..\swooz-config %saved_directory%\%target_dist%\data >> %target_dist%\swooz-trackingLeap.cmd
+echo pushd ..\scripts                                                                   >> %target_dist%\swooz-trackingLeap.cmd
+echo call win-init_env_command.cmd %ARCH_EXE_trackingLeap%                           >> %target_dist%\swooz-trackingLeap.cmd
+echo popd                                                                               >> %target_dist%\swooz-trackingLeap.cmd
+echo cd bin                                                                             >> %target_dist%\swooz-trackingLeap.cmd
+echo SWLeapTracking.exe %PARAMS_EXEC%                                                        >> %target_dist%\swooz-trackingLeap.cmd
+echo cd ../../scripts                                                                   >> %target_dist%\swooz-trackingLeap.cmd
+echo call win-clean-env_command.cmd                                                   >> %target_dist%\swooz-trackingLeap.cmd
+echo cd ../dist                                                                         >> %target_dist%\swooz-trackingLeap.cmd
+REM #######################################################################################
 REM ### Viewer
 echo @echo off                                                                          >  %target_dist%\swooz-viewer.cmd
 echo %SystemRoot%\system32\xcopy /q /e /y %saved_directory%\..\swooz-config %saved_directory%\%target_dist%\data >> %target_dist%\swooz-viewer.cmd
 echo pushd ..\scripts                                                                   >> %target_dist%\swooz-viewer.cmd
-echo call win-init_env_command.cmd %ARCH_EXE_viewer%                           >> %target_dist%\swooz-viewer.cmd
+echo call win-init_env_command.cmd x86                                                  >> %target_dist%\swooz-viewer.cmd
 echo popd                                                                               >> %target_dist%\swooz-viewer.cmd
 echo cd bin                                                                             >> %target_dist%\swooz-viewer.cmd
-echo SWViewer.exe                                                                >> %target_dist%\swooz-viewer.cmd
+echo SWViewer.exe                                                                       >> %target_dist%\swooz-viewer.cmd
 echo cd ../../scripts                                                                   >> %target_dist%\swooz-viewer.cmd
-echo call win-clean-env_command.cmd                                                   >> %target_dist%\swooz-viewer.cmd
+echo call win-clean-env_command.cmd                                                     >> %target_dist%\swooz-viewer.cmd
 echo cd ../dist                                                                         >> %target_dist%\swooz-viewer.cmd
-
+REM #######################################################################################
+REM ### Viewer 64
+echo @echo off                                                                          >  %target_dist%\swooz-viewer-x64.cmd
+echo %SystemRoot%\system32\xcopy /q /e /y %saved_directory%\..\swooz-config %saved_directory%\%target_dist%\data >> %target_dist%\swooz-viewer-x64.cmd
+echo pushd ..\scripts                                                                   >> %target_dist%\swooz-viewer-x64.cmd
+echo call win-init_env_command.cmd amd64                                                >> %target_dist%\swooz-viewer-x64.cmd
+echo popd                                                                               >> %target_dist%\swooz-viewer-x64.cmd
+echo cd bin                                                                             >> %target_dist%\swooz-viewer-x64.cmd
+echo SWViewer-x64.exe                                                                   >> %target_dist%\swooz-viewer-x64.cmd
+echo cd ../../scripts                                                                   >> %target_dist%\swooz-viewer-x64.cmd
+echo call win-clean-env_command.cmd                                                     >> %target_dist%\swooz-viewer-x64.cmd
+echo cd ../dist                                                                         >> %target_dist%\swooz-viewer-x64.cmd
 
 REM #####################   EXAMPLES
 
@@ -362,7 +385,17 @@ echo cd ../../scripts                                                           
 echo call win-clean-env_command.cmd                                                     >> %target_dist%\examples\detect_face_stasm.cmd
 echo cd ../dist/examples                                                                >> %target_dist%\examples\detect_face_stasm.cmd
 REM #######################################################################################
-
+REM ### display leap
+echo @echo off                                                                          >  %target_dist%\examples\display_leap.cmd
+echo %SystemRoot%\system32\xcopy /q /e /y %saved_directory%\..\swooz-config %saved_directory%\%target_dist%\data >> %target_dist%\examples\display_leap.cmd
+echo pushd ..\..\scripts                                                                >> %target_dist%\examples\display_leap.cmd
+echo call win-init_env_command.cmd %ARCH_EXE_examples%                                  >> %target_dist%\examples\display_leap.cmd
+echo cd ..\dist\bin                                                                     >> %target_dist%\examples\display_leap.cmd
+echo display_leap.exe                                                                   >> %target_dist%\examples\display_leap.cmd
+echo cd ../../scripts                                                                   >> %target_dist%\examples\display_leap.cmd
+echo call win-clean-env_command.cmd                                                     >> %target_dist%\examples\display_leap.cmd
+echo cd ../dist/examples                                                                >> %target_dist%\examples\display_leap.cmd
+REM #######################################################################################
 
 echo.
 echo Install completed !

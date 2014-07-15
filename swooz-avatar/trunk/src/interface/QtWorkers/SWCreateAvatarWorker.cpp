@@ -28,7 +28,6 @@
 using namespace cv;
 using namespace swDevice;
 
-
 SWCreateAvatarWorker::SWCreateAvatarWorker(swDevice::SWKinect_thread *pRGBDDeviceThread) :
     m_pRGBDDeviceThread(pRGBDDeviceThread)
 {	    
@@ -131,22 +130,17 @@ void SWCreateAvatarWorker::doWork()
                     m_CAvatarPtr->resetData();
                 }
 
-                if(m_CAvatarPtr->addCloudToAvatar(l_oBGR, l_oCloud))
+                bool l_bAddCloudSuccess = m_CAvatarPtr->addCloudToAvatar(l_oBGR, l_oCloud);
+
+                if(l_bAddCloudSuccess)
                 {
                     ++m_i32CurrentCloudNumber;
-                        emit sendNumCloud(m_i32CurrentCloudNumber);
+                    emit sendNumCloud(m_i32CurrentCloudNumber);
 
                     // retrieve total cloud
                         deleteAndNullify(m_pCloudToDisplay);
-                        m_pCloudToDisplay = new swCloud::SWCloud();                        
+                        m_pCloudToDisplay = new swCloud::SWCloud();
                         m_CAvatarPtr->totalCloud(*m_pCloudToDisplay);
-//                        m_pCloudToDisplay->setUnicolor(255/(rand()%7 + 1),255/(rand()%7 + 1),255/(rand()%7 + 1));
-
-                    // retrieve rectangles
-                        deleteAndNullify(m_pCurrentFaceRect);
-                        deleteAndNullify(m_pCurrentNoseRect);
-                        m_pCurrentFaceRect = new cv::Rect(m_CAvatarPtr->lastRectFace());
-                        m_pCurrentNoseRect = new cv::Rect(m_CAvatarPtr->lastRectNose());
 
                     // retrieve stasm points
                         std::vector<cv::Point2i> l_vP2IStasm;
@@ -159,15 +153,6 @@ void SWCreateAvatarWorker::doWork()
                             }
                         }
                         emit sendStasmPoints(l_vP2IStasm);
-
-                    // send the cloud and the rectangles to the interface for displaying
-                        emit sendFaceRect(m_pCurrentFaceRect);
-                        emit sendNoseRect(m_pCurrentNoseRect);
-
-                        if(m_pCloudToDisplay->size() > 0)
-                        {
-                            emit sendCloud(m_pCloudToDisplay);
-                        }
                 }
                 else if(m_i32CurrentCloudNumber == 0)
                 {
@@ -179,6 +164,66 @@ void SWCreateAvatarWorker::doWork()
                         stopWork();
                         l_bContinueLoop = false;
                 }
+
+                if(m_i32CurrentCloudNumber > 0)
+                {
+                    // retrieve rectangles
+                        deleteAndNullify(m_pCurrentFaceRect);
+                        deleteAndNullify(m_pCurrentNoseRect);
+                        m_pCurrentFaceRect = new cv::Rect(m_CAvatarPtr->lastRectFace());
+                        m_pCurrentNoseRect = new cv::Rect(m_CAvatarPtr->lastRectNose());
+
+                    // send the cloud and the rectangles to the interface for displaying
+                        emit sendFaceRect(m_pCurrentFaceRect);
+                        emit sendNoseRect(m_pCurrentNoseRect);
+
+                        if(m_pCloudToDisplay)
+                        {
+                            if(m_pCloudToDisplay->size() > 0)
+                            {
+                                emit sendCloud(m_pCloudToDisplay);
+                            }
+                        }
+                    }
+
+
+//                if(m_CAvatarPtr->addCloudToAvatar(l_oBGR, l_oCloud))
+//                {
+//                    ++m_i32CurrentCloudNumber;
+//                        emit sendNumCloud(m_i32CurrentCloudNumber);
+
+//                    // retrieve total cloud
+//                        deleteAndNullify(m_pCloudToDisplay);
+//                        m_pCloudToDisplay = new swCloud::SWCloud();
+//                        m_CAvatarPtr->totalCloud(*m_pCloudToDisplay);
+
+                    // retrieve rectangles
+//                        deleteAndNullify(m_pCurrentFaceRect);
+//                        deleteAndNullify(m_pCurrentNoseRect);
+//                        m_pCurrentFaceRect = new cv::Rect(m_CAvatarPtr->lastRectFace());
+//                        m_pCurrentNoseRect = new cv::Rect(m_CAvatarPtr->lastRectNose());
+
+//                    // retrieve stasm points
+//                        std::vector<cv::Point2i> l_vP2IStasm;
+
+//                        if(m_bSendStasmPoints)
+//                        {
+//                            if(m_i32NumberStasm++ < m_i32MaxNumberStasm) // TODO : add mutex
+//                            {
+//                                m_CAvatarPtr->m_CStasmDetectPtr->featuresPoints(l_vP2IStasm);
+//                            }
+//                        }
+//                        emit sendStasmPoints(l_vP2IStasm);
+
+//                    // send the cloud and the rectangles to the interface for displaying
+//                        emit sendFaceRect(m_pCurrentFaceRect);
+//                        emit sendNoseRect(m_pCurrentNoseRect);
+
+//                        if(m_pCloudToDisplay->size() > 0)
+//                        {
+//                            emit sendCloud(m_pCloudToDisplay);
+//                        }
+//                }
             }
             else
             {
@@ -202,7 +247,7 @@ void SWCreateAvatarWorker::doWork()
                     m_CAvatarPtr->lastRadialProjection(*m_pRadialProjectionToDisplay);
 
                 // send results to interface
-                    emit sendMesh(m_pFaceMeshResult);
+                    emit sendMesh(m_pFaceMeshResult, true);
                     emit sendMat(m_pRadialProjectionToDisplay);
 
                 // change interface focus, enable/disable
@@ -230,6 +275,7 @@ void SWCreateAvatarWorker::stopWork()
     emit stopWorkSignal();
 }
 
+
 void SWCreateAvatarWorker::reconstruct()
 {
     // retrieve face texture
@@ -252,7 +298,7 @@ void SWCreateAvatarWorker::reconstruct()
         m_CAvatarPtr->lastRadialProjection(*m_pRadialProjectionToDisplay);
 
     // send results to interface
-        emit sendMesh(m_pFaceMeshResult);
+        emit sendMesh(m_pFaceMeshResult, false);
         emit sendMat(m_pRadialProjectionToDisplay);
 
     // change interface focus, enable/disable
@@ -387,7 +433,7 @@ void SWCreateAvatarWorker::setDepthCloud(const double dVal)
     m_CAvatarPtr->setDepthCloud((float)dVal);
 }
 
-void SWCreateAvatarWorker::addPointToDeleteRadialProj(const QPoint oPtToAdd, const QSize oSize)
+void SWCreateAvatarWorker::addPointToDeleteRadialProj(const QPoint oPtToAdd, const QSize oSize, const bool leftClick)
 {
     std::vector<int> l_vPt(2);
     l_vPt[0] = oPtToAdd.x() / (oSize.width() *1.f / m_CAvatarPtr->m_i32WidthRadialProj);

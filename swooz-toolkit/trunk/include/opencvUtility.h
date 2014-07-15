@@ -86,6 +86,37 @@ namespace swUtil
 
         return l_oScaledRect;
     }
+
+    static void rodriguesRotation(const cv::Vec3d &oU, const cv::Vec3d &oV, cv::Mat &oRot)
+    {
+        cv::Vec3d u = cv::normalize(oU);
+        cv::Vec3d v = cv::normalize(oV);
+
+        cv::Vec3d uXv = u.cross(v);
+        double cosTheta = u.dot(v);
+        double sinTheta = cv::norm(uXv);
+
+        cv::Vec3d a(uXv * (1.0 / sinTheta));
+        cv::Mat m1 = cv::Mat::eye(3,3, CV_64FC1) * cosTheta;
+        cv::Mat m2(a*(a.t()) * (1.0 - cosTheta));
+
+        cv::Mat m3 = cv::Mat(3,3, CV_64FC1, cv::Scalar(0.0));
+        m3.at<double>(0,1) -= a[2]; m3.at<double>(0,2) += a[1];
+        m3.at<double>(1,0) += a[2]; m3.at<double>(1,2) -= a[0];
+        m3.at<double>(2,0) -= a[1]; m3.at<double>(2,1) += a[0];
+
+        m3 *= sinTheta;
+
+        oRot = m1 + m2 + m3;
+
+        for(int ii = 0; ii < oRot.rows * oRot.cols; ++ii)
+        {
+            if(oRot.at<double>(ii) < 0.00001 && oRot.at<double>(ii) > -0.00001)
+            {
+                oRot.at<double>(ii) = 0.0;
+            }
+        }
+    }
 }
 
 #endif

@@ -37,23 +37,38 @@ enum GLObjectDisplayMode
 };
 
 struct SWGLObjectParameters
-{
-        bool m_bCloud;
+{       
+        // display
+            bool m_bCloud;
+            bool m_bVisible;
+            bool m_bDisplayLines;
+            GLObjectDisplayMode displayMode;
 
-        bool m_bVisible;
-        bool m_bDisplayLines;
+        // transfo
+            double m_dScaling;
+            QVector3D m_vUnicolor;
+            QVector3D m_vTranslation;
+            QVector3D m_vRotation;
 
-        GLObjectDisplayMode displayMode;
+        // texture
+            QString m_sTexturePath;
+            QImage m_oTexture;
+            GLuint m_textureLocation;
 
-        double m_dScaling;
+        // lights
+            QVector3D m_vSourceLight;
 
-        QVector3D m_vUnicolor;
-        QVector3D m_vTranslation;
-        QVector3D m_vRotation;
+            QVector3D m_vAmbiantLight;
+            QVector3D m_vDiffusLight;
+            QVector3D m_vSpecularLight;
 
-        QString m_sTexturePath;
+            double m_dAmbiantK;
+            double m_dDiffusK;
+            double m_dSpecularK;
+            double m_dSpecularP;
 
-        QReadWriteLock m_parametersMutex;
+        // others
+            QReadWriteLock m_parametersMutex;
 };
 
 typedef boost::shared_ptr<SWGLObjectParameters> SWGLObjectParametersPtr;	/**< boost shared pointer for SWGLObjectParameters */
@@ -149,19 +164,11 @@ class SWGLMultiObjectWidget : public SWGLWidget
         void removeMesh(cuint ui32Index);
 
         /**
-         * @brief setTexture
-         * @param ui32Index
-         * @param sTexturePath
+         * @brief setCameraItem
+         * @param bIsCloudItem
+         * @param i32IndexItem
          */
-        void setTexture(cuint ui32Index, const QString &sTexturePath);
-
-        /**
-         * @brief applyTexture
-         * @param ui32Index
-         * @param bApplyTexture
-         */
-        void applyTexture(cuint ui32Index, const bool bApplyTexture);
-
+        void setCameraItem(cbool bIsCloudItem, cint i32IndexItem);
 
     private :
 
@@ -193,6 +200,7 @@ class SWGLMultiObjectWidget : public SWGLWidget
         QList<SWGLObjectParametersPtr> m_vCloudsParameters; /**< ... */
         QList<SWGLObjectParametersPtr> m_vMeshesParameters; /**< ... */
 
+//        QVector
         QList<QGLBufferPtr> m_vCloudsVertexBuffer;
         QList<QGLBufferPtr> m_vCloudsIndexBuffer;
         QList<QGLBufferPtr> m_vCloudsNormalBuffer;
@@ -205,6 +213,7 @@ class SWGLMultiObjectWidget : public SWGLWidget
         QList<QGLBufferPtr> m_vMeshesTextureBuffer;
         QList<QGLBufferPtr> m_vMeshesColorBuffer;
 
+//        QVector<QGLBufferPtr> m_vUnusedBuffers;
 
         QVector<QGLBufferPtr> m_vBuffersToDelete;
 

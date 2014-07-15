@@ -9,6 +9,8 @@ SET ARCH_EXE_trackingHeadEmicp=x86
 SET ARCH_EXE_trackingFaceShift=x86
 SET ARCH_EXE_trackingFaceLab=x86
 SET ARCH_EXE_trackingHeadForest=x86
+SET ARCH_EXE_trackingFake=x86
+SET ARCH_EXE_trackingLeap=x86
 SET ARCH_EXE_createAvatar=x86
 SET ARCH_EXE_toolkit_kinectOnDimenco=x86
 SET ARCH_EXE_3dclient_dummy=x86
@@ -27,7 +29,7 @@ SET SW_percent=%%
 set SW_DIST=%SW_base%\dist
 
 REM ## To transmit scripts parameters to the exe
-SET PARAMS_EXEC="%%1 %%2 %%3 %%4 %%5"
+SET PARAMS_EXEC=%%1 %%2 %%3 %%4 %%5
 REM ########################################################################################################################
 REM ## GLOBAL BRANCH VALUE
 REM
@@ -99,6 +101,16 @@ REM
 REM ########################################################################################################################
 
 REM ########################################################################################################################
+REM ## VIEWER SECTION BRANCH VALUE
+REM
+REM ## these variables SET each project branch
+SET SW_viewer=%SW_base%\swooz-viewer
+REM
+SET SW_viewer_branch=
+REM
+REM ########################################################################################################################
+
+REM ########################################################################################################################
 REM ## EXAMPLES SECTION BRANCH VALUE
 REM
 REM ## these variables SET each project branch
@@ -131,6 +143,11 @@ REM TELEOPERATION
 if "%SW_teleoperation_branch%" == "" SET SW_teleoperation_branch=%SW_default_branch%
 REM MANIPULATION
 if "%SW_manipulation_branch%" == "" SET SW_manipulation_branch=%SW_default_branch%
+<<<<<<< HEAD
+=======
+REM VIEWER
+if "%SW_viewer_branch%" == "" SET SW_viewer_branch=%SW_default_branch%
+>>>>>>> origin/flance
 REM EXAMPLES
 if "%SW_examples_branch%" == "" SET SW_examples_branch=%SW_default_branch%
 REM ########################################################################################################################
@@ -212,6 +229,10 @@ set THIRD_PARTY_NAOQI=%SW_base%\swooz-3rdparty\naoqi
 set THIRD_PARTY_NAOQI_64=
 REM ##################### CUSPARSE
 set THIRD_PARTY_CUSPARSE=%SW_base%\swooz-3rdparty\cuSparse
+REM ##################### LEAP
+set THIRD_PARTY_LEAP=%SW_base%\swooz-3rdparty\leap
+REM ##################### ICUB
+set THIRD_PARTY_ICUB=%SW_base%\swooz-3rdparty\icub
 REM ########################################################################################################################
 
 
@@ -305,7 +326,7 @@ set PATH=%THIRD_PARTY_MKL%\lib;%PATH%
 set PATH=%THIRD_PARTY_POLHEMUS%\lib\Win32;%PATH%
 set PATH=%THIRD_PARTY_FREEGLUT%\bin;%PATH%
 set PATH=%THIRD_PARTY_NAOQI%\bin;%PATH%
-
+set PATH=%THIRD_PARTY_LEAP%\lib;%PATH%
 goto endSetPath
 
 :setPath64
@@ -339,6 +360,12 @@ echo %SW_avatar%\%SW_avatar_branch% >> %SW_build_order%
 echo %SW_tracking%\%SW_tracking_branch% >> %SW_build_order%
 echo %SW_teleoperation%\%SW_teleoperation_branch% >> %SW_build_order%
 echo %SW_manipulation%\%SW_manipulation_branch% >> %SW_build_order%
+echo %SW_viewer%\%SW_viewer_branch% >> %SW_build_order%
 echo %SW_examples%\%SW_examples_branch% >> %SW_build_order%
 REM
 REM ########################################################################################################################
+REM ## create the partial clean order file
+set SW_clean_order=SW_clean_order.txt
+del %SW_clean_order% > NULL 2<&1
+echo %SW_avatar%\%SW_avatar_branch% >> %SW_clean_order%
+echo %SW_viewer%\%SW_viewer_branch% >> %SW_clean_order%

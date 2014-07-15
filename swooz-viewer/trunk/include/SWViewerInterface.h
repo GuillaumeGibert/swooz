@@ -76,6 +76,12 @@ class SWViewerInterface : public QMainWindow
 
         /**
          * @brief updateParameters
+         * @param sInused
+         */
+        void updateParameters(QString sInused);
+
+        /**
+         * @brief updateParameters
          */
         void updateParameters();
 
@@ -87,6 +93,10 @@ class SWViewerInterface : public QMainWindow
 
         void setTexture();
 
+        /**
+         * @brief setCameraToCurrentItem
+         */
+        void setCameraToCurrentItem();
 
         /**
          * \brief Timer event
@@ -101,6 +111,7 @@ class SWViewerInterface : public QMainWindow
 
 
         bool m_bIsCloudLastSelection;
+        bool m_bDesactiveUpdateParameters;
 
 
         // widgets & ui
@@ -111,8 +122,6 @@ class SWViewerInterface : public QMainWindow
         // threads & workers
 //        SWViewerWorker  *m_pWViewer;    /**< viewer worker */
         QThread            m_TViwer;    /**< viwer thread */
-
-
 
 };
 

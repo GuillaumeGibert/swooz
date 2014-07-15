@@ -81,8 +81,7 @@ BINMODE = "$(VS100COMNTOOLS)/../../VC/lib/binmode.obj"
 SETARGV = "$(VS100COMNTOOLS)/../../VC/lib/amd64/setargv.obj"
 BINMODE = "$(VS100COMNTOOLS)/../../VC/lib/amd64/binmode.obj"
 
-
-# ...
+THIRD_PARTY_QT          = $(THIRD_PARTY_QT_64)
 
 !ENDIF
 
@@ -126,7 +125,8 @@ LFLAGS_VIEWER =-nologo
 
 ############################ LIBS
 
-LIBS_SWOOZ      = $(DIST_LIBDIR)/SWToolkit_d.lib\
+LIBS_SWOOZ      =
+##$(DIST_LIBDIR)/SWToolkit_d.lib\
 
 LIBS_QT 	= $(THIRD_PARTY_QT)/lib/QtOpenGL4.lib $(THIRD_PARTY_QT)/lib/QtCore4.lib $(THIRD_PARTY_QT)/lib/QtGui4.lib $(THIRD_PARTY_QT)/lib/qtmain.lib\
 

@@ -167,7 +167,8 @@ class SWCreateAvatarWorker : public QObject
         /**
          * @brief addPointToDeleteRadialProj
          */
-        void addPointToDeleteRadialProj(const QPoint, const QSize);
+        void addPointToDeleteRadialProj(const QPoint, const QSize, const bool);
+
 
         /**
          * @brief resetDeletedPointsRadialProj
@@ -202,7 +203,7 @@ class SWCreateAvatarWorker : public QObject
         /**
          * @brief sendMesh
          */
-        void sendMesh(swMesh::SWMesh*);
+        void sendMesh(swMesh::SWMesh*, bool);
 
         /**
          * @brief sendMat

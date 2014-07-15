@@ -41,7 +41,7 @@ bool SWTrack::trackFace(const Mat &oPreRgbFrame, const Mat &oCurrRgbFrame, Rect 
 		// retrieve the mat contening the face detected with haar cascade
 		// if(m_ui32NumFrame % m_ui32NumberOfFramesBeforeFaceDetection == 0 && m_ui32NumFrame != 0)
 		// {
-			if(m_CFaceDetectionPtr->detect(oCurrRgbFrame)) // if face detection is successfull
+            if(m_CFaceDetectionPtr->detectFace(oCurrRgbFrame)) // if face detection is successfull
 			{
 				m_oFaceRect = m_CFaceDetectionPtr->faceRect();
 

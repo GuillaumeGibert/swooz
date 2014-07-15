@@ -95,6 +95,7 @@ int main(int argc, char* argv[])
     std::cout << "Device : " << l_sDevice << std::endl;
     std::cout << "Lib : " << l_sLib << std::endl;
     std::cout << "Robot part : " << l_sRobotPart << std::endl;
+    std::cout << "Lib device : " << l_sLIB_DEVICE << std::endl;
 
     bool l_bEndFile = false;
 
@@ -140,7 +141,6 @@ int main(int argc, char* argv[])
 
     l_oFileStream.close();
 
-
     // ###################################
 
     int l_i32Lib_Id = 0;
@@ -177,17 +177,17 @@ int main(int argc, char* argv[])
             // device lib id
             l_oFakeTrackingBottle.addInt(l_i32Lib_Id); //head : l_i32Lib_Id id / get(0).asInt()
 
-            std::cout << l_vBottlesTimes[ii] << " ";
+//            std::cout << l_vBottlesTimes[ii] << " ";
 
             for(uint jj = 0; jj < l_vVData[ii].size(); ++jj)
             {
                 l_oFakeTrackingBottle.addDouble(l_vVData[ii][jj]);
-                std::cout << l_vVData[ii][jj] << " ";
+//                std::cout << l_vVData[ii][jj] << " ";
             }
 
-            std::cout << std::endl;
+//            std::cout << std::endl;
 
-        l_oFakeTrackingPort.write();
+        l_oFakeTrackingPort.write(); // true
     }
 
     l_oFakeTrackingPort.close();

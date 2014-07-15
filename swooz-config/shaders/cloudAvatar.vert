@@ -11,6 +11,7 @@ in vec3 color;
 
 out vec3 PointColor;
 
+
 void main( void )
 {
 	gl_Position = mvpMatrix * vec4(vertex,1.0);       

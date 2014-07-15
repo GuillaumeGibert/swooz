@@ -17,6 +17,7 @@ using namespace yarp::sig;
 
 char recvbuf[DEFAULT_BUFLEN];
 
+
 SWFaceShiftTracking::SWFaceShiftTracking() : m_i32Fps(30)
 {
     std::string l_sDeviceName  = "rgbd";

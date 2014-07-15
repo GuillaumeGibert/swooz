@@ -71,11 +71,23 @@ void SWDisplayImageWidget::paintEvent(QPaintEvent *)
 void SWDisplayImageWidget::mousePressEvent(QMouseEvent *event)
 {
     m_bMouseClicked = true;
+//
+    if (event->button() == Qt::LeftButton)
+    {
+        m_bMouseLeftClick = true;
+    }
+    else if(event->button() == Qt::RightButton)
+    {
+        m_bMouseRightClick = true;
+    }
+
 }
 
 void SWDisplayImageWidget::mouseReleaseEvent(QMouseEvent *event)
 {
     m_bMouseClicked = false;
+    m_bMouseLeftClick = false;
+    m_bMouseRightClick = false;
 }
 
 void SWDisplayImageWidget::mouseMoveEvent(QMouseEvent *event)
@@ -93,7 +105,15 @@ void SWDisplayImageWidget::mouseMoveEvent(QMouseEvent *event)
                 {
                     m_vClickedPoints.push_back(QPoint(ii,jj));
                     m_vCurrentSize.push_back(m_oScaledImage.size());
-                    emit clickPoint(QPoint(ii,jj), m_oScaledImage.size());
+
+                    if(m_bMouseLeftClick)
+                    {
+                        emit clickPoint(QPoint(ii,jj), m_oScaledImage.size(), true);
+                    }
+                    else
+                    {
+                        emit clickPoint(QPoint(ii,jj), m_oScaledImage.size(), false);
+                    }
                 }
             }
 

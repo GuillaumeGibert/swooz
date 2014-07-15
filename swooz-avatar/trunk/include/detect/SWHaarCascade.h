@@ -47,7 +47,7 @@ namespace swDetect
 			 * \param [in] bUseGPU	 	      : use the GPU for computing
 			 */
 			SWHaarCascade(const std::string &sCascadeFile, const uint ui32NumberOfDetections = 1,
-				      const cv::Size oMinDetectSize = cv::Size(80,80), const cv::Size oMaxDetectSize = cv::Size(0,0), bool bUseGPU = false); // oMaxDetectSize = cv::Size(0,0)
+                      const cv::Size oMinDetectSize = cv::Size(80,80), const cv::Size oMaxDetectSize = cv::Size(0,0), bool bUseGPU = false); // oMaxDetectSize = cv::Size(0,0)
 		
 			/**
 			 * \brief destructor of SWHaarCascade

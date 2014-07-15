@@ -240,19 +240,19 @@ namespace swMesh
 
             /**
              * \brief Get a copy of all the vertex coordinates in an array [float float float] (used for opengl)
-             * \return the float array
+             * \return the float array or a NULL pointer
              */
             float *vertexBuffer() const;
 
             /**
              * \brief Get a copy of all the normals coordinates in an array [float float float] (used for opengl)
-             * \return the float array
+             * \return the float array or a NULL pointer
              */
             float *normalBuffer() const;
 
             /**
              * \brief Get a copy of all the texture coordinates in an array [float float] (used for opengl)
-             * \return the float array
+             * \return the float array or a NULL pointer
              */
             float *textureBuffer() const;
 

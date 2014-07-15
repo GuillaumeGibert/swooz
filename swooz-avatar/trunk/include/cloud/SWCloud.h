@@ -52,6 +52,19 @@ namespace swCloud
 		{			
 			return (fX > m_fMinX && fX < m_fMaxX && fY > m_fMinY && fY < m_fMaxY && fZ > m_fMinZ && fZ < m_fMaxZ);						
 		}
+
+        /**
+         * @brief diagSize
+         * @return the diagonal length of the bbox
+         */
+        float diagLength() const
+        {
+            float l_fDiffX = m_fMinX - m_fMaxX;
+            float l_fDiffY = m_fMinY - m_fMaxY;
+            float l_fDiffZ = m_fMinZ - m_fMaxZ;
+
+            return sqrt(l_fDiffX*l_fDiffX + l_fDiffY*l_fDiffY + l_fDiffZ*l_fDiffZ);
+        }
 	};	
 
     /**
@@ -80,11 +93,19 @@ namespace swCloud
             SWRigidMotion(cfloat *aFRotation, cfloat *aFTranslation, bool bRotMat = true);
 
             /**
-             * \brief constructor of SWRigidMotion
+             * @brief constructor of SWRigidMotion
              * \param [in] fRotation    : rotation angle value
              * \param [in] v3FAxe       : axe rotation
              */
-            SWRigidMotion(cfloat fRotation, std::vector<float> v3FAxe);
+            SWRigidMotion(cfloat fAngle, std::vector<float> v3FAxe);
+
+            /**
+             * @brief constructor of SWRigidMotion with spheric coordinates
+             * @param [in] fLati  : latitude
+             * @param [in] fLong  : longitude
+             * @param [in] fAngle : angle
+             */
+//            SWRigidMotion(cfloat fLati, cfloat fLong, cfloat fAngle, cbool bTest = false);
 
             /**
              * \brief constructor of SWRigidMotion (0,0,0) center of the rotation
@@ -106,19 +127,24 @@ namespace swCloud
             ~SWRigidMotion();
 
             /**
+             * @brief Compute the rotation matrix from the quaternions
+             */
+            void computeRotationMatrixWithQuaternions();
+
+            /**
              * \brief Compute the rotation angles from the rotation matrix
              */
-            void computeRotationAngles();
+            void computeRotationAnglesWithRotationMatrix();
 
             /**
              * \brief Compute the rotation matrix from the rotation angles
              */
-            void computeRotationMatrix();
+            void computeRotationMatrixWithRotationAngles();
 
             /**
              * \brief Compute the quaternions from the rotation matrix
              */
-            void computeQuaternions();
+            void computeQuaternionsWithRotationMatrix();
 
             /**
              * \brief set RT matrix
@@ -490,19 +516,19 @@ namespace swCloud
 
 			/**
 			 * \brief Get a copy of all the points coordinates in an array [x0,y0,z0,x1,y1,z1,...,xn,yn,zn] (used for opengl)
-			 * \return the float array
+             * \return the float array or a NULL pointer
 			 */
 			float *vertexBuffer() const;
 			
 			/**
 			 * \brief Return an unsigned integer array containing the order of the index of the cloud vertex [1,2,3, ... ,n] (used for opengl)
-			 * \return the uint32 array
+             * \return the uint32 array or a NULL pointer
 			 */		
 			uint32 *indexBuffer() const;
 						
 			/**
 			 * \brief Get a copy of all points colors in an array [R0,G0,B0,R1,G1,B1,...,Rn,Gn,Bn] (used for opengl)
-			 * \return the float array
+             * \return the float array or a NULL pointer
 			 */			
 			float *colorBuffer() const;
 			

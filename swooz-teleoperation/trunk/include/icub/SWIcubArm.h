@@ -28,6 +28,7 @@
 
 #include <yarp/dev/PolyDriver.h>
 #include <yarp/dev/ControlBoardInterfaces.h>
+#include <yarp/dev/CartesianControl.h>
 
 #include <yarp/os/RateThread.h>
 #include <yarp/os/Mutex.h>
@@ -50,11 +51,10 @@ namespace swTeleop
              * @param pIArmEncoders
              * @param pIArmVelocity
              * @param vArmJointVelocityK
-             * @param dVelocityToleranceArm
              * @param i32Rate
              */
             SWArmVelocityController(yarp::dev::IEncoders *pIArmEncoders, yarp::dev::IVelocityControl *pIArmVelocity,
-                                 std::vector<double> &vArmJointVelocityK, double dVelocityToleranceArm = 15.,int i32Rate = 10);
+                                 std::vector<double> &vArmJointVelocityK,int i32Rate = 10);
 
             /**
              * @brief run
@@ -77,9 +77,8 @@ namespace swTeleop
         private :
 
             bool m_bArmEnabled;
-            double m_dVelocityToleranceArm;                /**< ... */
 
-            yarp::os::Mutex m_oMutex;                   /**< ... */
+            yarp::os::Mutex m_oMutex;                      /**< ... */
             yarp::dev::IEncoders *m_pIArmEncoders;         /**< ... */
             yarp::dev::IVelocityControl *m_pIArmVelocity;  /**< ... */
             yarp::sig::Vector m_vLastArmJoint;             /**< ... */
@@ -142,71 +141,75 @@ namespace swTeleop
 
         private :
 
+            /**
+             * @brief Compute the arm/hand angles values with an input hand yarp bottle
+             * @param [in] handBottle    : hand yarp bottle pointer
+             * @param [out] vHandAngles  : hand angles array
+             */
+            void computeHandAngles(yarp::os::Bottle* handBottle,std::vector<double> &vHandAngles);
 
-            bool m_bInitialized;    /**< .... */
-            bool m_bIsRunning;      /**< ... */
+            /**
+             * @brief Compute the finger angles values with an input hand finger yarp bottle
+             * @param [in] handFingerBottle : hand fingers  yarp bottle pointer
+             * @param [out] vFingerAngles   : finger angles array
+             */
+            void computeFingerAngles(yarp::os::Bottle* handFingerBottle,std::vector<double> &vFingerAngles);
 
-            int m_i32ArmJointsNb;  /**< ... */
+            bool m_bInitialized;                /**< is the module initialized */
+            bool m_bIsRunning;                  /**< is the module running */
 
-            double m_dArmTimeLastBottle;/**< ... */
+            int m_i32ArmJointsNb;               /**< arm joint number */
 
             // Config variables retrieved from the ini file
-            bool m_bArmActivated;  /**< .... */
-            int m_bArmActivatedDefault;  /**< .... */
+            bool m_bArmActivated;               /**< is arm activated value */
+            int m_i32TimeoutArmReset;           /**< timeout arm value  */
 
-            int m_i32TimeoutArmReset;  /**< ... */
-            int m_i32TimeoutArmResetDefault;  /**< ... */
+            bool m_bArmActivatedDefault;        /**< is arm activated DEFAULT value */
+            int m_i32TimeoutArmResetDefault;    /**< timeout arm DEFAULT value */
 
-            double m_dVelocityToleranceArm;        /**< ... */
-            double m_dVelocityToleranceArmDefault; /**< ... */
+            std::vector<double> m_vArmMinJoint;                         /**< arm minimum joint values array */
+            std::vector<double> m_vArmMaxJoint;                         /**< arm maximum joint values array  */
+            std::vector<double> m_vArmResetPosition;                    /**< arm reset positions values values array */
+            std::vector<double> m_vArmJointVelocityAcceleration;        /**< arm join velocity control acceleration values array */
+            std::vector<double> m_vArmJointPositionAcceleration;        /**< arm joint position control acceleration values array  */
+            std::vector<double> m_vArmJointPositionSpeed;               /**< arm joint position control speed values array  */
+            std::vector<double> m_vArmJointVelocityK;                   /**< arm joint velocity K values array */
 
-            std::vector<double> m_vArmMinJoint;            /**< ... */
-            std::vector<double> m_vArmMaxJoint;            /**< ... */
-            std::vector<double> m_vArmMinJointDefault;     /**< ... */
-            std::vector<double> m_vArmMaxJointDefault;     /**< ... */
+            std::vector<double> m_vArmMinJointDefault;                  /**< arm minimum joint DEFAULT values array */
+            std::vector<double> m_vArmMaxJointDefault;                  /**< arm maximum joint DEFAULT values array  */
+            std::vector<double> m_vArmResetPositionDefault;             /**< arm reset positions DEFAULT values array */
+            std::vector<double> m_vArmJointVelocityAccelerationDefault; /**< arm join velocity control acceleration DEFAULT values array */
+            std::vector<double> m_vArmJointPositionAccelerationDefault; /**< arm joint position control acceleration DEFAULT values array  */
+            std::vector<double> m_vArmJointPositionSpeedDefault;        /**< arm joint position control speed DEFAULT values array  */
+            std::vector<double> m_vArmJointVelocityKDefault;            /**< arm joint velocity K DEFAULT values array */
 
-            std::vector<double> m_vArmResetPosition;        /**< ... */
-            std::vector<double> m_vArmResetPositionDefault; /**< ... */
+            std::string m_sModuleName;                                              /**< name of the mondule (config) */
+            std::string m_sRobotName;                                               /**< name of the robot (config) */
 
-            std::vector<double> m_vArmJointVelocityAcceleration;       /**< ... */
-            std::vector<double> m_vArmJointPositionAcceleration;       /**< ... */
-            std::vector<double> m_vArmJointPositionSpeed;              /**< ... */
-            std::vector<double> m_vArmJointVelocityAccelerationDefault;/**< ... */
-            std::vector<double> m_vArmJointPositionAccelerationDefault;/**< ... */
-            std::vector<double> m_vArmJointPositionSpeedDefault;       /**< ... */
+            // icub arm options
+            std::string m_sArmLocalPortName;                                        /**< name of the arm local port */
+            std::string m_sArmRemotePortName;                                       /**< name of the arm remote port */
+            std::string m_sArmControlName;                                          /**< control name */
+            yarp::os::Property m_oArmOptions;                                       /**< robot interfaces properties */
 
-            std::vector<double> m_vArmJointVelocityK;         /**< ... */
-            std::vector<double> m_vArmJointVelocityKDefault;  /**< ... */
-
-            std::string m_sModuleName;              /**< name of the mondule (config) */
-            std::string m_sRobotName;               /**< name of the robot (config) */
-
-
-            // arm control
-            yarp::os::Property m_oArmOptions;                   /**< robot interfaces properties */
-            yarp::os::Property m_oArmCartesianOptions;          /**< robot cartesan interfaces properties */
-            yarp::dev::PolyDriver        m_oRobotArm;           /**< robot arm controller */
-            yarp::dev::PolyDriver        m_oRobotArmCartesian;  /**< robot arm cartesian controller */
-            yarp::dev::IEncoders        *m_pIArmEncoders;       /**< ... */
-            yarp::dev::IPositionControl *m_pIArmPosition;       /**< ... */
-            yarp::dev::IVelocityControl *m_pIArmVelocity;       /**< ... */
+            // icub control
+            yarp::dev::IEncoders        *m_pIArmEncoders;                           /**< arm encoder pointer */
+            yarp::dev::IPositionControl *m_pIArmPosition;                           /**< arm position control pointer */
+            yarp::dev::IVelocityControl *m_pIArmVelocity;                           /**< arm velocity control pointer */
+            yarp::dev::PolyDriver        m_oRobotArm;                               /**< robot arm controller */
 
             // yarp ports / bottles
             //  arm
-            std::string m_sArmLocalPortName;       /**< name of the arm local port */
-            std::string m_sArmRemotePortName;      /**< name of the arm remote port */
-            std::string m_sArmControlName;         /**< control name */
+            std::string m_sHandTrackerPortName;                                     /**< name of the hand tracker port */
+            std::string m_sHandFingersTrackerPortName;                              /**< name of the hand fingers tracker port */
+            yarp::os::BufferedPort<yarp::os::Bottle> m_oHandTrackerPort;            /**< Hand yarp tracker port  */
+            yarp::os::BufferedPort<yarp::os::Bottle> m_oHandFingersTrackerPort;     /**< Hand fingers yarp tracker port  */
 
-            std::string m_sArmTrackerPortName;      /**< name of the  Arm arm tracker port */
-            std::string m_sHandTrackerPortName;     /**< name of the  Arm hand tracker port */
-            std::string m_sFingersTrackerPortName;  /**< name of the  Arm fingers tracker port */
-            yarp::os::BufferedPort<yarp::os::Bottle> m_oArmTrackerPort;     /**< Arm yarp tracker port  */
-            yarp::os::BufferedPort<yarp::os::Bottle> m_oHandTrackerPort;    /**< Hand yarp tracker port  */
-            yarp::os::BufferedPort<yarp::os::Bottle> m_oFingersTrackerPort; /**< Fingers yarp tracker port  */
 
-            SWArmVelocityController *m_pVelocityController;    /**< ... */
 
-            std::string m_sArm;         /**< ... */
+            SWArmVelocityController *m_pVelocityController;                         /**< velocity controller class pointer */
+
+            std::string m_sArm;                                                     /**< indicates if left or right arm */
     };
 }
 

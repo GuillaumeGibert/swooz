@@ -36,7 +36,7 @@ SWHaarCascade::SWHaarCascade(const string &sCascadeFile, const uint ui32NumberOf
 		}
 		catch (const cv::Exception &e)
 		{
-			cerr << e.what() << endl;
+            cerr << "-ERROR : (SWHaarCascade::SWHaarCascade) -> " << e.what() << endl;
 			m_initFile = false;
 		}
 //	}
@@ -68,7 +68,7 @@ bool SWHaarCascade::detectCPU(const Mat& oRgbImg, vector<Rect> &oRects)
 {	
 	if(!m_initFile)
 	{
-		cerr << "Cascade classifier not initialized. " << endl;
+        cerr << "-ERROR : (SWHaarCascade::detectCPU) -> Cascade classifier not initialized. " << endl;
 		return false;
 	}
 	
@@ -79,17 +79,17 @@ bool SWHaarCascade::detectCPU(const Mat& oRgbImg, vector<Rect> &oRects)
 		cvtColor( oRgbImg, l_oGrayImg, CV_BGR2GRAY ); // conversion
 		equalizeHist( l_oGrayImg, l_oGrayImg ); // equalize histogram
 		
-		// detect
-		if(m_oMaxDetectSize.width == 0)
-		{
-			m_oCascade.detectMultiScale( l_oGrayImg, oRects, m_fPyramidScale, m_ui32NumberOfDetections, 
-				0 , m_oMinDetectSize );		
-		}
-		else
-		{
-			m_oCascade.detectMultiScale( l_oGrayImg, oRects, m_fPyramidScale, m_ui32NumberOfDetections, 
-				0 , m_oMinDetectSize, m_oMaxDetectSize );			
-		}
+        // detect
+        if(m_oMaxDetectSize.width == 0)
+        {
+            m_oCascade.detectMultiScale( l_oGrayImg, oRects, m_fPyramidScale, m_ui32NumberOfDetections,
+                0 , m_oMinDetectSize );
+        }
+        else
+        {
+            m_oCascade.detectMultiScale( l_oGrayImg, oRects, m_fPyramidScale, m_ui32NumberOfDetections,
+                0 , m_oMinDetectSize, m_oMaxDetectSize );
+        }
 	}
 	catch (const cv::Exception &e)
 	{

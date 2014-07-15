@@ -14,6 +14,8 @@
 
 #include "opencvUtility.h"
 
+#include <list>
+
 typedef boost::shared_ptr<swDetect::SWHaarCascade> SWHaarCascadePtr;	/**< boost shared pointer for SWHaarCascade */
 
 namespace swDetect
@@ -38,23 +40,46 @@ namespace swDetect
              * \param [in] sClassifierFilePath:  haar cascade classifier file path
 			 */
             SWFaceDetection(const cv::Size &oMinDetectFaceSize = cv::Size(80,80), cbool bVerbose = false,
-                            std::string sClassifierFilePath = std::string("../data/classifier/haarcascade_frontalface_alt2.xml"));
+                            std::string sClassifierFilePath = std::string("../data/classifier/haarcascade_frontalface_alt.xml"));
 		
 		
+            /**
+             * \brief constructor of SWFaceDetection
+             * \param [in] oMinDetectFaceSize :  min size of a detected face
+             * \param [in] oMaxDetectFaceSize :  max size of a detected face
+             * \param [in] bVerbose           :  display verbose info
+             * \param [in] sClassifierFilePath:  haar cascade classifier file path
+             */
+            SWFaceDetection(const cv::Size &oMinDetectFaceSize, const cv::Size &oMaxDetectFaceSize, cbool bVerbose,
+                            std::string sClassifierFilePath);
+
 			// ############################################# METHODS
 			
             /**
-             * \brief Launch the detection
+             * \brief Detect one face with haar cascade
              * \param [in] oRgbImg : input rgb image
-             * \return if no detection return false, else return true
+             * \return if no face detected or haar cascade files not loaded return false, else return true
              */
-            bool detect(const cv::Mat &oRgbImg);
+            bool detectFace(const cv::Mat &oRgbImg);
+
+            /**
+            * @brief Detect one nose with haar cascade
+            * @param [in] oRgbImg : input rgb image
+            * @return  if no nose detected of haar cascade files not loaded return a cv::Rect with a width of 0
+            */
+           cv::Rect detectNose(const cv::Mat &oRgbImg);
 
             /**
              * \brief get the face detection
              * \return the rectangle of the detection
              */
             cv::Rect faceRect() const;
+
+            /**
+             * \brief get the nose detection
+             * \return the rectangle of the nose detection in the face detected rectangle
+             */
+            cv::Rect noseRect() const;
 
             /**
              * @brief Display the face detection on the input mat image
@@ -65,12 +90,12 @@ namespace swDetect
 
             /**
              * @brief computeNoseTip
-             * @param oFaceDepth
-             * @param [out] idX : nose tip X position in oFaceDepth
-             * @param [out] idY : nose tip Y position in oFaceDepth
+             * @param oMatDepth
+             * @param [out] idX : nose tip X position in oMatDepth
+             * @param [out] idY : nose tip Y position in oMatDepth
              * @return noseTip
              */
-            cv::Point3f computeNoseTip(cv::Mat &oFaceDepth, int &idX, int &idY);
+            cv::Point3f computeNoseTip(cv::Mat &oMatDepth, int &idX, int &idY);
 
             /**
              * @brief setRectRatios
@@ -81,16 +106,13 @@ namespace swDetect
 
         private :
 
-            /**
-             * \brief Detect one face with haar cascade
-             * \param [in] oRgbImg : input rgb image
-             * \return if no face detected or haar cascade not files not loaded return false, else return true
-             */
-            bool detectFace(const cv::Mat &oRgbImg);
+
+
+
+
 
 				
 		private:
-
 
             bool m_bVerbose;                        /**< display verbose info */
             bool m_bHaarCascadeFilesLoaded;         /**< are the haar cascade files loaded */
@@ -104,12 +126,20 @@ namespace swDetect
             float m_fFaceHeightRatio;               /**< face rectangle height ratio */
             float m_fFaceWidthRatio;                /**< face rectnagle width ratio */
 			
-            cv::Size    m_oMinDetectFaceSize;       /**< minimum size of the detected faces */
+            cv::Size    m_oMinDetectFaceSize;       /**< minimum size of the detected face */
+            cv::Size    m_oMaxDetectFaceSize;       /**< maximum size of the detected face */
+
+            cv::Size    m_oMinDetectNoseSize;       /**< maximum size of the detected nose */
+            cv::Size    m_oMaxDetectNoseSize;       /**< maximum size of the detected nose */
 
             cv::Rect m_oLastDetectFace;             /**< last detected face rectangle */
+            cv::Rect m_oLastDetectNose;             /**< last detected nose rectangle */
             std::vector<cv::Rect> m_oRects;         /**< vector of rectangles, will contain the haar cascade detection result */
 
             SWHaarCascadePtr m_CHaarCascadeFacePtr; /**< face haar cascade */
+            SWHaarCascadePtr m_CHaarCascadeNosePtr; /**< nose haar cascade */
+
+            std::list<cv::Rect> m_lFaceRects;
 	};
 }
 

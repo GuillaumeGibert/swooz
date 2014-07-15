@@ -13,6 +13,8 @@
 // MOC
 #include "moc_SWGLWidget.cpp"
 
+
+
 SWGLWidget::SWGLWidget(  QGLContext *oContext, QWidget* oParent) :
     QGLWidget( oContext, oParent ), m_glContext(oContext),  m_oTimer(new QBasicTimer)
 {
@@ -27,7 +29,7 @@ SWGLWidget::SWGLWidget(  QGLContext *oContext, QWidget* oParent) :
 	// init camera parameters
         m_bIsClickedMouse = false;
         m_bMidClick       = false;
-        m_pCamera         = new SWQtCamera(QVector3D(0.f, 0.f, -0.15f), QVector3D(0.f, 0.f,  1.f), QVector3D(0.f, 1.f,  0.f));
+        m_pCamera         = new SWQtCamera(QVector3D(0.f, 0.f, -0.15f), QVector3D(0.f, 0.f,  1000.f), QVector3D(0.f, 1.f,  0.f));
 	
 	// init gl parameters
         if(m_bVerbose)
@@ -42,18 +44,36 @@ SWGLWidget::SWGLWidget(  QGLContext *oContext, QWidget* oParent) :
         setFocusPolicy( Qt::StrongFocus ); // set strong focus policy to be able to get the key events
 }
 
-
 SWGLWidget::~SWGLWidget()
 {
     deleteAndNullify(m_oTimer);
     deleteAndNullify(m_pCamera);
 }
 
-void SWGLWidget::resetCamera(const QVector3D &oEyePosition, const QVector3D &oLookAt, const QVector3D &oUp)
+void SWGLWidget::resetCamera()
 {
-    deleteAndNullify(m_pCamera);
+    m_pCamera->reset();
+    updateGL();
+}
 
-    m_pCamera = new SWQtCamera(oEyePosition, oLookAt, oUp);
+void SWGLWidget::setCamera(const QVector3D &oEyePosition, const QVector3D &oLookAt, const QVector3D &oUp, cbool bUpdateGL)
+{
+    m_pCamera->set(oEyePosition, oLookAt, oUp);
+
+    if(bUpdateGL)
+    {
+        updateGL();
+    }
+}
+
+void SWGLWidget::setCameraInitial(const QVector3D &oEyePositionInitial, const QVector3D &oLookAtInitial, const QVector3D &oUpInitial)
+{
+    m_pCamera->setInitial(oEyePositionInitial, oLookAtInitial, oUpInitial);
+}
+
+void SWGLWidget::setCameraMode(const SWQtCamera::CameraMode oCameraMode)
+{    
+    m_pCamera->setCameraMode(oCameraMode);
 }
 
 void SWGLWidget::setFOV(const double dFOV)
@@ -117,7 +137,8 @@ void SWGLWidget::initShaders( const QString& vertexShaderPath, const QString& fr
         }
     }
 }
-    
+
+
 void SWGLWidget::mousePressEvent(QMouseEvent *e)
 {
 	m_bIsClickedMouse = true;	   
@@ -132,7 +153,6 @@ void SWGLWidget::mouseReleaseEvent(QMouseEvent *e)
 
 void SWGLWidget::mouseMoveEvent(QMouseEvent *e)
 {
-	
     if(m_bIsClickedMouse)
 	{
 		QPoint l_oMiddle(m_oSize.width()/2, m_oSize.height()/2);
@@ -142,26 +162,53 @@ void SWGLWidget::mouseMoveEvent(QMouseEvent *e)
         {
             m_oCurrentRotation = QVector3D(-l_oDiff.y(), l_oDiff.x(), 0);
             m_pCamera->rotate(m_oCurrentRotation.x(), m_oCurrentRotation.y(), m_oCurrentRotation.z(), m_oCurrentRotation.length()/300);
-
         }
         else
         {
             if(e->x() < l_oMiddle.x())
             {
-                m_pCamera->moveLeft(0.0001f * (l_oMiddle.x() - e->x()));
+                if(m_pCamera->cameraMode() == SWQtCamera::FPS_CAMERA)
+                {
+                    m_pCamera->moveLeft(0.00003f * (l_oMiddle.x() - e->x()));
+                }
+                else if(m_pCamera->cameraMode() == SWQtCamera::TRACKBALL_CAMERA)
+                {
+                    m_pCamera->moveLeft(0.003f * (l_oMiddle.x() - e->x()));
+                }
             }
             else if(e->x() > l_oMiddle.x())
             {
-                m_pCamera->moveRight(0.0001f * (e->x() - l_oMiddle.x()));
+                if(m_pCamera->cameraMode() == SWQtCamera::FPS_CAMERA)
+                {
+                    m_pCamera->moveRight(0.00003f * (e->x() - l_oMiddle.x()));
+                }
+                else if(m_pCamera->cameraMode() == SWQtCamera::TRACKBALL_CAMERA)
+                {
+                    m_pCamera->moveRight(0.003f * (e->x() - l_oMiddle.x()));
+                }
             }
 
             if(e->y() < l_oMiddle.y())
             {
-                m_pCamera->moveUp(0.0001f * (l_oMiddle.y() - e->y()));
+                if(m_pCamera->cameraMode() == SWQtCamera::FPS_CAMERA)
+                {
+                    m_pCamera->moveUp(0.000015f * (l_oMiddle.y() - e->y()));
+                }
+                else if(m_pCamera->cameraMode() == SWQtCamera::TRACKBALL_CAMERA)
+                {
+                    m_pCamera->moveUp(0.003f * (l_oMiddle.y() - e->y()));
+                }
             }
             else if(e->y() > l_oMiddle.y())
             {
-                m_pCamera->moveDown(0.0001f * (e->y() - l_oMiddle.y()));
+                if(m_pCamera->cameraMode() == SWQtCamera::FPS_CAMERA)
+                {
+                    m_pCamera->moveDown(0.000015f * (e->y() - l_oMiddle.y()));
+                }
+                else if(m_pCamera->cameraMode() == SWQtCamera::TRACKBALL_CAMERA)
+                {
+                    m_pCamera->moveDown(0.003f * (e->y() - l_oMiddle.y()));
+                }
             }
         }
 
@@ -173,11 +220,25 @@ void SWGLWidget::wheelEvent(QWheelEvent *e)
 {	   
     if(e->delta() > 0)
     {
-        m_pCamera->moveForeward( e->delta()/120 * 0.02f);
+        if(m_pCamera->cameraMode() == SWQtCamera::FPS_CAMERA)
+        {
+            m_pCamera->moveForeward( e->delta()/120 * 0.02f);
+        }
+        else if (m_pCamera->cameraMode() == SWQtCamera::TRACKBALL_CAMERA)
+        {
+            m_pCamera->moveForeward( e->delta()/120 * 0.05f);
+        }
     }
     else
     {
-        m_pCamera->moveBackward(-e->delta()/120 * 0.02f);
+        if(m_pCamera->cameraMode() == SWQtCamera::FPS_CAMERA)
+        {
+            m_pCamera->moveBackward(-e->delta()/120 * 0.02f);
+        }
+        else if (m_pCamera->cameraMode() == SWQtCamera::TRACKBALL_CAMERA)
+        {
+            m_pCamera->moveBackward(-e->delta()/120 * 0.05f);
+        }
     }
 
 	updateGL();
@@ -197,28 +258,84 @@ void SWGLWidget::keyPressEvent(QKeyEvent *e)
             m_pCamera->reset();
         break;
         case Qt::Key_Left:
-            m_pCamera->moveLeft(0.05f);
+            if(m_pCamera->cameraMode() == SWQtCamera::FPS_CAMERA)
+            {
+                m_pCamera->moveLeft(0.05f);
+            }
+            else if(m_pCamera->cameraMode() == SWQtCamera::TRACKBALL_CAMERA)
+            {
+                m_pCamera->moveLeft(3.f);
+            }
         break;
         case Qt::Key_Right:
-            m_pCamera->moveRight(0.05f);
+            if(m_pCamera->cameraMode() == SWQtCamera::FPS_CAMERA)
+            {
+                m_pCamera->moveRight(0.05f);
+            }
+            else if(m_pCamera->cameraMode() == SWQtCamera::TRACKBALL_CAMERA)
+            {
+                m_pCamera->moveRight(3.f);
+            }
         break;
         case Qt::Key_Up:
-            m_pCamera->moveForeward(0.05f);
+            if(m_pCamera->cameraMode() == SWQtCamera::FPS_CAMERA)
+            {
+                m_pCamera->moveForeward(0.05f);
+            }
+            else if(m_pCamera->cameraMode() == SWQtCamera::TRACKBALL_CAMERA)
+            {
+                m_pCamera->moveForeward(0.1f);
+            }
         break;
         case Qt::Key_Down:
-            m_pCamera->moveBackward(0.05f);
+            if(m_pCamera->cameraMode() == SWQtCamera::FPS_CAMERA)
+            {
+                m_pCamera->moveBackward(0.06f);
+            }
+            else if(m_pCamera->cameraMode() == SWQtCamera::TRACKBALL_CAMERA)
+            {
+                m_pCamera->moveBackward(0.1f);
+            }
         break;
 		case Qt::Key_Z:
-            m_pCamera->rotateY(-3.f);
+            if(m_pCamera->cameraMode() == SWQtCamera::FPS_CAMERA)
+            {
+                m_pCamera->rotateY(-3.f);
+            }
+            else if(m_pCamera->cameraMode() == SWQtCamera::TRACKBALL_CAMERA)
+            {
+                m_pCamera->moveUp(3.f);
+            }
 		break;		
 		case Qt::Key_Q:
-            m_pCamera->rotateX(3.f);
+            if(m_pCamera->cameraMode() == SWQtCamera::FPS_CAMERA)
+            {
+                m_pCamera->rotateX(3.f);
+            }
+            else if(m_pCamera->cameraMode() == SWQtCamera::TRACKBALL_CAMERA)
+            {
+                m_pCamera->moveLeft(3.f);
+            }
 		break;		
 		case Qt::Key_S:
-            m_pCamera->rotateY(3.f);
+            if(m_pCamera->cameraMode() == SWQtCamera::FPS_CAMERA)
+            {
+                m_pCamera->rotateY(3.f);
+            }
+            else if(m_pCamera->cameraMode() == SWQtCamera::TRACKBALL_CAMERA)
+            {
+                m_pCamera->moveDown(3.f);
+            }
 		break;		
 		case Qt::Key_D:
-            m_pCamera->rotateX(-3.f);
+            if(m_pCamera->cameraMode() == SWQtCamera::FPS_CAMERA)
+            {
+                m_pCamera->rotateX(-3.f);
+            }
+            else if(m_pCamera->cameraMode() == SWQtCamera::TRACKBALL_CAMERA)
+            {
+                m_pCamera->moveRight(3.f);
+            }
 		break;				
 		
 	}
@@ -312,6 +429,7 @@ void  SWGLWidget::drawAxes(QGLShaderProgram &oShader, QMatrix4x4 &mvpMatrix, cfl
     deleteAndNullifyArray(l_aUI32IndexBuffer);
 
     // set mvp matrix uniform value
+    oShader.setUniformValue("applyTransformation", false);
     oShader.setUniformValue("mvpMatrix", mvpMatrix);
     oShader.setUniformValue("displayMode", 1);
 

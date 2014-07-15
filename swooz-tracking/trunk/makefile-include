@@ -129,6 +129,8 @@ INC_QT		= -I"$(THIRD_PARTY_QT)"/include/QtOpenGL -I"$(THIRD_PARTY_QT)"/include/Q
 
 INC_HANDTRACKER = -I"$(THIRD_PARTY_HANDTRACKER)"/Include\
 
+INC_LEAP 	= -I"$(THIRD_PARTY_LEAP)"\include\
+
 ############################ DEPENDENCIES
 
 COMMON			= $(INC_TRACKING) $(INC_OTHERS) $(INC_VS)
@@ -147,7 +149,9 @@ SW_OPENNITRACKING       = $(COMMON) $(INC_OPENNI) $(INC_YARP) $(INC_BOOST) $(INC
 
 SW_FORTHTRACKING        = $(COMMON) $(INC_OPENNI2) $(INC_YARP) $(INC_OPENCV) $(INC_HANDTRACKER)
 
-SW_FAKETRACKING        = $(COMMON) $(INC_YARP) $(INC_BOOST)
+SW_FAKETRACKING         = $(COMMON) $(INC_YARP) $(INC_BOOST)
+
+SW_LEAPTRACKING		= $(COMMON) $(INC_YARP) $(INC_LEAP) $(INC_BOOST)
 
 ############################ COMMON DEBUG/RELEASE LIBS
 
@@ -167,6 +171,8 @@ LFLAGS=-nologo
 
 ############################ LIBS
 
+LIBS_LEAP	= $(THIRD_PARTY_LEAP)/Lib/Leap.lib\
+
 LIBS_OPENNI     = $(THIRD_PARTY_OPENNI)/Lib/openNI.lib\
 
 LIBS_OPENNI2    = $(THIRD_PARTY_OPENNI2)/Lib/OpenNI2.lib\
@@ -185,9 +191,6 @@ LIBS_YARP       = $(THIRD_PARTY_YARP)/lib/YARP_OS.lib\
                   $(THIRD_PARTY_YARP)/lib/YARP_math.lib\
                   $(THIRD_PARTY_YARP)/lib/yarpcar.lib\
                   $(THIRD_PARTY_YARP)/lib/yarp_bayer.lib\
-
-# $(THIRD_PARTY_YARP)/lib/yarpmod.lib\
-
 
 LIBS_FACELAB    = $(THIRD_PARTY_FACELAB)/coredata/libshared/win32_ia32sse2_vc90/sm_cd_coredata_3.2.lib $(THIRD_PARTY_FACELAB)/coredata/thirdparty/zlib1.2.3/win_ia32_vc90/libshared/zlib1.lib\
                   $(THIRD_PARTY_FACELAB)/coredata/thirdparty/libvpx0.9.5\libstatic\win_ia32_vc90\vpxmt.lib\
@@ -214,11 +217,11 @@ LIBS_SW         = $(DIST_LIBDIR)/SWToolkit_d.lib $(DIST_LIBDIR)/SWAvatar_d.lib\
 
 ############################ LIBS SWOOZ FILES
 
-LIBS_HEAD_FOREST     = $(LIBS_OPENNI) $(LIBS_OPENCV) $(LIBS_FREEGLUT) $(LIBS_YARP)  $(LIBS_ACE)  $(LIBS_COMMON)
+LIBS_HEAD_FOREST     = $(LIBS_COMMON) $(LIBS_OPENNI) $(LIBS_OPENCV) $(LIBS_FREEGLUT) $(LIBS_YARP)  $(LIBS_ACE)
 
 LIBS_FACELAB_TRACK   = $(LIBS_COMMON) $(DIST_LIBDIR)/SWToolkit_d.lib $(LIBS_FACELAB) $(LIBS_ACE) $(LIBS_YARP) $(LIBS_BOOST_D)
 
-LIBS_FACESHIFT_TRACK = $(LIBS_COMMON) $(LIBS_ACE) $(LIBS_YARP) $(LIBS_BOOST_D)
+LIBS_FACESHIFT_TRACK = $(LIBS_COMMON) $(LIBS_YARP) $(LIBS_ACE) $(LIBS_BOOST_D)
 
 LIBS_EMICP_TRACK     = $(LIBS_COMMON) $(LIBS_SW) $(LIBS_OPENCV) $(LIBS_ACE) $(LIBS_YARP) $(LIBS_BOOST_D) $(LIBS_CUDA) $(LIBS_QT) $(LIBS_OPENNI) $(LIBS_CLA)
 
@@ -227,6 +230,8 @@ LIBS_OPENNI_TRACK    = $(LIBS_COMMON) $(DIST_LIBDIR)/SWToolkit_d.lib $(LIBS_OPEN
 LIBS_FORTH_TRACK     = $(LIBS_COMMON) $(LIBS_OPENNI2) $(LIBS_OPENCV) $(LIBS_YARP) $(LIBS_FORTH) $(LIBS_ACE) $(LIBS_HANDTRACKER)
 
 LIBS_FAKE_TRACK      = $(LIBS_COMMON) $(LIBS_YARP) $(LIBS_ACE) $(LIBS_BOOST_D)
+
+LIBS_LEAP_TRACK      = $(LIBS_COMMON) $(LIBS_LEAP) $(LIBS_ACE) $(LIBS_YARP) $(LIBS_BOOST_D)
 
 !ENDIF
 
