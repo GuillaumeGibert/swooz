@@ -29,9 +29,10 @@ Content :
    * [Morphing](https://github.com/GuillaumeGibert/swooz/wiki/avatar#wiki-morphing) for fitting references avatars meshes
    * [Animation/Viewer]()  
 
+<!---
 ![](http://uppix.net/GuA0bAs.jpg) ![](http://uppix.net/CKLxdcs.jpg) ![](http://uppix.net/r5JVoTs.jpg) ![](http://uppix.net/gkMAQWs.jpg) ![](http://uppix.net/Qyp88ds.png) ![](http://uppix.net/kgWN89s.jpg)
 ![](http://uppix.net/2RndHKs.jpg) ![](http://uppix.net/194DGks.jpg)
-
+-->
 
 
 Research :
