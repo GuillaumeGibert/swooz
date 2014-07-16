@@ -35,7 +35,7 @@ WINLIBS=advapi32.lib comctl32.lib comdlg32.lib gdi32.lib shell32.lib user32.lib 
 # define lib dir
 
 LIBDIR  =./lib
-DIST_LIBDIR = $(SW_DIST)/lib
+DIST_LIBDIR = $(SW_DIST)lib
 
 !if  "$(ARCH)" == "x86"
 LIBDIR= $(LIBDIR)/x86
@@ -99,7 +99,7 @@ THIRD_PARTY_CLAPACK     = $(THIRD_PARTY_CLAPACK_64)
 
 ############################ INCLUDES
 
-INC_OTHERS	= -I$(SW_DIST)\include
+INC_OTHERS	= -I"$(SW_DIST)/include"\
 	
 INC_SW    	= -I./include\
 	
@@ -109,9 +109,9 @@ INC_STASM	= -I./include/stasm\
 
 INC_BOOST	= -I"$(THIRD_PARTY_BOOST)"/include\
 
-INC_CUDA        = -I"$(THIRD_PARTY_CUDA)"/include -I"$(THIRD_PARTY_CUSPARSE)"\
+INC_CUDA        = -I"$(THIRD_PARTY_CUDA)/include"\
 
-INC_CULA        = -I"$(THIRD_PARTY_CULA)"/include\
+INC_CULA        = -I"$(THIRD_PARTY_CULA)/include"\
 
 INC_GSL 	= -I"$(THIRD_PARTY_GSL)"/gsl -I"$(THIRD_PARTY_GSL)"\
 

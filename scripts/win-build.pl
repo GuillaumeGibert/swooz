@@ -55,6 +55,9 @@ print "\n";
 print '#' x 50 . "\n";
 print "## Call all the projects makefiles...\n";
 
+my @directoriesToCopy = ("bin", "include", "lib", "data");
+my $xcopyCmd = "\"" . $ENV{SystemRoot} . "/system32/xcopy\" /q /e /y /c ";
+
 foreach (&Env::buildOrder())
 {
     my $projectName = $_;
@@ -69,19 +72,7 @@ foreach (&Env::buildOrder())
     }
 
     chdir "../scripts";
-}
 
-#######################################################################################
-print "\n";
-print '#' x 50 . "\n";
-print "## copy lib,data,bin directories from all the projects to dist...\n";
-
-my @directoriesToCopy = ("bin", "include", "lib", "data");
-my $xcopyCmd = "\"" . $ENV{SystemRoot} . "/system32/xcopy\" /q /e /y /c ";
-foreach (&Env::buildOrder())
-{
-    my $projectName = $_;
-    my $projectFullName = $Env::PBase . $projectName;
 
     foreach (@directoriesToCopy)
     {
@@ -90,6 +81,26 @@ foreach (&Env::buildOrder())
         system($xcopyCmd . "\"" . $source_dir . "\" \"" . $target_dir . "\"");
     }
 }
+
+#######################################################################################
+#print "\n";
+#print '#' x 50 . "\n";
+#print "## copy lib,data,bin directories from all the projects to dist...\n";
+
+#my @directoriesToCopy = ("bin", "include", "lib", "data");
+#my $xcopyCmd = "\"" . $ENV{SystemRoot} . "/system32/xcopy\" /q /e /y /c ";
+#foreach (&Env::buildOrder())
+#{
+#    my $projectName = $_;
+#    my $projectFullName = $Env::PBase . $projectName;
+
+#    foreach (@directoriesToCopy)
+#    {
+#        my $source_dir = $projectFullName . "/" . $_;
+#        my $target_dir = $Env::SWDist . $_;
+#        system($xcopyCmd . "\"" . $source_dir . "\" \"" . $target_dir . "\"");
+#    }
+#}
 
 #######################################################################################
 print "\n";
@@ -107,7 +118,7 @@ for (my $ii = 0; $ii < &Env::executablesNumber(); $ii++)
     print $fh "{\n   local \@ARGV = (\"" . &Env::archExe($ii) . "\");\n";
     print $fh "   require \"win-init_env_command.pl\";\n}\n";
     print $fh "chdir \"../dist/bin\";\n";
-    print $fh "system(\"" . &Env::exeFileName($ii) . ");\n";
+    print $fh "system(\"" . &Env::exeFileName($ii) . "\");\n";
     print $fh "chdir \"..\";\n";
     close($fh);
 }

@@ -3,7 +3,7 @@ use strict;
 use warnings;
 
 ####################################################################################### CREATE PROJECTS DIRECTORIES
-my @directoriesToCreate = ("include","data","bin", "lib", "moc", "genUI", "lib/x86", "lib/x86/Release", "lib/x86/Debug", "lib/amd64", "lib/amd64/Release", "lib/amd64/Debug");
+my @directoriesToCreate = ("data", "bin", "lib", "moc", "genUI", "lib/x86", "lib/x86/Release", "lib/x86/Debug", "lib/amd64", "lib/amd64/Release", "lib/amd64/Debug");
 
 foreach (@directoriesToCreate)
 {

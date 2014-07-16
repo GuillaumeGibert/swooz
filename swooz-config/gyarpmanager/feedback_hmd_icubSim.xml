@@ -1,0 +1,14 @@
+<application>
+	<name>Feedback HMD icubSim</name>
+	<connection>
+		<output>/icubSim/cam/left</output>
+		<input> /hmd/left/in</input>
+		<protocol>tcp</protocol>
+	</connection>
+	<connection>
+		<output>/icubSim/cam/right</output>
+		<input>/hmd/right/in</input>
+		<protocol>tcp</protocol>
+	</connection>
+</application>
+

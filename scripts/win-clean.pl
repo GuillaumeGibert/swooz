@@ -27,9 +27,9 @@ foreach (&Env::buildOrder())
     }
 }
 
-if(chdir $Env::PDist)
+if(chdir $Env::SWDist)
 {
-    print "[clean " . $Env::PDist . "]\n";
+    print "[clean " . $Env::SWDist . "]\n";
     rmtree("bin");
     rmtree("lib");
     rmtree("genUI");
@@ -38,5 +38,7 @@ if(chdir $Env::PDist)
 }
 else
 {
-    die "Error: " . $Env::PDist . " doesn't exist. \n";
+    die "Error: " . $Env::SWDist . " doesn't exist. \n";
 }
+
+

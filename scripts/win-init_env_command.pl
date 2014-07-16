@@ -18,6 +18,7 @@ if(@ARGV > 0)
 ####################################################################################### UTILITY DIRECTORIES
 our $PBase         = $CurrentDirectory . "/../";
 our $SWDist        = $PBase . "dist/";
+$ENV{SW_DIST}      = $SWDist;
 our $SWScripts     = $CurrentDirectory . "/";
 our $SWDistLIB     = $SWDist . "lib/";
 our $PThird_party  = $PBase . "swooz-3rdparty/";
@@ -30,9 +31,10 @@ our $Teleop    = "swooz-teleoperation/trunk";
 our $Manip     = "swooz-manipulation/trunk";
 our $Viewer    = "swooz-viewer/trunk";
 our $Examples  = "swooz-examples/trunk";
+our $Feedback  = "swooz-feedback/trunk";
 
 # add projects to build here
-my @PbuildOrder  = ($Toolkit, $Avatar, $Tracking, $Teleop, $Manip, $Viewer, $Examples);
+my @PbuildOrder  = ($Toolkit, $Avatar, $Tracking, $Teleop, $Manip, $Viewer, $Examples, $Feedback);
 
 sub buildOrder {
     return @PbuildOrder;
@@ -66,8 +68,10 @@ my @ExecScriptParams = (# toolkit
                         "examples/display_kinect_thread",       "x86",  "kinect_thread_display.exe",
                         "examples/data_saver_kinect",           "x86",  "kinect_data_saver.exe",
                         "examples/data_loader_kinect",          "x86",  "kinect_data_loader.exe",
-                        "examples/detect_face_stasm",  "x86",  "detect_face_stasm.exe",
-                        "examples/display_leap",                "x86",  "display_leap.exe"
+                        "examples/detect_face_stasm",           "x86",  "detect_face_stasm.exe",
+                        "examples/display_leap",                "x86",  "display_leap.exe",
+                        # feeback
+                        "swooz-feedback",                       "x86",  "SWHeadMountedDisplay.exe"
 );
 
 sub executablesNumber {
@@ -125,7 +129,7 @@ $ENV{THIRD_PARTY_CUDA}   = $PThird_party . "CUDA/";
 $ENV{THIRD_PARTY_CUDA_64}   = $PThird_party . "CUDA/amd64/";
 ##################### CULA
 $ENV{THIRD_PARTY_CULA}   = $PThird_party . "CULA";
-$ENV{THIRD_PARTY_CULA_64}= $PThird_party . "CULA/amd64/";
+$ENV{THIRD_PARTY_CULA_64}= $PThird_party . "CULA/amd64";
 ##################### CLAPACK
 $ENV{THIRD_PARTY_CLAPACK}   = $PThird_party . "CLAPACK/";
 $ENV{THIRD_PARTY_CLAPACK_64}= $PThird_party . "CLAPACK/amd64/";
@@ -148,21 +152,10 @@ our $CurrentPath = $ENV{PATH};
 
 my $PathsToAdd = ";";
 
-####################################################################################### UTILITY PATHS
-# set PATH=%CUDA_PATH%bin;%PATH%
-# $PathsToAdd = $PathsToAdd . $ENV{THIRD_PARTY_TOBII} . "win32/binaries/;";
-# $PathsToAdd = $PathsToAdd . $ENV{THIRD_PARTY_TOBII} . "win32/binaries/;";
-# set PATH=%THIRD_PARTY_QT%\bin;%PATH%
+$PathsToAdd = $PathsToAdd . $ENV{THIRD_PARTY_QT} . "bin/;";
+$PathsToAdd = $PathsToAdd . $ENV{CUDA_PATH} . "bin/;";
 
 ####################################################################################### x86 PATHS
-
-
-if($ARG eq "noPath")
-{
-    $PathsToAdd = $PathsToAdd . $ENV{THIRD_PARTY_QT} . "bin/;";
-    $PathsToAdd = $PathsToAdd . $ENV{CUDA_PATH} . "bin/;";
-}
-
 if($ARG eq "x86")
 {
     $PathsToAdd = $PathsToAdd . $ENV{THIRD_PARTY_TOBII} . "win32/binaries/;";
@@ -229,55 +222,4 @@ if($ARG eq "amd64")
 
 $ENV{PATH} = $ENV{PATH} . $PathsToAdd;
 
-
-
-#REM ########################################################################################################################
-#REM ### SET PATH
-#REM save current PATH to restore it in win-clean-env_command.cmd
-#set PATH_RESTORE=%PATH%
-
-#REM set the path for CUDA
-#set PATH=%CUDA_PATH%bin;%PATH%
-
-#REM if win-init is called for the compilation
-#if %1 == noPath (
-#    goto setQtBin
-#)
-
-#goto setPath
-
-#REM set the uic/moc corresponding version
-#:setQtBin
-
-#if %2 == x86 (
-#    goto setQtBin32
-#)
-
-#if %2 == amd64 (
-#    goto setQtBin64
-#)
-
-#goto endSetPath
-
-#:setQtBin32
-
-#set PATH=%THIRD_PARTY_QT%\bin\;%PATH%
-
-#goto endSetPath
-
-#:setQtBin64
-
-#set PATH=%THIRD_PARTY_QT_64%\bin\;%PATH%
-
-#goto endSetPath
-
-
-#:setPath
-
-
-#REM set the path for the execution
-
-#if %1 == amd64 (
-#    goto setPath64
-#)
 
