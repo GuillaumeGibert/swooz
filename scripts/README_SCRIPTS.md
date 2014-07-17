@@ -54,7 +54,7 @@ This script creates the ../dist file tree :
 It calls all the **win-build_branch.pl** scripts of all the swooz projects defined in **win-init_env_command.pl**,
 bin, include, lib, data, doc directories of all theses project will be copied in ./dist.
 
-In the scripts directory, you can modfiy win-init_env_command.pl in order to change the libs paths of the project
+In the scripts directory, you can modify win-init_env_command.pl in order to change the libs paths of the project
 
 
 2. CHOOSE project to be built
@@ -68,7 +68,7 @@ Here The first project to be built is Toolkit and after that Avatar.
 
 	my @PbuildOrder  = ($Toolkit, $Avatar, $Tracking, $Teleop, $Manip, $Viewer, $Examples);
 
-Now Feedback is excluded from the SWoOZ project built.
+Now Feedback is excluded from the SWoOZ project build.
 The order is important, some projects depends from each others, Toolkit is necessary for all projects.
 
 
