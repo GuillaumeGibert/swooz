@@ -55,10 +55,8 @@ OBJ_TRACKING_FASTRAK=\
 ############################################################################## Makefile commands
 
 !if  "$(ARCH)" == "x86"
-all: trackingHeadForest trackingHeadEmicp trackingHeadForest trackingFaceLab trackingOpenNI trackingFake trackingLeap trackingFastrak
+all: trackingHeadForest trackingHeadEmicp trackingHeadForest trackingFaceLab trackingOpenNI trackingFake trackingLeap trackingFastrak trackingFaceShift
 !endif
-
-# trackingFaceShift
 
 !if "$(ARCH)" == "amd64"
 all:
