@@ -13,20 +13,12 @@ if %3 == cl (
         )
     )
 
-    @nmake -nologo CFG=%1 ARCH=%2 -f makefile-cuda
-    @nmake -nologo CFG=%1 ARCH=%2 COMP=%3 -f makefile    
+    if exist makefile-cuda (
+        @nmake -nologo CFG=%1 ARCH=%2 -f makefile-cuda
+    )
+
+    if exist makefile (
+        @nmake -nologo CFG=%1 ARCH=%2 COMP=%3 -f makefile
+    )
 )
-
-
-REM
-REM if %3 == g++ (
-REM    if %2 == x86 (
-REM        if exist "mingwvars.bat" (
-REM                call "mingwvars.bat"
-REM        )
-REM    )
-REM )
-
-
-
 

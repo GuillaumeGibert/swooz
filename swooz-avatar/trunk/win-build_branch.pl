@@ -28,6 +28,7 @@ if(@ARGV > 1)
 
 print $CFG . " " . $ARCH . " " . $COMP . "\n";
 
+
 my $setEnvScript = $Env::SWScripts . "others/setEnvMVS.cmd " . $CFG . " " . $ARCH . " " . $COMP;
 system("$setEnvScript");
 

@@ -1,2 +1,0 @@
-D:\swooz\scripts\..\swooz-avatar\trunk 
-D:\swooz\scripts\..\swooz-viewer\trunk 

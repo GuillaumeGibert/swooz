@@ -34,6 +34,14 @@ if(chdir $Env::SWDist)
     rmtree("lib");
     rmtree("genUI");
     rmtree("moc");
+    rmtree("include");
+
+    for (my $ii = 0; $ii < &Env::executablesNumber(); $ii++)
+    {
+        my $cmdName = &Env::commandFileName($ii) . ".pl";
+        unlink $cmdName;
+    }
+
     chdir "../scripts";
 }
 else

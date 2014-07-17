@@ -304,6 +304,13 @@ bool swTeleop::SWIcubHead::checkBottles()
                             l_vHeadJoints[2] = l_pHeadTarget->get(3).asDouble();
                         }
                     break;
+                    case swTracking::FASTRAK_LIB :
+                        {
+                            l_vHeadJoints[0] = l_pHeadTarget->get(2).asDouble();
+                            l_vHeadJoints[1] = l_pHeadTarget->get(3).asDouble();
+                            l_vHeadJoints[2] = -(l_pHeadTarget->get(1).asDouble()-90.0);
+                        }
+                    break;
                     case swTracking::FOREST_LIB :
                         {
                             l_vHeadJoints[0] = -l_pHeadTarget->get(1).asDouble(); //head rotation "yes" [-40 30]

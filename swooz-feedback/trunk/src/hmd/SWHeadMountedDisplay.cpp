@@ -1,10 +1,16 @@
-// -*- mode:C++; tab-width:4; c-basic-offset:4; indent-tabs-mode:nil -*-
 
-#include <stdio.h>
+/**
+ * \file SWHeadMountedDisplay.cpp
+ * \brief Defines SWHeadMountedDisplay class
+ * \author Guillaume Gibert
+ * \date 17/07/14
+ */
+
+#include <iostream>
 #include <yarp/os/Network.h>
 
 
-#include "hmd\SWSonyHMZT3W.h"
+#include "hmd/SWSonyHMZT3W.h"
 #include <yarp/os/RFModule.h>
 
 using namespace yarp::os;
@@ -53,9 +59,6 @@ class SWHeadMountedDisplay: public RFModule
 		hmd.close();
 		return true;
 	}
-
-    //void respond();
-
 };
 
 int main(int argc, char *argv[]) 

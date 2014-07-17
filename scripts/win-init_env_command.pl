@@ -55,6 +55,7 @@ my @ExecScriptParams = (# toolkit
                         "swooz-trackingOpenNI",                 "x86",  "SWOpenNITracking.exe config.txt",
                         "swooz-trackingFake",                   "x86",  "SWFakeTracking.exe",  ## %PARAMS_EXEC%
                         "swooz-trackingLeap",                   "x86",  "SWLeapTracking.exe",
+                        "swooz-trackingFastrak",                "x86",  "SWFastrakTracking.exe",
                         # teleoperation
                         "swooz-teleoperation_iCub",             "x86",  "SWTeleoperation_iCub.exe",
                         "swooz-teleoperation_nao",              "x86",  "SWTeleoperation_nao.exe",
