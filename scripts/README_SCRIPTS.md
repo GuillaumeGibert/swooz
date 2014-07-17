@@ -6,11 +6,11 @@ SWOOZ - SCRIPTS
 
  * Devices kinect : some SWoOZ modules use Kinect/xtion depth captors, for using them you have to install openni and some drivers :
 
-	- OpenNI-Win32-1.5.4.0-Dev1.msi -> http://www.openni.org/wp-content/uploads/2012/12/OpenNI-Win32-1.5.4.0-Dev1.zip
+	- OpenNI-Win32-1.5.4.0-Dev1.msi -> http://dl.free.fr/qmaobqSzQ
 
-	- NITE-Win32-1.5.2.21-Dev.msi -> http://www.openni.org/wp-content/uploads/2012/12/NITE-Win32-1.5.2.21-Dev.zip
+	- NITE-Win32-1.5.2.21-Dev.msi -> http://dl.free.fr/verV6lgqc
 	
-	- Sensor-Win32-5.1.2.1-Redist.msi -> http://www.openni.org/wp-content/uploads/2012/12/Sensor-Win32-5.1.2.1-Redist.zip
+	- Sensor-Win32-5.1.2.1-Redist.msi -> http://dl.free.fr/vQVq8w54d
 
 	- This one is only necessary for the microsoft Kinect  SensorKinect093-Bin-Win32-v5.1.2.1.msi -> https://github.com/avin2/SensorKinect (in the bin folder)
 	
