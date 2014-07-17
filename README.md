@@ -24,6 +24,7 @@ Content :
    * [Tracking](https://github.com/GuillaumeGibert/swooz/wiki/tracking) human movements without intrusive devices : head, gaze, face, torso, arms, hands, fingers
    * [Teleoperation](https://github.com/GuillaumeGibert/swooz/wiki/teleoperation) for iCub, NAO, 3D Avatars(not online now) based on the tracking modules
    * [Manipulation](https://github.com/GuillaumeGibert/swooz/wiki/manipulation) for manipulating tracking data and create planifications
+   * [Feedback]() for getting video, audio feedback from the robot
  * Avatar creation/morphing :
    * [Creation](https://github.com/GuillaumeGibert/swooz/wiki/avatar#wiki-creation) from depths sensors devices(Kinect/Xtion) data
    * [Morphing](https://github.com/GuillaumeGibert/swooz/wiki/avatar#wiki-morphing) for fitting references avatars meshes
