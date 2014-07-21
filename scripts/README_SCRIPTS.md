@@ -35,6 +35,7 @@ Go to ./scripts and open a console.
 		* win-build Release  	   -> for the release x86 mode
 		* win-build Debug adm64    -> for the debug amd64 mode 
 		* win-build Release adm64  -> for the release amd64 mode
+	* IMPORTANT : swooz-3rdparty installer contains only libraries for release x86 and release amd64 modes
 	
 This script creates the ../dist file tree :  
 
