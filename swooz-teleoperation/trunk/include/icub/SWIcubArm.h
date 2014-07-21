@@ -68,15 +68,17 @@ namespace swTeleop
             void setJoints(const yarp::sig::Vector &vJoints);
 
             /**
-             * @brief enableArm
-             * @param bActivated
+             * @brief enable arm parts
+             * @param bArmHandActivated
+             * @param bFingersActivated
              */
-            void enableArm(cbool bActivated);
+            void enable(cbool bArmHandActivated, cbool bFingersActivated);
 
 
         private :
 
-            bool m_bArmEnabled;
+            bool m_bArmHandEnabled; /**< ... */
+            bool m_bFingersEnabled; /**< ... */
 
             yarp::os::Mutex m_oMutex;                      /**< ... */
             yarp::dev::IEncoders *m_pIArmEncoders;         /**< ... */
@@ -161,10 +163,12 @@ namespace swTeleop
             int m_i32ArmJointsNb;               /**< arm joint number */
 
             // Config variables retrieved from the ini file
-            bool m_bArmActivated;               /**< is arm activated value */
+            bool m_bArmHandActivated;           /**< is arm/hand activated value */
+            bool m_bFingersActivated;           /**< is fingers activated value */
             int m_i32TimeoutArmReset;           /**< timeout arm value  */
 
-            bool m_bArmActivatedDefault;        /**< is arm activated DEFAULT value */
+            bool m_bFingersActivatedDefault;    /**< is fingers activated DEFAULT value */
+            bool m_bArmHandActivatedDefault;    /**< is arm/hand activated DEFAULT value */
             int m_i32TimeoutArmResetDefault;    /**< timeout arm DEFAULT value */
 
             std::vector<double> m_vArmMinJoint;                         /**< arm minimum joint values array */

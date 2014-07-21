@@ -183,17 +183,12 @@ CFLAGS_CUDA_GPUMAT = $(INC_SW) $(INC_CUDA) $(INC_CULA) $(INC_CUDACONFIG) $(COMMO
 
 LFLAGS_AVATAR = -nologo -nodefaultlib:LIBC
 
-#-nologo -nodefaultlib:LIBCMT -nodefaultlib:LIBC
-
-#-nodefaultlib:LIBCMT -nodefaultlib:LIBC -nodefaultlib:MSVCPRT
-
 LFLAGS_MORPHING = -nologo
 
 !IF "$(ARCH)" == "x86"
 
 LFLAGS_MORPHING = -nologo -nodefaultlib:LIBCMT
 
-#
 
 !ENDIF
  
@@ -239,7 +234,7 @@ LIBS_SWOOZ      = $(DIST_LIBDIR)/SWToolkit_d.lib\
 
 LIBS_AVATAR     = $(LIBS_COMMON) $(LIBS_SWOOZ) $(LIBS_BOOST_D) $(LIBS_OPENNI) $(LIBS_CV) $(LIBS_QT) $(LIBS_CLA) $(LIBS_CUDA) $(LIBS_GSL) $(LIBS_CULA)\
 
-LIBS_MORPHING   = $(LIBS_BOOST) $(LIBS_QT) $(LIBS_CUDA) $(LIBS_CULA) $(LIBS_CLA) $(LIBS_CV)
+LIBS_MORPHING   = $(LIBS_BOOST_D) $(LIBS_QT) $(LIBS_CUDA) $(LIBS_CULA) $(LIBS_CLA) $(LIBS_CV)
 
 
 !ENDIF

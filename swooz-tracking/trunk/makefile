@@ -65,12 +65,16 @@ all:
 trackingHeadForest : $(BINDIR)/SWTrackingHeadForest.exe
 trackingFaceLab    : $(BINDIR)/SWFaceLabTracking.exe
 trackingFaceShift  : $(BINDIR)/SWFaceShiftTracking.exe
-trackingHeadEmicp  : $(QTGENW_RGBD)/SWUI_WEmicpHeadTracking.h $(MOCDIR)/moc_SWEmicpHeadTracking.cpp $(BINDIR)/SWEmicpHeadTracking.exe
+trackingHeadEmicp  :
 trackingOpenNI     : $(BINDIR)/SWOpenNITracking.exe
 trackingForth      : $(BINDIR)/SWForthTracking.exe
 trackingFake       : $(BINDIR)/SWFakeTracking.exe
 trackingLeap	   : $(BINDIR)/SWLeapTracking.exe
 trackingFastrak    : $(BINDIR)/SWFastrakTracking.exe
+
+!if "$(CUDA_FOUND)" == "yes"
+trackingHeadEmicp  : $(QTGENW_RGBD)/SWUI_WEmicpHeadTracking.h $(MOCDIR)/moc_SWEmicpHeadTracking.cpp $(BINDIR)/SWEmicpHeadTracking.exe
+!endif
 
 clean:
 

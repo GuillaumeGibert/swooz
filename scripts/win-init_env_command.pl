@@ -23,6 +23,19 @@ our $SWScripts     = $CurrentDirectory . "/";
 our $SWDistLIB     = $SWDist . "lib/";
 our $PThird_party  = $PBase . "swooz-3rdparty/";
 
+
+####################################################################################### CHECK CUDA PATH
+
+
+if (length($ENV{CUDA_PATH}) > 1)
+{
+    $ENV{CUDA_FOUND} = "yes";
+}
+else
+{
+    $ENV{CUDA_FOUND} = "no";
+}
+
 ####################################################################################### SET PROJECTS TO BUILD
 our $Toolkit   = "swooz-toolkit/trunk";
 our $Avatar    = "swooz-avatar/trunk";
@@ -34,7 +47,7 @@ our $Examples  = "swooz-examples/trunk";
 our $Feedback  = "swooz-feedback/trunk";
 
 # add projects to build here
-my @PbuildOrder  = ($Toolkit, $Avatar, $Tracking, $Teleop, $Manip, $Viewer, $Examples, $Feedback);
+my @PbuildOrder            = ($Toolkit, $Avatar, $Tracking, $Teleop, $Manip, $Viewer, $Feedback, $Examples);
 
 sub buildOrder {
     return @PbuildOrder;
@@ -129,8 +142,8 @@ $ENV{THIRD_PARTY_FLANN}   = $PThird_party . "FLANN/";
 $ENV{THIRD_PARTY_CUDA}   = $PThird_party . "CUDA/";
 $ENV{THIRD_PARTY_CUDA_64}   = $PThird_party . "CUDA/amd64/";
 ##################### CULA
-$ENV{THIRD_PARTY_CULA}   = $PThird_party . "CULA";
-$ENV{THIRD_PARTY_CULA_64}= $PThird_party . "CULA/amd64";
+$ENV{THIRD_PARTY_CULA}   = $PThird_party . "CULA/";
+$ENV{THIRD_PARTY_CULA_64}= $PThird_party . "CULA/amd64/";
 ##################### CLAPACK
 $ENV{THIRD_PARTY_CLAPACK}   = $PThird_party . "CLAPACK/";
 $ENV{THIRD_PARTY_CLAPACK_64}= $PThird_party . "CLAPACK/amd64/";
@@ -208,6 +221,7 @@ if($ARG eq "amd64")
     $PathsToAdd = $PathsToAdd . $ENV{THIRD_PARTY_ACE_64} . "bin/;";
 
     $PathsToAdd = $PathsToAdd . $ENV{THIRD_PARTY_CULA_64} . "lib/;";
+    $PathsToAdd = $PathsToAdd . $ENV{THIRD_PARTY_CULA_64} . "bin/;";
 
     $PathsToAdd = $PathsToAdd . $ENV{THIRD_PARTY_QT_64} . "lib/;";
     $PathsToAdd = $PathsToAdd . $ENV{THIRD_PARTY_QT_64} . "bin/;";

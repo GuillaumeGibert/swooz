@@ -41,18 +41,13 @@ namespace swDetect
 			/**
 			 * \brief constructor of SWHaarCascade
 			 * \param [in] sCascadeFile 	      : the file cascade name of the object to detect
-			 * \param [in] ui32NumberOfDetections : max number of detections in the image
+             * \param [in] uiMin32Neighbours      :  Parameter specifying how many neighbors each candidate rectangle should have to retain it.
 			 * \param [in] oMinDetectSize 	      : min size of a detection
 			 * \param [in] oMaxDetectSize 	      : max size of a detection
-			 * \param [in] bUseGPU	 	      : use the GPU for computing
+             * \param [in] bUseGPU                : use the GPU for computing
 			 */
-			SWHaarCascade(const std::string &sCascadeFile, const uint ui32NumberOfDetections = 1,
+            SWHaarCascade(const std::string &sCascadeFile, const uint uiMin32Neighbours = 3,
                       const cv::Size oMinDetectSize = cv::Size(80,80), const cv::Size oMaxDetectSize = cv::Size(0,0), bool bUseGPU = false); // oMaxDetectSize = cv::Size(0,0)
-		
-			/**
-			 * \brief destructor of SWHaarCascade
-			 */	
-			virtual ~SWHaarCascade(void);		
 		
 			// ############################################# METHODS
 			
@@ -87,7 +82,7 @@ namespace swDetect
 			bool m_bUseGPU; 			/**< use the gpu for computing */
 			bool m_initFile; 			/**< indicates if the cascade classifier has been correctly initialized */
 				
-			uint m_ui32NumberOfDetections;  	/**< number of detections in the input image */
+            uint m_ui32MinNeighbours;  	/**< Parameter specifying how many neighbors each candidate rectangle should have to retain it. */
 		
 			float m_fPyramidScale;			/**< ... */
 			

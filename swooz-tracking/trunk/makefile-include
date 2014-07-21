@@ -218,7 +218,7 @@ LIBS_HANDTRACKER= $(THIRD_PARTY_HANDTRACKER)/lib/HandTrackerLib.lib
 
 LIBS_FASTRAK	= $(THIRD_PARTY_POLHEMUS)/lib/Win32/PDI.lib
 
-LIBS_SW         = $(DIST_LIBDIR)/SWToolkit_d.lib $(DIST_LIBDIR)/SWAvatar_d.lib\
+LIBS_SW         = $(DIST_LIBDIR)/SWToolkit_d.lib $(DIST_LIBDIR)/SWAvatar_d.lib $(DIST_LIBDIR)/SWAvatarCuda_d.lib\
 
 ############################ LIBS SWOOZ FILES
 

@@ -24,9 +24,15 @@ if($ARGNb > 1)
 
 print "Build $CFG, $ARCH\n";
 
+
 {
     local @ARGV = ("noPath");
     require "win-init_env_command.pl";
+}
+
+if($ENV{CUDA_FOUND} eq "no")
+{
+    print "\n!!!!!!!!!!!!!\nWARNING : CUDA PATH not found, projects using CUDA will not be compiled !\n!!!!!!!!!!!!!\n";
 }
 
 #######################################################################################
@@ -71,8 +77,7 @@ foreach (&Env::buildOrder())
         require "win-build_branch.pl";
     }
 
-    chdir "../scripts";
-
+    chdir $Env::SWScripts;
 
     foreach (@directoriesToCopy)
     {
@@ -94,8 +99,14 @@ for (my $ii = 0; $ii < &Env::executablesNumber(); $ii++)
     my $scriptFileName  = $Env::SWDist . &Env::commandFileName($ii) . ".pl";
     my $fh;
     open($fh, '>', $scriptFileName) or die "Cannot write in " . $scriptFileName;
+
+    if($ENV{CUDA_FOUND} eq "no")
+    {
+        print $fh "print \"WARNING : CUDA not detected, some projects can not be launched.\n\";";
+    }
+
     print $fh "system(\"\\" . $xcopyCmd . " \\\"" . $Env::PBase . "swooz-config\\\" \\\"" . $Env::SWDist . "data\\\"\");\n";
-    print $fh "chdir \"../scripts\";\n";
+    print $fh "chdir \"" . $Env::SWScripts . "\";\n";
     print $fh "{\n   local \@ARGV = (\"" . &Env::archExe($ii) . "\");\n";
     print $fh "   require \"win-init_env_command.pl\";\n}\n";
     print $fh "chdir \"../dist/bin\";\n";

@@ -32,8 +32,8 @@ SWFaceDetection::SWFaceDetection(const cv::Size &oMinDetectFaceSize, cbool bVerb
 	try
 	{
 		// init face cascade detection
-        m_CHaarCascadeFacePtr = SWHaarCascadePtr(new SWHaarCascade(l_sCascadeFaceFile, 1, m_oMinDetectFaceSize));
-        m_CHaarCascadeNosePtr = SWHaarCascadePtr(new SWHaarCascade(l_sCascadeNoseFile, 1, m_oMinDetectNoseSize,m_oMaxDetectNoseSize));
+        m_CHaarCascadeFacePtr = SWHaarCascadePtr(new SWHaarCascade(l_sCascadeFaceFile, 3, m_oMinDetectFaceSize));
+        m_CHaarCascadeNosePtr = SWHaarCascadePtr(new SWHaarCascade(l_sCascadeNoseFile, 3, m_oMinDetectNoseSize,m_oMaxDetectNoseSize));
 		m_bHaarCascadeFilesLoaded = true;
 	}
 	catch(const haarFileInitError &e)
@@ -78,8 +78,8 @@ SWFaceDetection::SWFaceDetection(const cv::Size &oMinDetectFaceSize, const cv::S
     try
     {
         // init face cascade detection
-        m_CHaarCascadeFacePtr = SWHaarCascadePtr(new SWHaarCascade(l_sCascadeFaceFile,1, m_oMinDetectFaceSize,m_oMaxDetectFaceSize));
-        m_CHaarCascadeNosePtr = SWHaarCascadePtr(new SWHaarCascade(l_sCascadeNoseFile, 1, m_oMinDetectNoseSize,m_oMaxDetectNoseSize));
+        m_CHaarCascadeFacePtr = SWHaarCascadePtr(new SWHaarCascade(l_sCascadeFaceFile, 3, m_oMinDetectFaceSize,m_oMaxDetectFaceSize));
+        m_CHaarCascadeNosePtr = SWHaarCascadePtr(new SWHaarCascade(l_sCascadeNoseFile, 3, m_oMinDetectNoseSize,m_oMaxDetectNoseSize));
         m_bHaarCascadeFilesLoaded = true;
     }
     catch(const haarFileInitError &e)

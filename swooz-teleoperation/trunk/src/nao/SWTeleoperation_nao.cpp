@@ -18,83 +18,85 @@
 #include <cmath>
 #include <iostream>
 
-#define PI 3.14159
-#define DEG_TO_RAD PI / 180.f;
+SWTeleoperation_nao::SWTeleoperation_nao() :  m_i32HeadTimeLastBottle(0), m_bFastrakCalibrated(false)
+{
+    double l_aDHeadMinJointDefault[]     = {-2.0, -0.5};
+    double l_aDHeadMaxJointDefault[]     = { 2.0,  0.5};
+    double l_aDLeftArmMinJointDefault[]  = {-2.0, -0.31, -2.0, -1.5, -1.8, 0.0};
+    double l_aDLeftArmMaxJointDefault[]  = { 1.9,  1.3,   2.0,  0.0,  1.8, 1.0};
+    double l_aDRightArmMinJointDefault[] = {-2.0, -1.3,  -2.0,  0.0, -1.8, 0.0};
+    double l_aDRightArmMaxJointDefault[] = { 1.9,  0.31,  2.0,  1.5,  1.8, 1.0};
+
+    m_vHeadMinJointDefault = std::vector<double>(l_aDHeadMinJointDefault, l_aDHeadMinJointDefault + sizeof(l_aDHeadMinJointDefault) / sizeof(double));
+    m_vHeadMaxJointDefault = std::vector<double>(l_aDHeadMaxJointDefault, l_aDHeadMaxJointDefault + sizeof(l_aDHeadMaxJointDefault) / sizeof(double));
+    m_vLeftArmMinJointDefault = std::vector<double>(l_aDLeftArmMinJointDefault, l_aDLeftArmMinJointDefault + sizeof(l_aDLeftArmMinJointDefault) / sizeof(double));
+    m_vLeftArmMaxJointDefault = std::vector<double>(l_aDLeftArmMaxJointDefault, l_aDLeftArmMaxJointDefault + sizeof(l_aDLeftArmMaxJointDefault) / sizeof(double));
+    m_vRightArmMinJointDefault = std::vector<double>(l_aDRightArmMinJointDefault, l_aDRightArmMinJointDefault + sizeof(l_aDRightArmMinJointDefault) / sizeof(double));
+    m_vRightArmMaxJointDefault = std::vector<double>(l_aDRightArmMaxJointDefault, l_aDRightArmMaxJointDefault + sizeof(l_aDRightArmMaxJointDefault) / sizeof(double));
+
+    m_aHeadAngles.arraySetSize(2);
+    m_aTorsoAngles.arraySetSize(2);
+    m_aLArmAngles.arraySetSize(6);
+    m_aRArmAngles.arraySetSize(6);
+    m_aLLegAngles.arraySetSize(6);
+    m_aRLegAngles.arraySetSize(6);
+
+    m_bHeadCapture = m_bTorsoCapture = m_bLeftArmCapture = m_bRightArmCapture = false;
+}
 
 
-SWTeleoperation_nao::SWTeleoperation_nao() :  m_i32HeadTimeLastBottle(0), m_bFastrakCalibrated(false){}
-
-SWTeleoperation_nao::~SWTeleoperation_nao()
-{}
-
-bool SWTeleoperation_nao::configure(ResourceFinder &rf)
+bool SWTeleoperation_nao::configure(ResourceFinder &oRf)
 {
     // gets the module name which will form the stem of all module port names
-        m_sModuleName   = rf.check("name", Value("teleoperation_nao"), "Teleoperation/nao Module name (string)").asString();
-         setName(m_sModuleName.c_str());
-         m_sRobotAddress = rf.check("IP", Value("169.254.108.110"), "IP Adress of the Nao Robot").asString();
+        m_sModuleName   = oRf.check("name", Value("teleoperation_nao"), "Teleoperation/nao Module name (string)").asString();
+        setName(m_sModuleName.c_str());
+        m_sRobotAddress = oRf.check("IP", Value("169.254.108.110"), "IP Adress of the Nao Robot").asString();
 
     // acceleration/speeds values for nao
-        m_fJointVelocityValue     = (float)rf.check("jointVelocityValue",      Value(0.1),  "Joint Velocity Value (float)").asDouble();
+        m_dJointVelocityValue     = oRf.check("jointVelocityValue",  yarp::os::Value(0.1),  "Joint Velocity Value (float)").asDouble();
 
-    // min / max values for nao joints
-        // head
-        //  min
-        m_fHeadMinValueJoint0 = (float)rf.check("headMinValueJoint0",  Value(-2.f), "Minimum Joint0 Value (float)").asDouble();
-        m_fHeadMinValueJoint1 = (float)rf.check("headMinValueJoint1",  Value(-0.5f), "Minimum Joint1 Value (float)").asDouble();
-        //  max
-        m_fHeadMaxValueJoint0 = (float)rf.check("headMaxValueJoint0",  Value( 2.f), "Maximum Joint0 Value (float)").asDouble();
-        m_fHeadMaxValueJoint1 = (float)rf.check("headMaxValueJoint1",  Value( 0.5f), "Maximum Joint1 Value (float)").asDouble();
+        for(uint ii = 0; ii < m_vLeftArmMinJointDefault.size(); ++ii)
+        {
+            std::ostringstream l_os;
+            l_os << ii;
 
-        // left arm
-        //  min
-        m_fLeftArmMinValueJoint0 = (float)rf.check("leftArmMinValueJoint0",  Value(-2.0f), "Minimum Joint0 Value (float)").asDouble();
-        m_fLeftArmMinValueJoint1 = (float)rf.check("leftArmMinValueJoint1",  Value(-0.31f),"Minimum Joint1 Value (float)").asDouble();
-        m_fLeftArmMinValueJoint2 = (float)rf.check("leftArmMinValueJoint2",  Value(-2.0f), "Minimum Joint2 Value (float)").asDouble();
-        m_fLeftArmMinValueJoint3 = (float)rf.check("leftArmMinValueJoint3",  Value(-1.5f), "Minimum Joint3 Value (float)").asDouble();
-        m_fLeftArmMinValueJoint4 = (float)rf.check("leftArmMinValueJoint4",  Value(-1.8f), "Minimum Joint4 Value (float)").asDouble();
-        m_fLeftArmMinValueJoint5 = (float)rf.check("leftArmMinValueJoint5",  Value(  0.f), "Minimum Joint5 Value (float)").asDouble();
-        //  max
-        m_fLeftArmMaxValueJoint0 = (float)rf.check("leftArmMaxValueJoint0",  Value( 1.9f), "Maximum Joint0 Value (float)").asDouble();
-        m_fLeftArmMaxValueJoint1 = (float)rf.check("leftArmMaxValueJoint1",  Value( 1.3f), "Maximum Joint1 Value (float)").asDouble();
-        m_fLeftArmMaxValueJoint2 = (float)rf.check("leftArmMaxValueJoint2",  Value( 2.0f), "Maximum Joint2 Value (float)").asDouble();
-        m_fLeftArmMaxValueJoint3 = (float)rf.check("leftArmMaxValueJoint3",  Value( 0.0f), "Maximum Joint3 Value (float)").asDouble();
-        m_fLeftArmMaxValueJoint4 = (float)rf.check("leftArmMaxValueJoint4",  Value( 1.8f), "Maximum Joint4 Value (float)").asDouble();
-        m_fLeftArmMaxValueJoint5 = (float)rf.check("leftArmMaxValueJoint5",  Value( 1.0f), "Maximum Joint5 Value (float)").asDouble();
+            std::string l_sHeadMinJoint("headMinValueJoint" + l_os.str());
+            std::string l_sHeadMaxJoint("headMaxValueJoint" + l_os.str());
+            std::string l_sLeftArmMinJoint("leftArmMinValueJoint" + l_os.str());
+            std::string l_sLeftArmMaxJoint("leftArmMaxValueJoint" + l_os.str());
+            std::string l_sRightArmMinJoint("rightArmMinValueJoint" + l_os.str());
+            std::string l_sRightArmMaxJoint("rightArmMaxValueJoint" + l_os.str());
 
-        // rigth arm
-        //  min
-        m_fRightArmMinValueJoint0 = (float)rf.check("rightArmMinValueJoint0",  Value(-2.0f), "Minimum Joint0 Value (float)").asDouble();
-        m_fRightArmMinValueJoint1 = (float)rf.check("rightArmMinValueJoint1",  Value(-1.3f), "Minimum Joint1 Value (float)").asDouble();
-        m_fRightArmMinValueJoint2 = (float)rf.check("rightArmMinValueJoint2",  Value(-2.0f), "Minimum Joint2 Value (float)").asDouble();
-        m_fRightArmMinValueJoint3 = (float)rf.check("rightArmMinValueJoint3",  Value( 0.0f), "Minimum Joint3 Value (float)").asDouble();
-        m_fRightArmMinValueJoint4 = (float)rf.check("rightArmMinValueJoint4",  Value(-1.8f), "Minimum Joint4 Value (float)").asDouble();
-        m_fRightArmMinValueJoint5 = (float)rf.check("rightArmMinValueJoint5",  Value(  0.f), "Minimum Joint5 Value (float)").asDouble();
-        //  max
-        m_fRightArmMaxValueJoint0 = (float)rf.check("rightArmMaxValueJoint0",  Value( 1.9f), "Maximum Joint0 Value (float)").asDouble();
-        m_fRightArmMaxValueJoint1 = (float)rf.check("rightArmMaxValueJoint1",  Value( 0.31f),"Maximum Joint1 Value (float)").asDouble();
-        m_fRightArmMaxValueJoint2 = (float)rf.check("rightArmMaxValueJoint2",  Value( 2.0f), "Maximum Joint2 Value (float)").asDouble();
-        m_fRightArmMaxValueJoint3 = (float)rf.check("rightArmMaxValueJoint3",  Value( 1.5f), "Maximum Joint3 Value (float)").asDouble();
-        m_fRightArmMaxValueJoint4 = (float)rf.check("rightArmMaxValueJoint4",  Value( 1.8f), "Maximum Joint4 Value (float)").asDouble();
-        m_fRightArmMaxValueJoint5 = (float)rf.check("rightArmMaxValueJoint5",  Value( 1.0f), "Maximum Joint5 Value (float)").asDouble();
+            std::string l_sHeadMinJointInfo("Head minimum joint " + l_os.str() + " Value (double)");
+            std::string l_sHeadMaxJointInfo("Head maximum joint " + l_os.str() + " Value (double)");
+            std::string l_sLeftArmMinJointInfo("Left arm minimum joint " + l_os.str() + " Value (double)");
+            std::string l_sLeftArmMaxJointInfo("Left arm maximum joint " + l_os.str() + " Value (double)");
+            std::string l_sRightArmMinJointInfo("Right arm minimum joint " + l_os.str() + " Value (double)");
+            std::string l_sRightArmMaxJointInfo("Right arm maximum joint " + l_os.str() + " Value (double)");
+
+            // head
+            if(ii < 2)
+            {
+                m_vHeadMinJoint[ii]     = oRf.check(l_sHeadMinJoint.c_str(), m_vHeadMinJointDefault[ii], l_sHeadMinJointInfo.c_str()).asDouble();
+                m_vHeadMaxJoint[ii]     = oRf.check(l_sHeadMaxJoint.c_str(), m_vHeadMaxJointDefault[ii], l_sHeadMaxJointInfo.c_str()).asDouble();
+            }
+
+            // left arm
+            m_vLeftArmMinJoint[ii]      = oRf.check(l_sLeftArmMinJoint.c_str(), m_vLeftArmMinJointDefault[ii], l_sLeftArmMinJointInfo.c_str()).asDouble();
+            m_vLeftArmMaxJoint[ii]      = oRf.check(l_sLeftArmMaxJoint.c_str(), m_vLeftArmMaxJointDefault[ii], l_sLeftArmMaxJointInfo.c_str()).asDouble();
+            // right arm
+            m_vRightArmMinJoint[ii]     = oRf.check(l_sRightArmMinJoint.c_str(), m_vRightArmMinJointDefault[ii], l_sRightArmMinJointInfo.c_str()).asDouble();
+            m_vRightArmMaxJoint[ii]     = oRf.check(l_sRightArmMaxJoint.c_str(), m_vRightArmMaxJointDefault[ii], l_sRightArmMaxJointInfo.c_str()).asDouble();
+        }
 
         // torso
-        //  min
-        m_fTorsoMinValueJoint0 = (float)rf.check("torsoMinValueJoint0",  Value(-1.0f), "Minimum Joint0 Value (float)").asDouble();
-        //  max
-        m_fTorsoMaxValueJoint0 = (float)rf.check("torsoMaxValueJoint0",  Value(-0.45f), "Maximum Joint1 Value (float)").asDouble();
+        m_dTorsoMinValueJoint = oRf.check("torsoMinValueJoint",  yarp::os::Value(-1.0f), "Torso minimum Joint Value (float)").asDouble();
+        m_dTorsoMaxValueJoint = oRf.check("torsoMaxValueJoint",  yarp::os::Value(-0.45f), "Torso maximum Joint Value (float)").asDouble();
 
 
     // miscellaneous
-        m_i32Fps                    = rf.check("fps",                   Value(100),  "Frame per second (int)").asInt();
-        m_i32HeadTimeoutReset       = rf.check("headTimeoutReset",      Value(3000), "Head gaze timeout reset iCub (int)").asInt();
-
-        m_aHeadAngles.arraySetSize(2);
-        m_aTorsoAngles.arraySetSize(2);
-        m_aLArmAngles.arraySetSize(6);
-        m_aRArmAngles.arraySetSize(6);
-        m_aLLegAngles.arraySetSize(6);
-        m_aRLegAngles.arraySetSize(6);
+        m_i32Fps                    = oRf.check("fps",              yarp::os::Value(100),  "Frame per second (int)").asInt();
+        m_i32HeadTimeoutReset       = oRf.check("headTimeoutReset", yarp::os::Value(3000), "Head gaze timeout reset iCub (int)").asInt();
 
     // init ports
         m_sHeadTrackerPortName          = "/teleoperation/nao/head";
@@ -121,7 +123,7 @@ bool SWTeleoperation_nao::configure(ResourceFinder &rf)
             std::cerr << "-ERROR: Unable to open ports." << std::endl;
             interruptModule();
             return false;
-        }       
+        }
 
         try
         {
@@ -146,11 +148,10 @@ bool SWTeleoperation_nao::configure(ResourceFinder &rf)
 //        }
 
         resetHeadPosition();
-//        resetTorsoPosition();
-//        resetLeftArmPosition();
-//        resetRightArmPosition();
+//        resetTorsoPosition(); //
+//        resetLeftArmPosition(); //
+//        resetRightArmPosition(); //
 
-        m_bHeadCapture = m_bTorsoCapture = m_bLeftArmCapture = m_bRightArmCapture = false;
 
     return true;
 }
@@ -174,11 +175,13 @@ void SWTeleoperation_nao::resetHeadPosition()
     m_aHeadAngles[0] = 0.f;
     m_aHeadAngles[1] = 0.f;
 
-    try {
+    try
+    {
         m_oRobotMotionProxy->setStiffnesses("Head",1.0f);
-        m_oRobotMotionProxy->setAngles(AL::ALValue("Head"), m_aHeadAngles, m_fJointVelocityValue);
+        m_oRobotMotionProxy->setAngles(AL::ALValue("Head"), m_aHeadAngles, static_cast<float>(m_dJointVelocityValue));
     }
-    catch (const AL::ALError& e) {
+    catch (const AL::ALError& e)
+    {
         std::cerr << "Caught exception: " << e.what() << std::endl;
     }
 
@@ -187,15 +190,17 @@ void SWTeleoperation_nao::resetHeadPosition()
 
 void SWTeleoperation_nao::resetTorsoPosition()
 {
-    try {
-            m_oRobotMotionProxy->setStiffnesses("LLeg",1.0f);
-            m_oRobotMotionProxy->setStiffnesses("RLeg",1.0f);
-            m_oRobotMotionProxy->setAngles(AL::ALValue("LLeg"),AL::ALValue::array(0.f,0.f,-0.2f,0.70f,-0.35f,0.f),m_fJointVelocityValue*0.5f);
-            m_oRobotMotionProxy->setAngles(AL::ALValue("RLeg"),AL::ALValue::array(0.f,0.f,-0.2f,0.70f,-0.35f,0.f),m_fJointVelocityValue*0.5f);
-            m_oRobotMotionProxy->post.angleInterpolationWithSpeed(AL::ALValue("LLeg"),AL::ALValue::array(0.f,0.f,-0.45f,0.70f,-0.35f,0.f),m_fJointVelocityValue*0.5f);
-            m_oRobotMotionProxy->post.angleInterpolationWithSpeed(AL::ALValue("RLeg"),AL::ALValue::array(0.f,0.f,-0.45f,0.70f,-0.35f,0.f),m_fJointVelocityValue*0.5f);
+    try
+    {
+        m_oRobotMotionProxy->setStiffnesses("LLeg",1.0f);
+        m_oRobotMotionProxy->setStiffnesses("RLeg",1.0f);
+        m_oRobotMotionProxy->setAngles(AL::ALValue("LLeg"),AL::ALValue::array(0.f,0.f,-0.2f,0.70f,-0.35f,0.f),static_cast<float>(m_dJointVelocityValue)*0.5f);
+        m_oRobotMotionProxy->setAngles(AL::ALValue("RLeg"),AL::ALValue::array(0.f,0.f,-0.2f,0.70f,-0.35f,0.f),static_cast<float>(m_dJointVelocityValue)*0.5f);
+        m_oRobotMotionProxy->post.angleInterpolationWithSpeed(AL::ALValue("LLeg"),AL::ALValue::array(0.f,0.f,-0.45f,0.70f,-0.35f,0.f),static_cast<float>(m_dJointVelocityValue)*0.5f);
+        m_oRobotMotionProxy->post.angleInterpolationWithSpeed(AL::ALValue("RLeg"),AL::ALValue::array(0.f,0.f,-0.45f,0.70f,-0.35f,0.f),static_cast<float>(m_dJointVelocityValue)*0.5f);
     }
-    catch (const AL::ALError& e) {
+    catch (const AL::ALError& e)
+    {
             std::cerr << "Caught exception: " << e.what() << std::endl;
     }
 }
@@ -210,7 +215,7 @@ void SWTeleoperation_nao::resetLeftArmPosition()
     m_aLArmAngles[5] = 0.f;
     try {
         m_oRobotMotionProxy->setStiffnesses("LArm",1.0f);
-        m_oRobotMotionProxy->setAngles(AL::ALValue("LArm"), m_aLArmAngles, m_fJointVelocityValue);
+        m_oRobotMotionProxy->setAngles(AL::ALValue("LArm"), m_aLArmAngles, static_cast<float>(m_dJointVelocityValue));
     }
     catch (const AL::ALError& e) {
         std::cerr << "Caught exception: " << e.what() << std::endl;
@@ -228,7 +233,7 @@ void SWTeleoperation_nao::resetRightArmPosition()
     m_aRArmAngles[5] = 0.f;
     try {
         m_oRobotMotionProxy->setStiffnesses("RArm",1.0f);
-        m_oRobotMotionProxy->angleInterpolationWithSpeed(AL::ALValue("RArm"), m_aRArmAngles, m_fJointVelocityValue);
+        m_oRobotMotionProxy->angleInterpolationWithSpeed(AL::ALValue("RArm"), m_aRArmAngles, static_cast<float>(m_dJointVelocityValue));
     }
     catch (const AL::ALError& e) {
         std::cerr << "Caught exception: " << e.what() << std::endl;
@@ -264,7 +269,7 @@ bool SWTeleoperation_nao::close()
 
     m_oRobotMotionProxy->setStiffnesses("Body", 0.0f);
 
-    delete m_oRobotMotionProxy;
+    deleteAndNullify(m_oRobotMotionProxy);
 
     return true;
 }
@@ -277,7 +282,6 @@ bool SWTeleoperation_nao::updateModule()
 
     // read head commands
     {
-
         l_pHeadTarget = m_oHeadTrackerPort.read(false);
 
         if(l_pHeadTarget)
@@ -285,41 +289,35 @@ bool SWTeleoperation_nao::updateModule()
             int l_deviceId = l_pHeadTarget->get(0).asInt();
             switch(l_deviceId)
             {
-
                 case swTracking::OPENNI_LIB :
-                    {
-                        std::vector<double> l_pointNeck(3);
-                            l_pointNeck[0] = l_pHeadTarget->get(1).asDouble();
-                            l_pointNeck[1] = l_pHeadTarget->get(2).asDouble();
-                            l_pointNeck[2] = l_pHeadTarget->get(3).asDouble();
-                        std::vector<double> l_pointHead(3);
-                            l_pointHead[0] = l_pHeadTarget->get(4).asDouble();
-                            l_pointHead[1] = l_pHeadTarget->get(5).asDouble();
-                            l_pointHead[2] = l_pHeadTarget->get(6).asDouble();
-                        std::vector<double> l_pointLShoulder(3);
-                            l_pointLShoulder[0] = l_pHeadTarget->get(7).asDouble();
-                            l_pointLShoulder[1] = l_pHeadTarget->get(8).asDouble();
-                            l_pointLShoulder[2] = l_pHeadTarget->get(9).asDouble();
-                        std::vector<double> l_pointRShoulder(3);
-                            l_pointRShoulder[0] = l_pHeadTarget->get(10).asDouble();
-                            l_pointRShoulder[1] = l_pHeadTarget->get(11).asDouble();
-                            l_pointRShoulder[2] = l_pHeadTarget->get(12).asDouble();
+                {
+                    std::vector<double> l_pointNeck(3), l_pointHead(3), l_pointLShoulder(3), l_pointRShoulder(3);
+                    l_pointNeck[0] = l_pHeadTarget->get(1).asDouble();
+                    l_pointNeck[1] = l_pHeadTarget->get(2).asDouble();
+                    l_pointNeck[2] = l_pHeadTarget->get(3).asDouble();
+                    l_pointHead[0] = l_pHeadTarget->get(4).asDouble();
+                    l_pointHead[1] = l_pHeadTarget->get(5).asDouble();
+                    l_pointHead[2] = l_pHeadTarget->get(6).asDouble();
+                    l_pointLShoulder[0] = l_pHeadTarget->get(7).asDouble();
+                    l_pointLShoulder[1] = l_pHeadTarget->get(8).asDouble();
+                    l_pointLShoulder[2] = l_pHeadTarget->get(9).asDouble();
+                    l_pointRShoulder[0] = l_pHeadTarget->get(10).asDouble();
+                    l_pointRShoulder[1] = l_pHeadTarget->get(11).asDouble();
+                    l_pointRShoulder[2] = l_pHeadTarget->get(12).asDouble();
 
-                        std::vector<double> l_vecClavicles		= swUtil::vec(l_pointLShoulder,	l_pointRShoulder);
-                        std::vector<double> l_vecHead			= swUtil::vec(l_pointNeck,		l_pointHead);
+                    std::vector<double> l_vecClavicles		= swUtil::vec(l_pointLShoulder,	l_pointRShoulder);
+                    std::vector<double> l_vecHead			= swUtil::vec(l_pointNeck,		l_pointHead);
 
-                        std::vector<double> l_rpyHead = swUtil::computeRollPitchYaw(l_vecHead, l_vecClavicles);
+                    std::vector<double> l_rpyHead = swUtil::computeRollPitchYaw(l_vecHead, l_vecClavicles);
 
-                        m_aHeadAngles[0] = l_rpyHead[2] * DEG_TO_RAD;
-                        m_aHeadAngles[1] = l_rpyHead[1] * DEG_TO_RAD;
-                    }
+                    m_aHeadAngles[0] = swUtil::deg2rad(l_rpyHead[2]);
+                    m_aHeadAngles[1] = swUtil::deg2rad(l_rpyHead[1]);
+                }
                 break;
-
-
                 case swTracking::FOREST_LIB :
                 {
-                    m_aHeadAngles[0] = (-l_pHeadTarget->get(2).asDouble()+5) * DEG_TO_RAD; //head rotation "yes" [-40 30]
-                    m_aHeadAngles[1] = (l_pHeadTarget->get(1).asDouble()-5) * DEG_TO_RAD; //head rotation [-70 60]
+                    m_aHeadAngles[0] = swUtil::deg2rad(-l_pHeadTarget->get(2).asDouble()+5); //head rotation "yes" [-40 30]
+                    m_aHeadAngles[1] = swUtil::deg2rad(l_pHeadTarget->get(1).asDouble()-5); //head rotation [-70 60]
                 }
                 break;
             }
@@ -347,32 +345,31 @@ bool SWTeleoperation_nao::updateModule()
         switch(l_deviceId)
         {
             case swTracking::OPENNI_LIB:
-                std::vector<double> l_pointTorso(3);
-                    l_pointTorso[0] = l_pTorsoTarget->get(1).asDouble();
-                    l_pointTorso[1] = l_pTorsoTarget->get(2).asDouble();
-                    l_pointTorso[2] = l_pTorsoTarget->get(3).asDouble();
-                std::vector<double> l_pointNeck(3);
-                    l_pointNeck[0] = l_pTorsoTarget->get(4).asDouble();
-                    l_pointNeck[1] = l_pTorsoTarget->get(5).asDouble();
-                    l_pointNeck[2] = l_pTorsoTarget->get(6).asDouble();
-                std::vector<double> l_pointLShoulder(3);
-                    l_pointLShoulder[0] = l_pTorsoTarget->get(7).asDouble();
-                    l_pointLShoulder[1] = l_pTorsoTarget->get(8).asDouble();
-                    l_pointLShoulder[2] = l_pTorsoTarget->get(9).asDouble();
-                std::vector<double> l_pointRShoulder(3);
-                    l_pointRShoulder[0] = l_pTorsoTarget->get(10).asDouble();
-                    l_pointRShoulder[1] = l_pTorsoTarget->get(11).asDouble();
-                    l_pointRShoulder[2] = l_pTorsoTarget->get(12).asDouble();
+            {
+                std::vector<double> l_pointTorso(3), l_pointNeck(3), l_pointLShoulder(3), l_pointRShoulder(3);
+                l_pointTorso[0] = l_pTorsoTarget->get(1).asDouble();
+                l_pointTorso[1] = l_pTorsoTarget->get(2).asDouble();
+                l_pointTorso[2] = l_pTorsoTarget->get(3).asDouble();
+                l_pointNeck[0] = l_pTorsoTarget->get(4).asDouble();
+                l_pointNeck[1] = l_pTorsoTarget->get(5).asDouble();
+                l_pointNeck[2] = l_pTorsoTarget->get(6).asDouble();
+                l_pointLShoulder[0] = l_pTorsoTarget->get(7).asDouble();
+                l_pointLShoulder[1] = l_pTorsoTarget->get(8).asDouble();
+                l_pointLShoulder[2] = l_pTorsoTarget->get(9).asDouble();
+                l_pointRShoulder[0] = l_pTorsoTarget->get(10).asDouble();
+                l_pointRShoulder[1] = l_pTorsoTarget->get(11).asDouble();
+                l_pointRShoulder[2] = l_pTorsoTarget->get(12).asDouble();
 
-                std::vector<double> l_vecTorso = swUtil::vec(l_pointTorso, l_pointNeck);
+                std::vector<double> l_vecTorso     = swUtil::vec(l_pointTorso, l_pointNeck);
                 std::vector<double> l_vecClavicles = swUtil::vec(l_pointLShoulder, l_pointRShoulder);
+                std::vector<double> l_rpyTorso     = swUtil::computeRollPitchYaw(l_vecTorso, l_vecClavicles);
 
-                std::vector<double> l_rpyTorso = swUtil::computeRollPitchYaw(l_vecTorso, l_vecClavicles);
-
-                m_aTorsoAngles[0] = -(l_rpyTorso[1]+28.5)*DEG_TO_RAD;
+                m_aTorsoAngles[0] = -swUtil::deg2rad(l_rpyTorso[1]+28.5);
                 m_aTorsoAngles[1] = m_aTorsoAngles[0];
+            }
             break;
         }
+
         m_bTorsoCapture = true;
     }
 
@@ -382,52 +379,47 @@ bool SWTeleoperation_nao::updateModule()
     if(l_pLeftArmTarget)
     {
         int l_deviceId = l_pLeftArmTarget->get(0).asInt();
-     //   std::cout << "Recieved Left Arm data (device " << l_deviceId << ")" << std::endl;
 
         switch(l_deviceId)
         {
-        case swTracking::OPENNI_LIB :
-            std::vector<double> l_pointTorso(3);
+            case swTracking::OPENNI_LIB :
+            {
+                std::vector<double> l_pointTorso(3), l_pointNeck(3), l_pointLShoulder(3), l_pointLElbow(3), l_pointLHand(3);
                 l_pointTorso[0] = l_pLeftArmTarget->get(1).asDouble();
                 l_pointTorso[1] = l_pLeftArmTarget->get(2).asDouble();
                 l_pointTorso[2] = l_pLeftArmTarget->get(3).asDouble();
-            std::vector<double> l_pointNeck(3);
                 l_pointNeck[0] = l_pLeftArmTarget->get(4).asDouble();
                 l_pointNeck[1] = l_pLeftArmTarget->get(5).asDouble();
                 l_pointNeck[2] = l_pLeftArmTarget->get(6).asDouble();
-            std::vector<double> l_pointLShoulder(3);
                 l_pointLShoulder[0] = l_pLeftArmTarget->get(7).asDouble();
                 l_pointLShoulder[1] = l_pLeftArmTarget->get(8).asDouble();
                 l_pointLShoulder[2] = l_pLeftArmTarget->get(9).asDouble();
-            std::vector<double> l_pointLElbow(3);
                 l_pointLElbow[0] = l_pLeftArmTarget->get(10).asDouble();
                 l_pointLElbow[1] = l_pLeftArmTarget->get(11).asDouble();
                 l_pointLElbow[2] = l_pLeftArmTarget->get(12).asDouble();
-            std::vector<double> l_pointLHand(3);
                 l_pointLHand[0] = l_pLeftArmTarget->get(13).asDouble();
                 l_pointLHand[1] = l_pLeftArmTarget->get(14).asDouble();
                 l_pointLHand[2] = l_pLeftArmTarget->get(15).asDouble();
 
-            std::vector<double> l_vecTorso = swUtil::vec(l_pointTorso, l_pointNeck);
-            std::vector<double> l_vecLForearm = swUtil::vec(l_pointLElbow, l_pointLHand);
-            std::vector<double> l_vecLArm = swUtil::vec(l_pointLShoulder, l_pointLElbow);
+                std::vector<double> l_vecTorso = swUtil::vec(l_pointTorso, l_pointNeck);
+                std::vector<double> l_vecLForearm = swUtil::vec(l_pointLElbow, l_pointLHand);
+                std::vector<double> l_vecLArm = swUtil::vec(l_pointLShoulder, l_pointLElbow);
+                std::vector<double> l_rpyLShoulder = swUtil::computeRollPitchYaw(l_vecLArm, l_vecTorso);
+                std::vector<double> l_rpyLElbow = swUtil::computeRollPitchYaw(l_vecLForearm, l_vecLArm);
 
-            std::vector<double> l_rpyLShoulder = swUtil::computeRollPitchYaw(l_vecLArm, l_vecTorso);
-            std::vector<double> l_rpyLElbow = swUtil::computeRollPitchYaw(l_vecLForearm, l_vecLArm);
 
+                m_aLArmAngles[0] = swUtil::deg2rad(swUtil::degree180(l_rpyLShoulder[1] - 90.));
+                m_aLArmAngles[1] = swUtil::deg2rad(swUtil::degree180(- l_rpyLShoulder[0] - 180.));
+                //m_aLArmAngles[2] = swUtil::degree180(l_rpyLElbow[2]+105) * DEG_TO_RAD;
+                m_aLArmAngles[3] = swUtil::deg2rad(swUtil::degree180(l_rpyLElbow[0]));
 
-            // std::cout << "RECIEVED : " << swUtil::degree180(l_rpyLElbow[0] - 90.) << std::endl;
-            m_aLArmAngles[0] = swUtil::degree180(l_rpyLShoulder[1] - 90.) * DEG_TO_RAD;
-            m_aLArmAngles[1] = swUtil::degree180(- l_rpyLShoulder[0] - 180.) * DEG_TO_RAD;
-            //m_aLArmAngles[2] = swUtil::degree180(l_rpyLElbow[2]+105) * DEG_TO_RAD;
-            m_aLArmAngles[3] = swUtil::degree180(l_rpyLElbow[0]) * DEG_TO_RAD;
-            if (m_aLArmAngles[1].getUnionValue().asFloat > PI / 2.){
-                m_aLArmAngles[1] = PI - m_aLArmAngles[1].getUnionValue().asFloat;
-                //m_aLArmAngles[2] = 0.0;
-                m_aLArmAngles[3] = swUtil::degree180(l_rpyLElbow[0] - 90.) * DEG_TO_RAD;}
-
-            std::cout << m_aLArmAngles.toString() << std::endl;
-
+                if (m_aLArmAngles[1].getUnionValue().asFloat > PI / 2.)
+                {
+                    m_aLArmAngles[1] = PI - m_aLArmAngles[1].getUnionValue().asFloat;
+                    //m_aLArmAngles[2] = 0.0;
+                    m_aLArmAngles[3] = swUtil::deg2rad(swUtil::degree180(l_rpyLElbow[0] - 90.));
+                }
+            }
            break;
 
         }
@@ -440,67 +432,51 @@ bool SWTeleoperation_nao::updateModule()
     if(l_pRightArmTarget)
     {
         int l_deviceId = l_pRightArmTarget->get(0).asInt();
-//        std::cout << "Recieved Right Arm data (device " << l_deviceId << ")" << std::endl;
 
         switch(l_deviceId)
         {
-            case swTracking::FORTH_LIB :
-                    // ...
-            break;
-            case swTracking::FASTRAK_LIB :
-                    // ...
-            break;
-        case swTracking::OPENNI_LIB :
-            std::vector<double> l_pointTorso(3);
+            case swTracking::OPENNI_LIB :
+            {
+                std::vector<double> l_pointTorso(3), l_pointNeck(3), l_pointLShoulder(3), l_pointLElbow(3), l_pointLHand(3), l_rpyRShoulder(3), l_rpyRElbow(3);
                 l_pointTorso[0] = l_pRightArmTarget->get(1).asDouble();
                 l_pointTorso[1] = l_pRightArmTarget->get(2).asDouble();
                 l_pointTorso[2] = l_pRightArmTarget->get(3).asDouble();
-            std::vector<double> l_pointNeck(3);
                 l_pointNeck[0] = l_pRightArmTarget->get(4).asDouble();
                 l_pointNeck[1] = l_pRightArmTarget->get(5).asDouble();
                 l_pointNeck[2] = l_pRightArmTarget->get(6).asDouble();
-            std::vector<double> l_pointLShoulder(3);
                 l_pointLShoulder[0] = l_pRightArmTarget->get(7).asDouble();
                 l_pointLShoulder[1] = l_pRightArmTarget->get(8).asDouble();
                 l_pointLShoulder[2] = l_pRightArmTarget->get(9).asDouble();
-            std::vector<double> l_pointLElbow(3);
                 l_pointLElbow[0] = l_pRightArmTarget->get(10).asDouble();
                 l_pointLElbow[1] = l_pRightArmTarget->get(11).asDouble();
                 l_pointLElbow[2] = l_pRightArmTarget->get(12).asDouble();
-            std::vector<double> l_pointLHand(3);
                 l_pointLHand[0] = l_pRightArmTarget->get(13).asDouble();
                 l_pointLHand[1] = l_pRightArmTarget->get(14).asDouble();
                 l_pointLHand[2] = l_pRightArmTarget->get(15).asDouble();
+                l_rpyRShoulder[0] = l_pRightArmTarget->get(1).asDouble();
+                l_rpyRShoulder[1] = l_pRightArmTarget->get(2).asDouble();
+                l_rpyRShoulder[2] = l_pRightArmTarget->get(3).asDouble();
+                l_rpyRElbow[0] = l_pRightArmTarget->get(4).asDouble();
+                l_rpyRElbow[1] = l_pRightArmTarget->get(5).asDouble();
+                l_rpyRElbow[2] = l_pRightArmTarget->get(6).asDouble();
 
-            std::vector<double> l_rpyRShoulder(3);
-                            l_rpyRShoulder[0] = l_pRightArmTarget->get(1).asDouble();
-                            l_rpyRShoulder[1] = l_pRightArmTarget->get(2).asDouble();
-                            l_rpyRShoulder[2] = l_pRightArmTarget->get(3).asDouble();
+                std::vector<double> l_vecTorso      = swUtil::vec(l_pointTorso, l_pointNeck);
+                std::vector<double> l_vecLForearm   = swUtil::vec(l_pointLElbow, l_pointLHand);
+                std::vector<double> l_vecLArm       = swUtil::vec(l_pointLShoulder, l_pointLElbow);
+                std::vector<double> l_rpyLShoulder  = swUtil::computeRollPitchYaw(l_vecLArm, l_vecTorso);
+                std::vector<double> l_rpyLElbow     = swUtil::computeRollPitchYaw(l_vecLForearm, l_vecLArm);
 
-            std::vector<double> l_rpyRElbow(3);
-                            l_rpyRElbow[0] = l_pRightArmTarget->get(4).asDouble();
-                            l_rpyRElbow[1] = l_pRightArmTarget->get(5).asDouble();
-                            l_rpyRElbow[2] = l_pRightArmTarget->get(6).asDouble();
-
-
-            std::vector<double> l_vecTorso = swUtil::vec(l_pointTorso, l_pointNeck);
-            std::vector<double> l_vecLForearm = swUtil::vec(l_pointLElbow, l_pointLHand);
-            std::vector<double> l_vecLArm = swUtil::vec(l_pointLShoulder, l_pointLElbow);
-
-            std::vector<double> l_rpyLShoulder = swUtil::computeRollPitchYaw(l_vecLArm, l_vecTorso);
-            std::vector<double> l_rpyLElbow = swUtil::computeRollPitchYaw(l_vecLForearm, l_vecLArm);
-
-            m_aRArmAngles[0] = swUtil::degree180(l_rpyRShoulder[1] - 90.) * DEG_TO_RAD;
-            m_aRArmAngles[1] = swUtil::degree180(-l_rpyRShoulder[0]-180) * DEG_TO_RAD;
-            //m_aRArmAngles[2] = swUtil::degree180(l_rpyRElbow[2]+75) * DEG_TO_RAD;
-            m_aRArmAngles[3] = swUtil::degree180(l_rpyRElbow[0]) * DEG_TO_RAD;
-            if (m_aRArmAngles[1].getUnionValue().asFloat < -(PI/2.) ){
-                m_aRArmAngles[1] = - PI - m_aRArmAngles[1].getUnionValue().asFloat;
-                //m_aRArmAngles[2] = 0.0;
-                m_aRArmAngles[3] = swUtil::degree180(l_rpyRElbow[0]+90.) * DEG_TO_RAD;
+                m_aRArmAngles[0] = swUtil::deg2rad(swUtil::degree180(l_rpyRShoulder[1] - 90.));
+                m_aRArmAngles[1] = swUtil::deg2rad(swUtil::degree180(-l_rpyRShoulder[0]-180));
+                //m_aRArmAngles[2] = swUtil::degree180(l_rpyRElbow[2]+75) * DEG_TO_RAD;
+                m_aRArmAngles[3] = swUtil::deg2rad(swUtil::degree180(l_rpyRElbow[0]));
+                if (m_aRArmAngles[1].getUnionValue().asFloat < -(PI/2.) )
+                {
+                    m_aRArmAngles[1] = - PI - m_aRArmAngles[1].getUnionValue().asFloat;
+                    //m_aRArmAngles[2] = 0.0;
+                    m_aRArmAngles[3] = swUtil::deg2rad(swUtil::degree180(l_rpyRElbow[0]+90.));
+                }
             }
-
-
             break;
         }
         m_bRightArmCapture = true;
@@ -516,47 +492,44 @@ bool SWTeleoperation_nao::updateModule()
         //std::cout << "Recieved Left Hand data (device " << l_deviceId << ")" << std::endl;
         switch(l_deviceId)
         {
-        case swTracking::FASTRAK_LIB:
+            case swTracking::FASTRAK_LIB:
             {
 
-                if (!m_bFastrakCalibrated)
-                {
-                    std::cout << "Place your hand at the level of your belly button and press enter";
-                    std::cin.ignore();
-                    m_vFastrakOffsets.resize(3);
-                    m_vFastrakOffsets[0] = l_pLeftHandTarget->get(2).asDouble();
-                    m_vFastrakOffsets[1] = l_pLeftHandTarget->get(1).asDouble();
-                    m_vFastrakOffsets[2] = l_pLeftHandTarget->get(3).asDouble();
-                    m_bFastrakCalibrated = true;
-                }
+//                if (!m_bFastrakCalibrated)
+//                {
+//                    std::cout << "Place your hand at the level of your belly button and press enter";
+//                    std::cin.ignore();
+//                    m_vFastrakOffsets.resize(3);
+//                    m_vFastrakOffsets[0] = l_pLeftHandTarget->get(2).asDouble();
+//                    m_vFastrakOffsets[1] = l_pLeftHandTarget->get(1).asDouble();
+//                    m_vFastrakOffsets[2] = l_pLeftHandTarget->get(3).asDouble();
+//                    m_bFastrakCalibrated = true;
+//                }
 
 
-                //cartesian position
-                Vector l_xd(3);
-                //cartesian orientation
-                Vector l_ori(3);
-                Vector l_od(4);
+//                //cartesian position
+//                Vector l_xd(3);
+//                //cartesian orientation
+//                Vector l_ori(3);
+//                Vector l_od(4);
 
-                Vector l_joints;
+//                Vector l_joints;
 
-                //std::cout << "current : "<< l_xd.toString() << std::endl;
+//                //std::cout << "current : "<< l_xd.toString() << std::endl;
 
-                l_xd[0] = (l_pLeftHandTarget->get(2).asDouble() - m_vFastrakOffsets[0]) / (- 70.);
-                l_xd[1] = (l_pLeftHandTarget->get(1).asDouble() - m_vFastrakOffsets[1]) / (-158.);
-                l_xd[2] = (l_pLeftHandTarget->get(3).asDouble() - m_vFastrakOffsets[2]) / ( 250.);
+//                l_xd[0] = (l_pLeftHandTarget->get(2).asDouble() - m_vFastrakOffsets[0]) / (- 70.);
+//                l_xd[1] = (l_pLeftHandTarget->get(1).asDouble() - m_vFastrakOffsets[1]) / (-158.);
+//                l_xd[2] = (l_pLeftHandTarget->get(3).asDouble() - m_vFastrakOffsets[2]) / ( 250.);
 
-                double l_degToRad = 3.14159 / 180;
+//                double l_degToRad = 3.14159 / 180;
 
-                l_ori[0] = l_degToRad * (-l_pLeftHandTarget->get(4).asDouble() + 90);
-                l_ori[1] = l_degToRad * (-l_pLeftHandTarget->get(5).asDouble());
-                l_ori[2] = l_degToRad * (-l_pLeftHandTarget->get(6).asDouble());
+//                l_ori[0] = l_degToRad * (-l_pLeftHandTarget->get(4).asDouble() + 90);
+//                l_ori[1] = l_degToRad * (-l_pLeftHandTarget->get(5).asDouble());
+//                l_ori[2] = l_degToRad * (-l_pLeftHandTarget->get(6).asDouble());
 
                 //std::cout << "new : "<< l_xd.toString() << std::endl;
 
-
         //        l_od = dcm2axis(euler2dcm(l_ori));
-
-
 
 //                    m_pILeftArmCartesian->goToPose(l_xd,l_od, 4.);
 
@@ -576,207 +549,86 @@ bool SWTeleoperation_nao::updateModule()
                 m_bLeftArmCapture = true;
 
             }
-        break;
+            break;
         }
     }
 
-    //read right hand
-//    l_pRightHandTarget = m_oRightHandTrackerPort.read(false);
-
-//    if(l_pRightArmTarget)
-//    {
-//        int l_deviceId = l_pRightArmTarget->get(0).asInt();
-
-
-//        switch(l_deviceId)
-//        {
-//        case swTracking::FASTRAK_LIB:
-//            {
-//                //cartesian position
-//                Vector l_xd(3);
-//                //cartesian orientation
-//                Vector l_ori(3);
-//                Vector l_od(4);
-
-//                Vector l_joints;
-
-//                l_xd[0] = (l_pRightArmTarget->get(2).asDouble() + 6.) / (- 70.);
-//                l_xd[1] = (l_pRightArmTarget->get(1).asDouble() - 21.) / (-158.);
-//                l_xd[2] = (l_pRightArmTarget->get(3).asDouble() + 51) / ( 250.);
-
-//                l_ori[0] = -l_pRightArmTarget->get(4).asDouble() + 90.;
-//                l_ori[1] = -l_pRightArmTarget->get(5).asDouble();
-//                l_ori[2] = -l_pRightArmTarget->get(6).asDouble();
-
-//                l_od = dcm2axis(euler2dcm(l_ori));
-
-//                std::cout << "l_xd :" << l_xd.toString() << std::endl;
-
-//                m_pIRightArmCartesian->askForPose(l_xd,l_od,l_xd,l_od,l_joints);
-
-//                std::cout << l_joints.toString() << " (askforPose)" << std::endl;
-
-
-//                //m_bRightArmCapture = true;
-//            }
-//            break;
-//        }
-//    }
-
-    // read left fingers commands
-    //{
-        //l_pLeftFingersTarget = m_oLeftFingersTrackerPort.read(false);
-
-//		if(l_pLeftFingersTarget)
-//		{
-//			int l_deviceId = l_pLeftFingersTarget->get(0).asInt();
-
-//			switch(l_deviceId)
-//			{
-//				case swTracking::FORTH_LIB :
-//					{
-//						// ...
-//					}
-//				break;
-//			}
-//		}
-//	}
-//    // read right arm commands
-//    {
-//        l_pRightArmTarget = m_oRightArmTrackerPort.read();
-
-//        if(l_pRightArmTarget)
-//        {
-//            int l_deviceId = l_pRightArmTarget->get(0).asInt();
-
-//            switch(l_deviceId)
-//            {
-//                case swTracking::FORTH_LIB :
-//                    {
-//                        // ...
-//                    }
-//                break;
-//                case swTracking::OPENNI_LIB :
-//                    {
-//                        // ...
-//                    }
-//                break;
-//            }
-//        }
-//    }
-
     //check each joint value to ensure it is in the right range, if not crop to the max/min values
-
-    if (m_aHeadAngles[0].getUnionValue().asFloat > m_fHeadMaxValueJoint0)
-                 m_aHeadAngles[0] = m_fHeadMaxValueJoint0;
-         if (m_aHeadAngles[0].getUnionValue().asFloat < m_fHeadMinValueJoint0)
-                 m_aHeadAngles[0] = m_fHeadMinValueJoint0;
-
-         if (m_aHeadAngles[1].getUnionValue().asFloat > m_fHeadMaxValueJoint1)
-                 m_aHeadAngles[1] = m_fHeadMaxValueJoint1;
-         if (m_aHeadAngles[1].getUnionValue().asFloat < m_fHeadMinValueJoint1)
-                 m_aHeadAngles[1] = m_fHeadMinValueJoint1;
-
-         if (m_aLArmAngles[0].getUnionValue().asFloat > m_fLeftArmMaxValueJoint0)
-                 m_aLArmAngles[0] = m_fLeftArmMaxValueJoint0;
-         if (m_aLArmAngles[0].getUnionValue().asFloat < m_fLeftArmMinValueJoint0)
-                 m_aLArmAngles[0] = m_fLeftArmMinValueJoint0;
-
-         if (m_aLArmAngles[1].getUnionValue().asFloat > m_fLeftArmMaxValueJoint1)
-                 m_aLArmAngles[1] = m_fLeftArmMaxValueJoint1;
-         if (m_aLArmAngles[1].getUnionValue().asFloat < m_fLeftArmMinValueJoint1)
-                 m_aLArmAngles[1] = m_fLeftArmMinValueJoint1;
-
-         if (m_aLArmAngles[2].getUnionValue().asFloat > m_fLeftArmMaxValueJoint2)
-                 m_aLArmAngles[2] = m_fLeftArmMaxValueJoint2;
-         if (m_aLArmAngles[2].getUnionValue().asFloat < m_fLeftArmMinValueJoint2)
-                 m_aLArmAngles[2] = m_fLeftArmMinValueJoint2;
-
-         if (m_aLArmAngles[3].getUnionValue().asFloat > m_fLeftArmMaxValueJoint3)
-                 m_aLArmAngles[3] = m_fLeftArmMaxValueJoint3;
-         if (m_aLArmAngles[3].getUnionValue().asFloat < m_fLeftArmMinValueJoint3)
-                 m_aLArmAngles[3] = m_fLeftArmMinValueJoint3;
-
-         if (m_aLArmAngles[4].getUnionValue().asFloat > m_fLeftArmMaxValueJoint4)
-                 m_aLArmAngles[4] = m_fLeftArmMaxValueJoint4;
-         if (m_aLArmAngles[4].getUnionValue().asFloat < m_fLeftArmMinValueJoint4)
-                 m_aLArmAngles[4] = m_fLeftArmMinValueJoint4;
-
-         if (m_aLArmAngles[5].getUnionValue().asFloat > m_fLeftArmMaxValueJoint5)
-                 m_aLArmAngles[5] = m_fLeftArmMaxValueJoint5;
-         if (m_aLArmAngles[5].getUnionValue().asFloat < m_fLeftArmMinValueJoint5)
-                 m_aLArmAngles[5] = m_fLeftArmMinValueJoint5;
-
-         if (m_aRArmAngles[0].getUnionValue().asFloat > m_fRightArmMaxValueJoint0)
-                 m_aRArmAngles[0] = m_fRightArmMaxValueJoint0;
-         if (m_aRArmAngles[0].getUnionValue().asFloat < m_fRightArmMinValueJoint0)
-                 m_aRArmAngles[0] = m_fRightArmMinValueJoint0;
-
-         if (m_aRArmAngles[1].getUnionValue().asFloat > m_fRightArmMaxValueJoint1)
-                 m_aRArmAngles[1] = m_fRightArmMaxValueJoint1;
-         if (m_aRArmAngles[1].getUnionValue().asFloat < m_fRightArmMinValueJoint1)
-                 m_aRArmAngles[1] = m_fRightArmMinValueJoint1;
-
-         if (m_aRArmAngles[2].getUnionValue().asFloat > m_fRightArmMaxValueJoint2)
-                 m_aRArmAngles[2] = m_fRightArmMaxValueJoint2;
-         if (m_aRArmAngles[2].getUnionValue().asFloat < m_fRightArmMinValueJoint2)
-                 m_aRArmAngles[2] = m_fRightArmMinValueJoint2;
-
-         if (m_aRArmAngles[3].getUnionValue().asFloat > m_fRightArmMaxValueJoint3)
-                 m_aRArmAngles[3] = m_fRightArmMaxValueJoint3;
-         if (m_aRArmAngles[3].getUnionValue().asFloat < m_fRightArmMinValueJoint3)
-                 m_aRArmAngles[3] = m_fRightArmMinValueJoint3;
-
-         if (m_aRArmAngles[4].getUnionValue().asFloat > m_fRightArmMaxValueJoint4)
-                 m_aRArmAngles[4] = m_fRightArmMaxValueJoint4;
-         if (m_aRArmAngles[4].getUnionValue().asFloat < m_fRightArmMinValueJoint4)
-                 m_aRArmAngles[4] = m_fRightArmMinValueJoint4;
-
-         if (m_aRArmAngles[5].getUnionValue().asFloat > m_fRightArmMaxValueJoint5)
-                 m_aRArmAngles[5] = m_fRightArmMaxValueJoint5;
-         if (m_aRArmAngles[5].getUnionValue().asFloat < m_fRightArmMinValueJoint5)
-                 m_aRArmAngles[5] = m_fRightArmMinValueJoint5;
-
-         if (m_aTorsoAngles[0].getUnionValue().asFloat > m_fTorsoMaxValueJoint0){
-                 m_aTorsoAngles[0] = m_fTorsoMaxValueJoint0;
-                 m_aTorsoAngles[1] = m_fTorsoMaxValueJoint0;
-         }
-         if (m_aTorsoAngles[0].getUnionValue().asFloat < m_fTorsoMinValueJoint0){
-                 m_aTorsoAngles[0] = m_fTorsoMinValueJoint0;
-                 m_aTorsoAngles[1] = m_fTorsoMinValueJoint0;
-         }
-
-
-         if (m_bHeadCapture)
-         {
-             if(l_pHeadTarget)
-             {
-                 m_oRobotMotionProxy->setAngles(AL::ALValue("Head"), m_aHeadAngles, m_fJointVelocityValue);
-             }
-         }
-
-         if (m_bTorsoCapture)
-         {
-             if(l_pTorsoTarget)
-             {
-                 m_oRobotMotionProxy->setAngles(AL::ALValue::array("LHipPitch","RHipPitch"), m_aTorsoAngles, m_fJointVelocityValue);
-             }
-         }
-
-         if (m_bLeftArmCapture)
-         {
-            if (l_pLeftArmTarget)
+    for(int ii = 0; ii < 6; ++ii)
+    {
+        if(ii < 2)
+        {
+            if(m_aHeadAngles[ii].getUnionValue().asFloat > static_cast<float>(m_vHeadMaxJoint[ii]))
             {
-                m_oRobotMotionProxy->setAngles(AL::ALValue("LArm"), m_aLArmAngles, m_fJointVelocityValue);
+                m_aHeadAngles[ii] = static_cast<float>(m_vHeadMaxJoint[ii]);
             }
-         }
+            if(m_aHeadAngles[ii].getUnionValue().asFloat < static_cast<float>(m_vHeadMinJoint[ii]))
+            {
+                m_aHeadAngles[ii] = static_cast<float>(m_vHeadMinJoint[ii]);
+            }
+        }
 
-         if (m_bRightArmCapture)
-         {
-             if (l_pRightArmTarget)
-             m_oRobotMotionProxy->setAngles(AL::ALValue("RArm"), m_aRArmAngles, m_fJointVelocityValue);
-         }
+        if(m_aLArmAngles[ii].getUnionValue().asFloat > static_cast<float>(m_vLeftArmMaxJoint[ii]))
+        {
+            m_aLArmAngles[ii] = static_cast<float>(m_vLeftArmMaxJoint[ii]);
+        }
+        if(m_aLArmAngles[ii].getUnionValue().asFloat < static_cast<float>(m_vLeftArmMinJoint[ii]))
+        {
+            m_aLArmAngles[ii] = static_cast<float>(m_vLeftArmMinJoint[ii]);
+        }
+        if(m_aRArmAngles[ii].getUnionValue().asFloat > static_cast<float>(m_vRightArmMaxJoint[ii]))
+        {
+            m_aRArmAngles[ii] = static_cast<float>(m_vRightArmMaxJoint[ii]);
+        }
+        if(m_aRArmAngles[ii].getUnionValue().asFloat < static_cast<float>(m_vRightArmMinJoint[ii]))
+        {
+            m_aRArmAngles[ii] = static_cast<float>(m_vRightArmMinJoint[ii]);
+        }
+    }
 
+    if (m_aTorsoAngles[0].getUnionValue().asFloat > static_cast<float>(m_dTorsoMaxValueJoint))
+    {
+        m_aTorsoAngles[0] = m_dTorsoMaxValueJoint;
+        m_aTorsoAngles[1] = m_dTorsoMaxValueJoint;
+    }
+    if (m_aTorsoAngles[0].getUnionValue().asFloat < static_cast<float>(m_dTorsoMinValueJoint))
+    {
+        m_aTorsoAngles[0] = m_dTorsoMinValueJoint;
+        m_aTorsoAngles[1] = m_dTorsoMinValueJoint;
+    }
+
+
+    if (m_bHeadCapture)
+    {
+        if(l_pHeadTarget)
+        {
+            m_oRobotMotionProxy->setAngles(AL::ALValue("Head"), m_aHeadAngles, static_cast<float>(m_dJointVelocityValue));
+        }
+    }
+
+    if (m_bTorsoCapture)
+    {
+        if(l_pTorsoTarget)
+        {
+            m_oRobotMotionProxy->setAngles(AL::ALValue::array("LHipPitch","RHipPitch"), m_aTorsoAngles, static_cast<float>(m_dJointVelocityValue));
+        }
+    }
+
+    if (m_bLeftArmCapture)
+    {
+        if (l_pLeftArmTarget)
+        {
+            m_oRobotMotionProxy->setAngles(AL::ALValue("LArm"), m_aLArmAngles, static_cast<float>(m_dJointVelocityValue));
+        }
+    }
+
+    if (m_bRightArmCapture)
+    {
+        if (l_pRightArmTarget)
+        {
+            m_oRobotMotionProxy->setAngles(AL::ALValue("RArm"), m_aRArmAngles, static_cast<float>(m_dJointVelocityValue));
+        }
+    }
 
     return true;
 }
@@ -789,29 +641,29 @@ double SWTeleoperation_nao::getPeriod()
 
 int main(int argc, char* argv[])
 {
-    /* initialize yarp network */
-    Network yarp;
+    // initialize yarp network
+    yarp::os::Network yarp;
     if (!yarp.checkNetwork())
     {
         std::cerr << "-ERROR: Problem connecting to YARP server" << std::endl;
         return -1;
     }
 
-    /* create your module */
+    // create your module
     SWTeleoperation_nao l_oTeleoperation_nao;
 
-    /* prepare and configure the resource finder */
-    ResourceFinder rf;
-    rf.setVerbose(true);
-    rf.setDefaultConfigFile("teleoperation_nao.ini");
-    rf.setDefaultContext("swooz-teleoperation/conf");
-    rf.configure("NAO_ROOT", argc, argv);
+    // prepare and configure the resource finder
+    yarp::os::ResourceFinder l_oRf;
+    l_oRf.setVerbose(true);
+    l_oRf.setDefaultConfigFile("teleoperation_nao.ini");
+    l_oRf.setDefaultContext("swooz-teleoperation/conf");
+    l_oRf.configure("NAO_ROOT", argc, argv);
 
-    /* configure the module */
+    // configure the module
     std::cout << "Configuring the nao Teleoperation module..."<< std::endl;
-    if (l_oTeleoperation_nao.configure(rf))
+    if (l_oTeleoperation_nao.configure(l_oRf))
     {
-        /* run the module */
+        // run the module
         std::cout << "Starting the nao Teleoperation module..." << std::endl;
         l_oTeleoperation_nao.runModule();
     }

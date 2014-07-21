@@ -298,6 +298,17 @@ namespace swUtil
     }
 
     /*
+     * \brief Degree to rad conversion.
+     * \param [in] An angle in degrees
+     * \return The same angle in rad
+     */
+    template <typename T>
+    T deg2rad(T angle)
+    {
+        return angle * static_cast<T>(PI / 180);
+    }
+
+    /*
      * \brief Sets the value of an angle in degrees to the value of the same angle between -180 and 180 degrees.
      * \param [in] An angle in degrees
      * \return The same angle in degrees, bound between -180 and 180.

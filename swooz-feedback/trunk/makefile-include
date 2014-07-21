@@ -57,7 +57,7 @@ DIST_LIBDIR = $(DIST_LIBDIR)/Debug
 # others dir
 
 BINDIR=./bin
-LIBDIR=./lib
+
 QTGENW=./genUI
 FORMDIR=./form
 MOCDIR=./moc

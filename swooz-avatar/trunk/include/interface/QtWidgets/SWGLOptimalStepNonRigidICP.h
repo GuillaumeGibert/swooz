@@ -83,6 +83,12 @@ class SWGLOptimalStepNonRigidICP : public SWGLWidget
         double coeffAlpha() const;
 
 
+        /**
+         * @brief bufferUpdate
+         */
+        void bufferUpdate();
+
+
     protected:
 
         /**
@@ -313,7 +319,7 @@ class SWGLOptimalStepNonRigidICP : public SWGLWidget
         /**
          * \brief Refresh widget opengl display
          */
-        void refreshDisplay();
+        void refreshDisplay(bool bBufferUpdate = true);
 
     signals :
 

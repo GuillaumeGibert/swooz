@@ -19,6 +19,7 @@ LINK=link
 
 ############################################################################## OBJ LIST
 
+# static
 STASM_LIST_OBJ=\
         $(LIBDIR)/mat.obj $(LIBDIR)/matvec.obj $(LIBDIR)/err.obj $(LIBDIR)/initnet.obj $(LIBDIR)/forward.obj $(LIBDIR)/util.obj $(LIBDIR)/mchol.obj\
         $(LIBDIR)/shapemodel.obj $(LIBDIR)/startshape.obj $(LIBDIR)/imutil.obj $(LIBDIR)/shapefile.obj $(LIBDIR)/landmarks.obj $(LIBDIR)/hypot.obj\
@@ -26,16 +27,17 @@ STASM_LIST_OBJ=\
         $(LIBDIR)/rgbimutil.obj $(LIBDIR)/asmsearch.obj $(LIBDIR)/SWStasm.obj\
 
 SWOOZ_LIST_OBJ=\
-        $(LIBDIR)/SWCloud.obj $(LIBDIR)/SWMaskCloud.obj $(LIBDIR)/SWAlignClouds.obj\
-        $(LIBDIR)/SWMesh.obj $(LIBDIR)/SWOptimalStepNonRigidICP.obj\
-        $(LIBDIR)/SWHaarCascade.obj $(LIBDIR)/SWFaceDetection.obj $(LIBDIR)/SWFaceDetection_thread.obj\
-        $(LIBDIR)/emicp.obj $(LIBDIR)/findRTfromS.obj $(LIBDIR)/gpuMat.obj $(LIBDIR)/SWTrackFlow.obj $(LIBDIR)/SWTrack.obj\
+        $(LIBDIR)/SWCloud.obj $(LIBDIR)/SWMaskCloud.obj $(LIBDIR)/SWMesh.obj\
+        $(LIBDIR)/SWHaarCascade.obj $(LIBDIR)/SWFaceDetection.obj $(LIBDIR)/SWFaceDetection_thread.obj $(LIBDIR)/SWTrackFlow.obj $(LIBDIR)/SWTrack.obj\
         $(LIBDIR)/SWDisplayImageWidget.obj $(LIBDIR)/SWDisplayCurvesWidget.obj\
         $(LIBDIR)/SWQtCamera.obj $(LIBDIR)/SWGLWidget.obj $(LIBDIR)/SWGLCloudWidget.obj $(LIBDIR)/SWGLMeshWidget.obj $(LIBDIR)/SWGLMultiObjectWidget.obj\
-        $(LIBDIR)/SWGLOptimalStepNonRigidICP.obj $(LIBDIR)/SWCaptureHeadMotion.obj\
-        $(LIBDIR)/SWCreateAvatarWorker.obj $(LIBDIR)/SWCreateAvatar.obj $(LIBDIR)/SWCreateAvatarInterface.obj\
-        $(LIBDIR)/SWMorphingWorker.obj $(LIBDIR)/SWMorphingInterface.obj\
 
+SWOOZ_CUDA_LIST_OBJ=\
+        $(LIBDIR)/SWAlignClouds.obj $(LIBDIR)/SWOptimalStepNonRigidICP.obj $(LIBDIR)/emicp.obj $(LIBDIR)/findRTfromS.obj $(LIBDIR)/gpuMat.obj\
+        $(LIBDIR)/SWGLOptimalStepNonRigidICP.obj $(LIBDIR)/SWCaptureHeadMotion.obj $(LIBDIR)/SWMorphingWorker.obj\
+        $(LIBDIR)/SWCreateAvatarWorker.obj $(LIBDIR)/SWCreateAvatar.obj $(LIBDIR)/SWCreateAvatarInterface.obj $(LIBDIR)/SWMorphingInterface.obj\
+
+# dynamic
 STASM_DYN_LIST_OBJ=\
         $(LIBDIR)/mat_d.obj $(LIBDIR)/matvec_d.obj $(LIBDIR)/err_d.obj $(LIBDIR)/initnet_d.obj $(LIBDIR)/forward_d.obj $(LIBDIR)/util_d.obj $(LIBDIR)/mchol_d.obj\
         $(LIBDIR)/shapemodel_d.obj $(LIBDIR)/startshape_d.obj $(LIBDIR)/imutil_d.obj $(LIBDIR)/shapefile_d.obj $(LIBDIR)/landmarks_d.obj $(LIBDIR)/hypot_d.obj\
@@ -43,22 +45,30 @@ STASM_DYN_LIST_OBJ=\
         $(LIBDIR)/rgbimutil_d.obj $(LIBDIR)/asmsearch_d.obj $(LIBDIR)/SWStasm_d.obj\
 
 SWOOZ_DYN_LIST_OBJ=\
-        $(LIBDIR)/SWCloud_d.obj $(LIBDIR)/SWMaskCloud_d.obj $(LIBDIR)/SWAlignClouds_d.obj\
-        $(LIBDIR)/SWMesh_d.obj $(LIBDIR)/SWOptimalStepNonRigidICP_d.obj\
-        $(LIBDIR)/SWHaarCascade_d.obj $(LIBDIR)/SWFaceDetection_d.obj $(LIBDIR)/SWFaceDetection_thread_d.obj\
-        $(LIBDIR)/emicp.obj $(LIBDIR)/findRTfromS.obj $(LIBDIR)/gpuMat.obj $(LIBDIR)/SWTrackFlow_d.obj $(LIBDIR)/SWTrack_d.obj\
+        $(LIBDIR)/SWCloud_d.obj $(LIBDIR)/SWMaskCloud_d.obj\
+        $(LIBDIR)/SWMesh_d.obj $(LIBDIR)/SWHaarCascade_d.obj $(LIBDIR)/SWFaceDetection_d.obj $(LIBDIR)/SWFaceDetection_thread_d.obj\
+        $(LIBDIR)/SWTrackFlow_d.obj $(LIBDIR)/SWTrack_d.obj\
         $(LIBDIR)/SWDisplayImageWidget_d.obj $(LIBDIR)/SWDisplayCurvesWidget_d.obj\
         $(LIBDIR)/SWQtCamera_d.obj $(LIBDIR)/SWGLWidget_d.obj $(LIBDIR)/SWGLCloudWidget_d.obj $(LIBDIR)/SWGLMeshWidget_d.obj $(LIBDIR)/SWGLMultiObjectWidget_d.obj\
-        $(LIBDIR)/SWGLOptimalStepNonRigidICP_d.obj $(LIBDIR)/SWCaptureHeadMotion_d.obj\
-        $(LIBDIR)/SWCreateAvatarWorker_d.obj $(LIBDIR)/SWCreateAvatar_d.obj $(LIBDIR)/SWCreateAvatarInterface_d.obj\
-        $(LIBDIR)/SWMorphingWorker_d.obj $(LIBDIR)/SWMorphingInterface_d.obj\
+
+SWOOZ_CUDA_DYN_LIST_OBJ=\
+        $(LIBDIR)/SWAlignClouds_d.obj $(LIBDIR)/SWOptimalStepNonRigidICP_d.obj $(LIBDIR)/emicp.obj $(LIBDIR)/findRTfromS.obj $(LIBDIR)/gpuMat.obj\
+        $(LIBDIR)/SWGLOptimalStepNonRigidICP_d.obj $(LIBDIR)/SWCaptureHeadMotion_d.obj $(LIBDIR)/SWMorphingWorker_d.obj\
+        $(LIBDIR)/SWCreateAvatarWorker_d.obj $(LIBDIR)/SWCreateAvatar_d.obj $(LIBDIR)/SWCreateAvatarInterface_d.obj $(LIBDIR)/SWMorphingInterface_d.obj\
+
 
 # For compiling files before the linking
 COMPIL_LIST=\
-        $(STASM_LIST_OBJ) $(SWOOZ_LIST_OBJ) $(STASM_DYN_LIST_OBJ) $(SWOOZ_DYN_LIST_OBJ)\
+        $(STASM_DYN_LIST_OBJ) $(SWOOZ_DYN_LIST_OBJ)\
+
+COMPIL_LIST_CUDA=\
+        $(SWOOZ_CUDA_LIST_OBJ) $(SWOOZ_CUDA_DYN_LIST_OBJ)\
 
 COMPIL_64_LIST=\
-        $(SWOOZ_LIST_OBJ) $(SWOOZ_DYN_LIST_OBJ)\
+        $(SWOOZ_DYN_LIST_OBJ)\
+
+COMPIL_64_LIST_CUDA=\
+        $(SWOOZ_CUDA_LIST_OBJ) $(SWOOZ_CUDA_DYN_LIST_OBJ)\
 
 # For linking the avatar creation application
 AVATAR_LINK_OBJ=\
@@ -90,17 +100,17 @@ MORPHING_LINK_D_OBJ=\
         $(LIBDIR)/SWGLOptimalStepNonRigidICP_d.obj\
         $(LIBDIR)/SWMorphingWorker_d.obj $(LIBDIR)/SWMorphingInterface_d.obj\
 
-# For generating SWAvatar.lib
-AVATAR_GEN_LIB_OBJ=\
-        $(LIBDIR)/SWCloud.obj $(LIBDIR)/SWMaskCloud.obj $(LIBDIR)/SWAlignClouds.obj $(LIBDIR)/SWMesh.obj\
-        $(LIBDIR)/SWHaarCascade.obj $(LIBDIR)/SWFaceDetection.obj $(LIBDIR)/SWFaceDetection_thread.obj $(LIBDIR)/emicp.obj $(LIBDIR)/findRTfromS.obj\
-        $(LIBDIR)/gpuMat.obj $(LIBDIR)/SWTrackFlow.obj $(LIBDIR)/SWTrack.obj\
-
 # For generating SWAvatar_d.lib
 AVATAR_GEN_DYN_LIB_OBJ=\
-        $(LIBDIR)/SWCloud_d.obj $(LIBDIR)/SWMaskCloud_d.obj $(LIBDIR)/SWAlignClouds_d.obj $(LIBDIR)/SWMesh_d.obj\
-        $(LIBDIR)/SWHaarCascade_d.obj $(LIBDIR)/SWFaceDetection_d.obj $(LIBDIR)/SWFaceDetection_thread_d.obj $(LIBDIR)/emicp.obj $(LIBDIR)/findRTfromS.obj\
-        $(LIBDIR)/gpuMat.obj $(LIBDIR)/SWTrackFlow_d.obj $(LIBDIR)/SWTrack_d.obj\
+        $(STASM_DYN_LIST_OBJ) $(LIBDIR)/SWCloud_d.obj $(LIBDIR)/SWMaskCloud_d.obj $(LIBDIR)/SWMesh_d.obj\
+        $(LIBDIR)/SWHaarCascade_d.obj $(LIBDIR)/SWFaceDetection_d.obj $(LIBDIR)/SWFaceDetection_thread_d.obj\
+        $(LIBDIR)/SWTrackFlow_d.obj $(LIBDIR)/SWTrack_d.obj $(LIBDIR)/SWDisplayImageWidget_d.obj $(LIBDIR)/SWDisplayCurvesWidget_d.obj\
+        $(LIBDIR)/SWQtCamera_d.obj $(LIBDIR)/SWGLWidget_d.obj $(LIBDIR)/SWGLCloudWidget_d.obj $(LIBDIR)/SWGLMeshWidget_d.obj $(LIBDIR)/SWGLMultiObjectWidget_d.obj\
+
+# For generating SWAvatarCUDA_d.lib
+AVATAR_CUDA_GEN_DYN_LIB_OBJ=\
+        $(LIBDIR)/gpuMat.obj $(LIBDIR)/emicp.obj $(LIBDIR)/findRTfromS.obj $(LIBDIR)/SWAlignClouds_d.obj $(LIBDIR)/SWCaptureHeadMotion_d.obj\
+        $(LIBDIR)/SWCreateAvatar_d.obj\
 
 ############################################################################## MOC LIST
 
@@ -116,17 +126,30 @@ MOC_LIST=\
 UI_LIST=\
         $(INCDIR_QTGENW)/SWUI_Morphing.h $(INCDIR_QTGENW)/SWUI_WCreateAvatar.h\
 
-
 ############################################################################## Makefile commands
 
 # Files to be generated by the x86 compilation mode
 !if  "$(ARCH)" == "x86"
-all: $(UI_LIST) $(MOC_LIST) $(COMPIL_LIST) $(BINDIR)/SWCreateAvatar.exe $(BINDIR)/SWMorphing.exe $(LIBDIR)/SWAvatar.lib $(LIBDIR)/SWAvatar_d.lib
+all: $(UI_LIST) $(MOC_LIST) avatar_obj avatar_exec avatar_lib
 !endif
 
 # Files to be generated by the amd64 compilation mode
 !if "$(ARCH)" == "amd64"
-all: $(UI_LIST) $(MOC_LIST) $(COMPIL_64_LIST) $(BINDIR)/SWMorphing-x64.exe $(LIBDIR)/SWAvatar_d.lib
+all: $(UI_LIST) $(MOC_LIST) avatar64_obj avatar_exec64 avatar_lib
+!endif
+
+avatar_obj : $(COMPIL_LIST)
+avatar64_obj : $(COMPIL_64_LIST)
+avatar_exec :
+avatar_exec64 :
+avatar_lib : $(LIBDIR)/SWAvatar_d.lib
+
+!if "$(CUDA_FOUND)" == "yes"
+avatar_obj : $(COMPIL_LIST) $(COMPIL_LIST_CUDA)
+avatar64_obj : $(COMPIL_64_LIST) $(COMPIL_64_LIST_CUDA)
+avatar_exec : $(BINDIR)/SWCreateAvatar.exe $(BINDIR)/SWMorphing.exe
+avatar_exec64 : $(BINDIR)/SWMorphing-x64.exe
+avatar_lib : $(LIBDIR)/SWAvatar_d.lib $(LIBDIR)/SWAvatarCuda_d.lib
 !endif
 
 ############################################################################## lib files
@@ -137,6 +160,9 @@ $(LIBDIR)/SWAvatar.lib: $(AVATAR_GEN_LIB_OBJ)
 
 $(LIBDIR)/SWAvatar_d.lib: $(AVATAR_GEN_DYN_LIB_OBJ)
         LIB.EXE /OUT:$(LIBDIR)/SWAvatar_d.lib $(AVATAR_GEN_DYN_LIB_OBJ)
+
+$(LIBDIR)/SWAvatarCuda_d.lib: $(AVATAR_CUDA_GEN_DYN_LIB_OBJ)
+        LIB.EXE /OUT:$(LIBDIR)/SWAvatarCuda_d.lib $(AVATAR_CUDA_GEN_DYN_LIB_OBJ)
 
 ############################################################################## exe files
 
@@ -159,7 +185,7 @@ $(BINDIR)/SWMorphing-x64.exe: $(MORPHING_LINK_OBJ) $(LIBS_MORPHING)
 #           Cloud
 $(LIBDIR)/SWCloud.obj: ./src/cloud/SWCloud.cpp
         $(CC) -c ./src/cloud/SWCloud.cpp $(CFLAGS_STA) $(SW_CLOUD) -Fo"$(LIBDIR)/"
-	
+
 $(LIBDIR)/SWMaskCloud.obj: ./src/cloud/SWMaskCloud.cpp
         $(CC) -c ./src/cloud/SWMaskCloud.cpp $(CFLAGS_STA) $(SW_CLOUD) -Fo"$(LIBDIR)/"
 
@@ -341,7 +367,7 @@ $(LIBDIR)/util.obj: ./src/stasm/util.cpp
 
 $(LIBDIR)/mchol.obj: ./src/stasm/mchol.cpp
         $(CC) -c ./src/stasm/mchol.cpp $(CFLAGS_STA) $(STASM) -Fo"$(LIBDIR)/"
-	
+
 $(LIBDIR)/startshape.obj: ./src/stasm/startshape.cpp
         $(CC) -c ./src/stasm/startshape.cpp $(CFLAGS_STA) $(STASM) -Fo"$(LIBDIR)/"
 
@@ -480,6 +506,7 @@ $(INCDIR_QTGENW)/SWUI_Morphing.h: $(FORMDIR)/SWUI_Morphing.ui
         uic $(FORMDIR)/SWUI_Morphing.ui -o $@
 
 ############################################################################## Qt moc files
+
 
 $(MOCDIR)/moc_SWTestCode.cpp: ./src/SWTestCode.cpp
          moc  ./src/SWTestCode.cpp -o $@
