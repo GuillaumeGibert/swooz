@@ -1,5 +1,11 @@
 ![SWoOZ (Super Wizard of OZ)](http://i.imgur.com/C1RM1dc.jpg "SWoOZ")
 
+Description :
+-------------
+
+SWoOZ is a software platform written in C++ used for behavioral experiments based on interactions between people and robots or 3D avatars.
+
+
 Links :
 -------
 
@@ -12,11 +18,6 @@ Links :
  * Using SWoOZ :
     * [How to build with the scripts](https://github.com/GuillaumeGibert/swooz/blob/master/scripts/README_SCRIPTS.md)
     * Executables (soon)    
-
-Description :
--------------
-
-SWoOZ is a software platform written in C++ used for behavioral experiments based on interactions between people and robots or 3D avatars.
 
 
 Content :
