@@ -6,13 +6,13 @@ SWOOZ - SCRIPTS
 
  * Devices kinect : some SWoOZ modules use Kinect/xtion depth captors, for using them you have to install openni and some drivers :
 
-	- OpenNI-Win32-1.5.4.0-Dev1.msi -> http://dl.free.fr/qmaobqSzQ
+	- [OpenNI-Win32-1.5.4.0-Dev1.msi](https://mega.co.nz/#!vZNWBLgC!SHhJy4ZCSKf__OQDq-fPIUuYvHvsceWFXNdUzaANtLs)
 
-	- NITE-Win32-1.5.2.21-Dev.msi -> http://dl.free.fr/verV6lgqc
+	- [NITE-Win32-1.5.2.21-Dev.msi](https://mega.co.nz/#!LQ8lRDob!sjsfcA2Dze2tQx4gov23RLPSPxp8QRliX1DayLbz_2k)
 	
-	- Sensor-Win32-5.1.2.1-Redist.msi -> http://dl.free.fr/vQVq8w54d
+	- [Sensor-Win32-5.1.2.1-Redist.msi](https://mega.co.nz/#!DdlXRBzZ!rTq6ODc1Vy8IVyUxNIHzVv_FF_iqMphy5UA8lYiOeAs)
 
-	- This one is only necessary for the microsoft Kinect  SensorKinect093-Bin-Win32-v5.1.2.1.msi -> https://github.com/avin2/SensorKinect (in the bin folder)
+	- This one is only necessary for the microsoft Kinect  [SensorKinect093-Bin-Win32-v5.1.2.1.msi](https://mega.co.nz/#!SMEyhawC!pF3DAzSxhCd6IqNDvhCoqQgOe6F5UFuxAnpv1BdETP4)
 	
  * Leap : some SWoOZ modules use the Leap motion captor,  for using it you have to install the Leap Motion Software -> https://developer.leapmotion.com/downloads
 
