@@ -9,6 +9,10 @@ Links :
     * [Robotic teleoperation](https://github.com/GuillaumeGibert/swooz/wiki/videos_teleop)
     * [Avatars](https://github.com/GuillaumeGibert/swooz/wiki/videos_avatars)
 
+ * Using SWoOZ :
+    * [How to build with the scripts](https://github.com/GuillaumeGibert/swooz/blob/master/scripts/README_SCRIPTS.md)
+    * Executables (soon)    
+
 Description :
 -------------
 
