@@ -1255,8 +1255,12 @@ void SWGLOptimalStepNonRigidICP::resetMorphingWithNewCorr()
         resetMorphing();
 }
 
-void SWGLOptimalStepNonRigidICP::refreshDisplay()
+void SWGLOptimalStepNonRigidICP::refreshDisplay(bool bBufferUpdate)
 {
+    if(bBufferUpdate)
+    {
+        bufferUpdate();
+    }
     updateGL();
 }
 
@@ -1342,6 +1346,13 @@ void SWGLOptimalStepNonRigidICP::resetMorphingWithNewMeshes()
         resetMorphing();
 
     // set buffers to update
+        bufferUpdate();
+}
+
+
+void SWGLOptimalStepNonRigidICP::bufferUpdate()
+{
+    // set buffers to update
         m_templateCloudBuffer.m_bUpdate = true;
         m_templateMeshBuffer.m_bUpdate = true;
         m_templateMeshLinesBuffer.m_bUpdate = true;
@@ -1353,6 +1364,7 @@ void SWGLOptimalStepNonRigidICP::resetMorphingWithNewMeshes()
         m_targetMeshLinesBuffer.m_bUpdate = true;
         m_targetVerticesNormalesBuffer.m_bUpdate = true;
         m_targetTrianglesNormalesBuffer.m_bUpdate = true;
+
 }
 
 void SWGLOptimalStepNonRigidICP::setSourceMesh(const QString &sPathSource)

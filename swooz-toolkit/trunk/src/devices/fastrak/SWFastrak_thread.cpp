@@ -43,7 +43,7 @@ void SWFastrak_thread::startListening()
 		int l_i32WaitTimeOut = 0;
 
 		while(!isDataAvailable())
-		{			
+		{			            
 			boost::this_thread::sleep(boost::posix_time::milliseconds(10));
 
 			if(l_i32WaitTimeOut % 10 == 0)

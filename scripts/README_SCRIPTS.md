@@ -4,37 +4,45 @@ SWOOZ - SCRIPTS
 0. DEPENDENCIES
 ---------------
 
- * Install openni :
+ * Devices kinect : some SWoOZ modules use Kinect/xtion depth captors, for using them you have to install openni and some drivers :
 
-	OpenNI-Win32-1.5.4.0-Dev1.msi -> http://www.openni.org/wp-content/uploads/2012/12/OpenNI-Win32-1.5.4.0-Dev1.zip
+	- [OpenNI-Win32-1.5.4.0-Dev1.msi](https://mega.co.nz/#!vZNWBLgC!SHhJy4ZCSKf__OQDq-fPIUuYvHvsceWFXNdUzaANtLs)
+
+	- [NITE-Win32-1.5.2.21-Dev.msi](https://mega.co.nz/#!LQ8lRDob!sjsfcA2Dze2tQx4gov23RLPSPxp8QRliX1DayLbz_2k)
 	
-	SensorKinect093-Bin-Win32-v5.1.2.1.msi -> https://github.com/avin2/SensorKinect (in the bin folder)
+	- [Sensor-Win32-5.1.2.1-Redist.msi](https://mega.co.nz/#!DdlXRBzZ!rTq6ODc1Vy8IVyUxNIHzVv_FF_iqMphy5UA8lYiOeAs)
+
+	- This one is only necessary for the microsoft Kinect  [SensorKinect093-Bin-Win32-v5.1.2.1.msi](https://mega.co.nz/#!SMEyhawC!pF3DAzSxhCd6IqNDvhCoqQgOe6F5UFuxAnpv1BdETP4)
 	
-	Sensor-Win32-5.1.2.1-Redist.msi -> http://www.openni.org/wp-content/uploads/2012/12/Sensor-Win32-5.1.2.1-Redist.zip
+ * Leap : some SWoOZ modules use the Leap motion captor,  for using it you have to install the [Leap Motion Software](https://mega.co.nz/#!jM0ClIAL!CQDI7-5zoPD5soe-ieEooHyTxMU0Q8OYGJ5zweTbGF0)
 	
-	NITE-Win32-1.5.2.21-Dev.msi -> http://www.openni.org/wp-content/uploads/2012/12/NITE-Win32-1.5.2.21-Dev.zip  
-	 
-	
- * Install cuda : https://developer.nvidia.com/cuda-downloads
+ * CUDA is necessary for the avatar creation and morphing and for the EMCIP tracking, in these cases install cuda : https://developer.nvidia.com/cuda-downloads
 
  * Checkout of the git repository...
 
+<<<<<<< HEAD
  * Install the swooz-3rdparty installer in the swooz directory : temporary link -> http://www.sendspace.com/file/l35mg7
 
 In the scripts directory, rename **"win-init_env_command.cmd.skeleton"** into **"win-init_env_command.cmd"**.
 You can modify it in order to change the dependencies of the project.
+=======
+ * Install the [swooz-3rdparty installer](https://mega.co.nz/#!GFkniJhB!5zw9u9nzsePNmFlX5K375NPE1Z9s73KojOCzsQDPz7E) in the swooz directory
+
+ * Perl is needed for launching the scripts, you can install this perl distribution : http://strawberryperl.com/
+>>>>>>> origin/flance
 
 1. BUILD SWOOZ
 --------------
 
 Go to ./scripts and open a console.
 
-	* win-build.cmd builds the platform :
+	* win-build.pl builds the platform :
 		* win-build 		   -> for the release x86 mode
 		* win-build Debug          -> for the debug x86 mode 
 		* win-build Release  	   -> for the release x86 mode
 		* win-build Debug adm64    -> for the debug amd64 mode 
 		* win-build Release adm64  -> for the release amd64 mode
+	* IMPORTANT : swooz-3rdparty installer contains only libraries for release x86 and release amd64 modes
 	
 This script creates the ../dist file tree :  
 
@@ -51,56 +59,44 @@ This script creates the ../dist file tree :
 		* ../dist/data
 		* ../dist/doc
 
-It calls all the **win-build_branch.cmd** scripts of all the swooz projects defined in **SW_build_order.txt**,
+It calls all the **win-build_branch.pl** scripts of all the swooz projects defined in **win-init_env_command.pl**,
 bin, include, lib, data, doc directories of all theses project will be copied in ./dist.
 
+In the scripts directory, you can modify win-init_env_command.pl in order to change the libs paths of the project
 
 
 2. CHOOSE project to be built
 -----------------------------
 
+You can set the SWoOZ modules to be built by modifiying the **PBuildOrder** variable in **win-init_env_command.pl** :
 
-**SW_build_order.txt** is created by the **win-init-env_command.cmd** script, you can remove or add a project to be buildt by comment or uncomment the lines, example :
+	my @PbuildOrder  = ($Toolkit, $Avatar, $Tracking, $Teleop, $Manip, $Viewer, $Examples, $Feedback);
 
-**win-init-env_command.cmd** (at the end) :
+Here The first project to be built is Toolkit and after that Avatar.
 
-	set SW_build_order=SW_build_order.txt
-	del %SW_build_order% > NULL 2<&1
-	echo %SW_toolkit%\%SW_toolkit_branch% >> %SW_build_order%
-	echo %SW_tracking%\%SW_tracking_branch% >> %SW_build_order%
-	echo %SW_teleoperation%\%SW_teleoperation_branch% >> %SW_build_order%
-	
-The 3 swooz projects, SW_toolkit, SW_tracking, SW_teleoperation will be builded.  
-Add 'REM' before the line of the project you don't want to build.
-	
-	set SW_build_order=SW_build_order.txt
-	del %SW_build_order% > NULL 2<&1
-	echo %SW_toolkit%\%SW_toolkit_branch% >> %SW_build_order%
-	REM echo %SW_tracking%\%SW_tracking_branch% >> %SW_build_order%
-	REM echo %SW_teleoperation%\%SW_teleoperation_branch% >> %SW_build_order%	
-	
-By commenting the two last lines, now only SW_toolkit will be builded.
-	
-__IMPORTANT : do not change the build order of the projects, and do not comment SW_toolkit, its contains numerous 
-functions used in the others projects, if you do so the build may be not working.__
-	
+	my @PbuildOrder  = ($Toolkit, $Avatar, $Tracking, $Teleop, $Manip, $Viewer, $Examples);
+
+Now Feedback is excluded from the SWoOZ project build.
+The order is important, some projects depends from each others, Toolkit is necessary for all projects.
+
+
 	
 3. CLEAN SWOOZ
 --------------
 	
-win-clean.cmd will delete all the content of the dist repertory (except dist/data) and all the compiled files
-in the swooz projects defined in the auto-generated file **"SW_build_order.txt"** (see win-build.cmd)
+win-clean.pl will delete all the content of the dist repertory (except dist/data) and all the compiled files
+in the swooz projects defined in @PbuildOrder.
 
 
 4. GENERATE DOC
 ---------------
  
-win-doc-generate.cmd will call all the win-generate_doc.cmd of each project, these scripts generate the Doxygen documentation using their respective Doxyfile.
+win-doc-generate.pl will call all the win-generate_doc.pl of each project, these scripts generate the Doxygen documentation using their respective Doxyfile.
 
 5. CLEAN DOC
 ------------
 
-win-doc-clean.cmd will delete the doc directories of all the projects.
+win-doc-clean.pl will delete the doc directories of all the projects.
 
 
 

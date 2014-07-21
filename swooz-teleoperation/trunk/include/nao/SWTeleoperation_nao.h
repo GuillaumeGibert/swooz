@@ -55,18 +55,13 @@ class SWTeleoperation_nao : public RFModule
         SWTeleoperation_nao();
 
         /**
-         * \brief SWTeleoperation_nao destructor
-         */
-        ~SWTeleoperation_nao();
-
-        /**
          * \brief The configure function loads the config options.
          *
          * This function loads the config options.
-         * \param rf: the resource finder  address
+         * \param oRf: the resource finder  address
          * \return true if the configure step was successfull
          */
-        bool configure(ResourceFinder &rf);
+        bool configure(ResourceFinder &oRf);
 
         /**
          * \brief Reset iCub head position
@@ -124,66 +119,48 @@ class SWTeleoperation_nao : public RFModule
 
     private:
 
+        std::vector<double> m_vHeadMinJointDefault;         /**< ... */
+        std::vector<double> m_vHeadMaxJointDefault;         /**< ... */
+        std::vector<double> m_vLeftArmMinJointDefault;      /**< ... */
+        std::vector<double> m_vLeftArmMaxJointDefault;      /**< ... */
+        std::vector<double> m_vRightArmMinJointDefault;     /**< ... */
+        std::vector<double> m_vRightArmMaxJointDefault;     /**< ... */
+
+        std::vector<double> m_vHeadMinJoint;                /**< ... */
+        std::vector<double> m_vHeadMaxJoint;                /**< ... */
+        std::vector<double> m_vLeftArmMinJoint;             /**< ... */
+        std::vector<double> m_vLeftArmMaxJoint;             /**< ... */
+        std::vector<double> m_vRightArmMinJoint;            /**< ... */
+        std::vector<double> m_vRightArmMaxJoint;            /**< ... */
+
+        double m_dTorsoMinValueJoint;   /**< ... */
+        double m_dTorsoMaxValueJoint;   /**< ... */
 
         int m_i32Fps;                           /**< fps (define the period for calling updateModule) */
         int m_i32HeadTimeLastBottle;            /**< time elapsed without head bottle command */
         int m_i32HeadTimeoutReset;              /**< head timeout reset nao */
-        float m_fJointVelocityValue;            /**< ano velocity value */
+        double m_dJointVelocityValue;            /**< ano velocity value */
 
-        float m_fHeadMaxValueJoint0;            /**< ... */
-        float m_fHeadMinValueJoint0;            /**< ... */
-        float m_fHeadMaxValueJoint1;            /**< ... */
-        float m_fHeadMinValueJoint1;            /**< ... */
-        float m_fLeftArmMinValueJoint0;
-        float m_fLeftArmMinValueJoint1;
-        float m_fLeftArmMinValueJoint2;
-        float m_fLeftArmMinValueJoint3;
-        float m_fLeftArmMinValueJoint4;
-        float m_fLeftArmMinValueJoint5;
-        float m_fLeftArmMaxValueJoint0;
-        float m_fLeftArmMaxValueJoint1;
-        float m_fLeftArmMaxValueJoint2;
-        float m_fLeftArmMaxValueJoint3;
-        float m_fLeftArmMaxValueJoint4;
-        float m_fLeftArmMaxValueJoint5;
-        float m_fRightArmMinValueJoint0;
-        float m_fRightArmMinValueJoint1;
-        float m_fRightArmMinValueJoint2;
-        float m_fRightArmMinValueJoint3;
-        float m_fRightArmMinValueJoint4;
-        float m_fRightArmMinValueJoint5;
-        float m_fRightArmMaxValueJoint0;
-        float m_fRightArmMaxValueJoint1;
-        float m_fRightArmMaxValueJoint2;
-        float m_fRightArmMaxValueJoint3;
-        float m_fRightArmMaxValueJoint4;
-        float m_fRightArmMaxValueJoint5;
-        float m_fLeftLegMinValueJoint0;
-        float m_fLeftLegMinValueJoint1;
-        float m_fLeftLegMinValueJoint2;
-        float m_fLeftLegMinValueJoint3;
-        float m_fLeftLegMinValueJoint4;
-        float m_fLeftLegMinValueJoint5;
-        float m_fLeftLegMaxValueJoint0;
-        float m_fLeftLegMaxValueJoint1;
-        float m_fLeftLegMaxValueJoint2;
-        float m_fLeftLegMaxValueJoint3;
-        float m_fLeftLegMaxValueJoint4;
-        float m_fLeftLegMaxValueJoint5;
-        float m_fRightLegMinValueJoint0;
-        float m_fRightLegMinValueJoint1;
-        float m_fRightLegMinValueJoint2;
-        float m_fRightLegMinValueJoint3;
-        float m_fRightLegMinValueJoint4;
-        float m_fRightLegMinValueJoint5;
-        float m_fRightLegMaxValueJoint0;
-        float m_fRightLegMaxValueJoint1;
-        float m_fRightLegMaxValueJoint2;
-        float m_fRightLegMaxValueJoint3;
-        float m_fRightLegMaxValueJoint4;
-        float m_fRightLegMaxValueJoint5;
-        float m_fTorsoMinValueJoint0;
-        float m_fTorsoMaxValueJoint0;
+        // Array for nao's joints
+        AL::ALValue m_aHeadAngles;
+        AL::ALValue m_aTorsoAngles;
+        AL::ALValue m_aLArmAngles;
+        AL::ALValue m_aRArmAngles;
+        AL::ALValue m_aLLegAngles;
+        AL::ALValue m_aRLegAngles;
+
+
+
+
+
+        // ############
+        std::vector<float> m_vRightLegJointMin;
+        std::vector<float> m_vRightLegJointMax;
+
+        std::vector<float> m_vLeftLegJointMin;
+        std::vector<float> m_vLeftLegJointMax;
+
+        // ############
 
         // Config variables retrieved from the ini file
         std::string m_sModuleName;              /**< name of the mondule (config) */
@@ -244,13 +221,7 @@ class SWTeleoperation_nao : public RFModule
         bool m_bFastrakCalibrated;
         yarp::sig::Vector m_vFastrakOffsets;
 
-        // Array for nao's joints
-        AL::ALValue m_aHeadAngles;
-        AL::ALValue m_aTorsoAngles;
-        AL::ALValue m_aLArmAngles;
-        AL::ALValue m_aRArmAngles;
-        AL::ALValue m_aLLegAngles;
-        AL::ALValue m_aRLegAngles;
+
 
 
         ALMotionProxy *m_oRobotMotionProxy;

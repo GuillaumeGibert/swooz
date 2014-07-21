@@ -178,14 +178,6 @@ void initialize(){
     g_im3D.create(g_im_h,g_im_w,CV_32FC3);
 
 
-    // YARP
-    /* initialize yarp network */
-    Network yarp;
-    if (!yarp.checkNetwork())
-    {
-        std::cerr << "-ERROR: Problem connecting to YARP server" << std::endl;
-        return;
-    }
     headTrackingPortName =  "/tracking/" + deviceName + "/"+ libraryName + "/"+ effectorName;
     headTrackingPort.open(headTrackingPortName.c_str());
 
@@ -682,6 +674,15 @@ void draw()
 
 int main(int argc, char* argv[])
 {
+
+    // YARP
+    /* initialize yarp network */
+    Network yarp;
+    if (!yarp.checkNetwork())
+    {
+        std::cerr << "-ERROR: Problem connecting to YARP server" << std::endl;
+        return-1;
+    }
 
     if( argc != 2 ){
 

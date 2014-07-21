@@ -49,13 +49,14 @@ OBJ_TRACKING_LEAP=\
         $(DIST_LIBDIR)/SWLeap_d.obj\
         $(LIBDIR)/SWLeapTracking_d.obj\
 
+OBJ_TRACKING_FASTRAK=\
+        $(LIBDIR)/SWFastrakTracking.obj\
+
 ############################################################################## Makefile commands
 
 !if  "$(ARCH)" == "x86"
-all: trackingHeadForest trackingHeadEmicp trackingHeadForest trackingFaceLab trackingOpenNI trackingFake trackingLeap
+all: trackingHeadForest trackingHeadEmicp trackingHeadForest trackingFaceLab trackingOpenNI trackingFake trackingLeap trackingFastrak trackingFaceShift
 !endif
-
-# trackingFaceShift
 
 !if "$(ARCH)" == "amd64"
 all:
@@ -64,11 +65,16 @@ all:
 trackingHeadForest : $(BINDIR)/SWTrackingHeadForest.exe
 trackingFaceLab    : $(BINDIR)/SWFaceLabTracking.exe
 trackingFaceShift  : $(BINDIR)/SWFaceShiftTracking.exe
-trackingHeadEmicp  : $(QTGENW_RGBD)/SWUI_WEmicpHeadTracking.h $(MOCDIR)/moc_SWEmicpHeadTracking.cpp $(BINDIR)/SWEmicpHeadTracking.exe
+trackingHeadEmicp  :
 trackingOpenNI     : $(BINDIR)/SWOpenNITracking.exe
 trackingForth      : $(BINDIR)/SWForthTracking.exe
 trackingFake       : $(BINDIR)/SWFakeTracking.exe
 trackingLeap	   : $(BINDIR)/SWLeapTracking.exe
+trackingFastrak    : $(BINDIR)/SWFastrakTracking.exe
+
+!if "$(CUDA_FOUND)" == "yes"
+trackingHeadEmicp  : $(QTGENW_RGBD)/SWUI_WEmicpHeadTracking.h $(MOCDIR)/moc_SWEmicpHeadTracking.cpp $(BINDIR)/SWEmicpHeadTracking.exe
+!endif
 
 clean:
 
@@ -101,6 +107,9 @@ $(BINDIR)/SWFakeTracking.exe: $(OBJ_TRACKING_FAKE) $(LIBS_FAKE_TRACK)
 
 $(BINDIR)/SWLeapTracking.exe: $(OBJ_TRACKING_LEAP) $(LIBS_LEAP_TRACK)
         $(LINK) /OUT:$(BINDIR)/SWLeapTracking.exe $(LFLAGS) $(OBJ_TRACKING_LEAP) $(LIBS_LEAP_TRACK) $(WIN_CONFIG)
+
+$(BINDIR)/SWFastrakTracking.exe: $(OBJ_TRACKING_FASTRAK) $(LIBS_FASTRAK_TRACK)
+        $(LINK) /OUT:$(BINDIR)/SWFastrakTracking.exe $(LFLAGS) $(OBJ_TRACKING_FASTRAK) $(LIBS_FASTRAK_TRACK) $(WIN_CONFIG)
 
 ############################################################################## OPENNI TRACKING OBJ
 
@@ -153,6 +162,11 @@ $(LIBDIR)/SWFakeTracking_d.obj: ./src/SWFakeTracking.cpp
 
 $(LIBDIR)/SWLeapTracking_d.obj: ./src/leap/SWLeapTracking.cpp
         $(CC) -c ./src/leap/SWLeapTracking.cpp $(CFLAGS_DYN) $(SW_LEAPTRACKING) -Fo"$(LIBDIR)/SWLeapTracking_d.obj"
+
+############################################################################## FASTRAK TRACKING OBJ
+
+$(LIBDIR)/SWFastrakTracking.obj: ./src/fastrak/SWFastrakTracking.cpp
+        $(CC) -c ./src/fastrak/SWFastrakTracking.cpp $(CFLAGS_DYN) $(SW_FASTRAKTRACKING) -Fo"$(LIBDIR)/"
 
 ############################################################################## Qt ui files
 

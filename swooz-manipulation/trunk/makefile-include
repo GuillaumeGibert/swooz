@@ -35,7 +35,7 @@ WINLIBS=advapi32.lib comctl32.lib comdlg32.lib gdi32.lib shell32.lib user32.lib 
 # define lib dir
 
 LIBDIR  =./lib
-DIST_LIBDIR = $(SW_DIST)/lib
+DIST_LIBDIR = $(SW_DIST)lib
 
 !if  "$(ARCH)" == "x86"
 LIBDIR= $(LIBDIR)/x86
@@ -133,10 +133,6 @@ LIBS_YARP       = $(THIRD_PARTY_YARP)/lib/YARP_OS.lib\
                   $(THIRD_PARTY_YARP)/lib/YARP_sig.lib\
                   $(THIRD_PARTY_YARP)/lib/YARP_dev.lib\
                   $(THIRD_PARTY_YARP)/lib/YARP_math.lib\
-                  $(THIRD_PARTY_YARP)/lib/yarpcar.lib\
-                  $(THIRD_PARTY_YARP)/lib/yarp_bayer.lib\
-
-#                   $(THIRD_PARTY_YARP)/lib/yarpmod.lib\
 
 LIBS_ACE        = $(THIRD_PARTY_ACE)/lib/ACE.lib\
 

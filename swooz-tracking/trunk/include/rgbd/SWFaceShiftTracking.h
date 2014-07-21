@@ -1,3 +1,11 @@
+/**
+ * \file SWFaceShiftTracking.h
+ * \brief Defines SWFaceShiftTracking class
+ * \author Lance Florian
+ * \date 07/01/13
+ */
+
+
 #ifndef _SWFACESHIFTTRACKING_
 #define _SWFACESHIFTTRACKING_
 

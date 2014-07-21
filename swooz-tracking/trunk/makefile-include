@@ -35,7 +35,7 @@ WINLIBS=advapi32.lib comctl32.lib comdlg32.lib gdi32.lib shell32.lib user32.lib 
 # define lib dir
 
 LIBDIR  =./lib
-DIST_LIBDIR = $(SW_DIST)/lib
+DIST_LIBDIR = $(SW_DIST)lib
 
 !if  "$(ARCH)" == "x86"
 LIBDIR= $(LIBDIR)/x86
@@ -131,6 +131,8 @@ INC_HANDTRACKER = -I"$(THIRD_PARTY_HANDTRACKER)"/Include\
 
 INC_LEAP 	= -I"$(THIRD_PARTY_LEAP)"\include\
 
+INC_POLHEMUS	= -I"$(THIRD_PARTY_POLHEMUS)"/Include
+
 ############################ DEPENDENCIES
 
 COMMON			= $(INC_TRACKING) $(INC_OTHERS) $(INC_VS)
@@ -152,6 +154,8 @@ SW_FORTHTRACKING        = $(COMMON) $(INC_OPENNI2) $(INC_YARP) $(INC_OPENCV) $(I
 SW_FAKETRACKING         = $(COMMON) $(INC_YARP) $(INC_BOOST)
 
 SW_LEAPTRACKING		= $(COMMON) $(INC_YARP) $(INC_LEAP) $(INC_BOOST)
+
+SW_FASTRAKTRACKING	= $(COMMON) $(INC_POLHEMUS) $(INC_YARP) $(INC_BOOST)
 
 ############################ COMMON DEBUG/RELEASE LIBS
 
@@ -189,8 +193,7 @@ LIBS_YARP       = $(THIRD_PARTY_YARP)/lib/YARP_OS.lib\
                   $(THIRD_PARTY_YARP)/lib/YARP_sig.lib\
                   $(THIRD_PARTY_YARP)/lib/YARP_dev.lib\
                   $(THIRD_PARTY_YARP)/lib/YARP_math.lib\
-                  $(THIRD_PARTY_YARP)/lib/yarpcar.lib\
-                  $(THIRD_PARTY_YARP)/lib/yarp_bayer.lib\
+
 
 LIBS_FACELAB    = $(THIRD_PARTY_FACELAB)/coredata/libshared/win32_ia32sse2_vc90/sm_cd_coredata_3.2.lib $(THIRD_PARTY_FACELAB)/coredata/thirdparty/zlib1.2.3/win_ia32_vc90/libshared/zlib1.lib\
                   $(THIRD_PARTY_FACELAB)/coredata/thirdparty/libvpx0.9.5\libstatic\win_ia32_vc90\vpxmt.lib\
@@ -213,7 +216,9 @@ LIBS_QT 	= $(THIRD_PARTY_QT)/lib/QtOpenGL4.lib $(THIRD_PARTY_QT)/lib/QtCore4.lib
 
 LIBS_HANDTRACKER= $(THIRD_PARTY_HANDTRACKER)/lib/HandTrackerLib.lib
 
-LIBS_SW         = $(DIST_LIBDIR)/SWToolkit_d.lib $(DIST_LIBDIR)/SWAvatar_d.lib\
+LIBS_FASTRAK	= $(THIRD_PARTY_POLHEMUS)/lib/Win32/PDI.lib
+
+LIBS_SW         = $(DIST_LIBDIR)/SWToolkit_d.lib $(DIST_LIBDIR)/SWAvatar_d.lib $(DIST_LIBDIR)/SWAvatarCuda_d.lib\
 
 ############################ LIBS SWOOZ FILES
 
@@ -232,6 +237,8 @@ LIBS_FORTH_TRACK     = $(LIBS_COMMON) $(LIBS_OPENNI2) $(LIBS_OPENCV) $(LIBS_YARP
 LIBS_FAKE_TRACK      = $(LIBS_COMMON) $(LIBS_YARP) $(LIBS_ACE) $(LIBS_BOOST_D)
 
 LIBS_LEAP_TRACK      = $(LIBS_COMMON) $(LIBS_LEAP) $(LIBS_ACE) $(LIBS_YARP) $(LIBS_BOOST_D)
+
+LIBS_FASTRAK_TRACK   = $(LIBS_COMMON) $(DIST_LIBDIR)/SWToolkit_d.lib $(LIBS_FASTRAK) $(LIBS_YARP) $(LIBS_BOOST_D) $(LIBS_ACE) $(LIBS_GSL)
 
 !ENDIF
 

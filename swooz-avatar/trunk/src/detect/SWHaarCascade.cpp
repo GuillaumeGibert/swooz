@@ -14,8 +14,8 @@ using namespace std;
 using namespace swDetect;
 using namespace swExcept;
 
-SWHaarCascade::SWHaarCascade(const string &sCascadeFile, const uint ui32NumberOfDetections, const Size oMinDetectSize, const Size oMaxDetectSize, cbool bUseGPU)
-  : m_ui32NumberOfDetections(ui32NumberOfDetections), m_oMinDetectSize(oMinDetectSize), m_oMaxDetectSize(oMaxDetectSize), m_bUseGPU(bUseGPU)
+SWHaarCascade::SWHaarCascade(const string &sCascadeFile, const uint uiMin32Neighbours, const Size oMinDetectSize, const Size oMaxDetectSize, cbool bUseGPU)
+  : m_ui32MinNeighbours(uiMin32Neighbours), m_oMinDetectSize(oMinDetectSize), m_oMaxDetectSize(oMaxDetectSize), m_bUseGPU(bUseGPU)
 {	
 	m_fPyramidScale = 1.1f;
 	
@@ -47,11 +47,6 @@ SWHaarCascade::SWHaarCascade(const string &sCascadeFile, const uint ui32NumberOf
 	}
 }
 
-SWHaarCascade::~SWHaarCascade()
-{
-
-}
-
 bool SWHaarCascade::detect(const Mat& oRgbImg, vector<Rect> &oRects)
 {
 //	if(m_bUseGPU)
@@ -75,19 +70,19 @@ bool SWHaarCascade::detectCPU(const Mat& oRgbImg, vector<Rect> &oRects)
 	try
 	{
 		// haar cascade algorithm only works with Gray images
-		Mat l_oGrayImg; 
-		cvtColor( oRgbImg, l_oGrayImg, CV_BGR2GRAY ); // conversion
-		equalizeHist( l_oGrayImg, l_oGrayImg ); // equalize histogram
+        cv::Mat l_oGrayImg;
+        cv::cvtColor( oRgbImg, l_oGrayImg, CV_BGR2GRAY ); // conversion
+        cv::equalizeHist( l_oGrayImg, l_oGrayImg ); // equalize histogram
 		
         // detect
         if(m_oMaxDetectSize.width == 0)
         {
-            m_oCascade.detectMultiScale( l_oGrayImg, oRects, m_fPyramidScale, m_ui32NumberOfDetections,
+            m_oCascade.detectMultiScale( l_oGrayImg, oRects, m_fPyramidScale, m_ui32MinNeighbours,
                 0 , m_oMinDetectSize );
         }
         else
         {
-            m_oCascade.detectMultiScale( l_oGrayImg, oRects, m_fPyramidScale, m_ui32NumberOfDetections,
+            m_oCascade.detectMultiScale( l_oGrayImg, oRects, m_fPyramidScale, m_ui32MinNeighbours,
                 0 , m_oMinDetectSize, m_oMaxDetectSize );
         }
 	}

@@ -67,6 +67,13 @@ swooz-viewer/trunk/genUI/
 swooz-examples/trunk/NULL
 swooz-examples/trunk/lib/
 swooz-examples/trunk/bin/
+# feedback
+swooz-feedback/trunk/NULL
+swooz-feedback/trunk/lib/
+swooz-feedback/trunk/bin/
+swooz-feedback/trunk/moc/
+swooz-feedback/trunk/doc/
+swooz-feedback/trunk/genUI/
 
 ################ datas
 # avatar
