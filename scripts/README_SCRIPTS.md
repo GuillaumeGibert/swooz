@@ -20,16 +20,10 @@ SWOOZ - SCRIPTS
 
  * Checkout of the git repository...
 
-<<<<<<< HEAD
- * Install the swooz-3rdparty installer in the swooz directory : temporary link -> http://www.sendspace.com/file/l35mg7
-
-In the scripts directory, rename **"win-init_env_command.cmd.skeleton"** into **"win-init_env_command.cmd"**.
-You can modify it in order to change the dependencies of the project.
-=======
  * Install the [swooz-3rdparty installer](https://mega.co.nz/#!GFkniJhB!5zw9u9nzsePNmFlX5K375NPE1Z9s73KojOCzsQDPz7E) in the swooz directory
 
  * Perl is needed for launching the scripts, you can install this perl distribution : http://strawberryperl.com/
->>>>>>> origin/flance
+
 
 1. BUILD SWOOZ
 --------------
