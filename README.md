@@ -17,7 +17,8 @@ Links :
 
  * Using SWoOZ :
     * [How to build with the scripts](https://github.com/GuillaumeGibert/swooz/blob/master/scripts/README_SCRIPTS.md)
-    * Executables (soon)    
+    * Executables (soon)
+    * [Doc doxygen](https://188815c457933a2a68c29e79b9e0b66c0e41c4b9.googledrive.com/host/0BywmJqNNU7owbDloTGRXbjc5bUk/index.html)
 
 
 Content :
