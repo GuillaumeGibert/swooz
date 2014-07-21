@@ -1,5 +1,11 @@
 ![SWoOZ (Super Wizard of OZ)](http://i.imgur.com/C1RM1dc.jpg "SWoOZ")
 
+Description :
+-------------
+
+SWoOZ is a software platform written in C++ used for behavioral experiments based on interactions between people and robots or 3D avatars.
+
+
 Links :
 -------
 
@@ -9,10 +15,9 @@ Links :
     * [Robotic teleoperation](https://github.com/GuillaumeGibert/swooz/wiki/videos_teleop)
     * [Avatars](https://github.com/GuillaumeGibert/swooz/wiki/videos_avatars)
 
-Description :
--------------
-
-SWoOZ is a software platform written in C++ used for behavioral experiments based on interactions between people and robots or 3D avatars.
+ * Using SWoOZ :
+    * [How to build with the scripts](https://github.com/GuillaumeGibert/swooz/blob/master/scripts/README_SCRIPTS.md)
+    * Executables (soon)    
 
 
 Content :
@@ -22,8 +27,9 @@ Content :
    * [depth sensor data recorder/loader](https://github.com/GuillaumeGibert/swooz/wiki/samplesCode#data-recorderloader) 
  * Modules based on yarp :
    * [Tracking](https://github.com/GuillaumeGibert/swooz/wiki/tracking) human movements without intrusive devices : head, gaze, face, torso, arms, hands, fingers
-   * [Teleoperation](https://github.com/GuillaumeGibert/swooz/wiki/teleoperation) for iCub, NAO, 3D Avatars(not online now) based on the tracking modules
+   * [Teleoperation](https://github.com/GuillaumeGibert/swooz/wiki/teleoperation) for iCub, NAO, 3D Avatars based on the tracking modules
    * [Manipulation](https://github.com/GuillaumeGibert/swooz/wiki/manipulation) for manipulating tracking data and create planifications
+   * [Feedback]() for getting video, audio feedback from the robot
  * Avatar creation/morphing :
    * [Creation](https://github.com/GuillaumeGibert/swooz/wiki/avatar#wiki-creation) from depths sensors devices(Kinect/Xtion) data
    * [Morphing](https://github.com/GuillaumeGibert/swooz/wiki/avatar#wiki-morphing) for fitting references avatars meshes
