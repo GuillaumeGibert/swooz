@@ -14,14 +14,13 @@ SWOOZ - SCRIPTS
 
 	- This one is only necessary for the microsoft Kinect  [SensorKinect093-Bin-Win32-v5.1.2.1.msi](https://mega.co.nz/#!SMEyhawC!pF3DAzSxhCd6IqNDvhCoqQgOe6F5UFuxAnpv1BdETP4)
 	
- * Leap : some SWoOZ modules use the Leap motion captor,  for using it you have to install the Leap Motion Software -> https://developer.leapmotion.com/downloads
-
+ * Leap : some SWoOZ modules use the Leap motion captor,  for using it you have to install the [Leap Motion Software](https://mega.co.nz/#!jM0ClIAL!CQDI7-5zoPD5soe-ieEooHyTxMU0Q8OYGJ5zweTbGF0)
 	
- * Install cuda : https://developer.nvidia.com/cuda-downloads
+ * CUDA is necessary for the avatar creation and morphing and for the EMCIP tracking, in these cases install cuda : https://developer.nvidia.com/cuda-downloads
 
  * Checkout of the git repository...
 
- * Install the swooz-3rdparty installer in the swooz directory : http://dl.free.fr/getfile.pl?file=/u9gyouLD
+ * Install the [swooz-3rdparty installer](https://mega.co.nz/#!GFkniJhB!5zw9u9nzsePNmFlX5K375NPE1Z9s73KojOCzsQDPz7E) in the swooz directory
 
  * Perl is needed for launching the scripts, you can install this perl distribution : http://strawberryperl.com/
 
