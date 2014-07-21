@@ -23,6 +23,7 @@ SWOOZ - SCRIPTS
 
  * Install the swooz-3rdparty installer in the swooz directory : http://dl.free.fr/getfile.pl?file=/u9gyouLD
 
+ * Perl is needed for launching the scripts, you can install this perl distribution : http://strawberryperl.com/
 
 1. BUILD SWOOZ
 --------------
