@@ -4,7 +4,7 @@ SWOOZ - SCRIPTS
 0. DEPENDENCIES
 ---------------
 
- * Devices kinect : some SWoOZ modules use Kinect/xtion depth captors, for using them you have to install openni and some drivers :
+ * Devices kinect : some SWoOz modules use Kinect/xtion depth captors, for using them you have to install openni and some drivers :
 
 	- [OpenNI-Win32-1.5.4.0-Dev1.msi](https://mega.co.nz/#!vZNWBLgC!SHhJy4ZCSKf__OQDq-fPIUuYvHvsceWFXNdUzaANtLs)
 
@@ -14,7 +14,7 @@ SWOOZ - SCRIPTS
 
 	- This one is only necessary for the microsoft Kinect  [SensorKinect093-Bin-Win32-v5.1.2.1.msi](https://mega.co.nz/#!SMEyhawC!pF3DAzSxhCd6IqNDvhCoqQgOe6F5UFuxAnpv1BdETP4)
 	
- * Leap : some SWoOZ modules use the Leap motion captor,  for using it you have to install the [Leap Motion Software](https://mega.co.nz/#!jM0ClIAL!CQDI7-5zoPD5soe-ieEooHyTxMU0Q8OYGJ5zweTbGF0)
+ * Leap : some SWoOz modules use the Leap motion captor,  for using it you have to install the [Leap Motion Software](https://mega.co.nz/#!jM0ClIAL!CQDI7-5zoPD5soe-ieEooHyTxMU0Q8OYGJ5zweTbGF0)
 	
  * CUDA is necessary for the avatar creation and morphing and for the EMCIP tracking, in these cases install cuda : https://developer.nvidia.com/cuda-downloads
 
@@ -53,7 +53,7 @@ This script creates the ../dist file tree :
 		* ../dist/data
 		* ../dist/doc
 
-It calls all the **win-build_branch.pl** scripts of all the swooz projects defined in **win-init_env_command.pl**,
+It calls all the **win-build_branch.pl** scripts of all the SWoOz projects defined in **win-init_env_command.pl**,
 bin, include, lib, data, doc directories of all theses project will be copied in ./dist.
 
 In the scripts directory, you can modify win-init_env_command.pl in order to change the libs paths of the project
@@ -62,7 +62,7 @@ In the scripts directory, you can modify win-init_env_command.pl in order to cha
 2. CHOOSE project to be built
 -----------------------------
 
-You can set the SWoOZ modules to be built by modifiying the **PBuildOrder** variable in **win-init_env_command.pl** :
+You can set the SWoOz modules to be built by modifiying the **PBuildOrder** variable in **win-init_env_command.pl** :
 
 	my @PbuildOrder  = ($Toolkit, $Avatar, $Tracking, $Teleop, $Manip, $Viewer, $Examples, $Feedback);
 
@@ -70,7 +70,7 @@ Here The first project to be built is Toolkit and after that Avatar.
 
 	my @PbuildOrder  = ($Toolkit, $Avatar, $Tracking, $Teleop, $Manip, $Viewer, $Examples);
 
-Now Feedback is excluded from the SWoOZ project build.
+Now Feedback is excluded from the SWoOz project build.
 The order is important, some projects depends from each others, Toolkit is necessary for all projects.
 
 
