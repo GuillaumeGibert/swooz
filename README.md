@@ -3,7 +3,7 @@
 Description :
 -------------
 
-SWoOZ is a software platform written in C++ used for behavioral experiments based on interactions between people and robots or 3D avatars.
+SWoOz is a software platform written in C++ used for behavioral experiments based on interactions between people and robots or 3D avatars.
 
 
 Links :
