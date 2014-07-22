@@ -16,7 +16,7 @@
 
 #include "PDI.h"
 
-
+//! namespace for devices interfaces
 namespace swDevice
 {
 	/**

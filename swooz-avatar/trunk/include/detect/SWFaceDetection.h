@@ -18,6 +18,8 @@
 
 typedef boost::shared_ptr<swDetect::SWHaarCascade> SWHaarCascadePtr;	/**< boost shared pointer for SWHaarCascade */
 
+
+//! namespace for images features detection classes
 namespace swDetect
 {
 
@@ -103,14 +105,6 @@ namespace swDetect
              * @param [in] fHeightRatio : height rectangle ratio
              */
             void setRectRatios(cfloat fWidthRatio, cfloat fHeightRatio);
-
-        private :
-
-
-
-
-
-
 				
 		private:
 

@@ -85,14 +85,18 @@ __global__ static void updateA( int rowsA, int colsA, int pitchA,
 	__shared__ float RShare[9]; // BLOCK_SIZE >= 9 is assumed
 	__shared__ float tShare[3]; // BLOCK_SIZE >= 3 is assumed
 
-	if(threadIdx.y == 0)
-		if(// 0 <= threadIdx.x &&  // threadIdx.x is unsigned int, so always positive
-		threadIdx.x < 9)
+    if(threadIdx.y == 0)
+    {
+        if(threadIdx.x < 9) // 0 <= threadIdx.x &&  // threadIdx.x is unsigned int, so always positive
 		{
-			RShare[threadIdx.x] = d_R[threadIdx.x];
+            RShare[threadIdx.x] = d_R[threadIdx.x];
+
 			if(threadIdx.x < 3)
-			tShare[threadIdx.x] = d_t[threadIdx.x];
+            {
+                tShare[threadIdx.x] = d_t[threadIdx.x];
+            }
 		}
+    }
 
 	if(r < rowsA && c < colsA) // check for only inside the matrix A
 	{ 
@@ -247,6 +251,7 @@ __global__ static void centeringXandY( int rowsA,
 }
 
 
+
 bool emicp(int Xsize, int Ysize,
 	   const float* h_X,
 	   const float* h_Y,
@@ -259,7 +264,6 @@ bool emicp(int Xsize, int Ysize,
 	float sigma_inf    = param.sigma_inf;
 	float sigma_factor = param.sigma_factor;
     float d_02         = param.d_02;
-
 
 	//
 	// memory allocation

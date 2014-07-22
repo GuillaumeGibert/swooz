@@ -16,6 +16,7 @@
 #include "math.h"
 #include <vector>
 
+//! SWoOz utility functions namespace
 namespace swUtil
 {
     #define PI 3.14159265359

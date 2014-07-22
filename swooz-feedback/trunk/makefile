@@ -30,7 +30,7 @@ all: $(BINDIR)/SWHeadMountedDisplay.exe
 !endif
 
 !if "$(ARCH)" == "amd64"
-
+all:
 !endif
 
 ############################################################################## exe files

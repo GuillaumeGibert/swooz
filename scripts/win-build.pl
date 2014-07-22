@@ -44,7 +44,7 @@ if (not(-d  $Env::SWDist)) {
     mkdir $Env::SWDist;
 }
 
-my @directoriesToCreate = ("bin", "include", "lib", "data", "doc", "log");
+my @directoriesToCreate = ("bin", "include", "lib", "data", "doc", "log","examples");
 
 foreach (@directoriesToCreate)
 {

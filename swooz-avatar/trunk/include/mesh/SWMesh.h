@@ -12,6 +12,7 @@
 #include "cloud/SWCloud.h"
 #include "geometryUtility.h"
 
+//! namespace for classes based on the use of SWMesh
 namespace swMesh
 {
     /**

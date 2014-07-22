@@ -139,8 +139,8 @@ $ENV{THIRD_PARTY_VTK}   = $PThird_party . "VTK/";
 ##################### FLANN
 $ENV{THIRD_PARTY_FLANN}   = $PThird_party . "FLANN/";
 ##################### CUDA
-$ENV{THIRD_PARTY_CUDA}   = $PThird_party . "CUDA/";
-$ENV{THIRD_PARTY_CUDA_64}   = $PThird_party . "CUDA/amd64/";
+#$ENV{THIRD_PARTY_CUDA}   = $PThird_party . "CUDA/";
+#$ENV{THIRD_PARTY_CUDA_64}   = $PThird_party . "CUDA/amd64/";
 ##################### CULA
 $ENV{THIRD_PARTY_CULA}   = $PThird_party . "CULA/";
 $ENV{THIRD_PARTY_CULA_64}= $PThird_party . "CULA/amd64/";
@@ -166,75 +166,72 @@ our $CurrentPath = $ENV{PATH};
 
 my $PathsToAdd = ";";
 
-$PathsToAdd = $PathsToAdd . $ENV{THIRD_PARTY_QT} . "bin/;";
-$PathsToAdd = $PathsToAdd . $ENV{CUDA_PATH} . "bin/;";
+$PathsToAdd = $ENV{THIRD_PARTY_QT} . "bin/;" . $PathsToAdd;
+$PathsToAdd = $ENV{CUDA_PATH} . "/bin/;" . $PathsToAdd;
+
+
+$ENV{THIRD_PARTY_CUDA}   = $ENV{CUDA_PATH} . "/lib/Win32";
+$ENV{THIRD_PARTY_CUDA_64}= $ENV{CUDA_PATH} . "/lib/x64";
+
 
 ####################################################################################### x86 PATHS
 if($ARG eq "x86")
 {
-    $PathsToAdd = $PathsToAdd . $ENV{THIRD_PARTY_TOBII} . "win32/binaries/;";
+    $PathsToAdd = $ENV{THIRD_PARTY_TOBII} . "win32/binaries/;" . $PathsToAdd;
 
-    $PathsToAdd = $PathsToAdd . $ENV{THIRD_PARTY_FACELAB} . "coredata/libshared/win32_ia32sse2_vc90/;";
+    $PathsToAdd = $ENV{THIRD_PARTY_FACELAB} . "coredata/libshared/win32_ia32sse2_vc90/;" . $PathsToAdd;
 
-    $PathsToAdd = $PathsToAdd . $ENV{THIRD_PARTY_YARP} . "bin/;";
+    $PathsToAdd = $ENV{THIRD_PARTY_YARP} . "bin/;" . $PathsToAdd;
 
-    $PathsToAdd = $PathsToAdd . $ENV{THIRD_PARTY_ACE} . "bin/;";
+    $PathsToAdd = $ENV{THIRD_PARTY_ACE} . "bin/;" . $PathsToAdd;
 
-    $PathsToAdd = $PathsToAdd . $ENV{THIRD_PARTY_OPENNI} . "Bin/;";
+    $PathsToAdd = $ENV{THIRD_PARTY_OPENNI} . "Bin/;" . $PathsToAdd;
 
-    $PathsToAdd = $PathsToAdd . $ENV{THIRD_PARTY_OPENCV} . "build/bin/Release/;";
-    $PathsToAdd = $PathsToAdd . $ENV{THIRD_PARTY_OPENCV} . "build/bin/Debug/;";
+    $PathsToAdd = $ENV{THIRD_PARTY_OPENCV} . "build/bin/Release/;" . $PathsToAdd;
+    $PathsToAdd = $ENV{THIRD_PARTY_OPENCV} . "build/bin/Debug/;" . $PathsToAdd;
 
-    $PathsToAdd = $PathsToAdd . $ENV{THIRD_PARTY_QT} . "bin/;";
-    $PathsToAdd = $PathsToAdd . $ENV{THIRD_PARTY_QT} . "lib/;";
+    $PathsToAdd = $ENV{THIRD_PARTY_QT} . "bin/;" . $PathsToAdd;
+    $PathsToAdd = $ENV{THIRD_PARTY_QT} . "lib/;" . $PathsToAdd;
 
-    $PathsToAdd = $PathsToAdd . $ENV{THIRD_PARTY_BOOST} . "lib/;";
+    $PathsToAdd = $ENV{THIRD_PARTY_BOOST} . "lib/;" . $PathsToAdd;
 
-    $PathsToAdd = $PathsToAdd . $ENV{THIRD_PARTY_FLANN} . "lib/;";
+    $PathsToAdd = $ENV{THIRD_PARTY_FLANN} . "lib/;" . $PathsToAdd;
 
-    $PathsToAdd = $PathsToAdd . $ENV{THIRD_PARTY_CUDA} . "lib/;";
-    $PathsToAdd = $PathsToAdd . $ENV{THIRD_PARTY_CUDA} . "bin/;";
+    $PathsToAdd = $ENV{THIRD_PARTY_CULA} . "bin/;" . $PathsToAdd;
 
-    $PathsToAdd = $PathsToAdd . $ENV{THIRD_PARTY_CULA} . "bin/;";
+    $PathsToAdd = $ENV{THIRD_PARTY_CLAPACK} . "lib/;" . $PathsToAdd;
 
-    $PathsToAdd = $PathsToAdd . $ENV{THIRD_PARTY_CLAPACK} . "lib/;";
+    $PathsToAdd = $ENV{THIRD_PARTY_GSL} . "lib/;" . $PathsToAdd;
 
-    $PathsToAdd = $PathsToAdd . $ENV{THIRD_PARTY_GSL} . "lib/;";
+    $PathsToAdd = $ENV{THIRD_PARTY_POLHEMUS} . "lib/Win32/;" . $PathsToAdd;
 
-    $PathsToAdd = $PathsToAdd . $ENV{THIRD_PARTY_POLHEMUS} . "lib/Win32/;";
+    $PathsToAdd = $ENV{THIRD_PARTY_FREEGLUT} . "bin/;" . $PathsToAdd;
 
-    $PathsToAdd = $PathsToAdd . $ENV{THIRD_PARTY_FREEGLUT} . "bin/;";
+    $PathsToAdd = $ENV{THIRD_PARTY_NAOQI} . "bin/;" . $PathsToAdd;
 
-    $PathsToAdd = $PathsToAdd . $ENV{THIRD_PARTY_NAOQI} . "bin/;";
-
-    $PathsToAdd = $PathsToAdd . $ENV{THIRD_PARTY_LEAP} . "lib/;";
+    $PathsToAdd = $ENV{THIRD_PARTY_LEAP} . "lib/;" . $PathsToAdd;
 }
 
 ####################################################################################### amd64 PATHS
 if($ARG eq "amd64")
 {
-    $PathsToAdd = $PathsToAdd . $ENV{THIRD_PARTY_OPENNI2_64} . "Bin/;";
+    $PathsToAdd = $ENV{THIRD_PARTY_OPENNI2_64} . "Bin/;" . $PathsToAdd;
 
-    $PathsToAdd = $PathsToAdd . $ENV{THIRD_PARTY_OPENCV_64} . "build/bin/Release/;";
-    $PathsToAdd = $PathsToAdd . $ENV{THIRD_PARTY_OPENCV_64} . "build/bin/Debug/;";
+    $PathsToAdd = $ENV{THIRD_PARTY_OPENCV_64} . "build/bin/Release/;" . $PathsToAdd;
+    $PathsToAdd = $ENV{THIRD_PARTY_OPENCV_64} . "build/bin/Debug/;" . $PathsToAdd;
 
-    $PathsToAdd = $PathsToAdd . $ENV{THIRD_PARTY_ACE_64} . "bin/;";
+    $PathsToAdd = $ENV{THIRD_PARTY_ACE_64} . "bin/;" . $PathsToAdd;
 
-    $PathsToAdd = $PathsToAdd . $ENV{THIRD_PARTY_CULA_64} . "lib/;";
-    $PathsToAdd = $PathsToAdd . $ENV{THIRD_PARTY_CULA_64} . "bin/;";
+    $PathsToAdd = $ENV{THIRD_PARTY_CULA_64} . "lib/;" . $PathsToAdd;
+    $PathsToAdd = $ENV{THIRD_PARTY_CULA_64} . "bin/;" . $PathsToAdd;
 
-    $PathsToAdd = $PathsToAdd . $ENV{THIRD_PARTY_QT_64} . "lib/;";
-    $PathsToAdd = $PathsToAdd . $ENV{THIRD_PARTY_QT_64} . "bin/;";
+    $PathsToAdd = $ENV{THIRD_PARTY_QT_64} . "lib/;" . $PathsToAdd;
+    $PathsToAdd = $ENV{THIRD_PARTY_QT_64} . "bin/;" . $PathsToAdd;
 
-    $PathsToAdd = $PathsToAdd . $ENV{THIRD_PARTY_CUDA_64} . "lib/;";
-    $PathsToAdd = $PathsToAdd . $ENV{THIRD_PARTY_CUDA_64} . "bin/;";
-
-    $PathsToAdd = $PathsToAdd . $ENV{THIRD_PARTY_CLAPACK_64} . "lib/;";
+    $PathsToAdd = $ENV{THIRD_PARTY_CLAPACK_64} . "lib/;" . $PathsToAdd;
 }
 
 ####################################################################################### UPDATE GLOBAL PATH
 
 
-$ENV{PATH} = $ENV{PATH} . $PathsToAdd;
-
-
+$ENV{PATH} = $PathsToAdd . $ENV{PATH};

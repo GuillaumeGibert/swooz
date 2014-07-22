@@ -109,7 +109,7 @@ INC_STASM	= -I./include/stasm\
 
 INC_BOOST	= -I"$(THIRD_PARTY_BOOST)"/include\
 
-INC_CUDA        = -I"$(THIRD_PARTY_CUDA)/include"\
+#INC_CUDA        = -I"$(THIRD_PARTY_CUDA)/include"\
 
 INC_CULA        = -I"$(THIRD_PARTY_CULA)/include"\
 
@@ -210,7 +210,7 @@ LIBS_QT 	= $(THIRD_PARTY_QT)/lib/QtOpenGL4.lib $(THIRD_PARTY_QT)/lib/QtCore4.lib
 
 LIBS_CLA	= $(THIRD_PARTY_CLAPACK)/lib/lapack.lib $(THIRD_PARTY_CLAPACK)/lib/blas.lib $(THIRD_PARTY_CLAPACK)/lib/libf2c.lib\
 
-LIBS_CUDA	= $(THIRD_PARTY_CUDA)/lib/cuda.lib $(THIRD_PARTY_CUDA)/lib/cublas.lib $(THIRD_PARTY_CUDA)/lib/cudart.lib\
+LIBS_CUDA	= "$(THIRD_PARTY_CUDA)/cuda.lib" "$(THIRD_PARTY_CUDA)/cublas.lib" "$(THIRD_PARTY_CUDA)/cudart.lib"\
 
 LIBS_CULA       = $(THIRD_PARTY_CULA)\lib\cula_lapack_basic.lib\
 

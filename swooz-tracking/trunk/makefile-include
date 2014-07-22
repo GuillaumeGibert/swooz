@@ -206,7 +206,7 @@ LIBS_BOOST_D     = "$(THIRD_PARTY_BOOST)/lib/libboost_thread-vc100-mt-1_49.lib" 
 LIBS_BOOST      = "$(THIRD_PARTY_BOOST)/lib/libboost_thread-vc100-mt-s-1_49.lib" "$(THIRD_PARTY_BOOST)/lib/libboost_date_time-vc100-mt-s-1_49.lib"\
                   "$(THIRD_PARTY_BOOST)/lib/libboost_iostreams-vc100-mt-s-1_49.lib"\
 
-LIBS_CUDA	= $(THIRD_PARTY_CUDA)/lib/cuda.lib $(THIRD_PARTY_CUDA)/lib/cublas.lib $(THIRD_PARTY_CUDA)/lib/cudart.lib $(THIRD_PARTY_CUDA)/lib/cutil32.lib\
+LIBS_CUDA	= "$(THIRD_PARTY_CUDA)/cuda.lib" "$(THIRD_PARTY_CUDA)/cublas.lib" "$(THIRD_PARTY_CUDA)/cudart.lib"\
 
 LIBS_GSL	= $(THIRD_PARTY_GSL)/lib/mini_gslML.lib $(THIRD_PARTY_GSL)/lib/gslcblasML.lib\
 

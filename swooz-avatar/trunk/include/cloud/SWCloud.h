@@ -6,12 +6,53 @@
  * \date 06/12/12
  */
 
+/*! \mainpage
+ *
+ * \section SWoOz
+ *
+ * \subsection intro_sec Introduction
+ *
+ * SWoOz is a software platform written in C++ used for behavioral experiments based on
+ * interactions between people and robots or 3D avatars.
+ *
+ * \subsection install_sec Install
+ *
+ * Go to https://github.com/GuillaumeGibert/swooz/blob/master/scripts/README_SCRIPTS.md for build procedures.
+ *
+ *
+ * \subsection content_sec Content
+ *
+ * \subsubsection Devices_toolkit
+ *
+ * - Interfaces (Kinect/Xtion, Leap, FaceLab, Fastrak Polhemus, Tobii..) <br />
+ * - Depth sensor data recorder/loader
+ *
+ * \subsubsection Yarp_modules
+ *
+ * - Tracking human movements without intrusive devices : head, gaze, face, torso, arms, hands, fingers <br />
+ * - Teleoperation for iCub, NAO, 3D Avatars based on the tracking modules <br />
+ * - Manipulation for manipulating tracking data and create planifications <br />
+ * - Feedback for getting video, audio feedback from the robot
+ *
+ * \subsubsection Avatar_creation_morphing
+ *
+ * - Creation from depths sensors devices(Kinect/Xtion) data <br />
+ * - Morphing for fitting references avatars meshes <br />
+ * - Animation/Viewer
+ *
+ * \subsection wiki_sec WIKI
+ *
+ * Go to https://github.com/GuillaumeGibert/swooz/wiki for more infos.
+ */
+
+
 #ifndef _SWCLOUD_
 #define _SWCLOUD_
 
 #include "commonTypes.h"
 #include <vector>
 
+//! namespace for classes based on the use of SWCloud
 namespace swCloud
 {
 	/**
