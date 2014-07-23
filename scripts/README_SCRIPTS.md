@@ -1,6 +1,9 @@
 SWOOZ - SCRIPTS
 ===============
 
+This README is only for Windows 7, others Windows have not been tested.
+
+
 0. DEPENDENCIES
 ---------------
 
@@ -14,7 +17,7 @@ SWOOZ - SCRIPTS
 
 	- This one is only necessary for the microsoft Kinect  [SensorKinect093-Bin-Win32-v5.1.2.1.msi](https://mega.co.nz/#!SMEyhawC!pF3DAzSxhCd6IqNDvhCoqQgOe6F5UFuxAnpv1BdETP4)
 	
- * Leap : some SWoOz modules use the Leap motion captor,  for using it you have to install the [Leap Motion Software](https://mega.co.nz/#!jM0ClIAL!CQDI7-5zoPD5soe-ieEooHyTxMU0Q8OYGJ5zweTbGF0)
+ * Leap : some SWoOz modules use the Leap motion captor,  for using it you have to install the [Leap Motion Software](https://mega.co.nz/#!jM0ClIAL!CQDI7-5zoPD5soe-ieEooHyTxMU0Q8OYGJ5zweTbGF0) (this is the 2.0 tracking skeleton beta version, pay attention if you donwload it from the official website)
 	
  * CUDA is necessary for the avatar creation and morphing and for the EMCIP tracking, in these cases install cuda : https://developer.nvidia.com/cuda-downloads
 
@@ -24,6 +27,7 @@ SWOOZ - SCRIPTS
 
  * Perl is needed for launching the scripts, you can install this perl distribution : http://strawberryperl.com/
 
+ * The scripts use the VS 2010 compiler to build the solution, if you don't have any version of Visual Studio you can install the [Microsoft SDK](http://www.microsoft.com/en-us/download/details.aspx?id=8279)
 
 1. BUILD SWOOZ
 --------------
