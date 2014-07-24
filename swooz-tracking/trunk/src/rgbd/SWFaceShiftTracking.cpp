@@ -220,7 +220,7 @@ bool SWFaceShiftTracking::updateModule()
         l_oFaceBottle.clear();
 
             // device lib id
-            l_oFaceBottle.addInt(swTracking::FACESHIFT_LIB); // face : FACESHIT_LIB id / get(0).asInt()
+            l_oFaceBottle.addInt(swTracking::FACESHIFT_LIB); // face : FACESHIT_LIB id / get(0).asInt()         
 
             for(uint ii = 0; ii < data.m_markers.size(); ++ii)
             {

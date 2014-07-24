@@ -339,8 +339,8 @@ bool swTeleop::SWIcubHead::checkBottles()
                     case swTracking::FACESHIFT_LIB :
                         {
                             l_vHeadJoints[0] = -swUtil::rad2Deg(l_pHeadTarget->get(4).asDouble()); // up/down head
-                            l_vHeadJoints[1] = -swUtil::rad2Deg(l_pHeadTarget->get(6).asDouble()); // left/right head
-                            l_vHeadJoints[2] = -swUtil::rad2Deg(l_pHeadTarget->get(5).asDouble()); // head
+                            l_vHeadJoints[1] = swUtil::rad2Deg(l_pHeadTarget->get(6).asDouble()); // left/right head
+                            l_vHeadJoints[2] = swUtil::rad2Deg(l_pHeadTarget->get(5).asDouble()); // head
                         }
                     break;
                     case swTracking::OPENNI_LIB :
@@ -405,25 +405,9 @@ bool swTeleop::SWIcubHead::checkBottles()
                     case swTracking::FACESHIFT_LIB :
                     {
 
-//                    l_oGazeBottle.addDouble(data.m_eyeGazeLeftPitch);    //gaze : left pitch / get(1).asDouble()
-//                    l_oGazeBottle.addDouble(data.m_eyeGazeLeftYaw);      //gaze : left yaw   / get(2).asDouble()
-
-//                    // right eye
-//                    l_oGazeBottle.addDouble(data.m_eyeGazeRightPitch);   //gaze : right pitch / get(3).asDouble()
-//                    l_oGazeBottle.addDouble(data.m_eyeGazeRightYaw);     //gaze : right yaw / get(4).asDouble()
-
-
-//                    left eye theta (in degrees)
-//                        (-90,90) (neg: up, pos: down)
-
-//                    left eye phi (in degrees)
-//                        (-90,90) (neg: right, pos: left)
-
-//                    right eye theta (in degrees)
-//                        (-90,90)
-
-//                    right eye phi (in degrees)
-//                        (-90,90)
+                        l_vHeadJoints[3] = -(l_pGazeTarget->get(1).asDouble() + l_pGazeTarget->get(3).asDouble())*0.5; // up/down eye [-35; +15]
+                        l_vHeadJoints[4] = -(l_pGazeTarget->get(2).asDouble() + l_pGazeTarget->get(4).asDouble())*0.5; // version angle [-50; 52] = (L+R)/2
+                        l_vHeadJoints[5] = 0;     // vergence angle [0 90] = R-L
                     }
                     break;
                     case swTracking::DUMMY_LIB :
@@ -485,7 +469,11 @@ bool swTeleop::SWIcubHead::checkBottles()
                 {
                     case swTracking::FACESHIFT_LIB :
                     {
-
+                    std::cout << "size : " << l_pFaceTarget->size() << " | ";
+                        for(int ii = 1; ii < l_pFaceTarget->size(); ++ii)
+                        {
+                            std::cout << l_pFaceTarget->get(ii).asDouble() << " ";
+                        }
 
                     }
                     break;

@@ -270,3 +270,9 @@
 ../swooz-tracking/trunk/include/leap/SWLeapTracking.h
 ../swooz-examples/trunk/display_leap_main.cpp
 ../swooz-config/gyarpmanager/cartesianSolverLeap.xml
+../swooz-feedback/trunk/makefile
+../swooz-feedback/trunk/makefile-include
+../swooz-feedback/trunk/win-build_branch.pl
+../swooz-feedback/trunk/src/hmd/SWHeadMountedDisplay.cpp
+../swooz-feedback/trunk/src/hmd/SWSonyHMZT3W.cpp
+../swooz-config/ini/feedback_hmd_iCub.ini
