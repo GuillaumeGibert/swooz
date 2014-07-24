@@ -9,6 +9,8 @@
 #include "rgbd/SWFaceShiftTracking.h"
 #include "SWTrackingDevice.h"
 
+#include "commonTypes.h"
+
 using namespace yarp::os;
 using namespace yarp::dev;
 using namespace yarp::sig;
@@ -25,9 +27,11 @@ SWFaceShiftTracking::SWFaceShiftTracking() : m_i32Fps(30)
     // set ports name
     m_sHeadTrackingPortName =  "/tracking/" + l_sDeviceName + "/"+ l_sLibraryName + "/head";
     m_sGazeTrackingPortName =  "/tracking/" + l_sDeviceName + "/"+ l_sLibraryName + "/gaze";
+    m_sFaceTrackingPortName =  "/tracking/" + l_sDeviceName + "/"+ l_sLibraryName + "/face";
 
     m_oHeadTrackingPort.open(m_sHeadTrackingPortName.c_str());
     m_oGazeTrackingPort.open(m_sGazeTrackingPortName.c_str());
+    m_oFaceTrackingPort.open(m_sFaceTrackingPortName.c_str());
 
     initFaceShift();
 
@@ -210,6 +214,23 @@ bool SWFaceShiftTracking::updateModule()
             l_oGazeBottle.addDouble(data.m_eyeGazeRightYaw);     //gaze : right yaw / get(4).asDouble()
 
         m_oGazeTrackingPort.write();
+
+
+        Bottle &l_oFaceBottle = m_oFaceTrackingPort.prepare();
+        l_oFaceBottle.clear();
+
+            // device lib id
+            l_oFaceBottle.addInt(swTracking::FACESHIFT_LIB); // face : FACESHIT_LIB id / get(0).asInt()
+
+            for(uint ii = 0; ii < data.m_markers.size(); ++ii)
+            {
+                l_oFaceBottle.addDouble(data.m_markers[ii].x); // face : marker ii x / get(1 + x * 3).asDouble()
+                l_oFaceBottle.addDouble(data.m_markers[ii].y); // face : marker ii y / get(2 + x * 3).asDouble()
+                l_oFaceBottle.addDouble(data.m_markers[ii].z); // face : marker ii z / get(3 + x * 3).asDouble()
+            }
+
+        m_oFaceTrackingPort.write();
+
     }
 
     return true;

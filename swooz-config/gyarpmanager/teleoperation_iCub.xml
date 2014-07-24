@@ -12,6 +12,14 @@
                 <protocol>tcp</protocol>
         </connection>
 
+        <!---  EMCIP -->
+            <!---  HEAD -->
+        <connection>
+                <from>/tracking/rgbd/emicp/head</from>
+                <to>/teleoperation/icub/head</to>
+                <protocol>tcp</protocol>
+        </connection>
+
         <!---  FACELAB -->
             <!---  HEAD -->
         <connection>
@@ -35,29 +43,37 @@
         <!---  LEAP -->
             <!---  LEFT ARM -->
         <connection>
-                <from>/tracking/leap/leapSDK/left_arm/hand</from>
-                <to>/teleoperation/icub/left_arm/hand</to>
-                <protocol>udp</protocol>
-        </connection>
-
-        <connection>
                 <from>/tracking/leap/leapSDK/left_arm/hand_fingers</from>
                 <to>/teleoperation/icub/left_arm/hand_fingers</to>
                 <protocol>udp</protocol>
         </connection>
-
             <!---  RIGHT ARM -->
-        <connection>
-                <from>/tracking/leap/leapSDK/right_arm/hand</from>
-                <to>/teleoperation/icub/right_arm/hand</to>
-                <protocol>udp</protocol>
-        </connection>
-
         <connection>
                 <from>/tracking/leap/leapSDK/right_arm/hand_fingers</from>
                 <to>/teleoperation/icub/right_arm/hand_fingers</to>
                 <protocol>udp</protocol>
         </connection>
+
+        <!---  FACESHIFT -->
+            <!---  HEAD -->
+        <connection>
+                <from>/tracking/rgbd/faceshift/head</from>
+                <to>/teleoperation/icub/head</to>
+                <protocol>tcp</protocol>
+        </connection>
+            <!---  FACE -->
+        <connection>
+                <from>/tracking/rgbd/faceshift/face</from>
+                <to>/teleoperation/icub/face</to>
+                <protocol>tcp</protocol>
+        </connection>
+            <!---  GAZE -->
+        <connection>
+                <from>/tracking/rgbd/faceshift/gaze</from>
+                <to>/teleoperation/icub/gaze</to>
+                <protocol>tcp</protocol>
+        </connection>
+
 
 
 </application>

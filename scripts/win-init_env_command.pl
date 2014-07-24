@@ -55,28 +55,28 @@ sub buildOrder {
 
 # executables scripts to be generated for each project
 my @ExecScriptParams = (# toolkit
-                        "swooz-toolkit_kinectOnDimenco",        "x86",  "SWDisplayKinectOnDimenco.exe",
+                        "sw-toolkit_kinectOnDimenco",        "x86",  "SWDisplayKinectOnDimenco.exe",
                         # avatar
-                        "swooz-createAvatar",                   "x86",  "SWCreateAvatar.exe",
-                        "swooz-morphing",                       "x86",  "SWMorphing.exe",
-                        "swooz-morphing-x64",                   "amd64","SWMorphing-x64.exe",
+                        "sw-createAvatar",                   "x86",  "SWCreateAvatar.exe",
+                        "sw-morphing",                       "x86",  "SWMorphing.exe",
+                        "sw-morphing-x64",                   "amd64","SWMorphing-x64.exe",
                         # tracking
-                        "swooz-trackingHeadForest",             "x86",  "SWTrackingHeadForest.exe ../data/ini/headForestConfig.ini",
-                        "swooz-trackingFaceLab",                "x86",  "SWFaceLabTracking.exe config.txt",
-                        "swooz-trackingFaceShift",              "x86",  "SWFaceShiftTracking.exe",
-                        "swooz-trackingHeadEmicp",              "x86",  "SWEmicpHeadTracking.exe",
-                        "swooz-trackingOpenNI",                 "x86",  "SWOpenNITracking.exe config.txt",
-                        "swooz-trackingFake",                   "x86",  "SWFakeTracking.exe",  ## %PARAMS_EXEC%
-                        "swooz-trackingLeap",                   "x86",  "SWLeapTracking.exe",
-                        "swooz-trackingFastrak",                "x86",  "SWFastrakTracking.exe",
+                        "sw-headForestTracking",             "x86",  "SWTrackingHeadForest.exe ../data/ini/headForestConfig.ini",
+                        "sw-faceLabTracking",                "x86",  "SWFaceLabTracking.exe config.txt",
+                        "sw-faceshiftTracking",              "x86",  "SWFaceShiftTracking.exe",
+                        "sw-headEmicpTracking",              "x86",  "SWEmicpHeadTracking.exe",
+                        "sw-openNITracking",                 "x86",  "SWOpenNITracking.exe config.txt",
+                        "sw-fakeTracking",                   "x86",  "SWFakeTracking.exe",  ## %PARAMS_EXEC%
+                        "sw-leapTracking",                   "x86",  "SWLeapTracking.exe",
+                        "sw-fastrakTracking",                "x86",  "SWFastrakTracking.exe",
                         # teleoperation
-                        "swooz-teleoperation_iCub",             "x86",  "SWTeleoperation_iCub.exe",
-                        "swooz-teleoperation_nao",              "x86",  "SWTeleoperation_nao.exe",
+                        "sw-teleoperation_iCub",             "x86",  "SWTeleoperation_iCub.exe",
+                        "sw-teleoperation_nao",              "x86",  "SWTeleoperation_nao.exe",
                         # manipulation
-                        "swooz-manipulation",                   "x86",  "SWManipulation.exe",
+                        "sw-manipulation",                   "x86",  "SWManipulation.exe",
                         # viewer
-                        "swooz-viewer",                         "x86",  "SWViewer.exe",
-                        "swooz-viewer-x64",                     "amd64","SWViewer-x64.exe",
+                        "sw-viewer",                         "x86",  "SWViewer.exe",
+                        "sw-viewer-x64",                     "amd64","SWViewer-x64.exe",
                         # examples
                         "examples/display_kinect",              "x86",  "kinect_display.exe",
                         "examples/display_kinect_thread",       "x86",  "kinect_thread_display.exe",
@@ -85,7 +85,7 @@ my @ExecScriptParams = (# toolkit
                         "examples/detect_face_stasm",           "x86",  "detect_face_stasm.exe",
                         "examples/display_leap",                "x86",  "display_leap.exe",
                         # feeback
-                        "swooz-feedback",                       "x86",  "SWHeadMountedDisplay.exe"
+                        "sw-feedback",                       "x86",  "SWHeadMountedDisplay.exe"
 );
 
 sub executablesNumber {
@@ -123,7 +123,7 @@ $ENV{THIRD_PARTY_ACE_64}= $PThird_party . "ace/amd64/Ace642/";
 $ENV{THIRD_PARTY_OPENNI}    = $PThird_party . "openni/openni-1.5.4.0/";
 $ENV{THIRD_PARTY_OPENNI2_64}= $PThird_party . "openni/amd64/openni-2.1.0.4-64/";
 ##################### OPENCV
-$ENV{THIRD_PARTY_OPENCV}   = $PThird_party . "opencv/opencv-2.45/";
+$ENV{THIRD_PARTY_OPENCV}   = $PThird_party . "opencv/opencv-2.49/";
 $ENV{THIRD_PARTY_OPENCV_64}= $PThird_party . "opencv/amd64/opencv-2.48/";
 ##################### FREEGLUT
 $ENV{THIRD_PARTY_FREEGLUT}   = $PThird_party . "freeglut/";
@@ -187,8 +187,8 @@ if($ARG eq "x86")
 
     $PathsToAdd = $ENV{THIRD_PARTY_OPENNI} . "Bin/;" . $PathsToAdd;
 
-    $PathsToAdd = $ENV{THIRD_PARTY_OPENCV} . "build/bin/Release/;" . $PathsToAdd;
-    $PathsToAdd = $ENV{THIRD_PARTY_OPENCV} . "build/bin/Debug/;" . $PathsToAdd;
+    $PathsToAdd = $ENV{THIRD_PARTY_OPENCV} . "build/bin/Release;" . $PathsToAdd;
+    $PathsToAdd = $ENV{THIRD_PARTY_OPENCV} . "build/bin/Debug;" . $PathsToAdd;
 
     $PathsToAdd = $ENV{THIRD_PARTY_QT} . "bin/;" . $PathsToAdd;
     $PathsToAdd = $ENV{THIRD_PARTY_QT} . "lib/;" . $PathsToAdd;

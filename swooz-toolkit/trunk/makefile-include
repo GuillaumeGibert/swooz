@@ -143,9 +143,9 @@ LFLAGS=-nologo -nodefaultlib:MSVCPRT
 
 
 LIBS_OPENCV=\
-    $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_highgui245.lib\
-    $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_core245.lib\
-    $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_imgproc245.lib\
+    $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_highgui249.lib\
+    $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_core249.lib\
+    $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_imgproc249.lib\
 
 !ENDIF
 

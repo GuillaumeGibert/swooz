@@ -144,9 +144,9 @@ LFLAGS = -nologo
 
 LIBS_OPENNI     = $(THIRD_PARTY_OPENNI)/Lib/openNI.lib\
 
-LIBS_CV		= $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_highgui245.lib $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_core245.lib\
-                  $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_imgproc245.lib $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_objdetect245.lib\
-                  $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_video245.lib\
+LIBS_CV		= $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_highgui249.lib $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_core249.lib\
+                  $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_imgproc249.lib $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_objdetect249.lib\
+                  $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_video249.lib\
 
 #                  $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_contrib245.lib $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_flann245.lib\
 #                  $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_stitching245.lib $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_superres245.lib\

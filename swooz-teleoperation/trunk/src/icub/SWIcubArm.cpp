@@ -34,6 +34,7 @@ swTeleop::SWIcubArm::SWIcubArm() : m_bInitialized(false), m_bIsRunning(false),
             m_i32TimeoutArmResetDefault = 3000;
 
         // accelerations / speeds
+            m_i32RateVelocityControlDefault = 100;
             double l_aDMinJointDefault[]                       = {-95., 0., -37., 16., -90., -90., -20., 0., 10., 0., 0., 0., 0., 0., 0., 0.};
             double l_aDMaxJointDefault[]                       = { 10., 160., 80., 106., 90., 0., 40., 60., 90., 90., 180., 90., 180., 90., 180., 270.};
             double l_aDArmResetPosition[]                      = {-25.,20.,0.,50.,0.,0.,0.,60.,20.,20.,20.,10.,10.,10.,10.,10.};
@@ -98,6 +99,8 @@ bool swTeleop::SWIcubArm::init( yarp::os::ResourceFinder &oRf, bool bLeftArm)
     // robot parts to control
         m_bArmHandActivated = oRf.check(std::string(m_sArm + "ArmHandActivated").c_str(), yarp::os::Value(m_bArmHandActivatedDefault),     std::string(m_sArm + " Arm/hand activated (int)").c_str()).asInt() != 0;
         m_bFingersActivated = oRf.check(std::string(m_sArm + "FingersActivated").c_str(), yarp::os::Value(m_bFingersActivatedDefault), std::string(m_sArm + " Fingers activated (int)").c_str()).asInt() != 0;
+
+        m_i32RateVelocityControl = oRf.check("armsRateVelocityControl", yarp::os::Value(m_i32RateVelocityControlDefault), "Arms rate velocity control (int)").asInt();
 
         if(!m_bArmHandActivated && !m_bFingersActivated)
         {
@@ -196,7 +199,7 @@ bool swTeleop::SWIcubArm::init( yarp::os::ResourceFinder &oRf, bool bLeftArm)
         }
 
     // init controller
-        m_pVelocityController = new swTeleop::SWArmVelocityController(m_pIArmEncoders, m_pIArmVelocity, m_vArmJointVelocityK, 10);
+        m_pVelocityController = new swTeleop::SWArmVelocityController(m_pIArmEncoders, m_pIArmVelocity, m_vArmJointVelocityK, m_i32RateVelocityControl);
         m_pVelocityController->enable(m_bArmHandActivated, m_bFingersActivated);
 
         // display parameters
@@ -204,6 +207,7 @@ bool swTeleop::SWIcubArm::init( yarp::os::ResourceFinder &oRf, bool bLeftArm)
             displayDebug(m_sArm + std::string(" arm/hand activated"), m_bArmHandActivated);
             displayDebug(m_sArm + std::string(" fingers activated"), m_bFingersActivated);
             displayDebug(std::string("Gaze activated"), m_i32TimeoutArmReset);
+            displayDebug(std::string("Rate velocity control"), m_i32RateVelocityControl);
             std::cout << std::endl;
             displayVectorDebug(m_sArm + std::string(" arm min joint                  : "), m_vArmMinJoint);
             displayVectorDebug(m_sArm + std::string(" arm max joint                  : "), m_vArmMaxJoint);
@@ -211,7 +215,7 @@ bool swTeleop::SWIcubArm::init( yarp::os::ResourceFinder &oRf, bool bLeftArm)
             displayVectorDebug(m_sArm + std::string(" arm joint velocity acceleration: "), m_vArmJointVelocityAcceleration);
             displayVectorDebug(m_sArm + std::string(" arm joint position acceleration: "), m_vArmJointPositionAcceleration);
             displayVectorDebug(m_sArm + std::string(" arm joint position speed       : "), m_vArmJointPositionSpeed);
-            displayVectorDebug(m_sArm + std::string(" arm head joint velocity        : "), m_vArmJointVelocityK);
+            displayVectorDebug(m_sArm + std::string(" arm joint velocity             : "), m_vArmJointVelocityK);
             std::cout << std::endl << std::endl;
 
     return (m_bIsRunning=m_bInitialized=true);
@@ -383,9 +387,9 @@ void swTeleop::SWIcubArm::computeHandAngles(yarp::os::Bottle* handBottle,std::ve
             vHandAngles[1] = -(swUtil::rad2Deg(l_vHandPalmNormalE[1]) - 90.0);
         }
 
-        double l_dAngle = swUtil::rad2Deg(acos(cv::normalize(cv::Vec3d(0.0,l_vArmDirection[1],l_vArmDirection[2])).dot(cv::Vec3d(0.0,0.0,1.0))));
+        double l_dAngle = swUtil::rad2Deg(acos(cv::normalize(cv::Vec3d(0.0,l_vArmDirection[1],l_vArmDirection[2])).dot(cv::Vec3d(0.0,1.0,0.0))));
         l_dAngle *= -1.0;
-        l_dAngle += 180.0 + 60.0;
+        l_dAngle += 140.0;
         vHandAngles[0] = l_dAngle;
 }
 
@@ -756,7 +760,7 @@ bool swTeleop::SWIcubArm::checkBottles()
         yarp::os::Bottle *l_pHandTarget = NULL;//, *l_pHandCartesianTarget = NULL; // *l_pFingersTarget = NULL, *l_pArmTarget = NULL,
 
 
-        l_pHandTarget = m_oHandTrackerPort.read(false);
+        l_pHandTarget = m_oHandFingersTrackerPort.read(false);
 
 
         if(l_pHandTarget)
@@ -792,11 +796,13 @@ bool swTeleop::SWIcubArm::checkBottles()
                     // set default joint values
                         for(int ii = 0; ii < m_i32ArmJointsNb; ++ii)
                         {
-                            l_vArmJoints[ii] = m_vArmResetPosition[ii];
+//                            l_vArmJoints[ii] = m_vArmResetPosition[ii];
                         }
 
                         std::vector<double> l_vHandAngles;
+//                        std::cout << "computeHandAngles  ";
                         computeHandAngles(l_pHandTarget, l_vHandAngles);
+//                        std::cout << "-> end  |";
 
                         for(uint ii = 0; ii < l_vHandAngles.size(); ++ii)
                         {
@@ -804,7 +810,9 @@ bool swTeleop::SWIcubArm::checkBottles()
                         }
 
                         std::vector<double> l_vFingerAngles;
+//                        std::cout << "computeFingerAngles  ";
                         computeFingerAngles(l_pHandTarget, l_vFingerAngles);
+//                        std::cout << "-> end  |";
 
                         for(uint ii = 0; ii < l_vFingerAngles.size(); ++ii)
                         {
@@ -860,7 +868,6 @@ bool swTeleop::SWIcubArm::close()
 
     bool l_bArmPositionCloseState       = m_pIArmPosition->stop();
     bool l_bRobotArmCloseState          = m_oRobotArm.close();
-//    bool l_bRobotCartesianArmCloseState = m_oRobotArmCartesian.close();
 
     if(m_pVelocityController->isRunning())
     {
@@ -870,9 +877,8 @@ bool swTeleop::SWIcubArm::close()
     // close ports
         if(m_bArmHandActivated)
         {
-//            m_oArmTrackerPort.close();
             m_oHandTrackerPort.close();
-//            m_oHandCartesianTrackerPort.close();
+            m_oHandFingersTrackerPort.close();
         }
 
     return (l_bArmPositionCloseState && l_bRobotArmCloseState);// && l_bRobotCartesianArmCloseState);
@@ -897,7 +903,7 @@ bool swTeleop::SWIcubArm::interruptModule()
     // close ports
         if(m_bArmHandActivated)
         {
-//            m_oArmTrackerPort.interrupt();
+            m_oHandFingersTrackerPort.interrupt();
             m_oHandTrackerPort.interrupt();
         }
 
@@ -924,6 +930,7 @@ swTeleop::SWArmVelocityController::SWArmVelocityController(yarp::dev::IEncoders 
 
 void swTeleop::SWArmVelocityController::run()
 {
+//    std::cout << "start run ";
     m_oMutex.lock();
         yarp::sig::Vector l_vArmJoints = m_vLastArmJoint; // Check values with Joint before
     m_oMutex.unlock();
@@ -958,6 +965,7 @@ void swTeleop::SWArmVelocityController::run()
             m_pIArmVelocity->velocityMove(ii, l_vCommand[ii]);
         }
     }
+//    std::cout << " - end run |";
 }
 
 void swTeleop::SWArmVelocityController::enable(cbool bArmHandActivated, cbool bFingersActivated)

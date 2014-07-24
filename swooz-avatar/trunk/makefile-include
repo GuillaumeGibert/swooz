@@ -109,8 +109,6 @@ INC_STASM	= -I./include/stasm\
 
 INC_BOOST	= -I"$(THIRD_PARTY_BOOST)"/include\
 
-#INC_CUDA        = -I"$(THIRD_PARTY_CUDA)/include"\
-
 INC_CULA        = -I"$(THIRD_PARTY_CULA)/include"\
 
 INC_GSL 	= -I"$(THIRD_PARTY_GSL)"/gsl -I"$(THIRD_PARTY_GSL)"\
@@ -130,6 +128,8 @@ INC_YARP	= -I"$(THIRD_PARTY_YARP)"/include\
 
 
 ############################ DEPENDENCIES
+
+ALL_INCLUDES        = $(INC_OTHERS) $(INC_SW) $(INC_STASM) $(INC_BOOST) $(INC_CULA) $(INC_GSL) $(INC_OPENCV) $(INC_MOC) $(INC_QTWIDGETS) $(INC_QT) $(INC_YARP)
 
 COMMON	 	    = $(INC_VS) $(INC_SW) $(INC_OTHERS)
 #	avatar
@@ -196,8 +196,9 @@ LFLAGS_MORPHING = -nologo -nodefaultlib:LIBCMT
 
 LIBS_OPENNI     = $(THIRD_PARTY_OPENNI)/Lib/openNI.lib\
 
-LIBS_CV		= $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_highgui245.lib $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_core245.lib\
-                  $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_imgproc245.lib $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_objdetect245.lib $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_video245.lib\
+LIBS_CV		= $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_highgui249.lib $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_core249.lib\
+                  $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_imgproc249.lib $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_objdetect249.lib\
+                  $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_video249.lib\
 
 !IF "$(ARCH)" != "x86"
 
@@ -232,9 +233,9 @@ LIBS_YARP	= $(THIRD_PARTY_YARP)/lib/YARP_sig.lib $(THIRD_PARTY_YARP)/lib/YARP_OS
 
 LIBS_SWOOZ      = $(DIST_LIBDIR)/SWToolkit_d.lib\
 
-LIBS_AVATAR     = $(LIBS_COMMON) $(LIBS_SWOOZ) $(LIBS_BOOST_D) $(LIBS_OPENNI) $(LIBS_CV) $(LIBS_QT) $(LIBS_CLA) $(LIBS_CUDA) $(LIBS_GSL) $(LIBS_CULA)\
+LIBS_AVATAR     = $(LIBS_COMMON) $(LIBS_SWOOZ) $(LIBS_BOOST_D) $(LIBS_OPENNI) $(LIBS_CV) $(LIBS_QT) $(LIBS_CLA) $(LIBS_CUDA) $(LIBS_GSL)\
 
-LIBS_MORPHING   = $(LIBS_BOOST_D) $(LIBS_QT) $(LIBS_CUDA) $(LIBS_CULA) $(LIBS_CLA) $(LIBS_CV)
+LIBS_MORPHING   = $(LIBS_BOOST_D) $(LIBS_QT) $(LIBS_CULA) $(LIBS_CUDA) $(LIBS_CLA) $(LIBS_CV)
 
 
 !ENDIF
@@ -264,6 +265,14 @@ LIBS_OPENNI     = $(THIRD_PARTY_OPENNI)/Lib/openNI.lib
 LIBS_CV		= $(THIRD_PARTY_OPENCV)/build/lib/Debug/opencv_highgui245d.lib $(THIRD_PARTY_OPENCV)/build/lib/Debug/opencv_core245d.lib\
 		  $(THIRD_PARTY_OPENCV)/build/lib/Debug/opencv_imgproc245d.lib $(THIRD_PARTY_OPENCV)/build/lib/Debug/opencv_objdetect245d.lib $(THIRD_PARTY_OPENCV)/build/lib/Debug/opencv_video245d.lib\
 		 
+
+!IF "$(ARCH)" != "x86"
+
+LIBS_CV         = $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_highgui248.lib $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_core248.lib\
+                  $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_imgproc248.lib\
+
+!ENDIF
+
 LIBS_QT 	= $(THIRD_PARTY_QT)/lib/QtOpenGLd4.lib $(THIRD_PARTY_QT)/lib/QtCored4.lib $(THIRD_PARTY_QT)/lib/QtGuid4.lib $(THIRD_PARTY_QT)/lib/qtmaind.lib\
 
 LIBS_PCL	= $(THIRD_PARTY_PCL)/lib/pcl_visualization_debug.lib $(THIRD_PARTY_PCL)/lib/pcl_io_debug.lib $(THIRD_PARTY_PCL)/lib/pcl_common_debug.lib\

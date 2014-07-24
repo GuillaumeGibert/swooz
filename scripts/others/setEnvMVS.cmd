@@ -23,4 +23,3 @@ if %3 == cl (
         @nmake -nologo CFG=%1 ARCH=%2 COMP=%3 -f makefile
     )
 )
-

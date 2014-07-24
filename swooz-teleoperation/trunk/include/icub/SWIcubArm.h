@@ -171,6 +171,9 @@ namespace swTeleop
             bool m_bArmHandActivatedDefault;    /**< is arm/hand activated DEFAULT value */
             int m_i32TimeoutArmResetDefault;    /**< timeout arm DEFAULT value */
 
+            int m_i32RateVelocityControl;   /**< ... */
+            int m_i32RateVelocityControlDefault; /**< ... */
+
             std::vector<double> m_vArmMinJoint;                         /**< arm minimum joint values array */
             std::vector<double> m_vArmMaxJoint;                         /**< arm maximum joint values array  */
             std::vector<double> m_vArmResetPosition;                    /**< arm reset positions values values array */

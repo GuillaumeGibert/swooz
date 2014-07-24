@@ -40,6 +40,7 @@ swTeleop::SWIcubHead::SWIcubHead() : m_bInitialized(false), m_bIsRunning(false),
             m_dMaxEyelidsSimDefault = 70.;
 
         // accelerations / speeds
+            m_i32RateVelocityControlDefault = 10;
             double l_aDMinJointDefault[]                        = {-40.,-70.,-55.,-10000.,-10000.,-10000.};
             double l_aDMaxJointDefault[]                        = { 30., 60., 50.,10000.,10000.,10000.};
             double l_aDHeadJointVelocityDefault[]               = {50.,50.,50.,50.,50.,50.};
@@ -94,6 +95,8 @@ bool swTeleop::SWIcubHead::init( yarp::os::ResourceFinder &oRf)
         m_bHeadActivated = oRf.check("headActivated", Value(m_bHeadActivatedDefault), "Head activated (int)").asInt() != 0;
         m_bGazeActivated = oRf.check("gazeActivated", Value(m_bGazeActivatedDefault), "Gaze activated (int)").asInt() != 0;
         m_bLEDActivated  = oRf.check("LEDSActivated", Value(m_bLEDActivatedDefault), "LEDS activated (int)"). asInt() != 0;
+
+        m_i32RateVelocityControl = oRf.check("headRateVelocityControl", Value(m_i32RateVelocityControlDefault), "Head rate velocity control (int)").asInt();
 
         if(!m_bHeadActivated && !m_bGazeActivated && !m_bLEDActivated)
         {
@@ -235,13 +238,14 @@ bool swTeleop::SWIcubHead::init( yarp::os::ResourceFinder &oRf)
         }
 
     // init controller
-        m_pVelocityController = new swTeleop::SWHeadVelocityController(m_pIHeadEncoders, m_pIHeadVelocity, m_vHeadJointVelocityK, 10);
+        m_pVelocityController = new swTeleop::SWHeadVelocityController(m_pIHeadEncoders, m_pIHeadVelocity, m_vHeadJointVelocityK, m_i32RateVelocityControl);
         m_pVelocityController->enableHead(m_bHeadActivated);
         m_pVelocityController->enableGaze(m_bGazeActivated);
         m_pVelocityController->setMinMaxJoints(m_vHeadMinJoint, m_vHeadMaxJoint);
 
     // display parameters
         std::cout << std::endl << std::endl;
+        displayDebug(std::string("Rate velocity control"), m_i32RateVelocityControl);
         displayDebug(std::string("Head activated"), m_bHeadActivated);
         displayDebug(std::string("Gaze activated"), m_bGazeActivated);
         displayDebug(std::string("LED activated"), m_bLEDActivated);
@@ -398,6 +402,30 @@ bool swTeleop::SWIcubHead::checkBottles()
 
                 switch(l_deviceId)
                 {
+                    case swTracking::FACESHIFT_LIB :
+                    {
+
+//                    l_oGazeBottle.addDouble(data.m_eyeGazeLeftPitch);    //gaze : left pitch / get(1).asDouble()
+//                    l_oGazeBottle.addDouble(data.m_eyeGazeLeftYaw);      //gaze : left yaw   / get(2).asDouble()
+
+//                    // right eye
+//                    l_oGazeBottle.addDouble(data.m_eyeGazeRightPitch);   //gaze : right pitch / get(3).asDouble()
+//                    l_oGazeBottle.addDouble(data.m_eyeGazeRightYaw);     //gaze : right yaw / get(4).asDouble()
+
+
+//                    left eye theta (in degrees)
+//                        (-90,90) (neg: up, pos: down)
+
+//                    left eye phi (in degrees)
+//                        (-90,90) (neg: right, pos: left)
+
+//                    right eye theta (in degrees)
+//                        (-90,90)
+
+//                    right eye phi (in degrees)
+//                        (-90,90)
+                    }
+                    break;
                     case swTracking::DUMMY_LIB :
                     {
                         // eye position
@@ -455,48 +483,54 @@ bool swTeleop::SWIcubHead::checkBottles()
 
                 switch(l_deviceId)
                 {
+                    case swTracking::FACESHIFT_LIB :
+                    {
+
+
+                    }
+                    break;
                     case swTracking::COREDATA_LIB :
-                        {
-                            Bottle &l_oFaceMotionBottle = m_oFaceHandlerPort.prepare();
-                            // retrieve values
-                                // eyebrows
-                                std::vector<double> l_vLeftEyeBrowPoints, l_vRightEyeBrowPoints;
-                                for(int ii = 0; ii < 9; ++ii)
-                                {
-                                    l_vLeftEyeBrowPoints.push_back(l_pFaceTarget->get(52+ii).asDouble());
-                                    l_vRightEyeBrowPoints.push_back(l_pFaceTarget->get(43+ii).asDouble());
-                                }
+                    {
+                        Bottle &l_oFaceMotionBottle = m_oFaceHandlerPort.prepare();
+                        // retrieve values
+                            // eyebrows
+                            std::vector<double> l_vLeftEyeBrowPoints, l_vRightEyeBrowPoints;
+                            for(int ii = 0; ii < 9; ++ii)
+                            {
+                                l_vLeftEyeBrowPoints.push_back(l_pFaceTarget->get(52+ii).asDouble());
+                                l_vRightEyeBrowPoints.push_back(l_pFaceTarget->get(43+ii).asDouble());
+                            }
 
-                                // mouth
-                                std::vector<double> l_vInnerLip2, l_vInnerLip6;
-                                for(int ii = 0; ii < 3; ++ii)
-                                {
-                                    l_vInnerLip2.push_back(l_pFaceTarget->get(25+ii).asDouble());
-                                    l_vInnerLip6.push_back(l_pFaceTarget->get(37+ii).asDouble());
-                                }
+                            // mouth
+                            std::vector<double> l_vInnerLip2, l_vInnerLip6;
+                            for(int ii = 0; ii < 3; ++ii)
+                            {
+                                l_vInnerLip2.push_back(l_pFaceTarget->get(25+ii).asDouble());
+                                l_vInnerLip6.push_back(l_pFaceTarget->get(37+ii).asDouble());
+                            }
 
-                                std::string l_sNewMouth         = m_ICubFaceLabLED.lipCommand(l_vInnerLip2, l_vInnerLip6);
-                                std::string l_sNewLeftEyebrow   = m_ICubFaceLabLED.leftEyeBrowCommand(l_vLeftEyeBrowPoints);
-                                std::string l_sNewRightEyebrow  = m_ICubFaceLabLED.rightEyeBrowCommand(l_vRightEyeBrowPoints);
+                            std::string l_sNewMouth         = m_ICubFaceLabLED.lipCommand(l_vInnerLip2, l_vInnerLip6);
+                            std::string l_sNewLeftEyebrow   = m_ICubFaceLabLED.leftEyeBrowCommand(l_vLeftEyeBrowPoints);
+                            std::string l_sNewRightEyebrow  = m_ICubFaceLabLED.rightEyeBrowCommand(l_vRightEyeBrowPoints);
 
-                                // mouth
-                                    l_oFaceMotionBottle.clear();
-                                    l_oFaceMotionBottle.addString(l_sNewMouth.c_str());
-                                    m_oFaceHandlerPort.write();
-                                    Time::delay(0.001);
+                            // mouth
+                                l_oFaceMotionBottle.clear();
+                                l_oFaceMotionBottle.addString(l_sNewMouth.c_str());
+                                m_oFaceHandlerPort.write();
+                                Time::delay(0.001);
 
-                                // left eyebrow
-                                    l_oFaceMotionBottle.clear();
-                                    l_oFaceMotionBottle.addString(l_sNewLeftEyebrow.c_str());
-                                    m_oFaceHandlerPort.write();
-                                    Time::delay(0.001);
+                            // left eyebrow
+                                l_oFaceMotionBottle.clear();
+                                l_oFaceMotionBottle.addString(l_sNewLeftEyebrow.c_str());
+                                m_oFaceHandlerPort.write();
+                                Time::delay(0.001);
 
-                                // right eyebrow
-                                    l_oFaceMotionBottle.clear();
-                                    l_oFaceMotionBottle.addString(l_sNewRightEyebrow.c_str());
-                                    m_oFaceHandlerPort.write();
-                                    Time::delay(0.001);
-                        }
+                            // right eyebrow
+                                l_oFaceMotionBottle.clear();
+                                l_oFaceMotionBottle.addString(l_sNewRightEyebrow.c_str());
+                                m_oFaceHandlerPort.write();
+                                Time::delay(0.001);
+                    }
                     break;
                 }
 

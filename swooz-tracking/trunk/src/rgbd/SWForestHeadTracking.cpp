@@ -1,6 +1,7 @@
 #include "rgbd/SWForestHeadTracking.h"
 #include "SWTrackingDevice.h"
 
+
 /*
 // Authors: Gabriele Fanelli, Thibaut Weise, Juergen Gall, BIWI, ETH Zurich
 // Email: fanelli@vision.ee.ethz.ch

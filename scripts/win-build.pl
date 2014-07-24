@@ -64,6 +64,7 @@ print "## Call all the projects makefiles...\n";
 my @directoriesToCopy = ("bin", "include", "lib", "data");
 my $xcopyCmd = "\"" . $ENV{SystemRoot} . "/system32/xcopy\" /q /e /y /c ";
 
+
 foreach (&Env::buildOrder())
 {
     my $projectName = $_;
@@ -86,7 +87,6 @@ foreach (&Env::buildOrder())
         system($xcopyCmd . "\"" . $source_dir . "\" \"" . $target_dir . "\"");
     }
 }
-
 
 #######################################################################################
 print "\n";

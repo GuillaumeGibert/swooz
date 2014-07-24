@@ -29,6 +29,7 @@ swTeleop::SWIcubTorso::SWIcubTorso() : m_bInitialized(false), m_bIsRunning(false
             m_i32TimeoutTorsoResetDefault = 3000;
 
         // accelerations / speeds
+            m_i32RateVelocityControlDefault = 100;
             double l_aDMinJointDefault[]                        = {-50.,-30.,-10.};
             double l_aDMaxJointDefault[]                        = { 50., 30., 70.};
             double l_aDTorsoJointVelocityDefault[]               = {50.,50.,50.};
@@ -78,6 +79,8 @@ bool swTeleop::SWIcubTorso::init( yarp::os::ResourceFinder &oRf)
     // gets the module name which will form the stem of all module port names
         m_sModuleName   = oRf.check("name", Value("teleoperation_iCub"), "Teleoperation/iCub Module name (string)").asString();
         m_sRobotName    = oRf.check("robot",Value("icubSim"),  "Robot name (string)").asString();
+
+        m_i32RateVelocityControl = oRf.check("torsoRateVelocityControl", Value(m_i32RateVelocityControlDefault), "Torso rate velocity control (int)").asInt();
 
     // robot parts to control
         m_bTorsoActivated = oRf.check("torsoActivated", Value(m_bTorsoActivatedDefault), "Torso activated (int)").asInt() != 0;
@@ -173,13 +176,14 @@ bool swTeleop::SWIcubTorso::init( yarp::os::ResourceFinder &oRf)
         }
 
     // init controller                
-        m_pVelocityController = new swTeleop::SWTorsoVelocityController(m_pITorsoEncoders, m_pITorsoVelocity, m_vTorsoJointVelocityK, 10);
+        m_pVelocityController = new swTeleop::SWTorsoVelocityController(m_pITorsoEncoders, m_pITorsoVelocity, m_vTorsoJointVelocityK, m_i32RateVelocityControl);
         m_pVelocityController->enableTorso(m_bTorsoActivated);
 
     // display parameters
         std::cout << std::endl << std::endl;
         displayDebug(std::string("Torso activated"), m_bTorsoActivated);
         displayDebug(std::string("Timeout torso reset"), m_i32TimeoutTorsoReset);
+        displayDebug(std::string("Rate velocity control"), m_i32RateVelocityControl);
         std::cout << std::endl;
         displayVectorDebug(std::string("Torso min joint                  : "), m_vTorsoMinJoint);
         displayVectorDebug(std::string("Torso max joint                  : "), m_vTorsoMaxJoint);

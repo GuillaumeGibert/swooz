@@ -153,6 +153,9 @@ namespace swTeleop
             int m_bTorsoActivatedDefault;               /**< .... */
             int m_i32TimeoutTorsoResetDefault;          /**< ... */
 
+            int m_i32RateVelocityControl;   /**< ... */
+            int m_i32RateVelocityControlDefault; /**< ... */
+
             std::vector<double> m_vTorsoMinJoint;                           /**< ... */
             std::vector<double> m_vTorsoMaxJoint;                           /**< ... */
             std::vector<double> m_vTorsoResetPosition;                      /**< ... */

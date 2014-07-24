@@ -255,6 +255,9 @@ namespace swTeleop
             int m_bGazeActivatedDefault;  /**< .... */
             int m_bLEDActivatedDefault;   /**< .... */
 
+            int m_i32RateVelocityControl;   /**< ... */
+            int m_i32RateVelocityControlDefault; /**< ... */
+
             int m_i32TimeoutHeadReset;  /**< ... */
             int m_i32TimeoutGazeReset;  /**< ... */
             int m_i32TimeoutLEDReset;   /**< ... */            
