@@ -10,7 +10,7 @@ Links :
 -------
 
  * [Website](http://swooz.free.fr/)
- * [Wiki](https://github.com/GuillaumeGibert/swooz/wiki)
+ * [Wiki(in progress)](https://github.com/GuillaumeGibert/swooz/wiki)
  * Videos :
     * [Robotic teleoperation](https://github.com/GuillaumeGibert/swooz/wiki/videos_teleop)
     * [Avatars](https://github.com/GuillaumeGibert/swooz/wiki/videos_avatars)
@@ -24,17 +24,17 @@ Links :
 Content :
 ---------
  * A toolkit for working with tracking devices :
-   * [interfaces](https://github.com/GuillaumeGibert/swooz/wiki/toolkit#wiki-devices) (Kinect/Xtion, Leap, FaceLab, Fastrak Polhemus, Tobii..)
-   * [depth sensor data recorder/loader](https://github.com/GuillaumeGibert/swooz/wiki/samplesCode#data-recorderloader) 
+   * interfaces (Kinect/Xtion, Leap, FaceLab, Fastrak Polhemus, Tobii..)
+   * depth sensor data recorder/loader
  * Modules based on yarp :
-   * [Tracking](https://github.com/GuillaumeGibert/swooz/wiki/tracking) human movements without intrusive devices : head, gaze, face, torso, arms, hands, fingers
-   * [Teleoperation](https://github.com/GuillaumeGibert/swooz/wiki/teleoperation) for iCub, NAO, 3D Avatars based on the tracking modules
-   * [Manipulation](https://github.com/GuillaumeGibert/swooz/wiki/manipulation) for manipulating tracking data and create planifications
-   * [Feedback]() for getting video, audio feedback from the robot
+   * Tracking human movements without intrusive devices : head, gaze, face, torso, arms, hands, fingers
+   * Teleoperation for iCub, NAO, 3D Avatars based on the tracking modules
+   * Manipulation for manipulating tracking data and create planifications
+   * Feedback for getting video, audio feedback from the robot
  * Avatar creation/morphing :
-   * [Creation](https://github.com/GuillaumeGibert/swooz/wiki/avatar#wiki-creation) from depths sensors devices(Kinect/Xtion) data
-   * [Morphing](https://github.com/GuillaumeGibert/swooz/wiki/avatar#wiki-morphing) for fitting references avatars meshes
-   * [Animation/Viewer]()  
+   * Creation from depths sensors devices(Kinect/Xtion) data
+   * Morphing for fitting references avatars meshes
+   * Animation/Viewer  
 
 <!---
 ![](http://uppix.net/GuA0bAs.jpg) ![](http://uppix.net/CKLxdcs.jpg) ![](http://uppix.net/r5JVoTs.jpg) ![](http://uppix.net/gkMAQWs.jpg) ![](http://uppix.net/Qyp88ds.png) ![](http://uppix.net/kgWN89s.jpg)
