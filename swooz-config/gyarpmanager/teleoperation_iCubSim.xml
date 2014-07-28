@@ -1,7 +1,7 @@
 <application>
 
-  <name>SWoOz iCub connections FaceLab teleoperation </name>
-  <description>teleoperation FaceLab iCub </description>
+  <name>SWoOz iCub simulator connections teleoperation </name>
+  <description>teleoperation iCub simulator</description>
 	
 	<module>
 		<name>simFaceExpressions</name>
@@ -40,13 +40,13 @@
         <connection>
                 <from>/tracking/leap/leapSDK/left_arm/hand_fingers</from>
                 <to>/teleoperation/icubSim/left_arm/hand_fingers</to>
-                <protocol>udp</protocol>
+                <protocol>tcp</protocol>
         </connection>
             <!---  RIGHT ARM -->
         <connection>
                 <from>/tracking/leap/leapSDK/right_arm/hand_fingers</from>
                 <to>/teleoperation/icubSim/right_arm/hand_fingers</to>
-                <protocol>udp</protocol>
+                <protocol>tcp</protocol>
         </connection>
 
 	
@@ -82,6 +82,14 @@
             <!---  HEAD -->
         <connection>
                 <from>/tracking/rgbd/emicp/head</from>
+                <to>/teleoperation/icubSim/head</to>
+                <protocol>tcp</protocol>
+        </connection>
+
+        <!---  FASTRAK -->
+            <!---  HEAD -->
+        <connection>
+                <from>/tracking/polhemus/fastrak/head</from>
                 <to>/teleoperation/icubSim/head</to>
                 <protocol>tcp</protocol>
         </connection>

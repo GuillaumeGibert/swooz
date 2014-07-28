@@ -3,70 +3,175 @@
   <name>SWoOz trackers data saver</name>
   <description>Save bottles containing SWoOz trackers data </description>
   
+ <!--- ############################### CONNECTIONS -->
+
+        <!---  FOREST -->
+            <!---  HEAD -->
 	<connection>
 		<from>/tracking/rgbd/emicp/head</from>
-		<to>/dump/swooz-emicpHeadTracking</to>
+                <to>/dump/sw-emicpHeadTracking</to>
 		<protocol>tcp</protocol>
 	</connection>	
 	
+        <!---  EMCIP -->
+            <!---  HEAD -->
 	<connection>
 		<from>/tracking/rgbd/forest/head</from>
-		<to>/dump/swooz-forestHeadTracking</to>
+                <to>/dump/sw-forestHeadTracking</to>
 		<protocol>tcp</protocol>
 	</connection>
 	
+        <!---  FASTRAK -->
+            <!---  HEAD -->
+        <connection>
+                <from>/tracking/polhemus/fastrak/head</from>
+                <to>/dum/sw-fastrakTracking</to>
+                <protocol>tcp</protocol>
+        </connection>
+
+        <!---  FACELAB -->
+            <!---  HEAD -->
 	<connection>
 		<from>/tracking/facelab/coredata/head</from>
-		<to>/dump/swooz-faceLabTracking/head</to>
+                <to>/dump/sw-faceLabTracking/head</to>
 		<protocol>tcp</protocol>
 	</connection>
-	
+            <!---  FACE -->
 	<connection>
 		<from>/tracking/facelab/coredata/face</from>
-		<to>/dump/swooz-faceLabTracking/face</to>
+                <to>/dump/sw-faceLabTracking/face</to>
 		<protocol>tcp</protocol>
 	</connection>		
-	
+            <!---  GAZE -->
 	<connection>
 		<from>/tracking/facelab/coredata/gaze</from>
-		<to>/dump/swooz-faceLabTracking/gaze</to>
+                <to>/dump/sw-faceLabTracking/gaze</to>
 		<protocol>tcp</protocol>
 	</connection>			
   
+
+        <!---  FACESHIFT -->
+            <!---  HEAD -->
+        <connection>
+                <from>/tracking/rgbd/faceshift/head</from>
+                <to>/dump/sw-faceshiftTracking/head</to>
+                <protocol>tcp</protocol>
+        </connection>
+            <!---  FACE -->
+        <connection>
+                <from>/tracking/rgbd/faceshift/face</from>
+                <to>/dump/sw-faceshiftTracking/face</to>
+                <protocol>tcp</protocol>
+        </connection>
+            <!---  GAZE -->
+        <connection>
+                <from>/tracking/rgbd/faceshift/gaze</from>
+                <to>/dump/sw-faceshiftTracking/gaze</to>
+                <protocol>tcp</protocol>
+        </connection>
+
+        <!---  LEAP -->
+            <!---  LEFT ARM -->
+        <connection>
+                <from>/tracking/leap/leapSDK/left_arm/hand_fingers</from>
+                <to>/dump/sw-leapTracking/left_arm/hand_fingers</to>
+                <protocol>tcp</protocol>
+        </connection>
+            <!---  RIGHT ARM -->
+        <connection>
+                <from>/tracking/leap/leapSDK/right_arm/hand_fingers</from>
+                <to>/dump/sw-leapTracking/right_arm/hand_fingers</to>
+                <protocol>tcp</protocol>
+        </connection>
+
+ <!--- ############################### DUMP -->
+        <!---  EMICP -->
 	<module>
 		<name>dataDumper</name>
-		<parameters>--rxTime --name /dump/swooz-emicpHeadTracking --dir /dump/swooz-emicpHeadTracking --overwrite</parameters>
+                <parameters>--rxTime --name /dump/sw-emicpHeadTracking --dir /dump/sw-emicpHeadTracking --overwrite</parameters>
 		<node>localhost</node>
 		<tag>log</tag>
 	</module>
 	
+
+<!--- C:/dump/swooz-emicpHeadTracking-japanExp  -->
+        <!---  FOREST -->
 	<module>
 		<name>dataDumper</name>
-		<parameters>--rxTime --name /dump/swooz-forestHeadTracking --dir /dump/swooz-forestHeadTracking --overwrite</parameters>
+                <parameters>--rxTime --name /dump/sw-forestHeadTracking --dir ../dump/sw-forestHeadTracking --overwrite</parameters>
 		<node>localhost</node>
 		<tag>log</tag>
 	</module> 	
+
+        <!---  FASTRAK -->
+        <module>
+                <name>dataDumper</name>
+                <parameters>--rxTime --name /dump/sw-fastrakTracking --dir /dump/sw-fastrakTracking --overwrite</parameters>
+                <node>localhost</node>
+                <tag>log</tag>
+        </module>
 	
+        <!---  FACESHIFT -->
+            <!---  HEAD -->
+        <module>
+                <name>dataDumper</name>
+                <parameters>--rxTime --name /dump/sw-faceshiftTracking/head --dir /dump/sw-faceshiftTracking/head --overwrite</parameters>
+                <node>localhost</node>
+                <tag>log</tag>
+        </module>
+            <!---  FACE -->
+        <module>
+                <name>dataDumper</name>
+                <parameters>--rxTime --name /dump/sw-faceshiftTracking/face --dir /dump/sw-faceshiftTracking/face --overwrite</parameters>
+                <node>localhost</node>
+                <tag>log</tag>
+        </module>
+            <!---  GAZE -->
+        <module>
+                <name>dataDumper</name>
+                <parameters>--rxTime --name /dump/sw-faceshiftTracking/gaze --dir /dump/sw-faceshiftTracking/gaze --overwrite</parameters>
+                <node>localhost</node>
+                <tag>log</tag>
+        </module>
+
+        <!---  FACELAB -->
+            <!---  HEAD -->
 	<module>
 		<name>dataDumper</name>
-		<parameters>--rxTime --name /dump/swooz-faceLabTracking/head --dir /dump/swooz-faceLabTracking/head --overwrite</parameters>
+                <parameters>--rxTime --name /dump/sw-faceLabTracking/head --dir /dump/sw-faceLabTracking/head --overwrite</parameters>
 		<node>localhost</node>
 		<tag>log</tag>
 	</module> 	
-	
+            <!---  FACE -->
  	<module>
 		<name>dataDumper</name>
-		<parameters>--rxTime --name /dump/swooz-faceLabTracking/face --dir /dump/swooz-faceLabTracking/face --overwrite</parameters>
+                <parameters>--rxTime --name /dump/sw-faceLabTracking/face --dir /dump/sw-faceLabTracking/face --overwrite</parameters>
 		<node>localhost</node>
 		<tag>log</tag>
 	</module> 	
-	
+            <!---  GAZE -->
 	<module>
 		<name>dataDumper</name>
-		<parameters>--rxTime --name /dump/swooz-faceLabTracking/gaze --dir /dump/swooz-faceLabTracking/gaze --overwrite</parameters>
+                <parameters>--rxTime --name /dump/sw-faceLabTracking/gaze --dir /dump/sw-faceLabTracking/gaze --overwrite</parameters>
 		<node>localhost</node>
 		<tag>log</tag>
 	</module> 	
+
+        <!---  LEAP -->
+            <!---  LEFT ARM -->
+        <module>
+                <name>dataDumper</name>
+                <parameters>--rxTime --name /dump/sw-leapTracking/left_arm/hand_fingers --dir /dump/sw-leapTracking/left_arm/hand_fingers --overwrite</parameters>
+                <node>localhost</node>
+                <tag>log</tag>
+        </module>
+            <!---  RIGHT ARM -->
+        <module>
+                <name>dataDumper</name>
+                <parameters>--rxTime --name /dump/sw-leapTracking/right_arm/hand_fingers --dir /dump/sw-leapTracking/right_arm/hand_fingers --overwrite</parameters>
+                <node>localhost</node>
+                <tag>log</tag>
+        </module>
 
 </application>
 

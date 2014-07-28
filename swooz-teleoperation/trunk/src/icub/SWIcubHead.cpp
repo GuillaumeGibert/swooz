@@ -407,7 +407,7 @@ bool swTeleop::SWIcubHead::checkBottles()
 
                         l_vHeadJoints[3] = -(l_pGazeTarget->get(1).asDouble() + l_pGazeTarget->get(3).asDouble())*0.5; // up/down eye [-35; +15]
                         l_vHeadJoints[4] = -(l_pGazeTarget->get(2).asDouble() + l_pGazeTarget->get(4).asDouble())*0.5; // version angle [-50; 52] = (L+R)/2
-                        l_vHeadJoints[5] = 0;     // vergence angle [0 90] = R-L
+                        l_vHeadJoints[5] =  -l_pGazeTarget->get(2).asDouble() + l_pGazeTarget->get(4).asDouble();     // vergence angle [0 90] = R-L
                     }
                     break;
                     case swTracking::DUMMY_LIB :
@@ -469,12 +469,57 @@ bool swTeleop::SWIcubHead::checkBottles()
                 {
                     case swTracking::FACESHIFT_LIB :
                     {
-                    std::cout << "size : " << l_pFaceTarget->size() << " | ";
-                        for(int ii = 1; ii < l_pFaceTarget->size(); ++ii)
+                    //           0 brow_left_center
+                    //           1 brow_left_inner
+                    //           2 brow_left_outer
+                    //           3 brow_right_center
+                    //           4 brow_right_inner
+                    //           5 brow_right_outer
+                    //           6 mouth_center_lower
+                    //           7 mouth_center_philtrum
+                    //           8 mouth_down_left_1
+                    //           9 mouth_down_left_2
+                    //           10 mouth_down_right_1
+                    //           11 mouth_down_right_2
+                    //           12 mouth_inner_down
+                    //           13 mouth_inner_down_left
+                    //           14 mouth_inner_down_right
+                    //           15 mouth_inner_up
+                    //           16 mouth_inner_up_left
+                    //           17 mouth_inner_up_right
+                    //           18 mouth_left_corner
+                    //           19 mouth_left_philtrum
+                    //           20 mouth_right_corner
+                    //           21 mouth_right_philtrum
+                    //           22 mouth_up_left_1
+                    //           23 mouth_up_left_2
+                    //           24 mouth_up_right_1
+                    //           25 mouth_up_right_2
+                    //           26 nose_tip
+                    //           27 chin
+
+                        std::vector<double> l_vMouthInnerUp(3,0.0);
+                        l_vMouthInnerUp[0] = l_pFaceTarget->get(46).asDouble();
+                        l_vMouthInnerUp[1] = l_pFaceTarget->get(47).asDouble();
+                        l_vMouthInnerUp[2] = l_pFaceTarget->get(48).asDouble();
+                        std::vector<double> l_vMouthInnerDown(3,0.0);
+                        l_vMouthInnerDown[0] = l_pFaceTarget->get(37).asDouble();
+                        l_vMouthInnerDown[1] = l_pFaceTarget->get(38).asDouble();
+                        l_vMouthInnerDown[2] = l_pFaceTarget->get(39).asDouble();
+
+                        double l_dLipsDistance = swUtil::norm(swUtil::vec(l_vMouthInnerUp,l_vMouthInnerDown));
+                        std::string l_sMouthCmd("M08");
+                        if(l_dLipsDistance > 0.001)
                         {
-                            std::cout << l_pFaceTarget->get(ii).asDouble() << " ";
+                            l_sMouthCmd = "M16";
                         }
 
+                        // mouth
+                            Bottle &l_oFaceMotionBottle = m_oFaceHandlerPort.prepare();
+                            l_oFaceMotionBottle.clear();
+                            l_oFaceMotionBottle.addString(l_sMouthCmd.c_str());
+                            m_oFaceHandlerPort.write();
+                            Time::delay(0.001);
                     }
                     break;
                     case swTracking::COREDATA_LIB :
@@ -815,6 +860,7 @@ void swTeleop::SWHeadVelocityController::setJoints(const yarp::sig::Vector &vJoi
 
 swTeleop::SWIcubFaceLabLEDCommand::SWIcubFaceLabLEDCommand()
 {
+    m_dThresholdMouth = 0.001;
 //    m_dLeftThresholdDown = ... ;
 //    m_dLeftThresholdNeutral= ... ;
 //    m_dLeftThresholdUp1= ... ;

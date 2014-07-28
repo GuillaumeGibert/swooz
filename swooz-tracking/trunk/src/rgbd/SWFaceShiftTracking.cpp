@@ -220,8 +220,37 @@ bool SWFaceShiftTracking::updateModule()
         l_oFaceBottle.clear();
 
             // device lib id
-            l_oFaceBottle.addInt(swTracking::FACESHIFT_LIB); // face : FACESHIT_LIB id / get(0).asInt()         
+            l_oFaceBottle.addInt(swTracking::FACESHIFT_LIB); // face : FACESHIT_LIB id / get(0).asInt()
 
+            // default faceshift markers
+//           0 brow_left_center
+//           1 brow_left_inner
+//           2 brow_left_outer
+//           3 brow_right_center
+//           4 brow_right_inner
+//           5 brow_right_outer
+//           6 mouth_center_lower
+//           7 mouth_center_philtrum
+//           8 mouth_down_left_1
+//           9 mouth_down_left_2
+//           10 mouth_down_right_1
+//           11 mouth_down_right_2
+//           12 mouth_inner_down
+//           13 mouth_inner_down_left
+//           14 mouth_inner_down_right
+//           15 mouth_inner_up
+//           16 mouth_inner_up_left
+//           17 mouth_inner_up_right
+//           18 mouth_left_corner
+//           19 mouth_left_philtrum
+//           20 mouth_right_corner
+//           21 mouth_right_philtrum
+//           22 mouth_up_left_1
+//           23 mouth_up_left_2
+//           24 mouth_up_right_1
+//           25 mouth_up_right_2
+//           26 nose_tip
+//           27 chin
             for(uint ii = 0; ii < data.m_markers.size(); ++ii)
             {
                 l_oFaceBottle.addDouble(data.m_markers[ii].x); // face : marker ii x / get(1 + x * 3).asDouble()

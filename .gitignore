@@ -8,10 +8,9 @@ releases/
 
 ################ scripts
 
-scripts/NULL
-scripts/win-init_env_command.cmd
-scripts/SW_build_order.txt
-scripts/SW_clean_order.txt
+scripts/yarp/bin/
+scripts/yarp/dump/
+scripts/icub/bin/
 
 ################ thirdParty
 
@@ -23,7 +22,6 @@ dist/
 
 # avatar
 swooz-avatar/trunk/data/
-swooz-avatar/trunk/NULL
 swooz-avatar/trunk/lib/
 swooz-avatar/trunk/bin/
 swooz-avatar/trunk/moc/
@@ -31,7 +29,6 @@ swooz-avatar/trunk/doc/
 swooz-avatar/trunk/genUI/
 # toolkit
 swooz-toolkit/trunk/data/
-swooz-toolkit/trunk/NULL
 swooz-toolkit/trunk/lib/
 swooz-toolkit/trunk/bin/
 swooz-toolkit/trunk/moc/
@@ -39,7 +36,6 @@ swooz-toolkit/trunk/doc/
 swooz-toolkit/trunk/genUI/
 # tracking
 swooz-tracking/trunk/data/
-swooz-tracking/trunk/NULL
 swooz-tracking/trunk/lib/
 swooz-tracking/trunk/bin/
 swooz-tracking/trunk/moc/
@@ -47,7 +43,6 @@ swooz-tracking/trunk/doc/
 swooz-tracking/trunk/genUI/
 # teleoperation
 swooz-teleoperation/trunk/data/
-swooz-teleoperation/trunk/NULL
 swooz-teleoperation/trunk/lib/
 swooz-teleoperation/trunk/bin/
 swooz-teleoperation/trunk/moc/
@@ -55,7 +50,6 @@ swooz-teleoperation/trunk/doc/
 swooz-teleoperation/trunk/genUI/
 # manipulation
 swooz-manipulation/trunk/data/
-swooz-manipulation/trunk/NULL
 swooz-manipulation/trunk/lib/
 swooz-manipulation/trunk/bin/
 swooz-manipulation/trunk/moc/
@@ -63,7 +57,6 @@ swooz-manipulation/trunk/doc/
 swooz-manipulation/trunk/genUI/
 # viewer
 swooz-viewer/trunk/data/
-swooz-viewer/trunk/NULL
 swooz-viewer/trunk/lib/
 swooz-viewer/trunk/bin/
 swooz-viewer/trunk/moc/
@@ -71,12 +64,10 @@ swooz-viewer/trunk/doc/
 swooz-viewer/trunk/genUI/
 # examples
 swooz-examples/trunk/data/
-swooz-examples/trunk/NULL
 swooz-examples/trunk/lib/
 swooz-examples/trunk/bin/
 # feedback
 swooz-feedback/trunk/data/
-swooz-feedback/trunk/NULL
 swooz-feedback/trunk/lib/
 swooz-feedback/trunk/bin/
 swooz-feedback/trunk/moc/
