@@ -96,42 +96,42 @@ THIRD_PARTY_ACE         = $(THIRD_PARTY_ACE_64)
 
 ############################ INCLUDES
 
-INC_TRACKING	= -I.\include
+INC_TRACKING	= -I./include
 
-INC_OTHERS	= -I$(SW_DIST)\include
+INC_OTHERS	= -I"$(SW_DIST)/include"
 
 INC_VS		= -I"$(PROGRAMFILES)/Microsoft SDKs/Windows/v7.0A/Include"\ -I"$(VS100COMNTOOLS)/../../VC/include"\
 
-INC_OPENCV      = -I"$(THIRD_PARTY_OPENCV)"\modules/core/include -I"$(THIRD_PARTY_OPENCV)"\modules/imgproc/include\
-                 -I"$(THIRD_PARTY_OPENCV)"\modules/objdetect/include -I"$(THIRD_PARTY_OPENCV)"\modules/features2d/include\
-                 -I"$(THIRD_PARTY_OPENCV)"\modules/features2d/include -I"$(THIRD_PARTY_OPENCV)"\modules/flann/include\
-                 -I"$(THIRD_PARTY_OPENCV)"\modules/highgui/include -I"$(THIRD_PARTY_OPENCV)"\modules/video/include\
+INC_OPENCV      = -I"$(THIRD_PARTY_OPENCV)/modules/core/include" -I"$(THIRD_PARTY_OPENCV)/modules/imgproc/include"\
+                 -I"$(THIRD_PARTY_OPENCV)/modules/objdetect/include" -I"$(THIRD_PARTY_OPENCV)/modules/features2d/include"\
+                 -I"$(THIRD_PARTY_OPENCV)/modules/features2d/include" -I"$(THIRD_PARTY_OPENCV)/modules/flann/include"\
+                 -I"$(THIRD_PARTY_OPENCV)/modules/highgui/include" -I"$(THIRD_PARTY_OPENCV)/modules/video/include"\
 
-INC_OPENNI	= -I"$(THIRD_PARTY_OPENNI)"\Include
+INC_OPENNI	= -I"$(THIRD_PARTY_OPENNI)/Include"\
 
-INC_OPENNI2	= -I"$(THIRD_PARTY_OPENNI2)"\Include
+INC_OPENNI2	= -I"$(THIRD_PARTY_OPENNI2)/Include"\
 
-INC_FREEGLUT    = -I"$(THIRD_PARTY_FREEGLUT)"\include
+INC_FREEGLUT    = -I"$(THIRD_PARTY_FREEGLUT)/include"\
 
-INC_YARP	= -I"$(THIRD_PARTY_YARP)"\include
+INC_TOBII       = -I"$(THIRD_PARTY_TOBII)/win32/includes"\
 
-INC_FACELAB     = -I$(THIRD_PARTY_FACELAB)/coredata/include\
+INC_YARP	= -I"$(THIRD_PARTY_YARP)/include"\
 
-INC_BOOST	= -I"$(THIRD_PARTY_BOOST)"/include\
+INC_FACELAB     = -I"$(THIRD_PARTY_FACELAB)/coredata/include"\
 
-INC_CUDA	= -I./include/emicp -I"$(THIRD_PARTY_CUDA)"/include -I"$(THIRD_PARTY_CAPLACK)"/include\
+INC_BOOST	= -I"$(THIRD_PARTY_BOOST)/include"\
 
-INC_GSL 	= -I"$(THIRD_PARTY_GSL)"/gsl -I"$(THIRD_PARTY_GSL)"\
+INC_CUDA	= -I./include/emicp -I"$(THIRD_PARTY_CUDA)/include" -I"$(THIRD_PARTY_CAPLACK)/include"\
+
+INC_GSL 	= -I"$(THIRD_PARTY_GSL)/gsl" -I"$(THIRD_PARTY_GSL)"\
 
 INC_MOC		= -I$(MOCDIR)\
 
-INC_QT		= -I"$(THIRD_PARTY_QT)"/include/QtOpenGL -I"$(THIRD_PARTY_QT)"/include/QtGui -I"$(THIRD_PARTY_QT)"/include/QtCore -I"$(THIRD_PARTY_QT)"/include/Qt -I"$(THIRD_PARTY_QT)"/include\
+INC_QT		= -I"$(THIRD_PARTY_QT)/include/QtOpenGL" -I"$(THIRD_PARTY_QT)/include/QtGui" -I"$(THIRD_PARTY_QT)/include/QtCore" -I"$(THIRD_PARTY_QT)/include/Qt" -I"$(THIRD_PARTY_QT)/include"\
 
-INC_HANDTRACKER = -I"$(THIRD_PARTY_HANDTRACKER)"/Include\
+INC_LEAP 	= -I"$(THIRD_PARTY_LEAP)/include"\
 
-INC_LEAP 	= -I"$(THIRD_PARTY_LEAP)"\include\
-
-INC_POLHEMUS	= -I"$(THIRD_PARTY_POLHEMUS)"/Include
+INC_POLHEMUS	= -I"$(THIRD_PARTY_POLHEMUS)/Include"\
 
 ############################ DEPENDENCIES
 
@@ -154,6 +154,8 @@ SW_FAKETRACKING         = $(COMMON) $(INC_YARP) $(INC_BOOST)
 SW_LEAPTRACKING		= $(COMMON) $(INC_YARP) $(INC_LEAP) $(INC_BOOST)
 
 SW_FASTRAKTRACKING	= $(COMMON) $(INC_POLHEMUS) $(INC_YARP) $(INC_BOOST)
+
+SW_TOBIITRACKING        = $(COMMON) $(INC_TOBII) $(INC_YARP) $(INC_BOOST)
 
 ############################ COMMON DEBUG/RELEASE LIBS
 
@@ -192,7 +194,6 @@ LIBS_YARP       = $(THIRD_PARTY_YARP)/lib/YARP_OS.lib\
                   $(THIRD_PARTY_YARP)/lib/YARP_dev.lib\
                   $(THIRD_PARTY_YARP)/lib/YARP_math.lib\
 
-
 LIBS_FACELAB    = $(THIRD_PARTY_FACELAB)/coredata/libshared/win32_ia32sse2_vc90/sm_cd_coredata_3.2.lib $(THIRD_PARTY_FACELAB)/coredata/thirdparty/zlib1.2.3/win_ia32_vc90/libshared/zlib1.lib\
                   $(THIRD_PARTY_FACELAB)/coredata/thirdparty/libvpx0.9.5\libstatic\win_ia32_vc90\vpxmt.lib\
 
@@ -212,9 +213,9 @@ LIBS_CLA	= $(THIRD_PARTY_CLAPACK)/lib/lapack.lib $(THIRD_PARTY_CLAPACK)/lib/blas
 
 LIBS_QT 	= $(THIRD_PARTY_QT)/lib/QtOpenGL4.lib $(THIRD_PARTY_QT)/lib/QtCore4.lib $(THIRD_PARTY_QT)/lib/QtGui4.lib $(THIRD_PARTY_QT)/lib/qtmain.lib\
 
-LIBS_HANDTRACKER= $(THIRD_PARTY_HANDTRACKER)/lib/HandTrackerLib.lib
+LIBS_FASTRAK	= $(THIRD_PARTY_POLHEMUS)/lib/Win32/PDI.lib\
 
-LIBS_FASTRAK	= $(THIRD_PARTY_POLHEMUS)/lib/Win32/PDI.lib
+LIBS_TOBII      = $(THIRD_PARTY_TOBII)/win32/binaries/tobiisdk.lib\
 
 LIBS_SW         = $(DIST_LIBDIR)/SWToolkit_d.lib $(DIST_LIBDIR)/SWAvatar_d.lib $(DIST_LIBDIR)/SWAvatarCuda_d.lib\
 
@@ -235,6 +236,8 @@ LIBS_FAKE_TRACK      = $(LIBS_COMMON) $(LIBS_YARP) $(LIBS_ACE) $(LIBS_BOOST_D)
 LIBS_LEAP_TRACK      = $(LIBS_COMMON) $(LIBS_LEAP) $(LIBS_ACE) $(LIBS_YARP) $(LIBS_BOOST_D)
 
 LIBS_FASTRAK_TRACK   = $(LIBS_COMMON) $(DIST_LIBDIR)/SWToolkit_d.lib $(LIBS_FASTRAK) $(LIBS_YARP) $(LIBS_BOOST_D) $(LIBS_ACE) $(LIBS_GSL)
+
+LIBS_TOBII_TRACK     = $(LIBS_COMMON) $(DIST_LIBDIR)/SWToolkit_d.lib $(LIBS_TOBII) $(LIBS_ACE) $(LIBS_YARP) $(LIBS_BOOST_D)
 
 !ENDIF
 

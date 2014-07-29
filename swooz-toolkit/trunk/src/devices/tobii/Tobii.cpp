@@ -13,19 +13,19 @@ using namespace std;
 using namespace TobiiTracker;
 
 
-CTobii::CTobii(char* model):
-m_oMainloop(), m_oBrowser(m_oMainloop)
+
+CTobii::CTobii(char* model):m_oMainloop(), m_oBrowser(m_oMainloop)
 {
 	m_sProdId = model;
 	m_lLastUpdate = -1;
 }
 	
-
 bool CTobii::init()
 {
 	m_pEyetracker = findEyetracker();
 	m_pEyetracker->add_gaze_data_received_listener(boost::bind(&CTobii::receiveGaze, this, _1));
 	m_pEyetracker->start_tracking();
+
 	return true;
 }
 	

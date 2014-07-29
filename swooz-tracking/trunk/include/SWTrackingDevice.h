@@ -11,11 +11,12 @@
 
 #include <string>
 
+
 namespace swTracking
 {
     enum DeviceLib
     {
-        FOREST_LIB,EMICP_LIB,COREDATA_LIB,FASTRAK_LIB,STASM_LIB,FORTH_LIB,TOBII_LIB,FACESHIFT_LIB,OPENNI_LIB,LEAP_LIB,DUMMY_LIB,
+        FOREST_LIB,EMICP_LIB,COREDATA_LIB,FASTRAK_LIB,STASM_LIB,TOBII_LIB,FACESHIFT_LIB,OPENNI_LIB,LEAP_LIB,DUMMY_LIB,
         RankFirst = FOREST_LIB, RankLast = DUMMY_LIB
     };
 
@@ -44,9 +45,6 @@ namespace swTracking
             break;
             case swTracking::STASM_LIB :
                 l_sLIB = "STASM_LIB";
-            break;
-            case swTracking::FORTH_LIB :
-                l_sLIB = "FORTH_LIB";
             break;
             case swTracking::TOBII_LIB :
                 l_sLIB = "TOBII_LIB";

@@ -28,6 +28,10 @@
 
 namespace ts = tobii::sdk::cpp;
 
+//#ifndef DllExport
+//#define DllExport   __declspec( dllexport )
+//#endif
+
 namespace TobiiTracker
 {
 

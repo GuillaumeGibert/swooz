@@ -1,7 +1,7 @@
 
 /**
- * \file SWFaceLabTracking.cpp
- * \brief Defines SWFaceLabTracking class
+ * \file SWLeapTracking.cpp
+ * \brief Defines SWLeapTracking class
  * \author Florian Lance
  * \date 29/11/13
  */
@@ -16,7 +16,6 @@ using namespace yarp::dev;
 using namespace yarp::sig;
 using namespace swExcept;
 using namespace Leap;
-
 
 
 

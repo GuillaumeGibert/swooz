@@ -1,8 +1,8 @@
 
 /**
  * \file SWLeapTracking.h
- * \brief Defines SWFaceLabTracking class
- * \author Gabriel MEYNET
+ * \brief Defines SWLeapTracking class
+ * \author Gabriel MEYNET, Florian LANCE
  * \date 03/04/14
  */
 
@@ -27,7 +27,7 @@
 
 /**
  * \class SWLeapTracking
- * \brief This module sends lead data...
+ * \brief This module sends leap data...
  *
  * Bottles contents :
  *

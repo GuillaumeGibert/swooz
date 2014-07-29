@@ -55,28 +55,29 @@ sub buildOrder {
 
 # executables scripts to be generated for each project
 my @ExecScriptParams = (# toolkit
-                        "sw-toolkit_kinectOnDimenco",        "x86",  "SWDisplayKinectOnDimenco.exe",
+                        "sw-toolkit_kinectOnDimenco",           "x86",  "SWDisplayKinectOnDimenco.exe",
                         # avatar
-                        "sw-createAvatar",                   "x86",  "SWCreateAvatar.exe",
-                        "sw-morphing",                       "x86",  "SWMorphing.exe",
-                        "sw-morphing-x64",                   "amd64","SWMorphing-x64.exe",
+                        "sw-createAvatar",                      "x86",  "SWCreateAvatar.exe",
+                        "sw-morphing",                          "x86",  "SWMorphing.exe",
+                        "sw-morphing-x64",                      "amd64","SWMorphing-x64.exe",
                         # tracking
-                        "sw-headForestTracking",             "x86",  "SWTrackingHeadForest.exe ../data/ini/headForestConfig.ini",
-                        "sw-faceLabTracking",                "x86",  "SWFaceLabTracking.exe config.txt",
-                        "sw-faceshiftTracking",              "x86",  "SWFaceShiftTracking.exe",
-                        "sw-headEmicpTracking",              "x86",  "SWEmicpHeadTracking.exe",
-                        "sw-openNITracking",                 "x86",  "SWOpenNITracking.exe config.txt",
-                        "sw-fakeTracking",                   "x86",  "SWFakeTracking.exe",  ## %PARAMS_EXEC%
-                        "sw-leapTracking",                   "x86",  "SWLeapTracking.exe",
-                        "sw-fastrakTracking",                "x86",  "SWFastrakTracking.exe",
+                        "sw-headForestTracking",                "x86",  "SWTrackingHeadForest.exe ../data/ini/headForestConfig.ini",
+                        "sw-faceLabTracking",                   "x86",  "SWFaceLabTracking.exe config.txt",
+                        "sw-faceshiftTracking",                 "x86",  "SWFaceShiftTracking.exe",
+                        "sw-headEmicpTracking",                 "x86",  "SWEmicpHeadTracking.exe",
+                        "sw-openNITracking",                    "x86",  "SWOpenNITracking.exe config.txt",
+                        "sw-fakeTracking",                      "x86",  "SWFakeTracking.exe",  ## %PARAMS_EXEC%
+                        "sw-leapTracking",                      "x86",  "SWLeapTracking.exe",
+                        "sw-fastrakTracking",                   "x86",  "SWFastrakTracking.exe",
+                        "sw-tobiiTracking",                     "x86",  "SWTobiiTracking.exe",
                         # teleoperation
-                        "sw-teleoperation_iCub",             "x86",  "SWTeleoperation_iCub.exe",
-                        "sw-teleoperation_nao",              "x86",  "SWTeleoperation_nao.exe",
+                        "sw-teleoperation_iCub",                "x86",  "SWTeleoperation_iCub.exe",
+                        "sw-teleoperation_nao",                 "x86",  "SWTeleoperation_nao.exe",
                         # manipulation
-                        "sw-manipulation",                   "x86",  "SWManipulation.exe",
+                        "sw-manipulation",                      "x86",  "SWManipulation.exe",
                         # viewer
-                        "sw-viewer",                         "x86",  "SWViewer.exe",
-                        "sw-viewer-x64",                     "amd64","SWViewer-x64.exe",
+                        "sw-viewer",                            "x86",  "SWViewer.exe",
+                        "sw-viewer-x64",                        "amd64","SWViewer-x64.exe",
                         # examples
                         "examples/display_kinect",              "x86",  "kinect_display.exe",
                         "examples/display_kinect_thread",       "x86",  "kinect_thread_display.exe",
@@ -85,7 +86,7 @@ my @ExecScriptParams = (# toolkit
                         "examples/detect_face_stasm",           "x86",  "detect_face_stasm.exe",
                         "examples/display_leap",                "x86",  "display_leap.exe",
                         # feeback
-                        "sw-feedback",                       "x86",  "SWHeadMountedDisplay.exe"
+                        "sw-feedback",                          "x86",  "SWHeadMountedDisplay.exe"
 );
 
 sub executablesNumber {
