@@ -31,7 +31,7 @@ class SWSonyHMZT3W
         /**
          * @brief SWSonyHMZT3W
          */
-        SWSonyHMZT3W(){}
+        SWSonyHMZT3W(){m_fullScreen = false; m_eyeToDisplay = 0;}
 
         /**
          * @brief open
@@ -50,7 +50,7 @@ class SWSonyHMZT3W
         /**
          * @brief loop
          */
-		void loop(); 
+        bool loop();
 
         /**
          * @brief interrupt
@@ -61,13 +61,17 @@ class SWSonyHMZT3W
     private :
 
         // display infos
-        bool left_rightImg;         /**< ... */
-        int displayImgWidth;        /**< ... */
-        int displayImgHeight;       /**< ... */
+        bool m_leftRightImg;        /**< ... */
+        bool m_fullScreen;          /**< is fullscreen display ? */
+        int m_displayImgWidth;      /**< width image display */
+        int m_displayImgHeight;     /**< height image display */
+        int m_eyeToDisplay;         /**< eyes to diplay : 0 -> the both alternately, 1 -> left, 2 -> right */
+
+        cv::Mat m_diplayImage;
 
 
-        yarp::os::BufferedPort<yarp::sig::ImageOf<yarp::sig::PixelRgb> > leftEyeImagePort;  // make a port for reading images
-        yarp::os::BufferedPort<yarp::sig::ImageOf<yarp::sig::PixelRgb> > rightEyeImagePort;
+        yarp::os::BufferedPort<yarp::sig::ImageOf<yarp::sig::PixelRgb> > m_leftEyeImagePort;  // make a port for reading left eye images
+        yarp::os::BufferedPort<yarp::sig::ImageOf<yarp::sig::PixelRgb> > m_rightEyeImagePort; // make a port for reading right eye images
 };
 
    

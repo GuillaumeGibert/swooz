@@ -17,6 +17,8 @@ $ENV{PATH} = $PThird_party . "opencv/opencv-2.49/build/bin/Release;" . $ENV{PATH
 $ENV{PATH} = $PThird_party . "openni/openni-1.5.4.0/Lib;" . $ENV{PATH};
 $ENV{PATH} = $CurrentDirectory . "/../icub/bin;" . $ENV{PATH};
 
+$ENV{YARP_DATA_DIRS} ="";
+$ENV{YARP_DIR} ="";
 
 chdir "bin";
 system("gyarpmanager.exe");

@@ -39,9 +39,6 @@ OBJ_TRACKING_EMCIP=\
         $(DIST_LIBDIR)/SWGLCloudWidget_d.obj $(DIST_LIBDIR)/SWGLWidget_d.obj $(DIST_LIBDIR)/SWQtCamera_d.obj\
         $(LIBDIR)/SWEmicpHeadTracking_d.obj\
 
-OBJ_TRACKING_FORTH=\
-        $(LIBDIR)/SWForthTracking.obj
-
 OBJ_TRACKING_FAKE=\
         $(LIBDIR)/SWFakeTracking_d.obj\
 
@@ -67,7 +64,6 @@ trackingFaceLab    : $(BINDIR)/SWFaceLabTracking.exe
 trackingFaceShift  : $(BINDIR)/SWFaceShiftTracking.exe
 trackingHeadEmicp  :
 trackingOpenNI     : $(BINDIR)/SWOpenNITracking.exe
-trackingForth      : $(BINDIR)/SWForthTracking.exe
 trackingFake       : $(BINDIR)/SWFakeTracking.exe
 trackingLeap	   : $(BINDIR)/SWLeapTracking.exe
 trackingFastrak    : $(BINDIR)/SWFastrakTracking.exe
@@ -99,9 +95,6 @@ $(BINDIR)/SWEmicpHeadTracking.exe: $(OBJ_TRACKING_EMCIP) $(LIBS_EMICP_TRACK)
 $(BINDIR)/SWOpenNITracking.exe: $(OBJ_TRACKING_OPENNI) $(LIBS_OPENNI_TRACK)
         $(LINK) /OUT:$(BINDIR)/SWOpenNITracking.exe $(LFLAGS) $(OBJ_TRACKING_OPENNI) $(LIBS_OPENNI_TRACK) $(WIN_CONFIG)
 
-$(BINDIR)/SWForthTracking.exe: $(OBJ_TRACKING_FORTH) $(LIBS_FORTH_TRACK)
-        $(LINK) /OUT:$(BINDIR)/SWForthTracking.exe $(LFLAGS) $(OBJ_TRACKING_FORTH) $(LIBS_FORTH_TRACK) $(WIN_CONFIG)
-
 $(BINDIR)/SWFakeTracking.exe: $(OBJ_TRACKING_FAKE) $(LIBS_FAKE_TRACK)
         $(LINK) /OUT:$(BINDIR)/SWFakeTracking.exe $(LFLAGS) $(OBJ_TRACKING_FAKE) $(LIBS_FAKE_TRACK) $(WIN_CONFIG)
 
@@ -115,11 +108,6 @@ $(BINDIR)/SWFastrakTracking.exe: $(OBJ_TRACKING_FASTRAK) $(LIBS_FASTRAK_TRACK)
 
 $(LIBDIR)/SWOpenNITracking.obj: ./src/rgbd/SWOpenNITracking.cpp
         $(CC) -c ./src/rgbd/SWOpenNITracking.cpp $(CFLAGS_DYN) $(SW_OPENNITRACKING) -Fo"$(LIBDIR)/"
-
-############################################################################## FORTH TRACKING OBJ
-
-$(LIBDIR)/SWForthTracking.obj: ./src/rgbd/SWForthTracking.cpp
-        $(CC) -c ./src/rgbd/SWForthTracking.cpp $(CFLAGS_DYN) $(SW_FORTHTRACKING) -Fo"$(LIBDIR)/"
 
 ############################################################################## FOREST TRACKING OBJ
 

@@ -17,48 +17,62 @@ using namespace yarp::os;
 
 class SWHeadMountedDisplay: public RFModule
 {
-	SWSonyHMZT3W hmd;
-	int m_i32Fps;
+    private :
 
-	public:
+        bool m_startLoop;
+        int m_i32Fps;
 
-	bool configure(ResourceFinder &rf)
-	{
-		// gets the module name which will form the stem of all module port names
-		std::string l_sModuleName   = rf.check("name", Value("feedback_hmd_iCub"), "Feedback/HMD-iCub Module name (string)").asString();
-		setName(l_sModuleName.c_str());
-		
-		int displayImgWidth   	= rf.check("displayImgWidth",     	 Value(1280),  "Width of the display (int)").asInt();
-		int displayImgHeight	= rf.check("displayImgHeight", 	 Value(720),  "Height of the display (int)").asInt();
-		m_i32Fps            	= rf.check("fps",                  	 Value(50),  "Frame per second (int)").asInt();
-		
-		return hmd.open(displayImgWidth, displayImgHeight);
-	}
+        SWSonyHMZT3W m_hmd;
 
-	double getPeriod()
-	{
-		return 1.0f/m_i32Fps;
-	}
 
-	bool updateModule()
-	{ 
-		hmd.loop();
-		return true; 
-	}
+    public:
 
-	bool interruptModule()
-	{
-		fprintf(stderr, "Interrupting\n");
-		hmd.interrupt();
-		return true;
-	}
+        SWHeadMountedDisplay(){m_startLoop = false;}
 
-	bool close()
-	{
-		fprintf(stderr, "Calling close\n");
-		hmd.close();
-		return true;
-	}
+        bool configure(ResourceFinder &rf)
+        {
+            // gets the module name which will form the stem of all module port names
+            std::string l_sModuleName   = rf.check("name", Value("feedback_hmd_iCub"), "Feedback/HMD-iCub Module name (string)").asString();
+            setName(l_sModuleName.c_str());
+
+            int displayImgWidth   	= rf.check("displayImgWidth",     	 Value(1280),  "Width of the display (int)").asInt();
+            int displayImgHeight	= rf.check("displayImgHeight", 	 Value(720),  "Height of the display (int)").asInt();
+            m_i32Fps            	= rf.check("fps",                  	 Value(50),  "Frame per second (int)").asInt();
+
+            m_startLoop = m_hmd.open(displayImgWidth, displayImgHeight);
+            return m_startLoop;
+        }
+
+        double getPeriod()
+        {
+            return 1.0f/m_i32Fps;
+        }
+
+        bool updateModule()
+        {
+            if(m_startLoop)
+            {
+                return m_hmd.loop();
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        bool interruptModule()
+        {
+            fprintf(stderr, "Interrupting\n");
+            m_hmd.interrupt();
+            return true;
+        }
+
+        bool close()
+        {
+            fprintf(stderr, "Calling close\n");
+            m_hmd.close();
+            return true;
+        }
 };
 
 int main(int argc, char *argv[]) 
@@ -78,6 +92,13 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "> Error configuring module SWHeadMountedDisplay returning\n");
 		return -1;
 	}
+
+
+    printf("##################### \n\n");
+    printf("Press 'f' to enable/disable fullscreen. \n");
+    printf("Press 'e' to change eyes display mode (both eyes -> left eye -> right eye -> both eyes). \n");
+    printf("Press 'q' to leave. \n");
+    printf("\n#####################");
 
 
 	module.runModule();

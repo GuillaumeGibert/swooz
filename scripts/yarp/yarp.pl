@@ -20,6 +20,8 @@ while($ii < @ARGV)
 }
 
 $ENV{PATH} ="";
+$ENV{YARP_DATA_DIRS} ="";
+$ENV{YARP_DIR} ="";
 
 $ENV{PATH} = $PThird_party . "ace/ace-6.1.0/bin;" . $ENV{PATH};
 
