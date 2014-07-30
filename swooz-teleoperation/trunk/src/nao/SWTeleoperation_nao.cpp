@@ -363,6 +363,17 @@ bool SWTeleoperation_nao::close()
 bool SWTeleoperation_nao::updateModule()
 {
 
+//    RShoulderPitch 	Right shoulder joint front and back (Y) 	-119.5 to 119.5 	-2.0857 to 2.0857
+//    RShoulderRoll 	Right shoulder joint right and left (Z) 	-76 to 18 	-1.3265 to 0.3142
+//    RElbowYaw 	Right shoulder joint twist (X) 	-119.5 to 119.5 	-2.0857 to 2.0857
+//    RElbowRoll 	Right elbow joint (Z) 	2 to 88.5 	0.0349 to 1.5446
+//    RWristYaw 	Right wrist joint (X) 	-104.5 to 104.5 	-1.8238 to 1.8238
+//    RHand 	Right hand 	Open and Close 	Open and Close
+
+//    AL::ALValue namesRightArm  = AL::ALValue::array("RElbowRoll");
+//    AL::ALValue anglesRightArm = AL::ALValue::array(0.3f, -0.3f);
+
+
     Bottle *l_pHeadTarget = NULL, *l_pTorsoTarget = NULL, *l_pLeftArmTarget = NULL, *l_pRightArmTarget = NULL, *l_pFaceTarget = NULL;
 
     bool l_bHeadCapture = false, l_bTorsoCapture = false, l_bLeftArmCapture = false, l_bRightArmCapture = false, l_bFaceCapture = false;
@@ -532,6 +543,49 @@ bool SWTeleoperation_nao::updateModule()
 
             switch(l_deviceId)
             {
+                case swTracking::LEAP_LIB :
+                {
+                    // retrieve leap data
+                    std::vector<double> l_vArmDirection(3,0.), l_vHandDirection(3,0.),l_vHandDirectionE(3,0.), l_vHandPalmCoord(3,0.), l_vHandPalmNormal(3,0.), l_vHandPalmNormalE(3,0.);
+                    for(int ii = 0; ii < 3; ++ii)
+                    {
+                        l_vArmDirection[ii]     = l_pRightArmTarget->get(1 + ii).asDouble();
+                        l_vHandDirection[ii]    = l_pRightArmTarget->get(4 + ii).asDouble();
+                        l_vHandDirectionE[ii]   = l_pRightArmTarget->get(7 + ii).asDouble();
+                        l_vHandPalmCoord[ii]    = l_pRightArmTarget->get(10 + ii).asDouble();
+                        l_vHandPalmNormal[ii]   = l_pRightArmTarget->get(13 + ii).asDouble();
+                        l_vHandPalmNormalE[ii]  = l_pRightArmTarget->get(16 + ii).asDouble();
+                    }
+
+                    // convert to vec3D
+                        cv::Vec3d l_vecHandPalmNormal(l_vHandPalmNormal[0], l_vHandPalmNormal[1], l_vHandPalmNormal[2]);
+                        cv::Vec3d l_vecHandPalmCoord(l_vHandPalmCoord[0], l_vHandPalmCoord[1], l_vHandPalmCoord[2]);
+                        cv::Vec3d l_vecHandDirection(l_vHandDirection[0], l_vHandDirection[1], l_vHandDirection[2]);
+                        cv::Vec3d l_vecArmDirection(l_vArmDirection[0], l_vArmDirection[1], l_vArmDirection[2]);
+
+                    // normalize vectors
+                        l_vecHandPalmNormal = cv::normalize(l_vecHandPalmNormal);
+                        l_vecArmDirection   = cv::normalize(l_vecArmDirection);
+                        l_vecHandDirection  = cv::normalize(l_vecHandDirection);
+
+                    // convert to mat
+                        cv::Mat l_matHandDirection(l_vecHandDirection);
+                        cv::Mat l_matHandPalmNormal(l_vecHandPalmNormal);
+                        cv::Mat l_matArmDirection(l_vecArmDirection);
+
+                    // compute angle for wrist yaw
+                        double l_dot  = l_vecArmDirection.dot(cv::Vec3d(1.0,0.0,0.0,));
+                        double l_angle = swUtil::rad2Deg(acos(l_dot));
+                        m_aRArmAngles[3] = l_angle - 90.0; // LElbowRoll
+
+                    //LElbowRoll 	Left elbow joint (Z) 	-88.5 to -2 	-1.5446 to -0.0349
+                    // direction arm / angle par rapport à axe x
+
+                    // LElbowRoll 3 ?
+
+
+                }
+                break;
                 case swTracking::OPENNI_LIB :
                 {
                     std::vector<double> l_pointTorso(3), l_pointNeck(3), l_pointLShoulder(3), l_pointLElbow(3), l_pointLHand(3), l_rpyRShoulder(3), l_rpyRElbow(3);
@@ -658,7 +712,7 @@ bool SWTeleoperation_nao::updateModule()
     }
 
     if (l_bRightArmCapture)
-    {
+    {       
         m_oRobotMotionProxy->setAngles(AL::ALValue("RArm"), m_aRArmAngles, static_cast<float>(m_dJointVelocityValue));
     }
 
