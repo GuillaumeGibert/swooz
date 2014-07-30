@@ -119,6 +119,21 @@ class SWTeleoperation_nao : public RFModule
 
     private:
 
+        bool m_bHeadActivatedDefault;
+        bool m_bTorsoActivatedDefault;
+        bool m_bLEDSActivatedDefault;
+        bool m_bLeftArmActivatedDefault;
+        bool m_bRightArmActivatedDefault;
+
+        bool m_bHeadActivated;
+        bool m_bTorsoActivated;
+        bool m_bLEDSActivated;
+        bool m_bLeftArmActivated;
+        bool m_bRightArmActivated;
+
+        int m_startPosture;
+        int m_endPosture;
+
         std::vector<double> m_vHeadMinJointDefault;         /**< ... */
         std::vector<double> m_vHeadMaxJointDefault;         /**< ... */
         std::vector<double> m_vLeftArmMinJointDefault;      /**< ... */
@@ -136,10 +151,10 @@ class SWTeleoperation_nao : public RFModule
         double m_dTorsoMinValueJoint;   /**< ... */
         double m_dTorsoMaxValueJoint;   /**< ... */
 
-        int m_i32Fps;                           /**< fps (define the period for calling updateModule) */
-        int m_i32HeadTimeLastBottle;            /**< time elapsed without head bottle command */
-        int m_i32HeadTimeoutReset;              /**< head timeout reset nao */
-        double m_dJointVelocityValue;            /**< ano velocity value */
+        int m_i32Fps;                 /**< fps (define the period for calling updateModule) */
+        int m_i32HeadTimeLastBottle;  /**< time elapsed without head bottle command */
+        int m_i32HeadTimeoutReset;    /**< head timeout reset nao */
+        double m_dJointVelocityValue; /**< ano velocity value */
 
         // Array for nao's joints
         AL::ALValue m_aHeadAngles;
@@ -149,84 +164,16 @@ class SWTeleoperation_nao : public RFModule
         AL::ALValue m_aLLegAngles;
         AL::ALValue m_aRLegAngles;
 
+        std::string m_sModuleName;      /**< name of the mondule (config) */
+        std::string m_sRobotAddress;    /**< name of the robot (config) */
 
-
-
-
-        // ############
-        std::vector<float> m_vRightLegJointMin;
-        std::vector<float> m_vRightLegJointMax;
-
-        std::vector<float> m_vLeftLegJointMin;
-        std::vector<float> m_vLeftLegJointMax;
-
-        // ############
-
-        // Config variables retrieved from the ini file
-        std::string m_sModuleName;              /**< name of the mondule (config) */
-        std::string m_sRobotAddress;               /**< name of the robot (config) */
-
-        std::string m_sHeadTrackerPortName;     /**< name of the head tracker port */
-        std::string m_sHeadLocalPortName;       /**< name of the head local port */
-        std::string m_sHeadRemotePortName;      /**< name of the head remote port */
-        std::string m_sHeadControlName;         /**< control name */
         yarp::os::BufferedPort<yarp::os::Bottle> m_oHeadTrackerPort; /**< head yarp tracker port  */
-        bool m_bHeadCapture;
-
-        std::string m_sTorsoTrackerPortName;     /**< name of the torso tracker port */
-        std::string m_sTorsoLocalPortName;       /**< name of the torso local port */
-        std::string m_sTorsoRemotePortName;      /**< name of the torso remote port */
-        std::string m_sTorsoControlName;         /**< control name */
         yarp::os::BufferedPort<yarp::os::Bottle> m_oTorsoTrackerPort; /**< torso yarp tracker port  */
-        bool m_bTorsoCapture;
-
-        std::string m_sFaceTrackerPortName;     /**< name of the Face tracker port */
-        std::string m_sFaceLocalPortName;       /**< name of the Face local port */
-        std::string m_sFaceRemotePortName;      /**< name of the Face remote port */
-        std::string m_sFaceControlName;         /**< control name */
         yarp::os::BufferedPort<yarp::os::Bottle> m_oFaceTrackerPort; /**< Face yarp tracker port */
-
-        std::string m_sEyelidInputPortName;     /**< name of the eyelid input port */
-        std::string m_sEyelidOutputPortName;    /**< name of the eyelid output port */
-        yarp::os::BufferedPort<yarp::os::Bottle> m_oFaceHandlerPort; /**< Face handler port */
-
-        std::string m_sGazeTrackerPortName;     /**< name of the Gaze tracker port */
-        std::string m_sGazeLocalPortName;       /**< name of the Gaze local port */
-        std::string m_sGazeRemotePortName;      /**< name of the Gaze remote port */
-        std::string m_sGazeControlName;         /**< Gaze control name */
-        yarp::os::BufferedPort<yarp::os::Bottle> m_oGazeTrackerPort; /**< gaze yarp tracker port  */
-
-        std::string m_sLeftArmTrackerPortName;     /**< name of the Left Arm arm tracker port */
-        std::string m_sLeftHandTrackerPortName;     /**< name of the Left Arm hand tracker port */
-        std::string m_sLeftFingersTrackerPortName; /**< name of the Left Arm fingers tracker port */
-        std::string m_sLeftArmControlName;         /**< Left Arm hand control name */
-        std::string m_sLeftFingersControlName;     /**< Left Arm fingers control name */
         yarp::os::BufferedPort<yarp::os::Bottle> m_oLeftArmTrackerPort; /**< Left Arm yarp tracker port  */
-        yarp::os::BufferedPort<yarp::os::Bottle> m_oLeftHandTrackerPort; /**< Left Hand yarp tracker port  */
-        yarp::os::BufferedPort<yarp::os::Bottle> m_oLeftFingersTrackerPort; /**< Left Fingers yarp tracker port  */
-        bool m_bLeftArmCapture;
-
-
-
-        std::string m_sRightArmTrackerPortName;     /**< name of the Right Arm arm tracker port */
-        std::string m_sRightHandTrackerPortName;     /**< name of the Right Arm hand tracker port */
-        std::string m_sRightFingersTrackerPortName; /**< name of the Right Arm fingers tracker port */
-        std::string m_sRightArmControlName;         /**< Right Arm hand control name */
-        std::string m_sRightFingersControlName;     /**< Right Arm fingers control name */
         yarp::os::BufferedPort<yarp::os::Bottle> m_oRightArmTrackerPort; /**< Right Arm yarp tracker port  */
-        yarp::os::BufferedPort<yarp::os::Bottle> m_oRightHandTrackerPort; /**< Right Hand yarp tracker port  */
-        yarp::os::BufferedPort<yarp::os::Bottle> m_oRightFingersTrackerPort; /**< Right Fingers yarp tracker port  */
-        bool m_bRightArmCapture;
-
-        bool m_bFastrakCalibrated;
-        yarp::sig::Vector m_vFastrakOffsets;
-
-
-
 
         ALMotionProxy *m_oRobotMotionProxy;
-
-
 };
 
 #endif
