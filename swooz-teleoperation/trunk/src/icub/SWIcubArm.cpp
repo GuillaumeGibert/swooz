@@ -16,10 +16,10 @@
 #include "icub/SWIcubArm.h"
 #include <yarp/math/Math.h>
 
-
 #include "opencv2/core/core.hpp"
 #include "opencvUtility.h"
 #include "geometryUtility.h"
+
 
 
 swTeleop::SWIcubArm::SWIcubArm() : m_bInitialized(false), m_bIsRunning(false),

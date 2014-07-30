@@ -89,8 +89,11 @@ namespace swUtil
 
     static void rodriguesRotation(const cv::Vec3d &oU, const cv::Vec3d &oV, cv::Mat &oRot)
     {
-        cv::Vec3d u = cv::normalize(oU);
-        cv::Vec3d v = cv::normalize(oV);
+        cv::Vec3d u,v;
+        cv::normalize(oU,u);
+        cv::normalize(oV,v);
+//        = cv::normalize(oU);
+//        cv::Vec3d v = cv::normalize(oV);
 
         cv::Vec3d uXv = u.cross(v);
         double cosTheta = u.dot(v);

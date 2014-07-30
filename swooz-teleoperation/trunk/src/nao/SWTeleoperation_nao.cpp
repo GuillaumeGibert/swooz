@@ -7,16 +7,17 @@
 
 #include "nao/SWTeleoperation_nao.h"
 
-#include "geometryUtility.h"
-
 #include "SWTrackingDevice.h"
-
-//#include <iCub/ctrl/math.h>
 
 #include <sstream>
 #include <vector>
 #include <cmath>
 #include <iostream>
+
+
+#include "opencv2/core/core.hpp"
+#include "opencvUtility.h"
+#include "geometryUtility.h"
 
 SWTeleoperation_nao::SWTeleoperation_nao() :  m_i32HeadTimeLastBottle(0)
 {    
@@ -564,9 +565,9 @@ bool SWTeleoperation_nao::updateModule()
                         cv::Vec3d l_vecArmDirection(l_vArmDirection[0], l_vArmDirection[1], l_vArmDirection[2]);
 
                     // normalize vectors
-                        l_vecHandPalmNormal = cv::normalize(l_vecHandPalmNormal);
-                        l_vecArmDirection   = cv::normalize(l_vecArmDirection);
-                        l_vecHandDirection  = cv::normalize(l_vecHandDirection);
+                        cv::normalize(l_vecHandPalmNormal, l_vecHandPalmNormal);
+                        cv::normalize(l_vecArmDirection, l_vecArmDirection);
+                        cv::normalize(l_vecHandDirection, l_vecHandDirection);
 
                     // convert to mat
                         cv::Mat l_matHandDirection(l_vecHandDirection);
@@ -574,7 +575,7 @@ bool SWTeleoperation_nao::updateModule()
                         cv::Mat l_matArmDirection(l_vecArmDirection);
 
                     // compute angle for wrist yaw
-                        double l_dot  = l_vecArmDirection.dot(cv::Vec3d(1.0,0.0,0.0,));
+                        double l_dot  = l_vecArmDirection.dot(cv::Vec3d(1.0,0.0,0.0));
                         double l_angle = swUtil::rad2Deg(acos(l_dot));
                         m_aRArmAngles[3] = l_angle - 90.0; // LElbowRoll
 
