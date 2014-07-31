@@ -363,16 +363,17 @@ bool SWTeleoperation_nao::close()
 
 bool SWTeleoperation_nao::updateModule()
 {
+    AL::ALValue l_headNames = AL::ALValue::array("HeadYaw", "HeadPitch");
+    AL::ALValue l_headAngles = AL::ALValue::array(0.f,0.f);
 
-//    RShoulderPitch 	Right shoulder joint front and back (Y) 	-119.5 to 119.5 	-2.0857 to 2.0857
-//    RShoulderRoll 	Right shoulder joint right and left (Z) 	-76 to 18 	-1.3265 to 0.3142
-//    RElbowYaw 	Right shoulder joint twist (X) 	-119.5 to 119.5 	-2.0857 to 2.0857
-//    RElbowRoll 	Right elbow joint (Z) 	2 to 88.5 	0.0349 to 1.5446
-//    RWristYaw 	Right wrist joint (X) 	-104.5 to 104.5 	-1.8238 to 1.8238
-//    RHand 	Right hand 	Open and Close 	Open and Close
+    AL::ALValue l_torsoNames = AL::ALValue::array("LHipYawPitch", "RHipYawPitch");
+    AL::ALValue l_torsoAngles = AL::ALValue::array(0.f,0.f);
 
-//    AL::ALValue namesRightArm  = AL::ALValue::array("RElbowRoll");
-//    AL::ALValue anglesRightArm = AL::ALValue::array(0.3f, -0.3f);
+    AL::ALValue l_rightArmNames = AL::ALValue::array("RShoulderPitch", "RElbowYaw", "RElbowRoll");
+    AL::ALValue l_rightArmAngles = AL::ALValue::array(0.f,0.f,0.f);
+
+    AL::ALValue l_leftArmNames = AL::ALValue::array("LShoulderPitch", "LElbowYaw", "LElbowRoll");
+    AL::ALValue l_lefttArmAngles = AL::ALValue::array(0.f,0.f,0.f);
 
 
     Bottle *l_pHeadTarget = NULL, *l_pTorsoTarget = NULL, *l_pLeftArmTarget = NULL, *l_pRightArmTarget = NULL, *l_pFaceTarget = NULL;
@@ -410,14 +411,14 @@ bool SWTeleoperation_nao::updateModule()
 
                     std::vector<double> l_rpyHead = swUtil::computeRollPitchYaw(l_vecHead, l_vecClavicles);
 
-                    m_aHeadAngles[0] = swUtil::deg2rad(l_rpyHead[2]);
-                    m_aHeadAngles[1] = swUtil::deg2rad(l_rpyHead[1]);
+                    l_headAngles[0] = swUtil::deg2rad(l_rpyHead[2]);
+                    l_headAngles[1] = swUtil::deg2rad(l_rpyHead[1]);
                 }
                 break;
                 case swTracking::FOREST_LIB :
-                {
-                    m_aHeadAngles[0] = swUtil::deg2rad(-l_pHeadTarget->get(2).asDouble()+5); //head rotation "yes" [-40 30]
-                    m_aHeadAngles[1] = swUtil::deg2rad(l_pHeadTarget->get(1).asDouble()-5); //head rotation [-70 60]
+                {                
+                    l_headAngles[0] = swUtil::deg2rad(-l_pHeadTarget->get(2).asDouble());  // HeadYaw -5?
+                    l_headAngles[1] = swUtil::deg2rad(l_pHeadTarget->get(1).asDouble() );  // HeadPitch  -5?
                 }
                 break;
             }
@@ -546,6 +547,8 @@ bool SWTeleoperation_nao::updateModule()
             {
                 case swTracking::LEAP_LIB :
                 {
+//                AL::ALValue l_rightArmNames = AL::ALValue::array("RShoulderPitch", "RShoulderRoll", "RElbowYaw", "RElbowRoll", "RWristYaw");
+
                     // retrieve leap data
                     std::vector<double> l_vArmDirection(3,0.), l_vHandDirection(3,0.),l_vHandDirectionE(3,0.), l_vHandPalmCoord(3,0.), l_vHandPalmNormal(3,0.), l_vHandPalmNormalE(3,0.);
                     for(int ii = 0; ii < 3; ++ii)
@@ -574,16 +577,23 @@ bool SWTeleoperation_nao::updateModule()
                         cv::Mat l_matHandPalmNormal(l_vecHandPalmNormal);
                         cv::Mat l_matArmDirection(l_vecArmDirection);
 
-                    // compute angle for wrist yaw
-                        double l_dot  = l_vecArmDirection.dot(cv::Vec3d(1.0,0.0,0.0));
-                        double l_angle = swUtil::rad2Deg(acos(l_dot));
-                        m_aRArmAngles[3] = l_angle - 90.0; // LElbowRoll
+                    // compute angle
+//                        double l_dot  = l_vecArmDirection.dot(cv::Vec3d(1.0,0.0,0.0));
+//                        double l_angle = swUtil::rad2Deg(acos(l_dot));
+//                        l_rightArmAngles[2] = l_angle - 90.0; // LElbowRoll
 
                     //LElbowRoll 	Left elbow joint (Z) 	-88.5 to -2 	-1.5446 to -0.0349
                     // direction arm / angle par rapport à axe x
 
                     // LElbowRoll 3 ?
 
+                    // RShoulderpitch
+
+                    cv::Vec3d l_vPitchDirection(0.0,l_vArmDirection[1],l_vArmDirection[2]);
+                    cv::normalize(l_vPitchDirection,l_vPitchDirection);
+                    double l_dAngle = swUtil::rad2Deg(acos(l_vPitchDirection).dot(cv::Vec3d(0.0,1.0,0.0)))-90.0;
+                    std::cout << l_dAngle << " ";
+                    //l_rightArmAngles[0] = swUtil::deg2rad(l_dAngle);
 
                 }
                 break;
@@ -699,7 +709,8 @@ bool SWTeleoperation_nao::updateModule()
 
     if (l_bHeadCapture)
     {
-        m_oRobotMotionProxy->setAngles(AL::ALValue("Head"), m_aHeadAngles, static_cast<float>(m_dJointVelocityValue));
+//        m_oRobotMotionProxy->setAngles(AL::ALValue("Head"), m_aHeadAngles, static_cast<float>(m_dJointVelocityValue));
+        m_oRobotMotionProxy->setAngles(l_headNames, l_headAngles, static_cast<float>(m_dJointVelocityValue));
     }
 
     if (l_bTorsoCapture)
