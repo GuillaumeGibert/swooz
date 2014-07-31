@@ -15,7 +15,7 @@
 #include <QCheckBox>
 
 
-SWViewerInterface::SWViewerInterface() : m_uiViewer(new Ui::SWUI_Viewer), m_bDesactiveUpdateParameters(false)
+SWViewerInterface::SWViewerInterface() : m_uiViewer(new Ui::SWUI_Viewer), m_bDesactiveUpdateParameters(false), m_bGLFullScreen(false)
 {
     // init main widget
     m_uiViewer->setupUi(this);
@@ -23,17 +23,16 @@ SWViewerInterface::SWViewerInterface() : m_uiViewer(new Ui::SWUI_Viewer), m_bDes
 
     // middle container
         QHBoxLayout *l_pGLContainerLayout = new QHBoxLayout();
-        QWidget *l_pGLContainer = new QWidget();
+        m_pGLContainer = new QWidget();
         QGLFormat l_glFormat;
         l_glFormat.setVersion( 4, 3 );
         l_glFormat.setProfile(  QGLFormat::CompatibilityProfile);
         l_glFormat.setSampleBuffers( true );
         QGLContext *l_glContext = new QGLContext(l_glFormat);
-        m_pGLMultiObject = new SWGLMultiObjectWidget(l_glContext, l_pGLContainer);
+        m_pGLMultiObject = new SWGLMultiObjectWidget(l_glContext, m_pGLContainer);
         l_pGLContainerLayout->addWidget(m_pGLMultiObject);
-        l_pGLContainer->setLayout(l_pGLContainerLayout);
-        m_uiViewer->glScene->addWidget(l_pGLContainer);
-
+        m_pGLContainer->setLayout(l_pGLContainerLayout);
+        m_uiViewer->glScene->addWidget(m_pGLContainer);
 
     // init worker
         //m_pWViewer = new SWViewerWorker(...);
@@ -89,6 +88,10 @@ SWViewerInterface::SWViewerInterface() : m_uiViewer(new Ui::SWUI_Viewer), m_bDes
         // push buttons
             QObject::connect(m_uiViewer->pbSetCamera, SIGNAL(clicked()), this, SLOT(setCameraToCurrentItem()));
             QObject::connect(m_uiViewer->pbResetCamera, SIGNAL(clicked()), m_pGLMultiObject, SLOT(resetCamera()));
+
+        // fullscreen
+            QObject::connect(m_pGLMultiObject, SIGNAL(enableFullScreen()), this, SLOT(enableGLFullScreen()));
+            QObject::connect(m_pGLMultiObject, SIGNAL(disableFullScreen()), this, SLOT(disableGLFullScreen()));
 }
 
 SWViewerInterface::~SWViewerInterface()
@@ -510,6 +513,27 @@ void SWViewerInterface::setCameraToCurrentItem()
         m_pGLMultiObject->setCameraItem(false, m_uiViewer->lwMeshes->currentRow());
     }
 }
+
+void SWViewerInterface::enableGLFullScreen()
+{
+    if(!m_bGLFullScreen)
+    {
+        m_pGLContainer->setParent(0);
+        m_pGLContainer->showFullScreen();
+        m_bGLFullScreen = true;
+    }
+}
+
+void SWViewerInterface::disableGLFullScreen()
+{
+    if(m_bGLFullScreen)
+    {
+        m_uiViewer->glScene->addWidget(m_pGLContainer);
+        m_bGLFullScreen = false;
+    }
+}
+
+
 
 int main(int argc, char* argv[])
 {

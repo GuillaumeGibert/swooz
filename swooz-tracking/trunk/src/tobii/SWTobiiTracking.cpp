@@ -44,6 +44,10 @@ SWTobiiTracking::SWTobiiTracking()
 
 bool SWTobiiTracking::configure(yarp::os::ResourceFinder &oRf)
 {
+    m_i32ScreenHeight   = oRf.check("screenHeight", yarp::os::Value(320), "Height of the display (int)").asInt();
+    m_i32ScreenWidth    = oRf.check("screenWidth", yarp::os::Value(580), "Width of the display (int)").asInt();
+    m_i32DistanceInterEyes = oRf.check("distanceInterEyes", yarp::os::Value(67), "Distance inter eyes (double)").asInt();
+
     return true;
 }
 
@@ -59,6 +63,18 @@ int main(int argc, char* argv[])
     }
 
     SWTobiiTracking l_oTobiiTracking;
+
+    yarp::os::ResourceFinder rf;
+    rf.setVerbose(true);
+    rf.setDefaultConfigFile("tobii_tracking.ini"); //overridden by --from parameter
+    rf.setDefaultContext("swooz-tracking/conf");   //overridden by --context parameter
+    rf.configure("ICUB_ROOT", argc, argv);
+
+    if (!l_oTobiiTracking.configure(rf))
+    {
+        std::cerr << "Error configuring module tobii tracking returning. " << std::endl;
+        return -1;
+    }
 
     std::cout << "Starting the tobii tracking module..." << std::endl;
     l_oTobiiTracking.runModule();
@@ -111,6 +127,11 @@ bool SWTobiiTracking::updateModule()
 
             l_gazeBottle.addDouble(static_cast<double>(m_pGazeData->right_gaze_point_2d.x));     // Gaze : right_gaze_point_2d x / get(25).addDouble()
             l_gazeBottle.addDouble(static_cast<double>(m_pGazeData->right_gaze_point_2d.y));     // Gaze : right_gaze_point_2d y / get(26).addDouble()
+
+            l_gazeBottle.addInt(m_i32ScreenHeight);  // Gaze : screen height / get(27).addInt()
+            l_gazeBottle.addInt(m_i32ScreenWidth);   // Gaze : screen width  / get(28).addInt()
+            l_gazeBottle.addInt(m_i32DistanceInterEyes);   // Gaze : distance inter eyes  / get(29).addInt()
+
         m_gazeTrackingPort.write();
     }
 

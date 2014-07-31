@@ -18,7 +18,7 @@
 
 
 SWCreateAvatarInterface::SWCreateAvatarInterface(QWidget *oQWRelative) : QMainWindow(oQWRelative), m_uiCreateAvatar(new Ui::SWUI_WCreateAvatar),
-  m_oTimer(new QBasicTimer)
+    m_oTimer(new QBasicTimer), m_bGLFullScreen(false)
 {
     m_pCloudToDisplay = NULL;
     m_bWorkStarted = false;
@@ -33,6 +33,8 @@ SWCreateAvatarInterface::SWCreateAvatarInterface(QWidget *oQWRelative) : QMainWi
 	this->setWindowTitle(QString("SWoOz : Create avatar"));
 
 	// init opengl context
+    QHBoxLayout *l_pGLContainerLayout = new QHBoxLayout();
+    m_pGLContainer = new QWidget();
     QGLFormat l_glFormat;
     l_glFormat.setVersion( 4, 3 );
     l_glFormat.setProfile(QGLFormat::CompatibilityProfile);
@@ -60,7 +62,10 @@ SWCreateAvatarInterface::SWCreateAvatarInterface(QWidget *oQWRelative) : QMainWi
     m_WMeshGL = new SWGLMeshWidget(l_glContext2, this, "../data/shaders/createAvatarMesh.vert", "../data/shaders/createAvatarMesh.frag");  
     m_WMeshGL->setCameraMode(SWQtCamera::TRACKBALL_CAMERA);
 
-    m_uiCreateAvatar->hlMesh->addWidget(m_WMeshGL);
+
+    m_pGLContainer->setLayout(l_pGLContainerLayout);
+    l_pGLContainerLayout->addWidget(m_WMeshGL);
+    m_uiCreateAvatar->hlMesh->addWidget(m_pGLContainer);
 
 	// init workers
     m_WCreateAvatar = new SWCreateAvatarWorker(&m_oKinectThread);
@@ -143,6 +148,10 @@ SWCreateAvatarInterface::SWCreateAvatarInterface(QWidget *oQWRelative) : QMainWi
 
     //      others
         QObject::connect(m_WRadialProjDisplay, SIGNAL(clickPoint(QPoint, QSize, bool)), m_WCreateAvatar,   SLOT(addPointToDeleteRadialProj(QPoint, QSize, bool)));
+
+        // fullscreen
+        QObject::connect(m_WMeshGL, SIGNAL(enableFullScreen()), this, SLOT(enableGLFullScreen()));
+        QObject::connect(m_WMeshGL, SIGNAL(disableFullScreen()), this, SLOT(disableGLFullScreen()));
 
     // init worker parameters values
         // radial projection width / height
@@ -417,6 +426,26 @@ void SWCreateAvatarInterface::enableInterface()
 {
     m_uiCreateAvatar->pbSaveAvatar->setEnabled(true);
     m_uiCreateAvatar->pbReconstruct->setEnabled(true);
+}
+
+
+void SWCreateAvatarInterface::enableGLFullScreen()
+{
+    if(!m_bGLFullScreen)
+    {
+        m_pGLContainer->setParent(0);
+        m_pGLContainer->showFullScreen();
+        m_bGLFullScreen = true;
+    }
+}
+
+void SWCreateAvatarInterface::disableGLFullScreen()
+{
+    if(m_bGLFullScreen)
+    {
+       m_uiCreateAvatar->hlMesh->addWidget(m_pGLContainer);
+        m_bGLFullScreen = false;
+    }
 }
 
 int main(int argc, char* argv[])

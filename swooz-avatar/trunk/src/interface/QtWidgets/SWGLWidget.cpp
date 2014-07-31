@@ -248,6 +248,12 @@ void SWGLWidget::keyPressEvent(QKeyEvent *e)
 {
 	switch(e->key())
 	{
+        case Qt::Key_Escape:
+            emit disableFullScreen();
+        break;
+        case Qt::Key_F:
+            emit enableFullScreen();
+        break;
 		case Qt::Key_Plus:  // increase gl point size
 			m_glFSizePoint < 10 ? m_glFSizePoint += 1 : m_glFSizePoint = 10;		
 		break;

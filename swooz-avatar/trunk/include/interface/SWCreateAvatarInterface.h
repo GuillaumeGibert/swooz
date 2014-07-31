@@ -141,6 +141,16 @@ class SWCreateAvatarInterface : public QMainWindow
          */
         void setNumCloud(const int);
 
+        /**
+         * @brief disableGLFullScreen
+         */
+        void disableGLFullScreen();
+
+        /**
+         * @brief enableGLFullScreen
+         */
+        void enableGLFullScreen();
+
 
 	signals:
 
@@ -161,6 +171,10 @@ class SWCreateAvatarInterface : public QMainWindow
 		
 		
 	private :
+
+
+        bool m_bGLFullScreen;
+        QWidget *m_pGLContainer;
 	
 		// widgets & ui
         Ui::SWUI_WCreateAvatar *m_uiCreateAvatar;   /**< qt main window */

@@ -77,6 +77,10 @@ class SWTobiiTracking : public yarp::os::RFModule
 
         int m_i32Fps;               /**< refresh rate of updateModule calling */
 
+        int m_i32ScreenHeight;
+        int m_i32ScreenWidth;
+        int m_i32DistanceInterEyes;
+
         uint64_t m_ui64LastUpdate;
         boost::shared_ptr<TobiiTracker::CTobii> m_tobii; /**< tobii interface */
 

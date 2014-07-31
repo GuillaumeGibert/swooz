@@ -591,7 +591,7 @@ bool SWTeleoperation_nao::updateModule()
 
                     cv::Vec3d l_vPitchDirection(0.0,l_vArmDirection[1],l_vArmDirection[2]);
                     cv::normalize(l_vPitchDirection,l_vPitchDirection);
-                    double l_dAngle = swUtil::rad2Deg(acos(l_vPitchDirection).dot(cv::Vec3d(0.0,1.0,0.0)))-90.0;
+                    double l_dAngle = swUtil::rad2Deg(acos(l_vPitchDirection.dot(cv::Vec3d(0.0,1.0,0.0))))-90.0;
                     std::cout << l_dAngle << " ";
                     //l_rightArmAngles[0] = swUtil::deg2rad(l_dAngle);
 

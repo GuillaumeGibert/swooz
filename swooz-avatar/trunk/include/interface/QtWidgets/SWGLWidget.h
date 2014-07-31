@@ -94,6 +94,18 @@ class SWGLWidget : public QGLWidget
         void resetCamera();
 
 
+    signals :
+
+        /**
+         * @brief enableFullScreen
+         */
+        void enableFullScreen();
+
+        /**
+         * @brief disableFullScreen
+         */
+        void disableFullScreen();
+
 	protected:
 		
 		/**

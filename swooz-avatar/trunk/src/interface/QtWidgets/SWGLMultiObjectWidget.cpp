@@ -148,7 +148,7 @@ void SWGLMultiObjectWidget::paintGL()
         l_oModelMatrix.setToIdentity();
         m_oMVPMatrix = l_oModelMatrix  * m_oProjectionMatrix * l_oViewMatrix;
 
-    drawScene();
+        drawScene();
 }
 
 void SWGLMultiObjectWidget::addCloud(const QString &sPathCloud)

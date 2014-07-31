@@ -131,8 +131,15 @@ class SWGLMultiObjectWidget : public SWGLWidget
          */
         virtual void paintGL();
 
+        /**
+         * @brief mouseDoubleClickEvent
+         * @param e
+         */
+//        virtual void mouseDoubleClickEvent(QMouseEvent *e);
+
 
     public slots:
+
 
         /**
          * @brief addCloud

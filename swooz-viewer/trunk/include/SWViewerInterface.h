@@ -104,6 +104,16 @@ class SWViewerInterface : public QMainWindow
          */
 //        virtual void timerEvent(QTimerEvent *e);
 
+        /**
+         * @brief enableFullScreen
+         */
+        void enableGLFullScreen();
+
+        /**
+         * @brief disableFullScreen
+         */
+        void disableGLFullScreen();
+
     signals:
 
 
@@ -113,6 +123,12 @@ class SWViewerInterface : public QMainWindow
         bool m_bIsCloudLastSelection;
         bool m_bDesactiveUpdateParameters;
 
+
+        bool m_bGLFullScreen;
+
+
+
+        QWidget *m_pGLContainer;
 
         // widgets & ui
         Ui::SWUI_Viewer* m_uiViewer;   /**< qt main window */
