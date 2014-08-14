@@ -6,7 +6,21 @@ in vec3 PointColor;
 
 uniform float opacity = 1.f;
 
+uniform int displayMode = 0;
+
+in vec2 TextureCoord;
+uniform sampler2D texture2d;
+
 void main( void )
 {
-    fragColor = vec4(PointColor, opacity);
+    if(displayMode == 2)
+    {
+//        vec4 textureColor = texture2D(texture2d, TextureCoord);
+//        fragColor = textureColor;
+        fragColor =   texture2D(texture2d, TextureCoord);//vec4(PointColor, opacity);
+    }
+    else
+    {
+        fragColor = vec4(PointColor, opacity);
+    }
 }

@@ -115,7 +115,7 @@ void SWGLMultiObjectWidget::initializeGL()
 {
     // set perspective
         m_rZNear = 0.01;
-        m_rZFar  = 100.0;
+        m_rZFar  = 10000.0;
         m_rFOV   = 40.0;
 
     // set background
@@ -123,6 +123,10 @@ void SWGLMultiObjectWidget::initializeGL()
 
     initShaders("../data/shaders/cloudViewer.vert", "../data/shaders/cloudViewer.frag", m_oShaderCloud);
     initShaders("../data/shaders/meshViewer.vert",  "../data/shaders/meshViewer.frag",  m_oShaderMesh);
+    initShaders("../data/shaders/cubeMap.vert",  "../data/shaders/cubeMap.frag",  m_oShaderCubeMap);
+
+
+    initTextures();
 
     // enable depth buffer
         glEnable(GL_DEPTH_TEST);
@@ -164,17 +168,22 @@ void SWGLMultiObjectWidget::addCloud(const QString &sPathCloud)
         (*l_pCloud) *= 0.001f;
     }
 
+    // parameters
+        SWGLObjectParametersPtr l_pCloudParam = SWGLObjectParametersPtr(new SWGLObjectParameters);
+        l_pCloudParam->m_bCloud = true;
+        l_pCloudParam->m_bVisible = true;
+        l_pCloudParam->m_bDisplayLines   = false;
+        l_pCloudParam->displayMode = GLO_ORIGINAL_COLOR;
+        l_pCloudParam->m_dScaling = 1.;
+        l_pCloudParam->m_vRotation = QVector3D(0.,0.,0.);
+        l_pCloudParam->m_vRotation = QVector3D(0.,0.,0.);
+        l_pCloudParam->m_sTexturePath = QString("...");
+        l_pCloudParam->m_vUnicolor = QVector3D(255.,0.,0.);
 
-    SWGLObjectParametersPtr l_pCloudParam = SWGLObjectParametersPtr(new SWGLObjectParameters);
-    l_pCloudParam->m_bCloud = true;
-    l_pCloudParam->m_bVisible = true;
-    l_pCloudParam->m_bDisplayLines   = false;
-    l_pCloudParam->displayMode = GLO_ORIGINAL_COLOR;
-    l_pCloudParam->m_dScaling = 1.;
-    l_pCloudParam->m_vRotation = QVector3D(0.,0.,0.);
-    l_pCloudParam->m_vRotation = QVector3D(0.,0.,0.);
-    l_pCloudParam->m_sTexturePath = QString("...");
-    l_pCloudParam->m_vUnicolor = QVector3D(255.,0.,0.);
+    // infos
+        SWGLObjectInfos l_cloudInfos;
+        l_cloudInfos.m_points = l_pCloud->size();
+        l_cloudInfos.m_triangles = 0;
 
     // init buffers
         QGLBufferPtr l_indexBuffer = QGLBufferPtr(new QGLBuffer());
@@ -198,6 +207,7 @@ void SWGLMultiObjectWidget::addCloud(const QString &sPathCloud)
     m_pListCloudsMutex.lockForWrite();
         m_vClouds.push_back(l_pCloud);
         m_vCloudsParameters.push_back(l_pCloudParam);
+        m_cloudsInfos.push_back(l_cloudInfos);
         m_vCloudsVertexBuffer.push_back(l_vertexBuffer);
         m_vCloudsIndexBuffer.push_back(l_indexBuffer);
         m_vCloudsNormalBuffer.push_back(l_normalBuffer);
@@ -223,28 +233,34 @@ void SWGLMultiObjectWidget::addMesh(const QString &sPathMesh)
         (*l_pMesh->cloud()) *= 0.001f;
     }
 
-    SWGLObjectParametersPtr l_pMeshesParam = SWGLObjectParametersPtr(new SWGLObjectParameters);
+    // parameters
+        SWGLObjectParametersPtr l_pMeshesParam = SWGLObjectParametersPtr(new SWGLObjectParameters);
 
-    // compute light position
-    std::vector<float> l_v3FMeanPoint = l_pMesh->cloud()->meanPoint();
-    l_pMeshesParam->m_vSourceLight = QVector3D(l_v3FMeanPoint[0], l_v3FMeanPoint[1], l_v3FMeanPoint[2] - 1.0);
+        // compute light position
+        std::vector<float> l_v3FMeanPoint = l_pMesh->cloud()->meanPoint();
+        l_pMeshesParam->m_vSourceLight = QVector3D(l_v3FMeanPoint[0], l_v3FMeanPoint[1], l_v3FMeanPoint[2] - 1.0);
 
-    l_pMeshesParam->m_bCloud = false;
-    l_pMeshesParam->m_bVisible = true;
-    l_pMeshesParam->m_bDisplayLines   = false;
-    l_pMeshesParam->displayMode = GLO_ORIGINAL_COLOR;
-    l_pMeshesParam->m_dScaling = 1.;
-    l_pMeshesParam->m_vRotation = QVector3D(0.,0.,0.);
-    l_pMeshesParam->m_vRotation = QVector3D(0.,0.,0.);
-    l_pMeshesParam->m_sTexturePath = QString("...");
-    l_pMeshesParam->m_vUnicolor = QVector3D(255.,0.,0.);
-    l_pMeshesParam->m_vAmbiantLight  = QVector3D(0.3,0.3,0.3);
-    l_pMeshesParam->m_vDiffusLight   = QVector3D(1.0,1.0,1.0);
-    l_pMeshesParam->m_vSpecularLight = QVector3D(0.5,0.50,0.50);
-    l_pMeshesParam->m_dAmbiantK = 1.;
-    l_pMeshesParam->m_dDiffusK = 0.5;
-    l_pMeshesParam->m_dSpecularK = 1.;
-    l_pMeshesParam->m_dSpecularP = 10.;
+        l_pMeshesParam->m_bCloud = false;
+        l_pMeshesParam->m_bVisible = true;
+        l_pMeshesParam->m_bDisplayLines   = false;
+        l_pMeshesParam->displayMode = GLO_ORIGINAL_COLOR;
+        l_pMeshesParam->m_dScaling = 1.;
+        l_pMeshesParam->m_vRotation = QVector3D(0.,0.,0.);
+        l_pMeshesParam->m_vRotation = QVector3D(0.,0.,0.);
+        l_pMeshesParam->m_sTexturePath = QString("...");
+        l_pMeshesParam->m_vUnicolor = QVector3D(255.,0.,0.);
+        l_pMeshesParam->m_vAmbiantLight  = QVector3D(0.3,0.3,0.3);
+        l_pMeshesParam->m_vDiffusLight   = QVector3D(1.0,1.0,1.0);
+        l_pMeshesParam->m_vSpecularLight = QVector3D(0.5,0.50,0.50);
+        l_pMeshesParam->m_dAmbiantK = 1.;
+        l_pMeshesParam->m_dDiffusK = 0.5;
+        l_pMeshesParam->m_dSpecularK = 1.;
+        l_pMeshesParam->m_dSpecularP = 10.;
+
+    // infos
+        SWGLObjectInfos l_meshesInfos;
+        l_meshesInfos.m_points = l_pMesh->pointsNumber();
+        l_meshesInfos.m_triangles = l_pMesh->trianglesNumber();
 
     // init buffers
         QGLBufferPtr l_indexBuffer = QGLBufferPtr(new QGLBuffer());
@@ -268,6 +284,7 @@ void SWGLMultiObjectWidget::addMesh(const QString &sPathMesh)
     m_oParamMutex.lockForWrite();
         m_vMeshes.push_back(l_pMesh);
         m_vMeshesParameters.push_back(l_pMeshesParam);
+        m_meshesInfos.push_back(l_meshesInfos);
         m_vMeshesVertexBuffer.push_back(l_vertexBuffer);
         m_vMeshesIndexBuffer.push_back(l_indexBuffer);
         m_vMeshesNormalBuffer.push_back(l_normalBuffer);
@@ -315,6 +332,7 @@ void SWGLMultiObjectWidget::removeCloud(cuint ui32Index)
 
         m_vClouds.removeAt(ui32Index);
         m_vCloudsParameters.removeAt(ui32Index);
+        m_cloudsInfos.removeAt(ui32Index);
 
         m_pListCloudsMutex.unlock();
     }
@@ -362,6 +380,7 @@ void SWGLMultiObjectWidget::removeMesh(cuint ui32Index)
 
         m_vMeshes.removeAt(ui32Index);
         m_vMeshesParameters.removeAt(ui32Index);
+        m_meshesInfos.removeAt(ui32Index);
 
         m_pListMeshesMutex.unlock();
     }
@@ -621,16 +640,24 @@ void SWGLMultiObjectWidget::drawMeshes()
 }
 
 void SWGLMultiObjectWidget::drawScene()
-{   
-    drawAxes(m_oShaderCloud, m_oMVPMatrix, 0.02f);
+{
+//    std::cout << "drawAxes ";
+//    drawAxes(m_oShaderCloud, m_oMVPMatrix, 0.02f);
+    std::cout << "drawCubeMap ";
+    drawCubeMap(m_oShaderCloud, m_oMVPMatrix);
 
     m_pListMeshesMutex.lockForRead();
+        std::cout << "drawMeshes ";
         drawMeshes();
     m_pListMeshesMutex.unlock();
 
     m_pListCloudsMutex.lockForRead();
+        std::cout << "drawClouds ";
         drawClouds();
     m_pListCloudsMutex.unlock();
+    std::cout << "end drawScene ";
+
 }
+
 
 

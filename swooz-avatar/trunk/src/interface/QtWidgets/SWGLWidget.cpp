@@ -15,6 +15,7 @@
 
 
 
+
 SWGLWidget::SWGLWidget(  QGLContext *oContext, QWidget* oParent) :
     QGLWidget( oContext, oParent ), m_glContext(oContext),  m_oTimer(new QBasicTimer)
 {
@@ -23,7 +24,7 @@ SWGLWidget::SWGLWidget(  QGLContext *oContext, QWidget* oParent) :
 
     // default perspective
         m_rZNear = 0.01;
-        m_rZFar  = 100.0;
+        m_rZFar  = 1000.0;
         m_rFOV   = 60.0;
 
 	// init camera parameters
@@ -55,6 +56,33 @@ void SWGLWidget::resetCamera()
     m_pCamera->reset();
     updateGL();
 }
+
+
+void SWGLWidget::initTextures()
+{
+    m_cubeMapTextureNegX = QImage("../data/images/textures/cubeMap/citadella/negx.bmp");
+    m_cubeMapTextureNegY = QImage("../data/images/textures/cubeMap/citadella/negy.bmp");
+    m_cubeMapTextureNegZ = QImage("../data/images/textures/cubeMap/citadella/negz.bmp");
+    m_cubeMapTexturePosX = QImage("../data/images/textures/cubeMap/citadella/posx.bmp");
+    m_cubeMapTexturePosY = QImage("../data/images/textures/cubeMap/citadella/posy.bmp");
+    m_cubeMapTexturePosZ = QImage("../data/images/textures/cubeMap/citadella/posz.bmp");
+
+    m_cubeMapTextureNegXLocation = bindTexture(m_cubeMapTextureNegX);
+    checkGlError(true);
+    m_cubeMapTexturePosXLocation = bindTexture(m_cubeMapTexturePosX);
+    checkGlError(true);
+    m_cubeMapTexturePosZLocation = bindTexture(m_cubeMapTexturePosZ);
+    checkGlError(true);
+    m_cubeMapTextureNegZLocation = bindTexture(m_cubeMapTextureNegZ);
+    checkGlError(true);
+    m_cubeMapTexturePosYLocation = bindTexture(m_cubeMapTexturePosY);
+    checkGlError(true);
+    m_cubeMapTextureNegYLocation = bindTexture(m_cubeMapTextureNegY);
+    checkGlError(true);
+
+    qDebug()  << "m_cubeMapTexturePosZ " << m_cubeMapTexturePosZ.size();
+}
+
 
 void SWGLWidget::setCamera(const QVector3D &oEyePosition, const QVector3D &oLookAt, const QVector3D &oUp, cbool bUpdateGL)
 {
@@ -390,49 +418,35 @@ void SWGLWidget::resizeGL( int i32Width, int i32Height )
     updateGL();
 }
 
+
 void  SWGLWidget::drawAxes(QGLShaderProgram &oShader, QMatrix4x4 &mvpMatrix, cfloat fScale, const QVector3D &oOrigine)
 {
     oShader.bind();
-        checkGlError();
+        checkGlError(true);
 
     QGLBuffer::release(QGLBuffer::VertexBuffer);
     QGLBuffer::release(QGLBuffer::IndexBuffer);
 
     // set mode
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        checkGlError();
+        checkGlError(true);
 
     // init buffers
     QGLBuffer l_vertexBuffer, l_indexBuffer;
     initIndexBuffer(l_indexBuffer);
     initVertexBuffer(l_vertexBuffer);
 
-    float  *l_aFVertexBuffer   = new float[12];
-    l_aFVertexBuffer[0] = oOrigine.x();
-    l_aFVertexBuffer[1] = oOrigine.y();
-    l_aFVertexBuffer[2] = oOrigine.z();
+    float l_vertexBufferA[] = {oOrigine.x(), oOrigine.y(), oOrigine.z(),
+                              oOrigine.x(), oOrigine.y(), oOrigine.z()+1.f*fScale,
+                              oOrigine.x(), oOrigine.y()+1.f*fScale, oOrigine.z(),
+                              oOrigine.x()+1.f*fScale, oOrigine.y(), oOrigine.z()};
 
-    l_aFVertexBuffer[3] = oOrigine.x();
-    l_aFVertexBuffer[4] = oOrigine.y();
-    l_aFVertexBuffer[5] = oOrigine.z() +1.f*fScale;
-
-    l_aFVertexBuffer[6] = oOrigine.x();
-    l_aFVertexBuffer[7] = oOrigine.y() +1.f*fScale;
-    l_aFVertexBuffer[8] = oOrigine.z();
-
-    l_aFVertexBuffer[9] = oOrigine.x() +1.f*fScale;
-    l_aFVertexBuffer[10]= oOrigine.y();
-    l_aFVertexBuffer[11]= oOrigine.z();
-
-    uint32 *l_aUI32IndexBuffer = new uint[2];
-    l_aUI32IndexBuffer[0] = 0;
-    l_aUI32IndexBuffer[1] = 1;
+    uint l_indexBufferLine1[] = {0,1};
+    uint l_indexBufferLine2[] = {0,2};
+    uint l_indexBufferLine3[] = {0,1};
 
     // allocate QGL buffers
-    allocateBuffer(l_vertexBuffer, l_aFVertexBuffer, 4 *  3 * sizeof(float) );
-    allocateBuffer(l_indexBuffer, l_aUI32IndexBuffer, 2 * sizeof(GLuint) );
-    deleteAndNullifyArray(l_aFVertexBuffer);
-    deleteAndNullifyArray(l_aUI32IndexBuffer);
+    allocateBuffer(l_vertexBuffer, l_vertexBufferA, 4 *  3 * sizeof(float) );
 
     // set mvp matrix uniform value
     oShader.setUniformValue("applyTransformation", false);
@@ -442,32 +456,105 @@ void  SWGLWidget::drawAxes(QGLShaderProgram &oShader, QMatrix4x4 &mvpMatrix, cfl
     // set color uniform value for the current line
     oShader.setUniformValue("uniColor", 1.f, 0.f, 0.f);
 
+    allocateBuffer(l_indexBuffer, l_indexBufferLine1, 2 * sizeof(GLuint) );
     drawBuffer(l_indexBuffer, l_vertexBuffer, oShader, GL_LINES);
 
-    l_aUI32IndexBuffer = new uint[6];
-    l_aUI32IndexBuffer[0] = 0;
-    l_aUI32IndexBuffer[1] = 2;
-
-    // allocate QGL buffers
-    allocateBuffer(l_indexBuffer, l_aUI32IndexBuffer, 2 * sizeof(GLuint) );
-    deleteAndNullifyArray(l_aUI32IndexBuffer);
-
-    // set color uniform value for the current line
     oShader.setUniformValue("uniColor", 0.f, 1.f, 0.f);
+    allocateBuffer(l_indexBuffer, l_indexBufferLine2, 2 * sizeof(GLuint) );
     drawBuffer(l_indexBuffer, l_vertexBuffer, oShader, GL_LINES);
-
-    l_aUI32IndexBuffer = new uint[6];
-    l_aUI32IndexBuffer[0] = 0;
-    l_aUI32IndexBuffer[1] = 3;
-
-    // allocate QGL buffers
-    allocateBuffer(l_indexBuffer, l_aUI32IndexBuffer, 2 * sizeof(GLuint) );
-    deleteAndNullifyArray(l_aUI32IndexBuffer);
 
     // set color uniform value for the current line
     oShader.setUniformValue("uniColor", 0.f, 0.f, 1.f);
+    allocateBuffer(l_indexBuffer, l_indexBufferLine3, 2 * sizeof(GLuint) );
     drawBuffer(l_indexBuffer, l_vertexBuffer, oShader, GL_LINES);
 
     oShader.release();
-        checkGlError();
+        checkGlError(true);
 }
+
+void SWGLWidget::drawCubeMap(QGLShaderProgram &oShader, QMatrix4x4 &mvpMatrix)
+{
+    oShader.bind();
+        checkGlError(true);
+
+    QGLBuffer::release(QGLBuffer::VertexBuffer);
+    QGLBuffer::release(QGLBuffer::IndexBuffer);
+
+    // enable texture
+    glEnable(GL_TEXTURE_2D);
+        checkGlError(true);
+
+    glDepthMask (GL_FALSE);
+        checkGlError(true);
+
+    // set mode
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        checkGlError(true);
+
+    float d = 1000.f;
+    float l_vertexFace1[] = {-d,d,-d, d,d,-d, d,-d,-d ,-d,-d,-d};
+    float l_vertexFace2[] = {d,d,-d, d,d,d, d,-d,d ,d,-d,-d};
+    float l_vertexFace3[] = {d,d,d, -d,d,d, -d,-d,d ,d,-d,d};
+    float l_vertexFace4[] = {-d,d,d, -d,d,-d, -d,-d,-d ,-d,-d,d};
+    float l_vertexFace5[] = {-d,d,-d, -d,d,d, d,d,d ,d,d,-d};
+    float l_vertexFace6[] = {d,-d,-d,  d,-d,d, -d,-d,d ,-d,-d,-d};
+
+    uint32 l_indexFace[] = {0,1,2, 0,2,3};
+    float l_textureFace[] = {0.f,1.f, 1.f,1.f, 1.f,0.f, 0.f,0.f};
+
+    oShader.setUniformValue("applyTransformation", false);
+    oShader.setUniformValue("mvpMatrix", mvpMatrix);
+    oShader.setUniformValue("displayMode", 2);
+
+
+    QGLBuffer l_vertexBuffer, l_indexBuffer, l_textureBuffer;
+    initVertexBuffer(l_vertexBuffer);
+    initVertexBuffer(l_textureBuffer);
+    initIndexBuffer(l_indexBuffer);
+
+    allocateBuffer(l_textureBuffer, l_textureFace, 6 * sizeof(float));
+    allocateBuffer(l_indexBuffer, l_indexFace, 6 * sizeof(GLuint) );
+
+
+    qDebug() << m_cubeMapTextureNegXLocation << " " << m_cubeMapTexturePosZLocation << " " << m_cubeMapTexturePosXLocation << " " << m_cubeMapTextureNegZLocation;
+    allocateBuffer(l_vertexBuffer, l_vertexFace1, 8 *  3 * sizeof(float) );
+    glBindTexture(GL_TEXTURE_2D, m_cubeMapTextureNegXLocation);
+        checkGlError(true);
+    drawBufferWithTexture(l_indexBuffer, l_vertexBuffer, l_textureBuffer, oShader, GL_TRIANGLES);
+
+    allocateBuffer(l_vertexBuffer, l_vertexFace2, 8 *  3 * sizeof(float) );
+    glBindTexture(GL_TEXTURE_2D, m_cubeMapTexturePosZLocation);
+        checkGlError(true);
+    drawBufferWithTexture(l_indexBuffer, l_vertexBuffer, l_textureBuffer, oShader, GL_TRIANGLES);
+
+    allocateBuffer(l_vertexBuffer, l_vertexFace3, 8 *  3 * sizeof(float) );
+    glBindTexture(GL_TEXTURE_2D, m_cubeMapTexturePosXLocation);
+        checkGlError(true);
+    drawBufferWithTexture(l_indexBuffer, l_vertexBuffer, l_textureBuffer, oShader, GL_TRIANGLES);
+
+    allocateBuffer(l_vertexBuffer, l_vertexFace4, 8 *  3 * sizeof(float) );
+    glBindTexture(GL_TEXTURE_2D, m_cubeMapTextureNegZLocation);
+        checkGlError(true);
+    drawBufferWithTexture(l_indexBuffer, l_vertexBuffer, l_textureBuffer, oShader, GL_TRIANGLES);
+
+    allocateBuffer(l_vertexBuffer, l_vertexFace5, 8 *  3 * sizeof(float) );
+    glBindTexture(GL_TEXTURE_2D, m_cubeMapTexturePosYLocation);
+        checkGlError(true);
+    drawBufferWithTexture(l_indexBuffer, l_vertexBuffer, l_textureBuffer, oShader, GL_TRIANGLES);
+
+    allocateBuffer(l_vertexBuffer, l_vertexFace6, 8 *  3 * sizeof(float) );
+    glBindTexture(GL_TEXTURE_2D, m_cubeMapTextureNegYLocation);
+        checkGlError(true);
+    drawBufferWithTexture(l_indexBuffer, l_vertexBuffer, l_textureBuffer, oShader, GL_TRIANGLES);
+
+    oShader.release();
+        checkGlError(true);
+
+    // enable texture
+    glDisable(GL_TEXTURE_2D);
+        checkGlError(true);
+
+    glDepthMask (GL_TRUE);
+        checkGlError(true);
+}
+

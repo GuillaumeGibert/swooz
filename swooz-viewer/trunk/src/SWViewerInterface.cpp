@@ -186,6 +186,8 @@ void SWViewerInterface::deleteCloud()
 
     // reset text
         m_uiViewer->leNameItem->setText(QString("..."));
+        m_uiViewer->lePtNumber->setText(QString("..."));
+        m_uiViewer->leTriNumber->setText(QString("..."));
         m_uiViewer->leNameItem->deselect();
 }
 
@@ -231,6 +233,8 @@ void SWViewerInterface::deleteMesh()
 
     // reset text
         m_uiViewer->leNameItem->setText(QString("..."));
+        m_uiViewer->lePtNumber->setText(QString("..."));
+        m_uiViewer->leTriNumber->setText(QString("..."));
         m_uiViewer->leNameItem->deselect();
 
 }
@@ -319,8 +323,11 @@ void SWViewerInterface::updateCloudInterfaceParameters(QListWidgetItem *)
     // set the type of the last selected item
         m_bIsCloudLastSelection = true;
 
-    // update current item name
-        m_uiViewer->leNameItem->setText(QString("Cloud : ") + m_uiViewer->lwClouds->currentItem()->text());
+    // update current item infos
+        QString l_sName = m_uiViewer->lwClouds->currentItem()->text();
+        m_uiViewer->leNameItem->setText(QString("Cloud : ") + l_sName.right(l_sName.size() -  l_sName.lastIndexOf('/')-1));
+        m_uiViewer->lePtNumber->setText(QString::number(m_pGLMultiObject->m_cloudsInfos[m_uiViewer->lwClouds->currentRow()].m_points));
+        m_uiViewer->leTriNumber->setText(QString::number(m_pGLMultiObject->m_cloudsInfos[m_uiViewer->lwClouds->currentRow()].m_triangles));
 
     // lock
         m_uiViewer->rbDisplayTexture->setEnabled(false);
@@ -367,8 +374,11 @@ void SWViewerInterface::updateMeshInterfaceParameters(QListWidgetItem *)
     // set the type of the last selected item
         m_bIsCloudLastSelection = false;
 
-    // update current item name
-        m_uiViewer->leNameItem->setText(QString("Mesh : ") + m_uiViewer->lwMeshes->currentItem()->text());
+    // update current item infos
+        QString l_sName = m_uiViewer->lwMeshes->currentItem()->text();
+        m_uiViewer->leNameItem->setText(QString("Mesh : ") + l_sName.right(l_sName.size() - l_sName.lastIndexOf('/')-1));
+        m_uiViewer->lePtNumber->setText(QString::number(m_pGLMultiObject->m_meshesInfos[m_uiViewer->lwMeshes->currentRow()].m_points));
+        m_uiViewer->leTriNumber->setText(QString::number(m_pGLMultiObject->m_meshesInfos[m_uiViewer->lwMeshes->currentRow()].m_triangles));
 
     // unlock
         m_uiViewer->rbDisplayTexture->setEnabled(true);

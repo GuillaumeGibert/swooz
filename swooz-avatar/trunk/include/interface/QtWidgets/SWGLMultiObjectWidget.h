@@ -31,9 +31,10 @@ typedef boost::shared_ptr<QGLBuffer> QGLBufferPtr;
 typedef boost::shared_ptr<swMesh::SWMesh> SWMeshPtr;	/**< boost shared pointer for SWMesh */
 
 
-enum GLObjectDisplayMode
+struct SWGLObjectInfos
 {
-    GLO_ORIGINAL_COLOR,GLO_UNI_COLOR,GLO_TEXTURE
+    int m_points;
+    int m_triangles;
 };
 
 struct SWGLObjectParameters
@@ -131,12 +132,6 @@ class SWGLMultiObjectWidget : public SWGLWidget
          */
         virtual void paintGL();
 
-        /**
-         * @brief mouseDoubleClickEvent
-         * @param e
-         */
-//        virtual void mouseDoubleClickEvent(QMouseEvent *e);
-
 
     public slots:
 
@@ -179,33 +174,39 @@ class SWGLMultiObjectWidget : public SWGLWidget
 
     private :
 
+        /**
+         * @brief drawClouds
+         */
         void drawClouds();
 
+        /**
+         * @brief drawMeshes
+         */
         void drawMeshes();
+
+
+
 
     private :
 
 
         QGLShaderProgram m_oShaderCloud; /**< ... */
         QGLShaderProgram m_oShaderMesh;  /**< ... */
+        QGLShaderProgram m_oShaderCubeMap;  /**< ... */
 
-//        QGLBuffer m_vertexBuffer;   /**< ... */
-//        QGLBuffer m_indexBuffer;    /**< ... */
-//        QGLBuffer m_normalBuffer;   /**< ... */
-//        QGLBuffer m_textureBuffer;  /**< ... */
-//        QGLBuffer m_colorBuffer;    /**< ... */
 
         QMatrix4x4  m_oMVPMatrix;	/**< ... */
 
-//        QList<SWCloudPtr> m_vClouds; /**< ... */
-//        QList<SWMeshPtr> m_vMeshes;  /**< ... */
+
         QList<SWMeshPtr> m_vMeshes;  /**< ... */
         QList<SWCloudPtr> m_vClouds; /**< ... */
-        QList<bool> m_vCloudsBufferToUpdate;
-        QList<bool> m_vMeshesBufferToUpdate;
+        QList<bool> m_vCloudsBufferToUpdate;    /**< ... */
+        QList<bool> m_vMeshesBufferToUpdate;    /**< ... */
 
         QList<SWGLObjectParametersPtr> m_vCloudsParameters; /**< ... */
         QList<SWGLObjectParametersPtr> m_vMeshesParameters; /**< ... */
+
+
 
 //        QVector
         QList<QGLBufferPtr> m_vCloudsVertexBuffer;
@@ -237,7 +238,24 @@ class SWGLMultiObjectWidget : public SWGLWidget
         QReadWriteLock m_oParamMutex; /**< ... */
 
         QReadWriteLock m_pListCloudsMutex;
-        QReadWriteLock m_pListMeshesMutex;                      
+        QReadWriteLock m_pListMeshesMutex;
+
+
+
+
+
+
+
+
+
+
+
+
+
+    public :
+
+        QList<SWGLObjectInfos> m_cloudsInfos;   /**< ... */
+        QList<SWGLObjectInfos> m_meshesInfos;   /**< ... */
 
 };
 

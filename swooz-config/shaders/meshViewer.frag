@@ -30,7 +30,6 @@ uniform vec3 lSpecular = vec3(1.0,1.0,1.0);
 uniform vec3 lSourcePos = vec3(0.0,0.0,-0.5);
 
 // texture
-uniform bool applyTexture = false;
 uniform sampler2D texture2d;
 
 // camera
@@ -65,9 +64,13 @@ void main(void)
     //  texture
         vec4 textureColor = texture2D(texture2d, TextureCoord);
 
-        if(displayMode != 2)
+        if(displayMode == 0 || displayMode == 1)
         {
             fragColor = vec4(PointColor, 1.0) * vec4(ambiantLight + diffusLight + specularLight, opacity);
+        }
+        else if(displayMode == 3)
+        {
+            fragColor = textureColor;
         }
         else
         {

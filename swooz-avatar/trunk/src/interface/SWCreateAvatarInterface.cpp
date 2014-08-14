@@ -174,6 +174,8 @@ SWCreateAvatarInterface::SWCreateAvatarInterface(QWidget *oQWRelative) : QMainWi
         // dilate / erode
             m_WCreateAvatar->setDilate(m_uiCreateAvatar->sbDilate->value());
             m_WCreateAvatar->setErode(m_uiCreateAvatar->sbErode->value());
+        // stasm
+            m_WCreateAvatar->setUseStasm(m_uiCreateAvatar->cbSTASM->isChecked());
 
         // cloud
             m_WCloudGL->setDepthRect(m_uiCreateAvatar->dsbFaceDepth->value());

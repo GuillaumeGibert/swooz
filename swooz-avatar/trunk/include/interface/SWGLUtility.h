@@ -27,6 +27,7 @@ static GLenum checkGlError(bool bDisplay = true)
 
     while((l_glError = glGetError()) != GL_NO_ERROR)
     {
+        std::cout << l_glError << " ";
         switch(l_glError)
         {
             case GL_INVALID_ENUM :
@@ -60,7 +61,6 @@ static GLenum checkGlError(bool bDisplay = true)
             qWarning() << "GL Error : " << l_sSError;
         }
     }
-
 
     return l_glError;
 }
@@ -224,13 +224,19 @@ static void bindNormalBuffer(QGLBuffer &normalBuffer, QGLShaderProgram &oShader)
  */
 static GLenum drawBuffer(QGLBuffer &indexBuffer, QGLBuffer &vertexBuffer, QGLShaderProgram &oShader, GLenum oPrimitiveToRender)
 {
+//    std::cout <<"checkShader ";
     checkShader(oShader);
+//    std::cout <<"bindVertexBuffer ";
     bindVertexBuffer(vertexBuffer, oShader);
+//    std::cout <<"indexBuffer ";
     indexBuffer.bind();
         if(checkGlError(true) != GL_NO_ERROR) qWarning() << "drawBuffer 4 -> indexBuffer.bind()";
+//    std::cout <<"glDrawElements ";
     glDrawElements(oPrimitiveToRender, indexBuffer.size(), GL_UNSIGNED_INT, 0);
+//    std::cout <<"release ";
         if(checkGlError(true) != GL_NO_ERROR) qWarning() << "drawBuffer 4 -> glDrawElements";
     indexBuffer.release();
+//    std::cout <<"end drawBuffer ";
 
     return checkGlError(true);
 }
@@ -245,15 +251,23 @@ static GLenum drawBuffer(QGLBuffer &indexBuffer, QGLBuffer &vertexBuffer, QGLSha
  */
 static GLenum drawBuffer(QGLBuffer &indexBuffer, QGLBuffer &vertexBuffer, QGLBuffer &normalBuffer, QGLShaderProgram &oShader, GLenum oPrimitiveToRender)
 {
+//    std::cout <<"checkShader ";
     checkShader(oShader);
+//    std::cout <<"bindVertexBuffer ";
     bindVertexBuffer(vertexBuffer, oShader);
+//    std::cout <<"bindNormalBuffer ";
     bindNormalBuffer(normalBuffer, oShader);
 
+//    std::cout <<"indexBuffer ";
     indexBuffer.bind();
         if(checkGlError(true) != GL_NO_ERROR) qWarning() << "drawBuffer 5 -> indexBuffer.bind()";
+//    std::cout <<"glDrawElements ";
     glDrawElements(oPrimitiveToRender, indexBuffer.size(), GL_UNSIGNED_INT, 0);
-        if(checkGlError(true) != GL_NO_ERROR) qWarning() << "drawBuffer 5 -> glDrawElements";
+//        if(checkGlError(true) != GL_NO_ERROR) qWarning() << "drawBuffer 5 -> glDrawElements";
+//    std::cout <<"release ";
     indexBuffer.release();
+
+//    std::cout <<"end drawBuffer ";
 
     return checkGlError(true);
 }

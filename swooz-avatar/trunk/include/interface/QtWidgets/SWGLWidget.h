@@ -22,6 +22,11 @@
 #include <QGLBuffer>
 
 
+enum GLObjectDisplayMode
+{
+    GLO_ORIGINAL_COLOR,GLO_UNI_COLOR,GLO_TEXTURE,GLO_TEXTURE_NO_LIGHT
+};
+
 /**
  * \class SWGLWidget
  * \brief Base class for rendering opengl in Qt widget.
@@ -30,6 +35,7 @@
  */
 class SWGLWidget : public QGLWidget
 {
+
 	Q_OBJECT
 	
 	public:
@@ -181,6 +187,11 @@ class SWGLWidget : public QGLWidget
         void drawAxes(QGLShaderProgram &oShader, QMatrix4x4 &mvpMatrix, cfloat fScale = 1.f, const QVector3D &oOrigine = QVector3D(0.f,0.f,0.f));
 
 
+        void drawCubeMap(QGLShaderProgram &oShader, QMatrix4x4 &mvpMatrix);
+
+        void initTextures();
+
+
     protected :
 
         bool m_bVerbose;                /**< display more info */
@@ -203,6 +214,22 @@ class SWGLWidget : public QGLWidget
         QGLContext *m_glContext;        /**< opengl context */
 
         QReadWriteLock m_oParamMutex;   /**< ... */
+
+
+        QImage m_cubeMapTextureNegX;
+        QImage m_cubeMapTextureNegY;
+        QImage m_cubeMapTextureNegZ;
+        QImage m_cubeMapTexturePosX;
+        QImage m_cubeMapTexturePosY;
+        QImage m_cubeMapTexturePosZ;
+        GLuint m_cubeMapTextureNegXLocation;
+        GLuint m_cubeMapTextureNegYLocation;
+        GLuint m_cubeMapTextureNegZLocation;
+        GLuint m_cubeMapTexturePosXLocation;
+        GLuint m_cubeMapTexturePosYLocation;
+        GLuint m_cubeMapTexturePosZLocation;
+
+
 };
      
 #endif

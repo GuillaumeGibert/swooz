@@ -12,6 +12,11 @@ uniform bool applyTransformation = false;
 uniform int displayMode = 0;
 uniform float scaling = 1.0;
 
+
+
+out vec2 TextureCoord;
+in vec2 texture_coord;
+
 in vec3 vertex;
 in vec3 color;
 
@@ -41,6 +46,8 @@ void main( void )
 
     newPosVertex = newPosVertex - vec4(translationToCenter,1.0);
 
+    TextureCoord = texture_coord;
 
     gl_Position = mvpMatrix * vec4(newPosVertex.xyz,1.0);
 }
+
