@@ -58,7 +58,7 @@ my @ExecScriptParams = (# toolkit
                         "sw-toolkit_kinectOnDimenco",           "x86",  "SWDisplayKinectOnDimenco.exe",
                         # avatar
                         "sw-createAvatar",                      "x86",  "SWCreateAvatar.exe",
-                        "sw-morphing",                          "x86",  "SWMorphing.exe",
+                        #"sw-morphing",                          "x86",  "SWMorphing.exe",
                         "sw-morphing-x64",                      "amd64","SWMorphing-x64.exe",
                         # tracking
                         "sw-headForestTracking",                "x86",  "SWTrackingHeadForest.exe ../data/ini/headForestConfig.ini",
@@ -66,7 +66,7 @@ my @ExecScriptParams = (# toolkit
                         "sw-faceshiftTracking",                 "x86",  "SWFaceShiftTracking.exe",
                         "sw-headEmicpTracking",                 "x86",  "SWEmicpHeadTracking.exe",
                         "sw-openNITracking",                    "x86",  "SWOpenNITracking.exe config.txt",
-                        "sw-fakeTracking",                      "x86",  "SWFakeTracking.exe",  ## %PARAMS_EXEC%
+                        "sw-fakeTracking",                      "x86",  "SWFakeTracking.exe",
                         "sw-leapTracking",                      "x86",  "SWLeapTracking.exe",
                         "sw-fastrakTracking",                   "x86",  "SWFastrakTracking.exe",
                         "sw-tobiiTracking",                     "x86",  "SWTobiiTracking.exe",
@@ -85,6 +85,7 @@ my @ExecScriptParams = (# toolkit
                         "examples/data_loader_kinect",          "x86",  "kinect_data_loader.exe",
                         "examples/detect_face_stasm",           "x86",  "detect_face_stasm.exe",
                         "examples/display_leap",                "x86",  "display_leap.exe",
+                        "examples/rapidProcessMesh",            "x86",  "rapidProcessMesh.exe",
                         # feeback
                         "sw-feedback",                          "x86",  "SWHeadMountedDisplay.exe"
 );

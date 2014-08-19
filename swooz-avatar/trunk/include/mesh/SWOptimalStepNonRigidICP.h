@@ -52,6 +52,7 @@ namespace swMesh
             void computeDistanceWeights();
             void computeCorrespondences();
             void copyDataForResolving();
+            void associateTextureCoordinates();
 
 //            double resolve(cdouble dAlpha, cdouble dBeta, cdouble dGama, cbool bUseLandMarks);
             float resolve(cfloat fAlpha, cfloat fBeta, cfloat fGama, cbool bUseLandMarks);

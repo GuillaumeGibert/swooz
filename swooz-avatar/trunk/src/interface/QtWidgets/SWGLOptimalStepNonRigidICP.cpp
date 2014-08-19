@@ -198,7 +198,7 @@ double SWGLOptimalStepNonRigidICP::morph(cdouble dAlpha)
 }
 
 void SWGLOptimalStepNonRigidICP::saveCurrentMeshToObj(const QString &sPath)
-{
+{           
     int l_i32SeparatorsNb = 0;
     QString l_sName(sPath);
     for(int ii = 0; ii < sPath.size(); ++ii)
@@ -430,6 +430,9 @@ void SWGLOptimalStepNonRigidICP::transformTarget(cbool bUpdateDisplay)
             l_oRigidMotion.m_aFTranslation[2] = m_fZTransTarget;
 
             m_pOSNRICP->m_oTargetMesh.cloud()->transform(l_oRigidMotion.m_aFRotation, l_oRigidMotion.m_aFTranslation);
+            m_pOSNRICP->m_oTargetMesh.updateNonOrientedTrianglesNormals();
+            m_pOSNRICP->m_oTargetMesh.updateNonOrientedVerticesNormals();
+//            m_pOSNRICP->m_oTargetMesh.transformNormals(l_oRigidMotion.m_aFRotation);
 
         m_pTargetMeshMutex->unlock();
 
@@ -682,6 +685,7 @@ void SWGLOptimalStepNonRigidICP::drawLandMarksPoints(QGLShaderProgram &oShader, 
     allocateBuffer(m_vertexBuffer, l_aPointV, static_cast<int>(mLandMarkCorr.size())  * l_i32SizeVertex);
 
     // set shaders parameters
+    oShader.setUniformValue("displayMode", 1);
     oShader.setUniformValue("uniColor", 1.f, 0.f, 0.f);
     oShader.setUniformValue("mvpMatrix", mvpMatrix);
     oShader.setUniformValue("opacity", m_fDefaultOpacity);
@@ -701,9 +705,10 @@ void SWGLOptimalStepNonRigidICP::drawLandMarksPoints(QGLShaderProgram &oShader, 
     allocateBuffer(m_vertexBuffer, l_aPointV, static_cast<int>(mLandMarkCorr.size())  * l_i32SizeVertex);
 
     // set shaders parameters
+//    oShader.setUniformValue("displayMode", 1);
     oShader.setUniformValue("uniColor", 0.0f, 1.f, 0.f);
-    oShader.setUniformValue("mvpMatrix", mvpMatrix);
-    oShader.setUniformValue("opacity", m_fDefaultOpacity);
+//    oShader.setUniformValue("mvpMatrix", mvpMatrix);
+//    oShader.setUniformValue("opacity", m_fDefaultOpacity);
 
     // draw primitives
    drawBuffer(m_indexBuffer, m_vertexBuffer, oShader, GL_POINTS);
@@ -765,7 +770,8 @@ void SWGLOptimalStepNonRigidICP::drawLandMarksCorr(QGLShaderProgram &oShader, co
     allocateBuffer(m_indexBuffer,  l_aCorrLineI, static_cast<int>(mLandMarkCorr.size()) * 2 * l_i32SizeIndex);
     allocateBuffer(m_vertexBuffer, l_aCorrLineV, static_cast<int>(mLandMarkCorr.size()) * 2 * l_i32SizeVertex);
 
-    // set shaders parameters
+    // set shaders parameters        
+    oShader.setUniformValue("displayMode", 1);
     oShader.setUniformValue("uniColor", r, g, b);
     oShader.setUniformValue("mvpMatrix", mvpMatrix);
     oShader.setUniformValue("opacity", m_fDefaultOpacity);
@@ -860,7 +866,7 @@ void SWGLOptimalStepNonRigidICP::drawCorrLines(QGLShaderProgram &oShader, const 
     allocateBuffer(m_colorBuffer, l_aLinesCorrC, oSource.size() * 2 * l_i32SizeVertex);
 
     // set shaders parameters
-    oShader.setUniformValue("uniColor", -1, -1, -1);
+    oShader.setUniformValue("displayMode", 0);
     oShader.setUniformValue("mvpMatrix", mvpMatrix);
     oShader.setUniformValue("opacity", m_fDefaultOpacity);
 
@@ -1064,6 +1070,7 @@ void SWGLOptimalStepNonRigidICP::drawMeshLines(QGLShaderProgram &oShader, SWGLBu
     }
 
     // set uniform values parameters
+    oShader.setUniformValue("displayMode", 1);
     oShader.setUniformValue("uniColor", r, g, b);
     oShader.setUniformValue("mvpMatrix", mvpMatrix);
     oShader.setUniformValue("opacity", fOpacity);
@@ -1137,6 +1144,7 @@ void SWGLOptimalStepNonRigidICP::drawMeshVerticesNormals(QGLShaderProgram &oShad
     }
 
     // set shaders parameters
+    oShader.setUniformValue("displayMode", 1);
     oShader.setUniformValue("uniColor", r, g, b);
     oShader.setUniformValue("mvpMatrix", mvpMatrix);
     oShader.setUniformValue("opacity", m_fDefaultOpacity);
@@ -1206,6 +1214,7 @@ void SWGLOptimalStepNonRigidICP::drawMeshTrianglesNormals(QGLShaderProgram &oSha
     }
 
     // set shaders parameters
+    oShader.setUniformValue("displayMode", 1);
     oShader.setUniformValue("uniColor", r, g, b);
     oShader.setUniformValue("mvpMatrix", mvpMatrix);
     oShader.setUniformValue("opacity", m_fDefaultOpacity);

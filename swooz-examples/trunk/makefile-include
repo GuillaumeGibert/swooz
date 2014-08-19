@@ -129,6 +129,8 @@ INC_MAIN_DATA_LOADER_KINECT = $(COMMON) $(INC_OPENCV) $(INC_BOOST)
 INC_MAIN_DETECT_FACE_STASM = $(COMMON) $(INC_OPENCV) $(INC_BOOST)
 #       display leap
 INC_MAIN_DISPLAY_LEAP = $(COMMON) $(INC_OPENCV) $(INC_BOOST) $(INC_LEAP)
+#       rapid process mesh
+INC_MAIN_PROCESS = $(COMMON)
 ################################################################################################################# RELEASE MODE
 
 !IF  "$(CFG)" == "Release"
@@ -197,6 +199,8 @@ LIBS_MAIN_DATA_LOADER_KINECT = $(LIBS_CV) $(LIBS_BOOST_D) $(LIBS_SWOOZ)
 LIBS_MAIN_DETECT_FACE_STASM = $(LIBS_CV) $(LIBS_BOOST_D) $(LIBS_SWOOZ)
 
 LIBS_MAIN_DISPLAY_LEAP = $(LIBS_OPENNI) $(LIBS_CV) $(LIBS_BOOST_D) $(LIBS_SWOOZ) $(LIBS_LEAP)
+
+LIBS_MAIN_PROCESS = $(LIBS_SWOOZ)
 
 !ENDIF
 

@@ -105,12 +105,23 @@ for (my $ii = 0; $ii < &Env::executablesNumber(); $ii++)
         print $fh "print \"WARNING : CUDA not detected, some projects can not be launched.\n\";";
     }
 
+    # manage args
+    print $fh "my \$ARG1 = \"\";\n";
+    print $fh "my \$ARG2 = \"\";\n";
+    print $fh "my \$ARG3 = \"\";\n";
+    print $fh "if(\@ARGV > 0)\n";
+    print $fh "{\n  \$ARG1 = \@ARGV[0];\n}\n";
+    print $fh "if(\@ARGV > 1)\n";
+    print $fh "{\n  \$ARG2 = \@ARGV[1];\n}\n";
+    print $fh "if(\@ARGV > 2)\n";
+    print $fh "{\n  \$ARG3 = \@ARGV[2];\n}\n";
+
     print $fh "system(\"\\" . $xcopyCmd . " \\\"" . $Env::PBase . "swooz-config\\\" \\\"" . $Env::SWDist . "data\\\"\");\n";
     print $fh "chdir \"" . $Env::SWScripts . "\";\n";
     print $fh "{\n   local \@ARGV = (\"" . &Env::archExe($ii) . "\");\n";
     print $fh "   require \"win-init_env_command.pl\";\n}\n";
     print $fh "chdir \"../dist/bin\";\n";
-    print $fh "system(\"" . &Env::exeFileName($ii) . "\");\n";
+    print $fh "system(\"" . &Env::exeFileName($ii) . "\" . \" \" . \$ARG1 . \" \" . \$ARG2 . \" \" . \$ARG3);\n";
     print $fh "chdir \"..\";\n";
     close($fh);
 }

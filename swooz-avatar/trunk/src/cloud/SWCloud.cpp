@@ -1080,18 +1080,18 @@ bool SWCloud::reduce(float fRandomSamplingPercentage, float fMinDistBeforeReduct
 
 bool SWCloud::transform(cfloat *m_aFRotationMatrix, cfloat *m_aFTranslationMatrix)
 {
-	for(uint ii = 0; ii < m_ui32NumberOfPoints; ++ii)
-	{
+    for(uint ii = 0; ii < m_ui32NumberOfPoints; ++ii)
+    {
         float l_fNewX,l_fNewY,l_fNewZ;
 
         l_fNewX =   m_aFRotationMatrix[0] * coord(0)[ii] +
                     m_aFRotationMatrix[1] * coord(1)[ii] +
                     m_aFRotationMatrix[2] * coord(2)[ii] + m_aFTranslationMatrix[0];
-		
+
         l_fNewY =   m_aFRotationMatrix[3] * coord(0)[ii] +
                     m_aFRotationMatrix[4] * coord(1)[ii] +
                     m_aFRotationMatrix[5] * coord(2)[ii] + m_aFTranslationMatrix[1];
-		
+
         l_fNewZ =   m_aFRotationMatrix[6] * coord(0)[ii] +
                     m_aFRotationMatrix[7] * coord(1)[ii] +
                     m_aFRotationMatrix[8] * coord(2)[ii] + m_aFTranslationMatrix[2];
@@ -1099,9 +1099,9 @@ bool SWCloud::transform(cfloat *m_aFRotationMatrix, cfloat *m_aFTranslationMatri
         m_aFCoords[m_ui32NumberOfPoints*0 +ii] = l_fNewX;
         m_aFCoords[m_ui32NumberOfPoints*1 +ii] = l_fNewY;
         m_aFCoords[m_ui32NumberOfPoints*2 +ii] = l_fNewZ;
-	}
-	
-	return true;
+    }
+
+    return true;
 }
 
 
@@ -1532,14 +1532,15 @@ int SWCloud::idNearestPoint(const std::vector<float> &oPt, cfloat fDistMin) cons
     {
         float l_fCurrSquareDist = (oPt[0]-coord(0)[ii])*(oPt[0]-coord(0)[ii])+
                                   (oPt[1]-coord(1)[ii])*(oPt[1]-coord(1)[ii])+
-                                  (oPt[2]-coord(2)[ii])*(oPt[2]-coord(2)[ii]);
+                                  (oPt[2]-coord(2)[ii])*(oPt[2]-coord(2)[ii]);       
+
         if(l_fCurrSquareDist < l_fMin)
         {
             bool l_bUpdate = true;
 
             if(fDistMin != 0.f)
             {
-                l_bUpdate = (sqrt(l_fCurrSquareDist) > fDistMin);
+                l_bUpdate = (sqrt(l_fCurrSquareDist) > fDistMin);                
             }
 
             if(l_bUpdate)

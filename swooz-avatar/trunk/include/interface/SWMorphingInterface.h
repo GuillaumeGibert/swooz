@@ -79,6 +79,16 @@ class SWMorphingInterface : public QMainWindow
          */
         void resetAllParameters();
 
+        /**
+         * @brief enableGLFullScreen
+         */
+        void enableGLFullScreen();
+
+        /**
+         * @brief disableGLFullScreen
+         */
+        void disableGLFullScreen();
+
     signals:
 
 //        /**
@@ -100,6 +110,7 @@ class SWMorphingInterface : public QMainWindow
 
         bool m_bTemplateDefined;
         bool m_bTargetDefined;
+        bool m_bGLFullScreen;
 
 
         int m_i32RotXDefaultValue;
@@ -142,6 +153,8 @@ class SWMorphingInterface : public QMainWindow
         // threads & workers
         SWMorphingWorker  *m_pWMorphing;    /**< morphing worker */
         QThread            m_TMorphing;		/**< morphing thread */
+
+        QWidget *m_pGLContainer;
 
 
 //        double *test;

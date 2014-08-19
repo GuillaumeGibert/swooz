@@ -189,6 +189,13 @@ namespace swMesh
             void vertexNormal(float *a3FNormal, cuint ui32IdVertex) const;
 
             /**
+             * @brief Apply a transformation on the mesh normals (see transform in SWCloud)
+             * @param m_aFRotationMatrix (rigid motion)
+             * @return true
+             */
+//            bool transformNormals(cfloat *aFRotationMatrix);
+
+            /**
              * \brief Get the triangle normal corresonding to the input id.
              * \param [out] aTNormal           : array containing the normal coordinates
              * \param [in] ui32IdTriangle      : triangle id
@@ -327,12 +334,47 @@ namespace swMesh
             void updateNonOrientedVerticesNormals();
 
             /**
+             * @brief invertAllNormals
+             */
+            void invertAllNormals();
+
+            /**
+             * @brief setTextureCoordinate
+             * @param idVertex
+             * @param vCoords
+             */
+            void setTextureCoordinate(cuint idVertex, const std::vector<float> &vCoords)
+            {
+                if(m_a2FTextures.size() == 0)
+                {
+                    m_a2FTextures = std::vector<float>(2*pointsNumber(),0.f);
+                }
+
+                m_a2FTextures[idVertex*2] = vCoords[0];
+                m_a2FTextures[idVertex*2+1] = vCoords[1];
+            }
+
+            /**
+             * @brief textureCoordinate
+             * @param idVertex
+             * @param vCoords
+             */
+            void textureCoordinate(cuint idVertex, std::vector<float> &vCoords) const
+            {
+                vCoords = std::vector<float>(2,0.f);
+                vCoords[0] = m_a2FTextures[idVertex*2];
+                vCoords[1] = m_a2FTextures[idVertex*2+1];
+            }
+
+            /**
              * \brief Return a pointer on the mesh cloud (memory managed by SWMesh destructor)
              * \return m_oCloud pointer
              */
             swCloud::SWCloud *cloud();
 
             swCloud::SWCloud m_oCloud;          /**< cloud containg mesh points */ // TODO : no public
+
+            bool m_meshLoadSucess;
 
 
         protected:

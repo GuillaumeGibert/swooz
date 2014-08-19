@@ -34,6 +34,7 @@ SWCreateAvatarInterface::SWCreateAvatarInterface(QWidget *oQWRelative) : QMainWi
 
 	// init opengl context
     QHBoxLayout *l_pGLContainerLayout = new QHBoxLayout();
+    l_pGLContainerLayout->layout()->setContentsMargins(0,0,0,0);
     m_pGLContainer = new QWidget();
     QGLFormat l_glFormat;
     l_glFormat.setVersion( 4, 3 );

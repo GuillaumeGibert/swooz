@@ -19,6 +19,7 @@
 using namespace swDevice;
 
 
+
 // ############################################# CONSTRUCTORS / DESTRUCTORS
 
 SWCreateAvatar::SWCreateAvatar(cbool bVerbose) : m_bVerbose(bVerbose), m_i32NumCloud(0)
@@ -72,6 +73,7 @@ SWCreateAvatar::SWCreateAvatar(cbool bVerbose) : m_bVerbose(bVerbose), m_i32NumC
         m_oLastRectFace.width       = 0;
         m_oLastRectNose.width       = 0;
 }
+
 
 // ############################################# METHODS
 
@@ -449,11 +451,9 @@ void SWCreateAvatar::constructAvatar()
             l_oFinalFilteredMat = l_oFinalMat.clone();
         }
 
-
     // erase contours
         swCloud::eraseContoursRadialProj(l_oFinalFilteredMat, m_i32EraseValue, m_i32EraseConnex);
             cv::imwrite("../data/images/radialProj/8_eraseContours.png" ,l_oFinalFilteredMat);
-
 
     // apply manual zone selection
         for(uint ii = 0; ii < m_vPixelToDelete.size(); ++ii)
@@ -477,6 +477,7 @@ void SWCreateAvatar::constructAvatar()
         computeSTASMCoords();
     }
 }
+
 
 void SWCreateAvatar::totalCloud(swCloud::SWCloud &oTotalCloud)
 {
@@ -508,6 +509,7 @@ void SWCreateAvatar::computeSTASMCoords()
     {
         std::vector<float> l_vCurrPoint = swUtil::mul(l_vMeanSTASMPoint[ii], 1.f /  m_vStasm3DPoints.size());
         m_vMeshIdSTASMPoints.push_back(m_oLastResultFaceMesh.cloud()->idNearestPoint(l_vCurrPoint));
+//        std::cout << m_vMeshIdSTASMPoints[m_vMeshIdSTASMPoints.size()-1] << " ";
     }
 }
 

@@ -1096,6 +1096,23 @@ namespace swCloud
         // set the new mesh
             oResultMesh = swMesh::SWMesh(l_vVertexCoords, l_vIndexTri, l_vTextureCoords);
 
+            // TODO : fix mirror
+//            SWCloudBBox l_bBox = oResultMesh.cloud()->bBox();
+
+
+//            // fix mirror effect
+//            for(uint ii = 0; ii < oResultMesh.pointsNumber(); ++ii)
+//            {
+//                oResultMesh.cloud()->coord(2)[ii] -= 2*(oResultMesh.cloud()->coord(2)[ii] - l_bBox.m_fMaxZ);
+//            }
+
+////            swCloud::SWRigidMotion l_transfo(0.f,180.f,0.f);
+////            oResultMesh.cloud()->transform(l_transfo.m_aFRotation, l_transfo.m_aFTranslation);
+//////            oResultMesh.transformNormals(l_transfo.m_aFRotation, l_transfo.m_aFTranslation);
+
+////            oResultMesh.updateNonOrientedTrianglesNormals();
+////            oResultMesh.updateNonOrientedVerticesNormals();
+//            oResultMesh.invertAllNormals();
 
 
         return true;

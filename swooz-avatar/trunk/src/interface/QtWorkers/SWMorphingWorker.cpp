@@ -42,7 +42,8 @@ void SWMorphingWorker::startMorphing()
         while(l_dDiff > l_dDiffMax)
         {
             // resolve
-            l_dDiff = m_pGLOSNRICP->morph(l_dAlpha);
+            l_dDiff = m_pGLOSNRICP->morph(l_dAlpha);                        
+
             if(l_dDiff < 0 || l_i32Iteration > 20)
             {
                 l_bEscapeLoop = true;
@@ -89,7 +90,7 @@ void SWMorphingWorker::startMorphing()
     }
 
     m_oMutex.lockForWrite();
-        m_bDoMorphing = false;
+        m_bDoMorphing = false;                
     m_oMutex.unlock();
 
     emit endMorphingSignal();

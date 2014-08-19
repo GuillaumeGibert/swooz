@@ -25,6 +25,7 @@ SWMesh::SWMesh(const std::string &sPathObjFile) : m_ui32TrianglesNumber(0), m_ui
 {   
     bool l_bIsNormal  = false;
     bool l_bIsTexture = false;
+    m_meshLoadSucess = false;
 
     if(m_oCloud.loadObj(sPathObjFile))
     {
@@ -146,18 +147,33 @@ SWMesh::SWMesh(const std::string &sPathObjFile) : m_ui32TrianglesNumber(0), m_ui
                 l_oFileStream.close();
                 l_bEndFile = true;
             }
+        }        
+
+        m_ui32TrianglesNumber = static_cast<uint>(m_aIdFaces.size()) / 3;
+
+        // build links data
+            buildEdgeVertexGraph();
+            buildVerticesNeighbors();
+
+
+        if(m_a2FTextures.size() != 2*pointsNumber())
+        {
+            std::cerr << "Obj texture coordinates incorrect, all values set to (0.f 0.f) " << std::endl;
+            m_a2FTextures = std::vector<float>(2*pointsNumber(),0.f);
         }
+
+        if(m_a3FNormals.size() != 3*pointsNumber())
+        {
+            std::cerr << "Obj normals incorrect, all values set to (0.f, 0.f, 0.f) " << std::endl;
+            m_a3FNormals = std::vector<float>(3*pointsNumber(),0.f);
+        }
+
+        m_meshLoadSucess = true;
     }
     else
     {
         cerr << "Error SWMesh constructor (bad parameter). " << endl;
     }
-
-    m_ui32TrianglesNumber = static_cast<uint>(m_aIdFaces.size()) / 3;
-
-    // build links data
-        buildEdgeVertexGraph();
-        buildVerticesNeighbors();
 }
 
 SWMesh::SWMesh(const std::vector<std::vector<float> > &v3FPoints,
@@ -302,6 +318,82 @@ void SWMesh::vertexNormal(float *a3FNormal, cuint ui32IdVertex) const
     a3FNormal[2] = m_a3FNonOrientedVerticesNormals[ui32IdVertex][2];
 }
 
+void SWMesh::invertAllNormals()
+{
+    for(uint ii = 0; ii < pointsNumber(); ++ii)
+    {
+        m_a3FNormals[ii*3+2] *= -1.f;
+    }
+}
+
+//bool SWMesh::transformNormals(cfloat *aFRotationMatrix)
+//{
+//    for(uint ii = 0; ii < pointsNumber(); ++ii)
+//    {
+//        float l_fNewX,l_fNewY,l_fNewZ;
+
+//        l_fNewX =   aFRotationMatrix[0] * m_a3FNormals[ii*3] +
+//                    aFRotationMatrix[1] * m_a3FNormals[ii*3+1] +
+//                    aFRotationMatrix[2] * m_a3FNormals[ii*3+2];
+
+//        l_fNewY =   aFRotationMatrix[3] * m_a3FNormals[ii*3] +
+//                    aFRotationMatrix[4] * m_a3FNormals[ii*3+1] +
+//                    aFRotationMatrix[5] * m_a3FNormals[ii*3+2];
+
+//        l_fNewZ =   aFRotationMatrix[6] * m_a3FNormals[ii*3] +
+//                    aFRotationMatrix[7] * m_a3FNormals[ii*3+1] +
+//                    aFRotationMatrix[8] * m_a3FNormals[ii*3+2];
+
+//        m_a3FNormals[ii*3] = l_fNewX;
+//        m_a3FNormals[ii*3+1] = l_fNewY;
+//        m_a3FNormals[ii*3+2] = l_fNewZ;
+//    }
+
+//    for(uint ii = 0; ii < pointsNumber(); ++ii)
+//    {
+//        float l_fNewX,l_fNewY,l_fNewZ;
+
+//        l_fNewX =   aFRotationMatrix[0] * m_a3FNonOrientedVerticesNormals[ii][0] +
+//                    aFRotationMatrix[1] * m_a3FNonOrientedVerticesNormals[ii][1] +
+//                    aFRotationMatrix[2] * m_a3FNonOrientedVerticesNormals[ii][2];
+
+//        l_fNewY =   aFRotationMatrix[3] * m_a3FNonOrientedVerticesNormals[ii][0]+
+//                    aFRotationMatrix[4] * m_a3FNonOrientedVerticesNormals[ii][1] +
+//                    aFRotationMatrix[5] * m_a3FNonOrientedVerticesNormals[ii][2];
+
+//        l_fNewZ =   aFRotationMatrix[6] * m_a3FNonOrientedVerticesNormals[ii][0] +
+//                    aFRotationMatrix[7] * m_a3FNonOrientedVerticesNormals[ii][1] +
+//                    aFRotationMatrix[8] * m_a3FNonOrientedVerticesNormals[ii][2];
+
+//        m_a3FNonOrientedVerticesNormals[ii][0] = l_fNewX;
+//        m_a3FNonOrientedVerticesNormals[ii][1] = l_fNewY;
+//        m_a3FNonOrientedVerticesNormals[ii][2] = l_fNewZ;
+//    }
+
+//    for(uint ii = 0; ii < trianglesNumber(); ++ii)
+//    {
+//        float l_fNewX,l_fNewY,l_fNewZ;
+
+//        l_fNewX =   aFRotationMatrix[0] * m_a3FNonOrientedTrianglesNormals[ii][0] +
+//                    aFRotationMatrix[1] * m_a3FNonOrientedTrianglesNormals[ii][1] +
+//                    aFRotationMatrix[2] * m_a3FNonOrientedTrianglesNormals[ii][2];
+
+//        l_fNewY =   aFRotationMatrix[3] * m_a3FNonOrientedTrianglesNormals[ii][0] +
+//                    aFRotationMatrix[4] * m_a3FNonOrientedTrianglesNormals[ii][1] +
+//                    aFRotationMatrix[5] * m_a3FNonOrientedTrianglesNormals[ii][2];
+
+//        l_fNewZ =   aFRotationMatrix[6] * m_a3FNonOrientedTrianglesNormals[ii][0] +
+//                    aFRotationMatrix[7] * m_a3FNonOrientedTrianglesNormals[ii][1] +
+//                    aFRotationMatrix[8] * m_a3FNonOrientedTrianglesNormals[ii][2];
+
+//        m_a3FNonOrientedTrianglesNormals[ii][0] = l_fNewX;
+//        m_a3FNonOrientedTrianglesNormals[ii][1] = l_fNewY;
+//        m_a3FNonOrientedTrianglesNormals[ii][2] = l_fNewZ;
+//    }
+
+//    return true;
+//}
+
 bool SWMesh::saveToObj(const std::string &sPath, const std::string &sNameObj, const std::string sNameMaterial, const std::string sNameTexture) // TODO : finish
 {
     if(sPath.size() == 0 || sNameObj.size() == 0)
@@ -313,7 +405,7 @@ bool SWMesh::saveToObj(const std::string &sPath, const std::string &sNameObj, co
     std::ofstream l_oFlowMaterial;
     if(sNameMaterial.size() > 0)
     {
-        l_oFlowMaterial.open(sPath + sNameMaterial);
+        l_oFlowMaterial.open(sPath + sNameMaterial, std::ios_base::trunc);
         l_oFlowMaterial << "# Mesh created with SWoOZ plateform (https://github.com/GuillaumeGibert/swooz)" << std::endl;
         l_oFlowMaterial << "newmtl materialAvatar" << std::endl;
         l_oFlowMaterial << "Ka 1.000000 1.000000 1.000000" << std::endl;

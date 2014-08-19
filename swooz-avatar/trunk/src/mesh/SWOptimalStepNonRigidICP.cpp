@@ -175,11 +175,42 @@ void SWOptimalStepNonRigidICP::computeCorrespondences()
         }
     }
 
+    associateTextureCoordinates();
+
     // DEBUG
 //    cout << " end  computeCorrespondences " << (float)(clock() - l_oProgramTime) / CLOCKS_PER_SEC << std::endl;
 }
 
+void SWOptimalStepNonRigidICP::associateTextureCoordinates()
+{
+//    std::cout << "associateTextureCoordinates ";
+    for(uint ii = 0; ii < m_oSourceMesh.pointsNumber(); ++ii)
+    {
+        std::vector<float> l_targetTextureCoordinate;
+//        std::cout << m_u[ii] << " -> ";
 
+        std::vector<float> l_vPtTemplate, l_vPtTarget;
+        m_oSourceMesh.point(l_vPtTemplate, ii);
+        m_oTargetMesh.point(l_vPtTarget, m_u[ii]);
+
+        float l_fDist = swUtil::norm(swUtil::vec(l_vPtTemplate, l_vPtTarget));
+
+        if(l_fDist < 0.05)
+        {
+
+            m_oTargetMesh.textureCoordinate(m_u[ii], l_targetTextureCoordinate);
+//            std::cout << l_targetTextureCoordinate[0] << " " << l_targetTextureCoordinate[1] << " | ";
+            m_oSourceMesh.setTextureCoordinate(ii,l_targetTextureCoordinate);
+        }
+        else
+        {
+            std::cout << "1";
+        }
+//        std::cout << "end ";
+    }
+
+//    std::cout << "end associateTextureCoordinates " << std::endl;
+}
 
 void SWOptimalStepNonRigidICP::computeDistanceWeights()
 {
@@ -280,7 +311,7 @@ void SWOptimalStepNonRigidICP::computeDistanceWeights()
 
             if(l_bIntersect)
             {
-                cout << "a";
+//                cout << "a";
                 m_w[ii]  = 0.f;
                 m_w3[ii] = 0.f;
             }

@@ -443,7 +443,7 @@ void  SWGLWidget::drawAxes(QGLShaderProgram &oShader, QMatrix4x4 &mvpMatrix, cfl
 
     uint l_indexBufferLine1[] = {0,1};
     uint l_indexBufferLine2[] = {0,2};
-    uint l_indexBufferLine3[] = {0,1};
+    uint l_indexBufferLine3[] = {0,3};
 
     // allocate QGL buffers
     allocateBuffer(l_vertexBuffer, l_vertexBufferA, 4 *  3 * sizeof(float) );

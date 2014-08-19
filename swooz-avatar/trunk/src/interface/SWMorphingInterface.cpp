@@ -22,11 +22,11 @@
 
 #include <time.h>
 
-
 SWMorphingInterface::SWMorphingInterface() : m_uiMorphing(new Ui::SWUI_Morphing)
 {      
     m_bTemplateDefined  = false;
     m_bTargetDefined    = false;
+    m_bGLFullScreen     = false;
 
     // init main widget
     m_uiMorphing->setupUi(this);
@@ -65,16 +65,17 @@ SWMorphingInterface::SWMorphingInterface() : m_uiMorphing(new Ui::SWUI_Morphing)
 
     // middle container
         QHBoxLayout *l_pGLContainerLayout = new QHBoxLayout();
-        QWidget *l_pGLContainer = new QWidget();
+        l_pGLContainerLayout->layout()->setContentsMargins(0,0,0,0);
+        m_pGLContainer = new QWidget();
         QGLFormat l_glFormat;
         l_glFormat.setVersion( 4, 3 );
         l_glFormat.setProfile(  QGLFormat::CompatibilityProfile);
         l_glFormat.setSampleBuffers( true );
         QGLContext *l_glContext = new QGLContext(l_glFormat);
-        m_pGLOSNRICP = new SWGLOptimalStepNonRigidICP(l_glContext, l_pGLContainer);
+        m_pGLOSNRICP = new SWGLOptimalStepNonRigidICP(l_glContext, m_pGLContainer);
         l_pGLContainerLayout->addWidget(m_pGLOSNRICP);
-        l_pGLContainer->setLayout(l_pGLContainerLayout);
-        m_uiMorphing->glScene->addWidget(l_pGLContainer);
+        m_pGLContainer->setLayout(l_pGLContainerLayout);
+        m_uiMorphing->glScene->addWidget(m_pGLContainer);
 
 
     // init worker
@@ -130,6 +131,10 @@ SWMorphingInterface::SWMorphingInterface() : m_uiMorphing(new Ui::SWUI_Morphing)
         QObject::connect(m_uiMorphing->dsbBeta,             SIGNAL(valueChanged(double)),m_pGLOSNRICP,SLOT(setBeta(double)));
         QObject::connect(m_uiMorphing->dsbGama,             SIGNAL(valueChanged(double)),m_pGLOSNRICP,SLOT(setGama(double)));
         QObject::connect(m_uiMorphing->dsbAngleMax,         SIGNAL(valueChanged(double)),m_pGLOSNRICP,SLOT(setAngleMax(double)));
+
+        // fullscreen
+        QObject::connect(m_pGLOSNRICP, SIGNAL(enableFullScreen()), this, SLOT(enableGLFullScreen()));
+        QObject::connect(m_pGLOSNRICP, SIGNAL(disableFullScreen()), this, SLOT(disableGLFullScreen()));
 
         // this
         QObject::connect(this,                              SIGNAL(saveMeshFileSignal(QString)),m_pWMorphing,SLOT(saveMeshFile(QString)));
@@ -285,4 +290,24 @@ void SWMorphingInterface::lockInterface()
         m_uiMorphing->dsbAngleMax->setDisabled(true);
 
     m_uiMorphing->pbStop->setDisabled(false);
+}
+
+
+void SWMorphingInterface::enableGLFullScreen()
+{
+    if(!m_bGLFullScreen)
+    {
+        m_pGLContainer->setParent(0);
+        m_pGLContainer->showFullScreen();
+        m_bGLFullScreen = true;
+    }
+}
+
+void SWMorphingInterface::disableGLFullScreen()
+{
+    if(m_bGLFullScreen)
+    {
+        m_uiMorphing->glScene->addWidget(m_pGLContainer);
+        m_bGLFullScreen = false;
+    }
 }

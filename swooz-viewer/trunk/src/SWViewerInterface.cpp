@@ -31,6 +31,7 @@ SWViewerInterface::SWViewerInterface() : m_uiViewer(new Ui::SWUI_Viewer), m_bDes
         QGLContext *l_glContext = new QGLContext(l_glFormat);
         m_pGLMultiObject = new SWGLMultiObjectWidget(l_glContext, m_pGLContainer);
         l_pGLContainerLayout->addWidget(m_pGLMultiObject);
+        l_pGLContainerLayout->layout()->setContentsMargins(0,0,0,0);
         m_pGLContainer->setLayout(l_pGLContainerLayout);
         m_uiViewer->glScene->addWidget(m_pGLContainer);
 
