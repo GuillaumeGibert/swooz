@@ -128,6 +128,11 @@ void SWGLMultiObjectWidget::initializeGL()
 
     initTextures();
 
+
+    initVertexBuffer(m_vertexBufferCubeMap);
+    initVertexBuffer(m_textureBufferCubeMap);
+    initIndexBuffer(m_indexBufferCubeMap);
+
     // enable depth buffer
         glEnable(GL_DEPTH_TEST);
 }
@@ -156,7 +161,7 @@ void SWGLMultiObjectWidget::paintGL()
 }
 
 void SWGLMultiObjectWidget::addCloud(const QString &sPathCloud)
-{
+{    
     makeCurrent();
 
     SWCloudPtr l_pCloud = SWCloudPtr(new swCloud::SWCloud());
@@ -217,7 +222,6 @@ void SWGLMultiObjectWidget::addCloud(const QString &sPathCloud)
         m_vCloudsBufferToUpdate.push_back(true);
 
     m_pListCloudsMutex.unlock();
-
     setCameraItem(true, m_vClouds.size()-1);
 }
 
@@ -641,22 +645,16 @@ void SWGLMultiObjectWidget::drawMeshes()
 
 void SWGLMultiObjectWidget::drawScene()
 {
-//    std::cout << "drawAxes ";
-//    drawAxes(m_oShaderCloud, m_oMVPMatrix, 0.02f);
-    std::cout << "drawCubeMap ";
+    drawAxes(m_oShaderCloud, m_oMVPMatrix, 0.02f);
     drawCubeMap(m_oShaderCloud, m_oMVPMatrix);
 
-    m_pListMeshesMutex.lockForRead();
-        std::cout << "drawMeshes ";
-        drawMeshes();
-    m_pListMeshesMutex.unlock();
-
     m_pListCloudsMutex.lockForRead();
-        std::cout << "drawClouds ";
         drawClouds();
     m_pListCloudsMutex.unlock();
-    std::cout << "end drawScene ";
 
+    m_pListMeshesMutex.lockForRead();
+        drawMeshes();
+    m_pListMeshesMutex.unlock();
 }
 
 

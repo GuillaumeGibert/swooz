@@ -57,7 +57,12 @@ QVector3D SWQtCamera::eyePosition() const
 		
 QVector3D SWQtCamera::lookAt() const
 {
-	return m_oLookAt;
+    return m_oLookAt;
+}
+
+QVector3D SWQtCamera::forward() const
+{
+    return m_oForeward;
 }
 	
 QVector3D SWQtCamera::up() const

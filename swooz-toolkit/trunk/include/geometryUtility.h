@@ -189,7 +189,7 @@ namespace swUtil
      */
     template <typename T>
     static int segmentTriangleIntersect(const std::vector<T> &vP,  const std::vector<T> &vD,
-                                        const std::vector<T> &vV0, const std::vector<T> &vV1, const std::vector<T> &vV2)
+                                        const std::vector<T> &vV0, const std::vector<T> &vV1, const std::vector<T> &vV2, std::vector<T> &intersectPoint)
     {
         std::vector<T> l_vU = vec(vV0, vV1); // triangle vectors
         std::vector<T> l_vV = vec(vV0, vV2);
@@ -231,8 +231,8 @@ namespace swUtil
             return 0; // segment test => no intersect
         }
 
-        std::vector<T> l_vIntersectPoint = mul(l_vDir, l_TR);
-        add(l_vIntersectPoint, vP);  // intersect point of ray and plane
+        intersectPoint = mul(l_vDir, l_TR);
+        add(intersectPoint, vP);  // intersect point of ray and plane
 
         // is I inside T?
         T l_TUU = dotProduct(l_vU, l_vU);
@@ -242,7 +242,7 @@ namespace swUtil
         std::vector<T> l_vW(3,0.0);
         add(l_vW, vV0);
         inverse(l_vW);
-        add(l_vW, l_vIntersectPoint);
+        add(l_vW, intersectPoint);
 
         T l_TWU = dotProduct(l_vW, l_vU);
         T l_TWV = dotProduct(l_vW, l_vV);
@@ -260,7 +260,7 @@ namespace swUtil
             return 0; // intersection point is outside
         }
 
-        return true; // intersection point is inside
+        return 1; // intersection point is inside
     }
 	
 	/*

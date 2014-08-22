@@ -89,6 +89,31 @@ class SWMorphingInterface : public QMainWindow
          */
         void disableGLFullScreen();
 
+        /**
+         * @brief setLandmarksManually
+         */
+        void setLandmarksManually();
+
+
+        void lockInterfaceForLandmarksSetting();
+
+        void unlockInterfaceForLandmarksSetting();
+
+        void landmarksSetManuallyEscape();
+
+        void setLandmarks3DDisplayTemplate();
+
+        void setLandmarks3DDisplayTarget();
+
+        void landmarksSetManuallyNextPoint();
+
+        void eraseManuallyLandmarks();
+
+        void setLandmarksUsage();
+
+        void setTargetTexture();
+
+
     signals:
 
 //        /**
@@ -106,11 +131,20 @@ class SWMorphingInterface : public QMainWindow
          */
         void saveMeshFileSignal(QString);
 
+        void sendInfoTemplateClickedPoints(QString);
+
+        void sendInfoTargetClickedPoints(QString);
+
+        void updateTargetTexture(QString);
+
     private :
 
         bool m_bTemplateDefined;
         bool m_bTargetDefined;
         bool m_bGLFullScreen;
+
+        bool m_bSetLandmarksManually;
+        bool m_bSetLandmarksTemplate;
 
 
         int m_i32RotXDefaultValue;
@@ -155,6 +189,11 @@ class SWMorphingInterface : public QMainWindow
         QThread            m_TMorphing;		/**< morphing thread */
 
         QWidget *m_pGLContainer;
+
+        QString m_templateMeshClickedPointsInfo;
+        QString m_targetMeshClickedPointsInfo;
+
+        QString m_pathTargetTexture;
 
 
 //        double *test;

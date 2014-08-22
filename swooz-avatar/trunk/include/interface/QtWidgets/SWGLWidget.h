@@ -112,6 +112,21 @@ class SWGLWidget : public QGLWidget
          */
         void disableFullScreen();
 
+        /**
+         * @brief rayClick
+         */
+        void rayClick();
+
+        /**
+         * @brief enterKeyPressed
+         */
+        void enterKeyPressed();
+
+        /**
+         * @brief spaceKeyPressed
+         */
+        void spaceKeyPressed();
+
 	protected:
 		
 		/**
@@ -191,6 +206,8 @@ class SWGLWidget : public QGLWidget
 
         void initTextures();
 
+        void glhUnProject(const QVector3D &point, const QMatrix4x4 &mvpMatrix, QVector3D &pointUnprojected);
+
 
     protected :
 
@@ -207,7 +224,12 @@ class SWGLWidget : public QGLWidget
         QSize	  m_oSize;              /**< size of the OpenGl window */
         QVector3D m_oCurrentRotation;   /**< current rotation of the camera */
         QMatrix4x4 m_oProjectionMatrix;	/**< projection 4x4 matrix */
+        QMatrix4x4 m_oMVPMatrix;            /**< mvp matrix for opengl scene */
+
         SWQtCamera *m_pCamera;          /**< camera of the scene */
+
+        QPoint  m_oCursorLastClickPosition; /**< position of the cursor last click on the screen  */
+
 	        	
         QBasicTimer *m_oTimer;          /**< qt timer */
 
@@ -229,7 +251,11 @@ class SWGLWidget : public QGLWidget
         GLuint m_cubeMapTexturePosYLocation;
         GLuint m_cubeMapTexturePosZLocation;
 
+        QGLBuffer m_vertexBufferCubeMap, m_indexBufferCubeMap, m_textureBufferCubeMap;
 
+
+        QVector3D m_rayStart;
+        QVector3D m_rayEnd;
 };
      
 #endif

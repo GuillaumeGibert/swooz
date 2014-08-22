@@ -115,6 +115,12 @@ class SWQtCamera // ############################################################
          * \return look at position point
 		 */				
         QVector3D lookAt() const;
+
+        /**
+         * \brief Access forward at position point
+         * \return froward  at position point
+         */
+        QVector3D forward() const;
 		
 		/**
          * \brief Access up vector

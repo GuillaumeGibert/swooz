@@ -101,6 +101,9 @@ class SWGLOptimalStepNonRigidICP : public SWGLWidget
          */
         virtual void paintGL();
 
+
+        virtual void paintEvent(QPaintEvent *);
+
     public slots:
 
         /**
@@ -321,6 +324,58 @@ class SWGLOptimalStepNonRigidICP : public SWGLWidget
          */
         void refreshDisplay(bool bBufferUpdate = true);
 
+        /**
+         * @brief updatePointMeshClicked
+         */
+        void updatePointMeshClicked();
+
+        /**
+         * @brief stockCurrentClickedMeshPoint
+         * @param templateMesh
+         * @param clickedPointId
+         * @param clickedPoint
+         */
+        void stockCurrentClickedMeshPoint(const bool templateMesh, int &clickedPointId, QVector3D &clickedPoint);
+
+        /**
+         * @brief setTemplateMeshPointSelection
+         * @param templateMesh
+         */
+        void setTemplateMeshPointSelection(const bool templateMesh);
+
+        /**
+         * @brief eraseManuallyLandmarks
+         */
+        void eraseManuallyLandmarks();
+
+        /**
+         * @brief updateLandmarksWithSTASM
+         */
+        void updateLandmarksWithSTASM();
+
+        /**
+         * @brief updateLandmarksWithManualSelection
+         */
+        void updateLandmarksWithManualSelection();
+
+        /**
+         * @brief updateTargetTexture
+         * @param pathTargetTexture
+         */
+        void updateTargetTexture(QString pathTargetTexture);
+
+        /**
+         * @brief updateDisplayTextEndMorphing
+         */
+        void updateDisplayTextEndMorphing();
+
+        /**
+         * @brief setInfo3DDisplay
+         * @param textToDisplay
+         */
+        void setInfo3DDisplay(QString textToDisplay);
+
+
     signals :
 
         /**
@@ -360,8 +415,8 @@ class SWGLOptimalStepNonRigidICP : public SWGLWidget
 
         void drawSourceCloud(QGLShaderProgram &oShader, const swCloud::SWCloud &oCloud, cfloat fSizePoint, QMatrix4x4 &mvpMatrix);
 
-        void drawMeshLines(QGLShaderProgram &oShader, SWGLBufferList &oBuffers, swMesh::SWMesh &oMesh, QMatrix4x4 &mvpMatrix,
-                           cfloat r = -1, cfloat g = -1, cfloat b = -1, cfloat fOpacity = 1.f);
+//        void drawMeshLines(QGLShaderProgram &oShader, SWGLBufferList &oBuffers, swMesh::SWMesh &oMesh, QMatrix4x4 &mvpMatrix,
+//                           cfloat r = -1, cfloat g = -1, cfloat b = -1, cfloat fOpacity = 1.f);
 
         void drawCorrLines(QGLShaderProgram &oShader, const swCloud::SWCloud &oSource, const swCloud::SWCloud &oTarget,
                            const std::vector<uint> &vU, QMatrix4x4 &mvpMatrix, cfloat r, cfloat g, cfloat b);
@@ -378,8 +433,7 @@ class SWGLOptimalStepNonRigidICP : public SWGLWidget
         void drawMeshTrianglesNormals(QGLShaderProgram &oShader, SWGLBufferList &oBuffers, const swMesh::SWMesh &oMesh, QMatrix4x4 &mvpMatrix,
                                       cfloat r = -1, cfloat g = -1, cfloat b = -1);
 
-        void drawMeshTriangles(QGLShaderProgram &oShader, SWGLBufferList &oBuffers, swMesh::SWMesh &oMesh, QMatrix4x4 &mvpMatrix,
-                                  QVector3D &v3DLAmbiant, cfloat fOpacity = 1.f);
+        void drawPoints(QGLShaderProgram &oShader, const swCloud::SWCloud &oCloud, cfloat fSizePoint, QMatrix4x4 &mvpMatrix, cfloat r, cfloat g, cfloat b);
 
         /**
          * @brief getInfoMesh
@@ -388,7 +442,16 @@ class SWGLOptimalStepNonRigidICP : public SWGLWidget
          */
         QString getInfoMesh(const swMesh::SWMesh &oMesh);
 
+
+
+        void drawMesh(QGLShaderProgram &shader, SWGLBufferList &buffers, const swMesh::SWMesh &mesh, const QMatrix4x4 &mvpMatrix, const bool fillMesh = true,
+                      const GLObjectDisplayMode displayMode = GLO_UNI_COLOR, const QVector3D unicolor = QVector3D(255,0,0), const int textureLocation=-1);
+
+
+
     private :
+
+        bool m_bTemplateMeshPointSelection;
 
         bool m_bPointsSDisplay;             /**< display the points of the source ? */
         bool m_bPointsTDisplay;             /**< display the points of the target ? */
@@ -432,7 +495,7 @@ class SWGLOptimalStepNonRigidICP : public SWGLWidget
         QString m_sPathStasmTarget;
         QString m_sPathStasmSource;
 
-        QMatrix4x4 m_oMVPMatrix;            /**< mvp matrix for opengl scene */
+//        QMatrix4x4 m_oMVPMatrix;            /**< mvp matrix for opengl scene */
 
         QGLBuffer m_vertexBuffer;           /**< opengl vertex buffer */
         QGLBuffer m_indexBuffer;            /**< opengl index buffer */
@@ -440,21 +503,21 @@ class SWGLOptimalStepNonRigidICP : public SWGLWidget
         QGLBuffer m_normalBuffer;           /**< opengl normal buffer */
         QGLBuffer m_textureBuffer;           /**< opengl normal buffer */
 
+        SWGLBufferList m_landmarksManualBuffer;
+
         SWGLBufferList m_templateCloudBuffer;
         SWGLBufferList m_templateMeshBuffer;
-        SWGLBufferList m_templateMeshLinesBuffer;
         SWGLBufferList m_templateVerticesNormalesBuffer;
         SWGLBufferList m_templateTrianglesNormalesBuffer;
 
         SWGLBufferList m_targetCloudBuffer;
         SWGLBufferList m_targetMeshBuffer;
-        SWGLBufferList m_targetMeshLinesBuffer;
         SWGLBufferList m_targetVerticesNormalesBuffer;
         SWGLBufferList m_targetTrianglesNormalesBuffer;
 
         QGLShaderProgram m_oShaderPoints;   /**< shader program to render points */
         QGLShaderProgram m_oShaderLines;    /**< shader program to render lines */
-        QGLShaderProgram m_oShaderTriangles;/**< shader program to render triangles */
+        QGLShaderProgram m_oShaderMesh;/**< shader program to render meshes*/
 
         QMutex *m_pParamMutex;              /**< mutex for OSNRICP parameters */
 
@@ -467,6 +530,23 @@ class SWGLOptimalStepNonRigidICP : public SWGLWidget
         SWMeshPtr m_pTargetMesh;            /**< target mesh pointer */
 
         SWOptimalStepNonRigidICPPtr m_pOSNRICP; /**< Optimal step non rigid ICP pointer */
+
+
+        int m_idClickedPointOnSourceMesh;
+        int m_idClickedPointOnTargetMesh;
+        QVector3D m_clickedPointOnSourceMesh;
+        QVector3D m_clickedPointOnTargetMesh;
+
+
+        QVector<QVector3D> m_clickedPointsOnSourceMesh;
+        QVector<QVector3D> m_clickedPointsOnTargetMesh;
+
+        QVector<int> m_idClickedPointsOnSourceMesh;
+        QVector<int> m_idClickedPointsOnTargetMesh;
+
+        QImage m_targetTexture;
+        int m_targetTextureLocation;
+        QString m_infoDisplay3D;
 };
 
 #endif

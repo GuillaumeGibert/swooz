@@ -42,22 +42,17 @@ namespace swMesh
             SWMesh m_oTargetMesh;   /**< target mesh */
             SWMesh m_oOriginalTargetMesh;
 
-            // working copy
-            std::vector<uint>   m_uC;   /**< working copy of m_u */
-            std::vector<float> m_wC;   /**< working copy of m_w*/
-            SWMesh *m_pSourceMeshC;     /**< working copy of m_oSourceMesh */
-            SWMesh *m_pTargetMeshC;     /**< working copy of m_oTargetMesh */
-
             void updateSourceMeshNormals();
             void computeDistanceWeights();
             void computeCorrespondences();
-            void copyDataForResolving();
             void associateTextureCoordinates();
 
-//            double resolve(cdouble dAlpha, cdouble dBeta, cdouble dGama, cbool bUseLandMarks);
             float resolve(cfloat fAlpha, cfloat fBeta, cfloat fGama, cbool bUseLandMarks);
-            void updateSourceMeshWithMorphModification();
+
             float totalEnergy() const;
+
+            void updateLandmarksWithSTASM();
+            void updateLandmarksWithManualSelection(std::vector<int> &idSource, std::vector<int> &idTarget);
 
      private :
 
@@ -102,6 +97,9 @@ namespace swMesh
 
             bool checkDiff(cv::Mat &oMatrix1, cv::Mat &oMatrix2);
 //            bool checkDiff(cv::Mat &oMatrix, cv::SparseMat_<float> &oSparseMatrix);
+
+            std::string m_sPathSourceStasmCorr;
+            std::string m_sPathTargetStasmCorr;
     };
 }
 

@@ -14,8 +14,6 @@
 #include "moc_SWGLWidget.cpp"
 
 
-
-
 SWGLWidget::SWGLWidget(  QGLContext *oContext, QWidget* oParent) :
     QGLWidget( oContext, oParent ), m_glContext(oContext),  m_oTimer(new QBasicTimer)
 {
@@ -54,7 +52,8 @@ SWGLWidget::~SWGLWidget()
 void SWGLWidget::resetCamera()
 {
     m_pCamera->reset();
-    updateGL();
+//    updateGL();
+    update();
 }
 
 
@@ -79,8 +78,6 @@ void SWGLWidget::initTextures()
     checkGlError(true);
     m_cubeMapTextureNegYLocation = bindTexture(m_cubeMapTextureNegY);
     checkGlError(true);
-
-    qDebug()  << "m_cubeMapTexturePosZ " << m_cubeMapTexturePosZ.size();
 }
 
 
@@ -90,7 +87,8 @@ void SWGLWidget::setCamera(const QVector3D &oEyePosition, const QVector3D &oLook
 
     if(bUpdateGL)
     {
-        updateGL();
+//        updateGL();
+        update();
     }
 }
 
@@ -166,11 +164,27 @@ void SWGLWidget::initShaders( const QString& vertexShaderPath, const QString& fr
     }
 }
 
-
 void SWGLWidget::mousePressEvent(QMouseEvent *e)
 {
 	m_bIsClickedMouse = true;	   
-    m_bMidClick       = (e->button() == Qt::MidButton);
+    m_bMidClick       = (e->button() == Qt::MidButton);   
+    m_oCursorLastClickPosition = e->pos();
+
+    // compute click ray
+    {
+        QVector3D point(m_oCursorLastClickPosition.x(),m_oSize.height()-m_oCursorLastClickPosition.y(), 0.0);
+        QVector3D unProjected;
+        glhUnProject (point, m_oMVPMatrix, unProjected);
+        m_rayStart = unProjected;
+        point.setZ(1.0);
+        glhUnProject (point, m_oMVPMatrix, unProjected);
+        m_rayEnd =  unProjected;
+    }
+
+    emit rayClick();
+
+//    updateGL();
+    update();
 }
 
 void SWGLWidget::mouseReleaseEvent(QMouseEvent *e)
@@ -240,7 +254,8 @@ void SWGLWidget::mouseMoveEvent(QMouseEvent *e)
             }
         }
 
-        updateGL();
+//        updateGL();
+        update();
 	}		
 }
 
@@ -269,7 +284,8 @@ void SWGLWidget::wheelEvent(QWheelEvent *e)
         }
     }
 
-	updateGL();
+//	updateGL();
+    update();
 }
 
 void SWGLWidget::keyPressEvent(QKeyEvent *e)
@@ -281,6 +297,15 @@ void SWGLWidget::keyPressEvent(QKeyEvent *e)
         break;
         case Qt::Key_F:
             emit enableFullScreen();
+        break;
+        case Qt::Key_Enter:
+            emit enterKeyPressed();
+        break;
+        case Qt::Key_Return:
+            emit enterKeyPressed();
+        break;
+        case Qt::Key_Space:
+            emit spaceKeyPressed();
         break;
 		case Qt::Key_Plus:  // increase gl point size
 			m_glFSizePoint < 10 ? m_glFSizePoint += 1 : m_glFSizePoint = 10;		
@@ -374,7 +399,8 @@ void SWGLWidget::keyPressEvent(QKeyEvent *e)
 		
 	}
 
-	updateGL();
+//	updateGL();
+    update();
 }
 
 void SWGLWidget::timerEvent(QTimerEvent *e)
@@ -387,7 +413,8 @@ void SWGLWidget::timerEvent(QTimerEvent *e)
         m_pCamera->rotate(m_oCurrentRotation.x(), m_oCurrentRotation.y(), m_oCurrentRotation.z(), m_oCurrentRotation.length()/300);
     }
 
-    updateGL();
+//    updateGL();
+    update();
 }
 
 void SWGLWidget::resizeGL( int i32Width, int i32Height )
@@ -415,7 +442,8 @@ void SWGLWidget::resizeGL( int i32Width, int i32Height )
 //    void ortho(qreal left, qreal right, qreal bottom, qreal top, qreal nearPlane, qreal farPlane);
 //    void frustum(qreal left, qreal right, qreal bottom, qreal top, qreal nearPlane, qreal farPlane);
 
-    updateGL();
+//    updateGL();
+    update();
 }
 
 
@@ -506,46 +534,39 @@ void SWGLWidget::drawCubeMap(QGLShaderProgram &oShader, QMatrix4x4 &mvpMatrix)
     oShader.setUniformValue("mvpMatrix", mvpMatrix);
     oShader.setUniformValue("displayMode", 2);
 
-
-    QGLBuffer l_vertexBuffer, l_indexBuffer, l_textureBuffer;
-    initVertexBuffer(l_vertexBuffer);
-    initVertexBuffer(l_textureBuffer);
-    initIndexBuffer(l_indexBuffer);
-
-    allocateBuffer(l_textureBuffer, l_textureFace, 6 * sizeof(float));
-    allocateBuffer(l_indexBuffer, l_indexFace, 6 * sizeof(GLuint) );
-
+    allocateBuffer(m_textureBufferCubeMap, l_textureFace, 6 * sizeof(float));
+    allocateBuffer(m_indexBufferCubeMap, l_indexFace, 6 * sizeof(GLuint) );
 
     qDebug() << m_cubeMapTextureNegXLocation << " " << m_cubeMapTexturePosZLocation << " " << m_cubeMapTexturePosXLocation << " " << m_cubeMapTextureNegZLocation;
-    allocateBuffer(l_vertexBuffer, l_vertexFace1, 8 *  3 * sizeof(float) );
+    allocateBuffer(m_vertexBufferCubeMap, l_vertexFace1, 8 *  3 * sizeof(float) );
     glBindTexture(GL_TEXTURE_2D, m_cubeMapTextureNegXLocation);
         checkGlError(true);
-    drawBufferWithTexture(l_indexBuffer, l_vertexBuffer, l_textureBuffer, oShader, GL_TRIANGLES);
+    drawBufferWithTexture(m_indexBufferCubeMap, m_vertexBufferCubeMap, m_textureBufferCubeMap, oShader, GL_TRIANGLES);
 
-    allocateBuffer(l_vertexBuffer, l_vertexFace2, 8 *  3 * sizeof(float) );
+    allocateBuffer(m_vertexBufferCubeMap, l_vertexFace2, 8 *  3 * sizeof(float) );
     glBindTexture(GL_TEXTURE_2D, m_cubeMapTexturePosZLocation);
         checkGlError(true);
-    drawBufferWithTexture(l_indexBuffer, l_vertexBuffer, l_textureBuffer, oShader, GL_TRIANGLES);
+    drawBufferWithTexture(m_indexBufferCubeMap, m_vertexBufferCubeMap, m_textureBufferCubeMap, oShader, GL_TRIANGLES);
 
-    allocateBuffer(l_vertexBuffer, l_vertexFace3, 8 *  3 * sizeof(float) );
+    allocateBuffer(m_vertexBufferCubeMap, l_vertexFace3, 8 *  3 * sizeof(float) );
     glBindTexture(GL_TEXTURE_2D, m_cubeMapTexturePosXLocation);
         checkGlError(true);
-    drawBufferWithTexture(l_indexBuffer, l_vertexBuffer, l_textureBuffer, oShader, GL_TRIANGLES);
+    drawBufferWithTexture(m_indexBufferCubeMap, m_vertexBufferCubeMap, m_textureBufferCubeMap, oShader, GL_TRIANGLES);
 
-    allocateBuffer(l_vertexBuffer, l_vertexFace4, 8 *  3 * sizeof(float) );
+    allocateBuffer(m_vertexBufferCubeMap, l_vertexFace4, 8 *  3 * sizeof(float) );
     glBindTexture(GL_TEXTURE_2D, m_cubeMapTextureNegZLocation);
         checkGlError(true);
-    drawBufferWithTexture(l_indexBuffer, l_vertexBuffer, l_textureBuffer, oShader, GL_TRIANGLES);
+    drawBufferWithTexture(m_indexBufferCubeMap, m_vertexBufferCubeMap, m_textureBufferCubeMap, oShader, GL_TRIANGLES);
 
-    allocateBuffer(l_vertexBuffer, l_vertexFace5, 8 *  3 * sizeof(float) );
+    allocateBuffer(m_vertexBufferCubeMap, l_vertexFace5, 8 *  3 * sizeof(float) );
     glBindTexture(GL_TEXTURE_2D, m_cubeMapTexturePosYLocation);
         checkGlError(true);
-    drawBufferWithTexture(l_indexBuffer, l_vertexBuffer, l_textureBuffer, oShader, GL_TRIANGLES);
+    drawBufferWithTexture(m_indexBufferCubeMap, m_vertexBufferCubeMap, m_textureBufferCubeMap, oShader, GL_TRIANGLES);
 
-    allocateBuffer(l_vertexBuffer, l_vertexFace6, 8 *  3 * sizeof(float) );
+    allocateBuffer(m_vertexBufferCubeMap, l_vertexFace6, 8 *  3 * sizeof(float) );
     glBindTexture(GL_TEXTURE_2D, m_cubeMapTextureNegYLocation);
         checkGlError(true);
-    drawBufferWithTexture(l_indexBuffer, l_vertexBuffer, l_textureBuffer, oShader, GL_TRIANGLES);
+    drawBufferWithTexture(m_indexBufferCubeMap, m_vertexBufferCubeMap, m_textureBufferCubeMap, oShader, GL_TRIANGLES);
 
     oShader.release();
         checkGlError(true);
@@ -558,3 +579,22 @@ void SWGLWidget::drawCubeMap(QGLShaderProgram &oShader, QMatrix4x4 &mvpMatrix)
         checkGlError(true);
 }
 
+void SWGLWidget::glhUnProject(const QVector3D &point, const QMatrix4x4 &mvpMatrix, QVector3D &pointUnprojected)
+{
+    int viewport[4];
+    glGetIntegerv(GL_VIEWPORT, viewport);
+
+    QMatrix4x4 inv = mvpMatrix.inverted();
+    QVector4D in,out;
+    in.setX((point.x()-viewport[0])/ viewport[2]*2.0-1.0);
+    in.setY((point.y()-viewport[1])/ viewport[3]*2.0-1.0);
+    in.setZ(2.0*point.z()-1.0);
+    in.setW(1.0);
+
+   out = inv * in;
+   out.setW(1.0/out.w());
+
+   pointUnprojected.setX(out.x()*out.w());
+   pointUnprojected.setY(out.y()*out.w());
+   pointUnprojected.setZ(out.z()*out.w());
+}

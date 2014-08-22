@@ -27,6 +27,9 @@ SWMorphingInterface::SWMorphingInterface() : m_uiMorphing(new Ui::SWUI_Morphing)
     m_bTemplateDefined  = false;
     m_bTargetDefined    = false;
     m_bGLFullScreen     = false;
+    m_pathTargetTexture = "";
+
+    m_bSetLandmarksManually = false;
 
     // init main widget
     m_uiMorphing->setupUi(this);
@@ -45,7 +48,6 @@ SWMorphingInterface::SWMorphingInterface() : m_uiMorphing(new Ui::SWUI_Morphing)
     m_dCoeffValueDefaultValue = 0.95;//0.8;
     m_dAngleMaxDefaultValue   = 50.0;
 
-
     // parameters
         // spinbox
             m_uiMorphing->dsbFactor->setMinimum(0.0);       m_uiMorphing->dsbFactor->setMaximum(1.0);
@@ -62,6 +64,7 @@ SWMorphingInterface::SWMorphingInterface() : m_uiMorphing(new Ui::SWUI_Morphing)
             m_uiMorphing->cbCorr->setChecked(true);
             m_uiMorphing->cbLandmarks->setChecked(true);
             m_uiMorphing->cbUseLandmarks->setChecked(true);
+            m_uiMorphing->rbStasm->setChecked(true);
 
     // middle container
         QHBoxLayout *l_pGLContainerLayout = new QHBoxLayout();
@@ -73,6 +76,11 @@ SWMorphingInterface::SWMorphingInterface() : m_uiMorphing(new Ui::SWUI_Morphing)
         l_glFormat.setSampleBuffers( true );
         QGLContext *l_glContext = new QGLContext(l_glFormat);
         m_pGLOSNRICP = new SWGLOptimalStepNonRigidICP(l_glContext, m_pGLContainer);
+        m_pGLOSNRICP->setCameraMode(SWQtCamera::TRACKBALL_CAMERA);
+        QVector3D l_oEye(0,0,-1),l_oLookAt(0,0,0);
+        m_pGLOSNRICP->setCamera(l_oEye,l_oLookAt);
+        m_pGLOSNRICP->setCameraInitial(l_oEye,l_oLookAt, QVector3D(0,1,0));
+
         l_pGLContainerLayout->addWidget(m_pGLOSNRICP);
         m_pGLContainer->setLayout(l_pGLContainerLayout);
         m_uiMorphing->glScene->addWidget(m_pGLContainer);
@@ -84,14 +92,19 @@ SWMorphingInterface::SWMorphingInterface() : m_uiMorphing(new Ui::SWUI_Morphing)
         // m_pWMorphing
         QObject::connect(m_pWMorphing,  SIGNAL(updateSceneDisplaySignal()),     m_pGLOSNRICP,               SLOT(refreshDisplay()));
         QObject::connect(m_pWMorphing,  SIGNAL(endMorphingSignal()),            this,                       SLOT(unlockInterface()));
+        QObject::connect(m_pWMorphing,  SIGNAL(endMorphingSignal()),            m_pGLOSNRICP,               SLOT(updateDisplayTextEndMorphing()));
 
         // m_pGLOSNRICP
         QObject::connect(m_pGLOSNRICP,  SIGNAL(sendSourceMeshInfos(QString)), m_uiMorphing->tbInfosTemplate,SLOT(setText(QString)));
         QObject::connect(m_pGLOSNRICP,  SIGNAL(sendTargetMeshInfos(QString)), m_uiMorphing->tbInfosTarget,  SLOT(setText(QString)));
+        QObject::connect(this,          SIGNAL(sendInfoTemplateClickedPoints(QString)), m_uiMorphing->tbTemplateLandmarks, SLOT(setText(QString)));
+        QObject::connect(this,          SIGNAL(sendInfoTargetClickedPoints(QString)), m_uiMorphing->tbTargetLandmarks, SLOT(setText(QString)));
 
         // m_uiMorphing
             // pushbuttons
+        QObject::connect(m_uiMorphing->pbSetTargetTexture,  SIGNAL(clicked()),      this,                   SLOT(setTargetTexture()));
         QObject::connect(m_uiMorphing->pbStart,             SIGNAL(clicked()),      m_pWMorphing,           SLOT(startMorphing()));
+        QObject::connect(m_uiMorphing->pbStart,             SIGNAL(clicked()),      this,                   SLOT(setLandmarksUsage()));
         QObject::connect(m_uiMorphing->pbStart,             SIGNAL(clicked()),      this,                   SLOT(lockInterface()));
         QObject::connect(m_uiMorphing->pbStop,              SIGNAL(clicked()),      m_pWMorphing,           SLOT(stopMorphing()));
         QObject::connect(m_uiMorphing->pbStop,              SIGNAL(clicked(bool)),  m_uiMorphing->pbStop,   SLOT(setEnabled(bool)));
@@ -101,6 +114,8 @@ SWMorphingInterface::SWMorphingInterface() : m_uiMorphing(new Ui::SWUI_Morphing)
         QObject::connect(m_uiMorphing->pbResetMorphing,     SIGNAL(clicked()),      m_pGLOSNRICP,           SLOT(resetMorphing()));
         QObject::connect(m_uiMorphing->pbCorr,              SIGNAL(clicked()),      m_pGLOSNRICP,           SLOT(computeDistWAndCorr()));
         QObject::connect(m_uiMorphing->pbResetParameters,   SIGNAL(clicked()),      this,                   SLOT(resetAllParameters()));
+        QObject::connect(m_uiMorphing->pbSetLandManually,   SIGNAL(clicked()),      this,                   SLOT(setLandmarksManually()));
+        QObject::connect(m_uiMorphing->pbEraseLand,   SIGNAL(clicked()),      this,                         SLOT(eraseManuallyLandmarks()));
             // combobox
         QObject::connect(m_uiMorphing->cbUseLandmarks,      SIGNAL(clicked(bool)),  m_pGLOSNRICP, SLOT(setUseLandMarks(bool)));
         QObject::connect(m_uiMorphing->cbTemplateCloud,     SIGNAL(clicked(bool)),  m_pGLOSNRICP, SLOT(setCloudSDisplay(bool)));
@@ -130,15 +145,25 @@ SWMorphingInterface::SWMorphingInterface() : m_uiMorphing(new Ui::SWUI_Morphing)
         QObject::connect(m_uiMorphing->dsbDiffMax,          SIGNAL(valueChanged(double)),m_pGLOSNRICP,SLOT(setDiffMax(double)));
         QObject::connect(m_uiMorphing->dsbBeta,             SIGNAL(valueChanged(double)),m_pGLOSNRICP,SLOT(setBeta(double)));
         QObject::connect(m_uiMorphing->dsbGama,             SIGNAL(valueChanged(double)),m_pGLOSNRICP,SLOT(setGama(double)));
-        QObject::connect(m_uiMorphing->dsbAngleMax,         SIGNAL(valueChanged(double)),m_pGLOSNRICP,SLOT(setAngleMax(double)));
+        QObject::connect(m_uiMorphing->dsbAngleMax,         SIGNAL(valueChanged(double)),m_pGLOSNRICP,SLOT(setAngleMax(double)));        
+
 
         // fullscreen
         QObject::connect(m_pGLOSNRICP, SIGNAL(enableFullScreen()), this, SLOT(enableGLFullScreen()));
-        QObject::connect(m_pGLOSNRICP, SIGNAL(disableFullScreen()), this, SLOT(disableGLFullScreen()));
+        QObject::connect(m_pGLOSNRICP, SIGNAL(disableFullScreen()), this, SLOT(disableGLFullScreen()));        
+
+        // landmarks manually
+        QObject::connect(m_pGLOSNRICP, SIGNAL(enterKeyPressed()), this, SLOT(landmarksSetManuallyEscape()));
+        QObject::connect(m_pGLOSNRICP, SIGNAL(spaceKeyPressed()), this, SLOT(landmarksSetManuallyNextPoint()));
+        QObject::connect(m_pGLOSNRICP, SIGNAL(rayClick()), m_pGLOSNRICP, SLOT(updatePointMeshClicked()));
+        QObject::connect(m_uiMorphing->rbStasm, SIGNAL(clicked()), this, SLOT(setLandmarksUsage()));
+        QObject::connect(m_uiMorphing->rbManual, SIGNAL(clicked()), this, SLOT(setLandmarksUsage()));
+
+        QObject::connect(this, SIGNAL(updateTargetTexture(QString)), m_pGLOSNRICP, SLOT(updateTargetTexture(QString)));
+
 
         // this
         QObject::connect(this,                              SIGNAL(saveMeshFileSignal(QString)),m_pWMorphing,SLOT(saveMeshFile(QString)));
-
 
         resetAllParameters();
 
@@ -153,8 +178,6 @@ SWMorphingInterface::~SWMorphingInterface()
     m_TMorphing.wait();
 
     deleteAndNullify(m_pWMorphing);
-
-//    delete[] test;
 }
 
 
@@ -202,6 +225,7 @@ void SWMorphingInterface::setTemplateMeshPath()
         m_uiMorphing->pbStart->setEnabled(true);
         m_uiMorphing->pbSaveMorphedMesh->setEnabled(true);
         m_uiMorphing->pbCorr->setEnabled(true);
+        m_uiMorphing->pbSetLandManually->setEnabled(true);
     }
 }
 
@@ -217,6 +241,8 @@ void SWMorphingInterface::setTargetMeshPath()
         m_uiMorphing->pbStart->setEnabled(true);
         m_uiMorphing->pbSaveMorphedMesh->setEnabled(true);
         m_uiMorphing->pbCorr->setEnabled(true);
+        m_uiMorphing->pbSetLandManually->setEnabled(true);
+        m_uiMorphing->pbEraseLand->setEnabled(true);
     }
 }
 
@@ -230,7 +256,6 @@ int main(int argc, char* argv[])
 
     return l_oApp.exec();
 }
-
 
 void SWMorphingInterface::unlockInterface()
 {
@@ -250,6 +275,8 @@ void SWMorphingInterface::unlockInterface()
     m_uiMorphing->hsTransY->setEnabled(true);
     m_uiMorphing->hsTransZ->setEnabled(true);
     m_uiMorphing->hsScale->setEnabled(true);
+    m_uiMorphing->pbSetLandManually->setEnabled(true);
+    m_uiMorphing->pbEraseLand->setEnabled(true);
 
     // expert
         m_uiMorphing->dsbStartAlpha->setEnabled(true);
@@ -280,6 +307,8 @@ void SWMorphingInterface::lockInterface()
     m_uiMorphing->hsTransY->setDisabled(true);
     m_uiMorphing->hsTransZ->setDisabled(true);
     m_uiMorphing->hsScale->setDisabled(true);
+    m_uiMorphing->pbSetLandManually->setDisabled(true);
+    m_uiMorphing->pbEraseLand->setDisabled(true);
 
     // expert
         m_uiMorphing->dsbStartAlpha->setDisabled(true);
@@ -310,4 +339,197 @@ void SWMorphingInterface::disableGLFullScreen()
         m_uiMorphing->glScene->addWidget(m_pGLContainer);
         m_bGLFullScreen = false;
     }
+}
+
+
+void SWMorphingInterface::setLandmarksManually()
+{
+    lockInterfaceForLandmarksSetting();
+    m_bSetLandmarksManually = true;
+    m_bSetLandmarksTemplate = true;
+    setLandmarks3DDisplayTemplate();
+    m_pGLOSNRICP->setTemplateMeshPointSelection(true);
+
+    m_templateMeshClickedPointsInfo = "";
+    m_targetMeshClickedPointsInfo = "";
+
+    m_uiMorphing->tbTemplateLandmarks->setText(m_templateMeshClickedPointsInfo);
+    m_uiMorphing->tbTargetLandmarks->setText(m_targetMeshClickedPointsInfo);
+}
+
+void SWMorphingInterface::setLandmarks3DDisplayTemplate()
+{
+    m_pGLOSNRICP->setInfo3DDisplay("Select a point on the template mesh (space key for validating) ");
+
+    m_uiMorphing->cbTemplateCloud->setChecked(true);
+    m_uiMorphing->cbTemplateMesh->setChecked(true);
+    m_uiMorphing->cbTemplateFillMesh->setChecked(true);
+    m_uiMorphing->cbTargetMesh->setChecked(true);
+
+    m_uiMorphing->cbTemplateTriNormal->setChecked(false);
+    m_uiMorphing->cbTemplateVertNormal->setChecked(false);
+    m_uiMorphing->cbTargetCloud->setChecked(false);
+    m_uiMorphing->cbTargetTriNormal->setChecked(false);
+    m_uiMorphing->cbTargetVertNormal->setChecked(false);
+    m_uiMorphing->cbTargetFillMesh->setChecked(false);
+    m_uiMorphing->cbCorr->setChecked(false);
+    m_uiMorphing->cbLandmarks->setChecked(false);
+
+    m_pGLOSNRICP->setCloudSDisplay(true);
+    m_pGLOSNRICP->setMeshSDisplay(true);
+    m_pGLOSNRICP->setFillSDisplay(true);
+    m_pGLOSNRICP->setMeshTDisplay(true);
+
+    m_pGLOSNRICP->setLandMarksDisplay(false);
+    m_pGLOSNRICP->setCloudTDisplay(false);
+    m_pGLOSNRICP->setTrianglesNormalsSDisplay(false);
+    m_pGLOSNRICP->setTrianglesNormalsTDisplay(false);
+    m_pGLOSNRICP->setVerticesNormalsSDisplay(false);
+    m_pGLOSNRICP->setVerticesNormalsTDisplay(false);
+    m_pGLOSNRICP->setCorrDisplay(false);
+    m_pGLOSNRICP->setFillTDisplay(false);
+}
+
+
+void SWMorphingInterface::setLandmarks3DDisplayTarget()
+{
+    m_pGLOSNRICP->setInfo3DDisplay("Select a corresponding point on the target mesh (space key for validating) ");
+
+    m_uiMorphing->cbTargetCloud->setChecked(true);
+    m_uiMorphing->cbTargetMesh->setChecked(true);
+    m_uiMorphing->cbTargetFillMesh->setChecked(true);
+    m_uiMorphing->cbTemplateMesh->setChecked(true);
+
+    m_uiMorphing->cbTemplateTriNormal->setChecked(false);
+    m_uiMorphing->cbTemplateVertNormal->setChecked(false);
+    m_uiMorphing->cbTemplateFillMesh->setChecked(false);
+    m_uiMorphing->cbTemplateCloud->setChecked(false);
+    m_uiMorphing->cbTemplateMesh->setChecked(false);
+    m_uiMorphing->cbTargetTriNormal->setChecked(false);
+    m_uiMorphing->cbTargetVertNormal->setChecked(false);
+    m_uiMorphing->cbCorr->setChecked(false);
+    m_uiMorphing->cbLandmarks->setChecked(false);
+
+    m_pGLOSNRICP->setCloudTDisplay(true);
+    m_pGLOSNRICP->setMeshTDisplay(true);
+    m_pGLOSNRICP->setFillTDisplay(true);
+    m_pGLOSNRICP->setMeshSDisplay(true);
+
+    m_pGLOSNRICP->setLandMarksDisplay(false);
+    m_pGLOSNRICP->setCloudSDisplay(false);
+    m_pGLOSNRICP->setTrianglesNormalsSDisplay(false);
+    m_pGLOSNRICP->setTrianglesNormalsTDisplay(false);
+    m_pGLOSNRICP->setVerticesNormalsSDisplay(false);
+    m_pGLOSNRICP->setVerticesNormalsTDisplay(false);
+    m_pGLOSNRICP->setCorrDisplay(false);
+    m_pGLOSNRICP->setFillSDisplay(false);
+}
+
+void SWMorphingInterface::landmarksSetManuallyNextPoint()
+{
+    //
+    if(m_bSetLandmarksTemplate)
+    {
+        int l_idClickedTemplateMeshPoint;
+        QVector3D l_clickedTemplateMeshPoint;
+        m_pGLOSNRICP->stockCurrentClickedMeshPoint(true, l_idClickedTemplateMeshPoint,l_clickedTemplateMeshPoint);
+        qDebug() << "template point selected : " << l_clickedTemplateMeshPoint << " id -> " << l_idClickedTemplateMeshPoint;
+        m_bSetLandmarksTemplate = false;
+        m_pGLOSNRICP->setTemplateMeshPointSelection(false);
+
+        // add selected point to the text display
+        m_templateMeshClickedPointsInfo += QString("Id : " + QString::number(l_idClickedTemplateMeshPoint) + "\n v : " +
+                                                   QString::number(l_clickedTemplateMeshPoint.x()) + " " + QString::number(l_clickedTemplateMeshPoint.y())
+                                                   + " " + QString::number(l_clickedTemplateMeshPoint.z()) + "\n\n");
+
+        emit sendInfoTemplateClickedPoints(m_templateMeshClickedPointsInfo);
+        setLandmarks3DDisplayTarget();
+    }
+    else
+    {
+        int l_idClickedTargetMeshPoint;
+        QVector3D l_clickedTargetMeshPoint;
+        m_pGLOSNRICP->stockCurrentClickedMeshPoint(false, l_idClickedTargetMeshPoint,l_clickedTargetMeshPoint);
+        qDebug() << "target point selected : " << l_clickedTargetMeshPoint << " id -> " << l_idClickedTargetMeshPoint;
+        m_bSetLandmarksTemplate = true;
+        m_pGLOSNRICP->setTemplateMeshPointSelection(true);
+
+        // add selected point to the text display
+        m_targetMeshClickedPointsInfo += QString("Id : " + QString::number(l_idClickedTargetMeshPoint) + "\n v : " +
+                                                   QString::number(l_clickedTargetMeshPoint.x()) + " " + QString::number(l_clickedTargetMeshPoint.y())
+                                                 + " " + QString::number(l_clickedTargetMeshPoint.z()) + "\n\n");
+
+        emit sendInfoTargetClickedPoints(m_targetMeshClickedPointsInfo);
+        setLandmarks3DDisplayTemplate();
+    }
+}
+
+
+void SWMorphingInterface::eraseManuallyLandmarks()
+{
+    m_templateMeshClickedPointsInfo = "";
+    m_targetMeshClickedPointsInfo = "";
+
+    m_uiMorphing->tbTemplateLandmarks->setText(m_templateMeshClickedPointsInfo);
+    m_uiMorphing->tbTargetLandmarks->setText(m_targetMeshClickedPointsInfo);
+
+    m_pGLOSNRICP->eraseManuallyLandmarks();
+
+    m_pGLOSNRICP->setInfo3DDisplay("Landmarks erased. Set new landmarks manually or use STASM. ");
+}
+
+void SWMorphingInterface::setLandmarksUsage()
+{
+    if(m_uiMorphing->rbStasm->isChecked())
+    {
+        m_pGLOSNRICP->setLandMarksDisplay(true);
+        m_pGLOSNRICP->updateLandmarksWithSTASM();
+        m_pGLOSNRICP->setInfo3DDisplay("STASM landmarks");
+    }
+    else
+    {
+        m_pGLOSNRICP->setLandMarksDisplay(false);
+        m_pGLOSNRICP->updateLandmarksWithManualSelection();
+        m_pGLOSNRICP->setInfo3DDisplay("Manual landmarks. ");
+    }
+}
+
+void SWMorphingInterface::lockInterfaceForLandmarksSetting()
+{
+    lockInterface();
+    m_uiMorphing->pbStop->setDisabled(true);
+}
+
+void SWMorphingInterface::unlockInterfaceForLandmarksSetting()
+{
+    unlockInterface();
+    m_uiMorphing->pbStop->setDisabled(false);
+}
+
+void SWMorphingInterface::landmarksSetManuallyEscape()
+{
+    if(m_bSetLandmarksManually && m_bSetLandmarksTemplate)
+    {
+        unlockInterfaceForLandmarksSetting();
+        m_bSetLandmarksManually = false;
+
+        // force landmarks update
+            setLandmarksUsage();
+
+            m_pGLOSNRICP->setInfo3DDisplay("Manual landmarks set. ");
+    }
+    else if(m_bSetLandmarksManually)
+    {
+        std::cout << "Select a point on the target mesh before ending landmark manual selection. " << std::endl;
+    }
+}
+
+
+void SWMorphingInterface::setTargetTexture()
+{
+    // retrieve obj path
+        m_pathTargetTexture = QFileDialog::getOpenFileName(this, "Load texture", QString(), "Texture file (*.png)");
+        emit updateTargetTexture(m_pathTargetTexture);
+
+        m_pGLOSNRICP->setInfo3DDisplay("Texture loaded on the taget mesh. ");
 }

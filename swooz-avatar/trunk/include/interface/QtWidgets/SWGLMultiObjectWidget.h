@@ -195,7 +195,7 @@ class SWGLMultiObjectWidget : public SWGLWidget
         QGLShaderProgram m_oShaderCubeMap;  /**< ... */
 
 
-        QMatrix4x4  m_oMVPMatrix;	/**< ... */
+//        QMatrix4x4  m_oMVPMatrix;	/**< ... */
 
 
         QList<SWMeshPtr> m_vMeshes;  /**< ... */

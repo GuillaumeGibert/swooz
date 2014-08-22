@@ -61,6 +61,12 @@ bool SWSonyHMZT3W::loop()
         cv::resize(inBgrImg, m_diplayImage, m_diplayImage.size(),0,0,CV_INTER_LINEAR);
     }
 
+
+
+    // test 3D
+//    m_diplayImage.resize();
+
+
     // display current output
     cv::imshow("SonyHMZT3W", m_diplayImage);
     char l_key = cv::waitKey(1);

@@ -114,7 +114,7 @@ class SWGLMeshWidget : public SWGLWidget
         GLuint m_textureLocation;
         GLuint m_texHandle;
 
-        QMatrix4x4 m_oMVPMatrix;	/**< ... */
+//        QMatrix4x4 m_oMVPMatrix;	/**< ... */
 
         swMesh::SWMesh *m_pMesh; /**< ... */
 };

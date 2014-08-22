@@ -164,29 +164,55 @@ namespace swMesh
              * \brief Get the vertex normal corresonding to the input id.
              * \param [out] aTNormal         : array containing the normal coordinates
              * \param [in] ui32IdVertex      : vertex id
+             * @return false if no valid normal of bad id, else return true
              */
             template <typename T>
-            void vertexNormal(std::vector<T> &aTNormal, cuint ui32IdVertex) const
+            bool vertexNormal(std::vector<T> &aTNormal, cuint ui32IdVertex) const
             {
-                if(ui32IdVertex < m_a3FNonOrientedVerticesNormals.size())
+                if(m_a3FNormals.size() == 0)
+                {
+                    return false;
+                }
+
+                if(3*ui32IdVertex < m_a3FNormals.size())
                 {
                     aTNormal.clear();
-                    aTNormal.push_back(m_a3FNonOrientedVerticesNormals[ui32IdVertex][0]);
-                    aTNormal.push_back(m_a3FNonOrientedVerticesNormals[ui32IdVertex][1]);
-                    aTNormal.push_back(m_a3FNonOrientedVerticesNormals[ui32IdVertex][2]);
+                    aTNormal.push_back(m_a3FNormals[ui32IdVertex*3]);
+                    aTNormal.push_back(m_a3FNormals[ui32IdVertex*3+1]);
+                    aTNormal.push_back(m_a3FNormals[ui32IdVertex*3+2]);
+                    return true;
                 }
-                else
-                {
-                    std::cerr << "Error : vertexNormal SWMesh. " << std::endl; // TODO : throw
-                }
+
+                std::cerr << "Error : vertexNormal SWMesh. " << std::endl;
+                return false;
             }
 
             /**
              * \brief Get the vertex normal corresonding to the input id. No id validity check.
              * \param [int,out] a3FNormal   : in -> a 3-size float allocated array, out -> the array is filled with the normal coordinates [x,y,z]
              * \param [in] ui32IdVertex     : vertex id
+             * @return false if no valid normal of bad id, else return true
              */
-            void vertexNormal(float *a3FNormal, cuint ui32IdVertex) const;
+            bool vertexNormal(float *a3FNormal, cuint ui32IdVertex) const
+            {
+                if(m_a3FNormals.size() == 0)
+                {
+                    return false;
+                }
+
+                if(3*ui32IdVertex < m_a3FNormals.size())
+                {
+                    deleteAndNullifyArray(a3FNormal);
+                    a3FNormal = new float[3];
+                    a3FNormal[0] = m_a3FNormals[ui32IdVertex*3];
+                    a3FNormal[1] = m_a3FNormals[ui32IdVertex*3+1];
+                    a3FNormal[2] = m_a3FNormals[ui32IdVertex*3+2];
+                    return true;
+                }
+
+                std::cerr << "Error : vertexNormal SWMesh. " << std::endl;
+                return false;
+            }
 
             /**
              * @brief Apply a transformation on the mesh normals (see transform in SWCloud)
@@ -251,6 +277,12 @@ namespace swMesh
              * \return the float array or a NULL pointer
              */
             float *vertexBuffer() const;
+
+            /**
+             * \brief Get a copy of all the colors values in an array [float float float] (used for opengl)
+             * \return the float array or a NULL pointer
+             */
+            float *colorBuffer() const;
 
             /**
              * \brief Get a copy of all the normals coordinates in an array [float float float] (used for opengl)
@@ -359,20 +391,32 @@ namespace swMesh
              * @param idVertex
              * @param vCoords
              */
-            void textureCoordinate(cuint idVertex, std::vector<float> &vCoords) const
+            bool textureCoordinate(cuint idVertex, std::vector<float> &vCoords) const
             {
-                vCoords = std::vector<float>(2,0.f);
-                vCoords[0] = m_a2FTextures[idVertex*2];
-                vCoords[1] = m_a2FTextures[idVertex*2+1];
+                if(2*idVertex < m_a2FTextures.size())
+                {
+                    vCoords = std::vector<float>(2,0.f);
+                    vCoords[0] = m_a2FTextures[idVertex*2];
+                    vCoords[1] = m_a2FTextures[idVertex*2+1];
+                    return true;
+                }
+                else
+                {
+                    std::cerr << "Error : textureCoordinate SWMesh. " << std::endl;
+                    return false;
+                }
             }
+
+            /**
+             * @brief deletePointsWithNoFaces
+             */
+            void deletePointsWithNoFaces();
 
             /**
              * \brief Return a pointer on the mesh cloud (memory managed by SWMesh destructor)
              * \return m_oCloud pointer
              */
             swCloud::SWCloud *cloud();
-
-            swCloud::SWCloud m_oCloud;          /**< cloud containg mesh points */ // TODO : no public
 
             bool m_meshLoadSucess;
 
@@ -418,6 +462,9 @@ namespace swMesh
             std::vector<std::vector<uint> > m_aIdTriangles;     /**< array of id point for each mesh triangle */
             std::vector<std::vector<uint> > m_a2VertexLinks;    /**< array of id linked point for each vertex, no duplicate */
             std::vector<std::vector<uint> > m_a2VertexNeighbors;/**< array of id neighbors point for each vertex */
+
+            swCloud::SWCloud m_oCloud;          /**< cloud containg mesh points */
+
     };
 }
 

@@ -28,7 +28,6 @@ int main(int argc, char* argv[])
 
     std::cout << "Open mesh file : " << argv[1] << std::endl;
 
-
     swMesh::SWMesh mesh(argv[1]);
 
     if(mesh.m_meshLoadSucess)
@@ -42,11 +41,12 @@ int main(int argc, char* argv[])
         mesh.updateNonOrientedTrianglesNormals();
         mesh.updateNonOrientedVerticesNormals();
 
+        mesh.deletePointsWithNoFaces();
+
         std::string l_sName = argv[2];
         mesh.saveToObj("../data/meshes/processed/", l_sName + ".obj", l_sName + ".mtl", l_sName + ".png");
+        std::cout << "Mesh saved. " << std::endl;
     }
-
-//    generic_headCleaned.obj
 
     return 0;
 }

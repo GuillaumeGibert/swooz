@@ -29,6 +29,17 @@ SWGLOptimalStepNonRigidICP::SWGLOptimalStepNonRigidICP(QGLContext *context, QWid
      m_vertexBuffer(QGLBuffer::VertexBuffer), m_indexBuffer(QGLBuffer::IndexBuffer), m_colorBuffer(QGLBuffer::VertexBuffer),
      m_normalBuffer(QGLBuffer::VertexBuffer), m_textureBuffer(QGLBuffer::VertexBuffer)
 {
+    // init manual landmarks parameters
+        m_idClickedPointOnSourceMesh = -1;
+        m_idClickedPointOnTargetMesh = -1;
+        m_targetTextureLocation = -1;
+        m_bTemplateMeshPointSelection = true;
+
+        m_infoDisplay3D = tr("No meshes loaded. Set the template mesh and the target mesh. ");
+
+        m_clickedPointOnSourceMesh = QVector3D(-1000,-1000,-1000);
+        m_clickedPointOnTargetMesh = QVector3D(-1000,-1000,-1000);
+
     // set default parameters values
         // display
             m_bMeshSDisplay = m_bMeshTDisplay = m_bCorrDisplay = m_bDisplayLandMarks = true;
@@ -67,7 +78,10 @@ SWGLOptimalStepNonRigidICP::SWGLOptimalStepNonRigidICP(QGLContext *context, QWid
         m_pWMutex           = new QReadWriteLock();
 
     // udpate display
-        updateGL();
+//        updateGL();
+        setAttribute(Qt::WA_OpaquePaintEvent);
+        setAutoFillBackground(false);
+        update();
 }
 
 
@@ -106,11 +120,9 @@ double SWGLOptimalStepNonRigidICP::coeffAlpha() const
 
 void SWGLOptimalStepNonRigidICP::alignWithNose(swMesh::SWMesh &oSourceMesh, swMesh::SWMesh &oTargetMesh)
 {
-//    clock_t l_oProgramTime = clock();
-
     swCloud::SWCloud *l_oSource = oSourceMesh.cloud(), *l_oTarget = oTargetMesh.cloud();
 
-    vector<float> l_A3FSourceMeanPoint = l_oSource->meanPoint();
+    std::vector<float> l_A3FSourceMeanPoint = l_oSource->meanPoint();
     vector<float> l_A3FTargetMeanPoint = l_oTarget->meanPoint();
 
     l_A3FSourceMeanPoint[2] -= 10.f;
@@ -118,7 +130,7 @@ void SWGLOptimalStepNonRigidICP::alignWithNose(swMesh::SWMesh &oSourceMesh, swMe
     int idCloseSource = l_oSource->idNearestPoint(l_A3FSourceMeanPoint);
     int idCloseTarget = l_oTarget->idNearestPoint(l_A3FTargetMeanPoint);
 
-    vector<float> l_A3FOffset;
+    std::vector<float> l_A3FOffset;
     l_A3FOffset.push_back(l_oSource->coord(0)[idCloseSource] - l_oTarget->coord(0)[idCloseTarget]);
     l_A3FOffset.push_back(l_oSource->coord(1)[idCloseSource] - l_oTarget->coord(1)[idCloseTarget]);
     l_A3FOffset.push_back(l_oSource->coord(2)[idCloseSource] - l_oTarget->coord(2)[idCloseTarget]);
@@ -129,28 +141,20 @@ void SWGLOptimalStepNonRigidICP::alignWithNose(swMesh::SWMesh &oSourceMesh, swMe
 
 void SWGLOptimalStepNonRigidICP::initResolve()
 {
-//    clock_t l_oProgramTime = clock();
-
     m_pSourceMeshMutex->lockForWrite();
         m_pOSNRICP->updateSourceMeshNormals();
     m_pSourceMeshMutex->unlock();
 
-    m_pUMutex->lockForWrite();
     m_pSourceMeshMutex->lockForRead();
     m_pTargetMeshMutex->lockForRead();
-        m_pOSNRICP->computeCorrespondences();
-    m_pUMutex->unlock();
-    m_pWMutex->lockForWrite();
-        m_pOSNRICP->computeDistanceWeights();
-    m_pWMutex->unlock();
-    m_pTargetMeshMutex->unlock();
-
-    m_pUMutex->lockForRead();
-    m_pWMutex->lockForRead();
-        m_pOSNRICP->copyDataForResolving();
+        m_pUMutex->lockForWrite();
+            m_pOSNRICP->computeCorrespondences();
+        m_pUMutex->unlock();
+        m_pWMutex->lockForWrite();
+            m_pOSNRICP->computeDistanceWeights();
+        m_pWMutex->unlock();
     m_pSourceMeshMutex->unlock();
-    m_pUMutex->unlock();
-    m_pWMutex->unlock();
+    m_pTargetMeshMutex->unlock();
 }
 
 
@@ -179,6 +183,9 @@ double SWGLOptimalStepNonRigidICP::morph(cdouble dAlpha)
     initResolve();
     double l_dDiff;
 
+    m_infoDisplay3D = QString("Morphing in progress... (Alpha  : " + QString::number(dAlpha) + " -> " + QString::number(m_dMinAlpha) +  " Beta : " + QString::number(l_dBeta) + " Gama : " + QString::number(l_dGama) + ")");
+    update();
+
     try
     {
         l_dDiff = m_pOSNRICP->resolve(static_cast<float>(dAlpha), static_cast<float>(l_dBeta), static_cast<float>(l_dGama), l_dUseLandmarks);
@@ -187,10 +194,6 @@ double SWGLOptimalStepNonRigidICP::morph(cdouble dAlpha)
     {
         std::cerr << e.what() << std::endl;
     }
-
-    m_pSourceMeshMutex->lockForWrite();
-        m_pOSNRICP->updateSourceMeshWithMorphModification();
-    m_pSourceMeshMutex->unlock();
 
 //    qDebug() << " end morph ->  " << dAlpha << " time : " << ((float)(clock() - l_oProgramTime) / CLOCKS_PER_SEC);
 
@@ -238,25 +241,29 @@ void SWGLOptimalStepNonRigidICP::saveCurrentMeshToObj(const QString &sPath)
 void SWGLOptimalStepNonRigidICP::setCloudSDisplay(bool bVal)
 {
     m_bPointsSDisplay = bVal;
-    updateGL();
+//    updateGL();
+    update();
 }
 
 void SWGLOptimalStepNonRigidICP::setCloudTDisplay(bool bVal)
 {
     m_bPointsTDisplay = bVal;
-    updateGL();
+//    updateGL();
+    update();
 }
 
 void SWGLOptimalStepNonRigidICP::setMeshSDisplay(bool bVal)
 {
     m_bMeshSDisplay = bVal;
-    updateGL();
+//    updateGL();
+    update();
 }
 
 void SWGLOptimalStepNonRigidICP::setMeshTDisplay(bool bVal)
 {
     m_bMeshTDisplay = bVal;
-    updateGL();
+//    updateGL();
+    update();
 }
 
 void SWGLOptimalStepNonRigidICP::setUseLandMarks(bool bVal)
@@ -267,49 +274,57 @@ void SWGLOptimalStepNonRigidICP::setUseLandMarks(bool bVal)
 void SWGLOptimalStepNonRigidICP::setVerticesNormalsSDisplay(bool bVal)
 {
     m_bVerticesNormalsSDisplay = bVal;
-    updateGL();
+//    updateGL();
+    update();
 }
 
 void SWGLOptimalStepNonRigidICP::setVerticesNormalsTDisplay(bool bVal)
 {
     m_bVerticesNormalsTDisplay = bVal;
-    updateGL();
+//    updateGL();
+    update();
 }
 
 void SWGLOptimalStepNonRigidICP::setTrianglesNormalsSDisplay(bool bVal)
 {
     m_bTrianglesNormalsSDisplay = bVal;
-    updateGL();
+//    updateGL();
+    update();
 }
 
 void SWGLOptimalStepNonRigidICP::setTrianglesNormalsTDisplay(bool bVal)
 {
     m_bTrianglesNormalsTDisplay = bVal;
-    updateGL();
+//    updateGL();
+    update();
 }
 
 void SWGLOptimalStepNonRigidICP::setLandMarksDisplay(bool bVal)
 {
     m_bDisplayLandMarks = bVal;
-    updateGL();
+//    updateGL();
+    update();
 }
 
 void SWGLOptimalStepNonRigidICP::setCorrDisplay(bool bVal)
 {
     m_bCorrDisplay = bVal;
-    updateGL();
+//    updateGL();
+    update();
 }
 
 void SWGLOptimalStepNonRigidICP::setFillSDisplay(bool bVal)
 {
     m_bFillS = bVal;
-    updateGL();
+//    updateGL();
+    update();
 }
 
 void SWGLOptimalStepNonRigidICP::setFillTDisplay(bool bVal)
 {
     m_bFillT = bVal;
-    updateGL();
+//    updateGL();
+    update();
 }
 
 
@@ -402,17 +417,13 @@ void SWGLOptimalStepNonRigidICP::setCoeffAlpha(double dVal)
 
 void SWGLOptimalStepNonRigidICP::computeDistWAndCorr()
 {
-//    clock_t l_oProgramTime = clock();
     m_pOSNRICP->computeCorrespondences();
     m_pOSNRICP->computeDistanceWeights();
-    updateGL();
+    update();
 }
 
 void SWGLOptimalStepNonRigidICP::transformTarget(cbool bUpdateDisplay)
 {
-//    clock_t l_oProgramTime = clock();
-//    std::cout << "transformTarget : " << std::endl;
-
     if(m_pOSNRICP)
     {
         m_pTargetMeshMutex->lockForWrite();
@@ -432,23 +443,19 @@ void SWGLOptimalStepNonRigidICP::transformTarget(cbool bUpdateDisplay)
             m_pOSNRICP->m_oTargetMesh.cloud()->transform(l_oRigidMotion.m_aFRotation, l_oRigidMotion.m_aFTranslation);
             m_pOSNRICP->m_oTargetMesh.updateNonOrientedTrianglesNormals();
             m_pOSNRICP->m_oTargetMesh.updateNonOrientedVerticesNormals();
-//            m_pOSNRICP->m_oTargetMesh.transformNormals(l_oRigidMotion.m_aFRotation);
 
         m_pTargetMeshMutex->unlock();
 
         m_targetCloudBuffer.m_bUpdate = true;
         m_targetMeshBuffer.m_bUpdate = true;
-        m_targetMeshLinesBuffer.m_bUpdate = true;
         m_targetVerticesNormalesBuffer.m_bUpdate = true;
         m_targetTrianglesNormalesBuffer.m_bUpdate = true;
 
         if(bUpdateDisplay)
         {
-            updateGL();
+            update();
         }
     }
-
-//    cout << " end transformTarget : " << (float)(clock() - l_oProgramTime) / CLOCKS_PER_SEC  << std::endl;
 }
 
 void SWGLOptimalStepNonRigidICP::initializeGL()
@@ -459,15 +466,14 @@ void SWGLOptimalStepNonRigidICP::initializeGL()
     // init shaders
         initShaders("../data/shaders/cloudAvatar.vert", "../data/shaders/cloudAvatar.frag", m_oShaderPoints,    false);
         initShaders("../data/shaders/cloudAvatar.vert", "../data/shaders/cloudAvatar.frag", m_oShaderLines,     false);
-        initShaders("../data/shaders/meshAvatar.vert", "../data/shaders/meshAvatar.frag",   m_oShaderTriangles, false);
+        initShaders("../data/shaders/meshViewer.vert", "../data/shaders/meshViewer.frag",   m_oShaderMesh, false);
 
     // enable depth buffer
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_LINE_SMOOTH);
-//        glEnable(GL_CULL_FACE);
 
     // enable blending
-        glEnable(GL_BLEND);
+//        glEnable(GL_BLEND);
 //        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         initIndexBuffer(m_indexBuffer);
@@ -479,16 +485,17 @@ void SWGLOptimalStepNonRigidICP::initializeGL()
 
         initBufferList(m_templateCloudBuffer);
         initBufferList(m_templateMeshBuffer);
-        initBufferList(m_templateMeshLinesBuffer);
         initBufferList(m_templateVerticesNormalesBuffer);
         initBufferList(m_templateTrianglesNormalesBuffer);
 
         initBufferList(m_targetCloudBuffer);
         initBufferList(m_targetMeshBuffer);
-        initBufferList(m_targetMeshLinesBuffer);
         initBufferList(m_targetVerticesNormalesBuffer);
         initBufferList(m_targetTrianglesNormalesBuffer);
+
+        initBufferList(m_landmarksManualBuffer);
 }
+
 
 void SWGLOptimalStepNonRigidICP::initBufferList(SWGLBufferList &oBuffer)
 {
@@ -502,6 +509,7 @@ void SWGLOptimalStepNonRigidICP::initBufferList(SWGLBufferList &oBuffer)
 
 void SWGLOptimalStepNonRigidICP::paintGL()
 {
+    glEnable(GL_DEPTH_TEST);
     // set the size point
         glPointSize(m_glFSizePoint);
 
@@ -520,8 +528,28 @@ void SWGLOptimalStepNonRigidICP::paintGL()
         l_oModelMatrix.setToIdentity();
         m_oMVPMatrix = l_oModelMatrix  * m_oProjectionMatrix * l_oViewMatrix;
 
-    // draw the scene
         drawScene();
+
+}
+
+
+void SWGLOptimalStepNonRigidICP::paintEvent(QPaintEvent *paintEvent)
+{
+    paintGL();
+
+        // set mode
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            checkGlError(true);
+
+    QPainter p;
+    p.begin(this);
+    p.setRenderHint(QPainter::Antialiasing);
+    QFont font=p.font() ;
+    font.setPointSize(18);
+    p.setFont(font);
+    p.setPen(QColor(255,0,0));
+    p.drawText(100, height()-50, m_infoDisplay3D);
+    p.end();
 }
 
 
@@ -568,17 +596,7 @@ void SWGLOptimalStepNonRigidICP::drawScene()
         if(m_bMeshSDisplay)
         {
             m_pSourceMeshMutex->lockForRead();
-
-            if(m_bFillS)
-            {
-                QVector3D l_v3DLAmbiant(0.44,0.44,0.88);
-                drawMeshTriangles(m_oShaderTriangles, m_templateMeshBuffer, m_pOSNRICP->m_oSourceMesh, m_oMVPMatrix, l_v3DLAmbiant, m_fOpacitySourceMesh);
-            }
-            else
-            {
-                drawMeshLines(m_oShaderLines, m_templateMeshLinesBuffer, m_pOSNRICP->m_oSourceMesh, m_oMVPMatrix, 0.5f, 0.5f, 1.f, m_fOpacitySourceMeshLines);
-            }
-
+                drawMesh(m_oShaderMesh, m_templateMeshBuffer, m_pOSNRICP->m_oSourceMesh, m_oMVPMatrix, m_bFillS, GLO_UNI_COLOR, QVector3D(100,100,200));
             m_pSourceMeshMutex->unlock();
         }
 
@@ -586,17 +604,14 @@ void SWGLOptimalStepNonRigidICP::drawScene()
         if(m_bMeshTDisplay)
         {
             m_pTargetMeshMutex->lockForRead();
-
-            if(m_bFillT)
-            {
-                QVector3D l_v3DLAmbiant(0.13,0.69,0.29);
-                drawMeshTriangles(m_oShaderTriangles, m_targetMeshBuffer, m_pOSNRICP->m_oTargetMesh, m_oMVPMatrix, l_v3DLAmbiant, m_fOpacityTargetMesh);
-            }
-            else
-            {
-                drawMeshLines(m_oShaderLines, m_targetMeshLinesBuffer, m_pOSNRICP->m_oTargetMesh, m_oMVPMatrix, 0.5f, 1.0f, 0.5f, m_fOpacityTargetMeshLines);
-            }
-
+                if(m_targetTextureLocation != -1)
+                {
+                    drawMesh(m_oShaderMesh, m_targetMeshBuffer, m_pOSNRICP->m_oTargetMesh, m_oMVPMatrix, m_bFillT, GLO_TEXTURE, QVector3D(200,100,100),m_targetTextureLocation);
+                }
+                else
+                {
+                    drawMesh(m_oShaderMesh, m_targetMeshBuffer, m_pOSNRICP->m_oTargetMesh, m_oMVPMatrix, m_bFillT, GLO_UNI_COLOR, QVector3D(200,100,100));
+                }
             m_pTargetMeshMutex->unlock();
         }
 
@@ -641,7 +656,176 @@ void SWGLOptimalStepNonRigidICP::drawScene()
             m_pSourceMeshMutex->unlock();
             m_pTargetMeshMutex->unlock();
         }
+
+
+    // draw ray
+//        m_oShaderLines.bind();
+//        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+//        QGLBuffer::release(QGLBuffer::VertexBuffer);
+//        QGLBuffer::release(QGLBuffer::IndexBuffer);
+
+//        uint32 *l_aRayI = new uint32[2];
+//        l_aRayI[0] = 0;
+//        l_aRayI[1] = 1;
+//        float  *l_aRayV = new float[2* 3];
+//        l_aRayV[0] = m_rayStart.x();
+//        l_aRayV[1] = m_rayStart.y();
+//        l_aRayV[2] = m_rayStart.z();
+//        l_aRayV[3] = m_rayEnd.x();
+//        l_aRayV[4] = m_rayEnd.y();
+//        l_aRayV[5] = m_rayEnd.z();
+
+//        int l_i32SizeIndex      = sizeof(GLuint);
+//        int l_i32SizeVertex     = sizeof(float) * 3;
+//        allocateBuffer(m_indexBuffer,  l_aRayI, 2 * l_i32SizeIndex);
+//        allocateBuffer(m_vertexBuffer, l_aRayV, 2 * l_i32SizeVertex);
+
+//        // set shaders parameters
+//        m_oShaderLines.setUniformValue("displayMode", 1);
+//        m_oShaderLines.setUniformValue("uniColor", 1.f, 0.f, 0.f);
+//        m_oShaderLines.setUniformValue("mvpMatrix", m_oMVPMatrix);
+
+//        // draw primitives
+//        drawBuffer(m_indexBuffer, m_vertexBuffer, m_oShaderLines, GL_LINES);
+
+//        delete[] l_aRayI;
+//        delete[] l_aRayV;
+
+//        m_oShaderLines.release();
+
+    // drawManualLandmarks
+
+//        m_clickedPointOnTargetMesh
+
+    if(m_pSourceMesh.get() && m_pTargetMesh.get())
+    {
+        std::vector<float> l_vX,l_vY,l_vZ;
+        m_pSourceMeshMutex->lockForRead();
+            for(int ii = 0; ii < m_idClickedPointsOnSourceMesh.size(); ++ii)
+            {
+                l_vX.push_back(m_pOSNRICP->m_oSourceMesh.cloud()->coord(0)[m_idClickedPointsOnSourceMesh[ii]]);
+                l_vY.push_back(m_pOSNRICP->m_oSourceMesh.cloud()->coord(1)[m_idClickedPointsOnSourceMesh[ii]]);
+                l_vZ.push_back(m_pOSNRICP->m_oSourceMesh.cloud()->coord(2)[m_idClickedPointsOnSourceMesh[ii]]);
+            }
+        m_pSourceMeshMutex->unlock();
+
+        if(l_vX.size() > 0)
+        {
+            swCloud::SWCloud l_landmarksMTemplate(l_vX,l_vY,l_vZ);
+            drawPoints(m_oShaderPoints, l_landmarksMTemplate, 25.f, m_oMVPMatrix, 0.5f, 1.f, 0.5f);
+        }
+
+        l_vX.clear(); l_vY.clear(); l_vZ.clear();
+
+        m_pTargetMeshMutex->lockForRead();
+            for(int ii = 0; ii < m_idClickedPointsOnTargetMesh.size(); ++ii)
+            {
+                l_vX.push_back(m_pOSNRICP->m_oTargetMesh.cloud()->coord(0)[m_idClickedPointsOnTargetMesh[ii]]);
+                l_vY.push_back(m_pOSNRICP->m_oTargetMesh.cloud()->coord(1)[m_idClickedPointsOnTargetMesh[ii]]);
+                l_vZ.push_back(m_pOSNRICP->m_oTargetMesh.cloud()->coord(2)[m_idClickedPointsOnTargetMesh[ii]]);
+            }
+        m_pTargetMeshMutex->unlock();
+
+        if(l_vX.size() > 0)
+        {
+            swCloud::SWCloud l_landmarksMTarget(l_vX,l_vY,l_vZ);
+            drawPoints(m_oShaderPoints, l_landmarksMTarget, 25.f, m_oMVPMatrix, 0.5f, 0.5f, 1.f);
+        }
+
+        l_vX.clear(); l_vY.clear(); l_vZ.clear();
+        if(m_bTemplateMeshPointSelection)
+        {
+            l_vX.push_back(m_clickedPointOnSourceMesh.x());
+            l_vY.push_back(m_clickedPointOnSourceMesh.y());
+            l_vZ.push_back(m_clickedPointOnSourceMesh.z());
+        }
+        else
+        {
+            l_vX.push_back(m_clickedPointOnTargetMesh.x());
+            l_vY.push_back(m_clickedPointOnTargetMesh.y());
+            l_vZ.push_back(m_clickedPointOnTargetMesh.z());
+        }
+
+        if(l_vX[0] != -1000)
+        {
+            swCloud::SWCloud l_landmarksCurrent(l_vX,l_vY,l_vZ);
+            drawPoints(m_oShaderPoints, l_landmarksCurrent, 50.f, m_oMVPMatrix, 1.f, 1.f, 1.f);
+        }
+    }
 }
+
+
+
+void SWGLOptimalStepNonRigidICP::drawMeshTrianglesNormals(QGLShaderProgram &oShader, SWGLBufferList &oBuffers, const SWMesh &oMesh, QMatrix4x4 &mvpMatrix, cfloat r, cfloat g, cfloat b)
+{
+    float l_fCoeffLenghtNormal = 0.01f;
+
+    if(!oMesh.isTrianglesNormals())
+    {
+        cerr << "drawMeshTrianglesNormals : No triangles normals in the mesh" << endl;
+        return;
+    }
+
+    oShader.bind();
+        checkGlError();
+
+    // set mode
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+    // release buffers
+    QGLBuffer::release(QGLBuffer::VertexBuffer);
+    QGLBuffer::release(QGLBuffer::IndexBuffer);
+
+    // allocate buffers
+    if(oBuffers.m_bUpdate)
+    {
+        int l_i32SizeIndex      = sizeof(GLuint);
+        int l_i32SizeVertex     = sizeof(float) * 3;
+        uint32 *l_aNormalI      = new uint32[oMesh.trianglesNumber()*2];
+        float  *l_aNormalV      = new float[oMesh.trianglesNumber()*2 * 3];
+
+        for(uint ii = 0; ii < oMesh.trianglesNumber(); ++ii)
+        {
+            // fill index buffer
+                l_aNormalI[2*ii]   = 2*ii;
+                l_aNormalI[2*ii+1] = 2*ii+1;
+
+            // fill vertex buffer
+                std::vector<float> l_vTriCenterPoint;
+                oMesh.triangleCenterPoint(l_vTriCenterPoint,ii);
+                l_aNormalV[6*ii]   = l_vTriCenterPoint[0];
+                l_aNormalV[6*ii+1] = l_vTriCenterPoint[1];
+                l_aNormalV[6*ii+2] = l_vTriCenterPoint[2];
+
+                std::vector<float> l_vNormal;
+                oMesh.triangleNormal(l_vNormal, ii);
+                l_aNormalV[6*ii+3] = l_vTriCenterPoint[0] + l_fCoeffLenghtNormal * l_vNormal[0];
+                l_aNormalV[6*ii+4] = l_vTriCenterPoint[1] + l_fCoeffLenghtNormal * l_vNormal[1];
+                l_aNormalV[6*ii+5] = l_vTriCenterPoint[2] + l_fCoeffLenghtNormal * l_vNormal[2];
+        }
+
+        allocateBuffer(oBuffers.m_indexBuffer,  l_aNormalI, oMesh.trianglesNumber() * 2 * l_i32SizeIndex);
+        allocateBuffer(oBuffers.m_vertexBuffer, l_aNormalV, oMesh.trianglesNumber() * 2 * l_i32SizeVertex);
+
+        deleteAndNullifyArray(l_aNormalI);
+        deleteAndNullifyArray(l_aNormalV);
+
+        oBuffers.m_bUpdate = false;
+    }
+
+    // set shaders parameters
+    oShader.setUniformValue("displayMode", 1);
+    oShader.setUniformValue("uniColor", r, g, b);
+    oShader.setUniformValue("mvpMatrix", mvpMatrix);
+    oShader.setUniformValue("opacity", m_fDefaultOpacity);
+
+    // draw primitives
+    drawBuffer(oBuffers.m_indexBuffer, oBuffers.m_vertexBuffer, oShader, GL_LINES);
+
+    oShader.release();
+        checkGlError();
+}
+
 
 void SWGLOptimalStepNonRigidICP::drawLandMarksPoints(QGLShaderProgram &oShader, const std::map<uint,uint> mLandMarkCorr, const swCloud::SWCloud &oSource, const swCloud::SWCloud &oTarget, QMatrix4x4 &mvpMatrix)
 {
@@ -881,6 +1065,50 @@ void SWGLOptimalStepNonRigidICP::drawCorrLines(QGLShaderProgram &oShader, const 
         checkGlError();
 }
 
+void SWGLOptimalStepNonRigidICP::drawPoints(QGLShaderProgram &oShader, const swCloud::SWCloud &oCloud, cfloat fSizePoint, QMatrix4x4 &mvpMatrix, cfloat r, cfloat g, cfloat b)
+{
+    // bind shader
+    oShader.bind();
+        checkGlError();
+
+    // set mode
+    glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+        checkGlError();
+
+    // release buffers
+    QGLBuffer::release(QGLBuffer::VertexBuffer);
+    QGLBuffer::release(QGLBuffer::IndexBuffer);
+
+    // allocate buffers
+
+    int l_i32SizeIndex      = sizeof(GLuint);
+    int l_i32SizeVertex     = sizeof(float) * 3;
+    uint32 *l_aCloudI       = oCloud.indexBuffer();
+    float  *l_aCloudV       = oCloud.vertexBuffer();
+
+    allocateBuffer(m_landmarksManualBuffer.m_indexBuffer,  l_aCloudI, oCloud.size() * l_i32SizeIndex);
+    allocateBuffer(m_landmarksManualBuffer.m_vertexBuffer, l_aCloudV, oCloud.size() * l_i32SizeVertex);
+
+    deleteAndNullifyArray(l_aCloudI);
+    deleteAndNullifyArray(l_aCloudV);
+
+    // set size of the points
+    glPointSize(fSizePoint);
+
+    // set uniform values parameters
+    oShader.setUniformValue("displayMode", 1);
+    oShader.setUniformValue("uniColor", r, g, b);
+    oShader.setUniformValue("mvpMatrix", mvpMatrix);
+    oShader.setUniformValue("opacity", m_fDefaultOpacity);
+
+    // draw primitives
+    drawBuffer(m_landmarksManualBuffer.m_indexBuffer, m_landmarksManualBuffer.m_vertexBuffer, oShader, GL_POINTS);
+
+    oShader.release();
+        checkGlError();
+}
+
+
 void SWGLOptimalStepNonRigidICP::drawCloud(QGLShaderProgram &oShader, const swCloud::SWCloud &oCloud, cfloat fSizePoint, QMatrix4x4 &mvpMatrix, cfloat r, cfloat g, cfloat b)
 {
     // bind shader
@@ -916,6 +1144,7 @@ void SWGLOptimalStepNonRigidICP::drawCloud(QGLShaderProgram &oShader, const swCl
     glPointSize(fSizePoint);
 
     // set uniform values parameters
+    oShader.setUniformValue("displayMode", 1);
     oShader.setUniformValue("uniColor", r, g, b);
     oShader.setUniformValue("mvpMatrix", mvpMatrix);
     oShader.setUniformValue("opacity", m_fDefaultOpacity);
@@ -961,6 +1190,13 @@ void SWGLOptimalStepNonRigidICP::drawSourceCloud(QGLShaderProgram &oShader, cons
                     l_fCol[2] = 1.f;
                 }
 
+                if(ii == m_idClickedPointOnSourceMesh)
+                {
+                    l_fCol[0] = 0.f;
+                    l_fCol[1] = 1.f;
+                    l_fCol[2] = 0.f;
+                }
+
                 l_aCloudC[3*ii]   = l_fCol[0];
                 l_aCloudC[3*ii+1] = l_fCol[1];
                 l_aCloudC[3*ii+2] = l_fCol[2];
@@ -981,7 +1217,7 @@ void SWGLOptimalStepNonRigidICP::drawSourceCloud(QGLShaderProgram &oShader, cons
     glPointSize(fSizePoint);
 
     // set uniform values parameters
-    oShader.setUniformValue("uniColor", -1, -1, -1); // do not use unicolor
+    oShader.setUniformValue("displayMode", 0);
     oShader.setUniformValue("mvpMatrix", mvpMatrix);
     oShader.setUniformValue("opacity", m_fDefaultOpacity);
 
@@ -992,98 +1228,6 @@ void SWGLOptimalStepNonRigidICP::drawSourceCloud(QGLShaderProgram &oShader, cons
     oShader.release();
         checkGlError();
 }
-
-void SWGLOptimalStepNonRigidICP::drawMeshTriangles(QGLShaderProgram &oShader, SWGLBufferList &oBuffers, swMesh::SWMesh &oMesh, QMatrix4x4 &mvpMatrix,
-                          QVector3D &v3DLAmbiant, cfloat fOpacity)
-{
-    oShader.bind();
-        checkGlError();
-
-    // set mode
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        checkGlError();
-
-    // release buffers
-    QGLBuffer::release(QGLBuffer::VertexBuffer);
-    QGLBuffer::release(QGLBuffer::IndexBuffer);
-
-    // allocate buffers
-    if(oBuffers.m_bUpdate)
-    {
-        float  *l_aFVertexBuffer   = oMesh.vertexBuffer();
-        uint32 *l_aUI32IndexBuffer = oMesh.indexVertexTriangleBuffer();
-        float  *l_aFNormalBuffer   = oMesh.normalBuffer();
-
-        allocateBuffer(oBuffers.m_vertexBuffer,  l_aFVertexBuffer,   oMesh.pointsNumber() *     3 * sizeof(float) );
-        allocateBuffer(oBuffers.m_indexBuffer,   l_aUI32IndexBuffer, oMesh.trianglesNumber() *  3 * sizeof(GLuint) );
-        allocateBuffer(oBuffers.m_normalBuffer,  l_aFNormalBuffer,   oMesh.pointsNumber() *     3 * sizeof(float) );
-
-        deleteAndNullifyArray(l_aFVertexBuffer);
-        deleteAndNullifyArray(l_aUI32IndexBuffer);
-        deleteAndNullifyArray(l_aFNormalBuffer);
-
-        oBuffers.m_bUpdate = false;
-    }
-
-    // set uniform values parameters
-    oShader.setUniformValueArray("lAmbiant", &v3DLAmbiant, 1);
-    oShader.setUniformValue("mvpMatrix",    mvpMatrix);
-    oShader.setUniformValue("opacity",      fOpacity);
-    oShader.setUniformValue("applyTexture", false);
-
-    drawBuffer(oBuffers.m_indexBuffer, oBuffers.m_vertexBuffer, oBuffers.m_normalBuffer, oShader, GL_TRIANGLES);
-
-
-
-    oShader.release();
-        checkGlError();
-}
-
-
-void SWGLOptimalStepNonRigidICP::drawMeshLines(QGLShaderProgram &oShader, SWGLBufferList &oBuffers, SWMesh &oMesh, QMatrix4x4 &mvpMatrix, cfloat r, cfloat g, cfloat b, cfloat fOpacity)
-{
-    oShader.bind();
-        checkGlError();
-
-    // set mode
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-    // release buffers
-    QGLBuffer::release(QGLBuffer::VertexBuffer);
-    QGLBuffer::release(QGLBuffer::IndexBuffer);
-
-    // allocate buffers
-    if(oBuffers.m_bUpdate)
-    {
-        int l_i32SizeFaceIndex  = sizeof(GLuint) * 3;
-        int l_i32SizeVertex     = sizeof(float) * 3;
-        uint32 *l_aFaceI        = oMesh.indexVertexTriangleBuffer();
-        float  *l_aCloudV       = oMesh.cloud()->vertexBuffer();
-
-        allocateBuffer(oBuffers.m_indexBuffer,  l_aFaceI,  oMesh.trianglesNumber() * l_i32SizeFaceIndex);
-        allocateBuffer(oBuffers.m_vertexBuffer, l_aCloudV, oMesh.cloud()->size()   * l_i32SizeVertex);
-
-        deleteAndNullifyArray(l_aFaceI);
-        deleteAndNullifyArray(l_aCloudV);
-
-        oBuffers.m_bUpdate = false;
-    }
-
-    // set uniform values parameters
-    oShader.setUniformValue("displayMode", 1);
-    oShader.setUniformValue("uniColor", r, g, b);
-    oShader.setUniformValue("mvpMatrix", mvpMatrix);
-    oShader.setUniformValue("opacity", fOpacity);
-
-    // draw primitives
-    drawBuffer(oBuffers.m_indexBuffer, oBuffers.m_vertexBuffer, oShader, GL_TRIANGLES);
-
-
-
-    oShader.release();
-        checkGlError();
-}
-
 
 void SWGLOptimalStepNonRigidICP::drawMeshVerticesNormals(QGLShaderProgram &oShader, SWGLBufferList &oBuffers, const swMesh::SWMesh &oMesh, QMatrix4x4 &mvpMatrix, cfloat r, cfloat g, cfloat b)
 {
@@ -1156,76 +1300,6 @@ void SWGLOptimalStepNonRigidICP::drawMeshVerticesNormals(QGLShaderProgram &oShad
         checkGlError();
 }
 
-void SWGLOptimalStepNonRigidICP::drawMeshTrianglesNormals(QGLShaderProgram &oShader, SWGLBufferList &oBuffers, const SWMesh &oMesh, QMatrix4x4 &mvpMatrix, cfloat r, cfloat g, cfloat b)
-{
-    float l_fCoeffLenghtNormal = 0.01f;
-
-    if(!oMesh.isTrianglesNormals())
-    {
-        cerr << "drawMeshTrianglesNormals : No triangles normals in the mesh" << endl;
-        return;
-    }
-
-    oShader.bind();
-        checkGlError();
-
-    // set mode
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-    // release buffers
-    QGLBuffer::release(QGLBuffer::VertexBuffer);
-    QGLBuffer::release(QGLBuffer::IndexBuffer);
-
-    // allocate buffers
-    if(oBuffers.m_bUpdate)
-    {
-        int l_i32SizeIndex      = sizeof(GLuint);
-        int l_i32SizeVertex     = sizeof(float) * 3;
-        uint32 *l_aNormalI      = new uint32[oMesh.trianglesNumber()*2];
-        float  *l_aNormalV      = new float[oMesh.trianglesNumber()*2 * 3];
-
-        for(uint ii = 0; ii < oMesh.trianglesNumber(); ++ii)
-        {
-            // fill index buffer
-                l_aNormalI[2*ii]   = 2*ii;
-                l_aNormalI[2*ii+1] = 2*ii+1;
-
-            // fill vertex buffer
-                std::vector<float> l_vTriCenterPoint;
-                oMesh.triangleCenterPoint(l_vTriCenterPoint,ii);
-                l_aNormalV[6*ii]   = l_vTriCenterPoint[0];
-                l_aNormalV[6*ii+1] = l_vTriCenterPoint[1];
-                l_aNormalV[6*ii+2] = l_vTriCenterPoint[2];
-
-                std::vector<float> l_vNormal;
-                oMesh.triangleNormal(l_vNormal, ii);
-                l_aNormalV[6*ii+3] = l_vTriCenterPoint[0] + l_fCoeffLenghtNormal * l_vNormal[0];
-                l_aNormalV[6*ii+4] = l_vTriCenterPoint[1] + l_fCoeffLenghtNormal * l_vNormal[1];
-                l_aNormalV[6*ii+5] = l_vTriCenterPoint[2] + l_fCoeffLenghtNormal * l_vNormal[2];
-        }
-
-        allocateBuffer(oBuffers.m_indexBuffer,  l_aNormalI, oMesh.trianglesNumber() * 2 * l_i32SizeIndex);
-        allocateBuffer(oBuffers.m_vertexBuffer, l_aNormalV, oMesh.trianglesNumber() * 2 * l_i32SizeVertex);
-
-        deleteAndNullifyArray(l_aNormalI);
-        deleteAndNullifyArray(l_aNormalV);
-
-        oBuffers.m_bUpdate = false;
-    }
-
-    // set shaders parameters
-    oShader.setUniformValue("displayMode", 1);
-    oShader.setUniformValue("uniColor", r, g, b);
-    oShader.setUniformValue("mvpMatrix", mvpMatrix);
-    oShader.setUniformValue("opacity", m_fDefaultOpacity);
-
-    // draw primitives
-    drawBuffer(oBuffers.m_indexBuffer, oBuffers.m_vertexBuffer, oShader, GL_LINES);
-
-    oShader.release();
-        checkGlError();
-}
-
 
 
 void SWGLOptimalStepNonRigidICP::resetMorphing()
@@ -1251,7 +1325,34 @@ void SWGLOptimalStepNonRigidICP::resetMorphing()
         // init morphing
             m_pOSNRICP->computeCorrespondences();
             m_pOSNRICP->computeDistanceWeights();
-            updateGL();
+
+        // set buffer update to true
+            m_templateCloudBuffer.m_bUpdate = true;
+            m_templateMeshBuffer.m_bUpdate = true;
+            m_templateVerticesNormalesBuffer.m_bUpdate = true;
+            m_templateTrianglesNormalesBuffer.m_bUpdate = true;
+
+            m_targetCloudBuffer.m_bUpdate = true;
+            m_targetMeshBuffer.m_bUpdate = true;
+            m_targetVerticesNormalesBuffer.m_bUpdate = true;
+            m_targetTrianglesNormalesBuffer.m_bUpdate = true;
+
+
+            if(m_pCamera->cameraMode() == SWQtCamera::TRACKBALL_CAMERA)
+            {
+                std::vector<float> l_v3FMean = m_pOSNRICP->m_oSourceMesh.cloud()->meanPoint();
+                QVector3D l_oEye,l_oLookAt;
+                l_oLookAt.setX(l_v3FMean[0]);
+                l_oLookAt.setY(l_v3FMean[1]);
+                l_oLookAt.setZ(l_v3FMean[2]);
+                l_oEye = l_oLookAt;
+                l_oEye.setZ(l_oEye.z() - 0.25f);
+
+                setCamera(l_oEye,l_oLookAt);
+                setCameraInitial(l_oEye,l_oLookAt, QVector3D(0,1,0));
+            }
+//            updateGL();
+            update();
     }
 }
 
@@ -1270,7 +1371,8 @@ void SWGLOptimalStepNonRigidICP::refreshDisplay(bool bBufferUpdate)
     {
         bufferUpdate();
     }
-    updateGL();
+//    updateGL();
+    update();
 }
 
 void SWGLOptimalStepNonRigidICP::resetMorphingWithNewMeshes()
@@ -1281,72 +1383,7 @@ void SWGLOptimalStepNonRigidICP::resetMorphingWithNewMeshes()
         return;
     }
 
-    // reset meshes data
-        m_pSourceMesh.reset();
-        m_pTargetMesh.reset();
-        m_pSourceMesh = SWMeshPtr(new swMesh::SWMesh(m_sPathSourceMesh));
-        m_pTargetMesh = SWMeshPtr(new swMesh::SWMesh(m_sPathTargetMesh));
-
-    // init source meshes infos to send
-        QString l_sSourceMeshInfos(getInfoMesh(*m_pSourceMesh));
-
-    // check stasm file existence
-        QFileInfo l_oFileInfos1(m_sPathStasmSource);
-
-        if(l_oFileInfos1.exists())
-        {
-            l_sSourceMeshInfos += QString("STASM path : ") + m_sPathStasmSource;
-        }
-        else
-        {
-            l_sSourceMeshInfos  += QString("STASM path : file not found");
-        }
-
-        emit sendSourceMeshInfos(l_sSourceMeshInfos);
-
-    // init target meshes infos to send
-        QString l_sTargetMeshInfos(getInfoMesh(*m_pTargetMesh));
-
-    // check stasm file existence
-        QFileInfo l_oFileInfo2(m_sPathStasmTarget);
-
-        if(l_oFileInfo2.exists())
-        {
-            l_sTargetMeshInfos += QString("STASM path : ") + m_sPathStasmTarget;
-        }
-        else
-        {
-            l_sTargetMeshInfos += QString("STASM path : file not found");
-        }
-
-        emit sendTargetMeshInfos(l_sTargetMeshInfos);
-
-    // find scaling value
-        swCloud::SWCloudBBox l_oSourceCloudBBox = m_pSourceMesh->cloud()->bBox();
-        swCloud::SWCloudBBox l_oTargetCloudBBox = m_pTargetMesh->cloud()->bBox();
-        vector<float> l_vPt1,l_vPt2;
-        l_vPt1.push_back(l_oSourceCloudBBox.m_fMinX);
-        l_vPt1.push_back(l_oSourceCloudBBox.m_fMinY);
-        l_vPt1.push_back(l_oSourceCloudBBox.m_fMinZ);
-        l_vPt2.push_back(l_oSourceCloudBBox.m_fMaxX);
-        l_vPt2.push_back(l_oSourceCloudBBox.m_fMaxY);
-        l_vPt2.push_back(l_oSourceCloudBBox.m_fMaxZ);
-        float l_fD1 = swUtil::norm(swUtil::vec(l_vPt1,l_vPt2));
-
-        l_vPt1.clear(); l_vPt2.clear();
-        l_vPt1.push_back(l_oTargetCloudBBox.m_fMinX);
-        l_vPt1.push_back(l_oTargetCloudBBox.m_fMinY);
-        l_vPt1.push_back(l_oTargetCloudBBox.m_fMinZ);
-        l_vPt2.push_back(l_oTargetCloudBBox.m_fMaxX);
-        l_vPt2.push_back(l_oTargetCloudBBox.m_fMaxY);
-        l_vPt2.push_back(l_oTargetCloudBBox.m_fMaxZ);
-        float l_fD2 = swUtil::norm(swUtil::vec(l_vPt1,l_vPt2));
-
-    // apply scaling value
-        if(l_fD2/l_fD1 > 1000)
-        {
-             m_pTargetMesh->scale(0.001f);
-        }
+    m_infoDisplay3D = QString("Meshes set, the morphing can start.");
 
     // align source and target meshes with the nose
         alignWithNose(*m_pSourceMesh.get(), *m_pTargetMesh.get());
@@ -1364,13 +1401,11 @@ void SWGLOptimalStepNonRigidICP::bufferUpdate()
     // set buffers to update
         m_templateCloudBuffer.m_bUpdate = true;
         m_templateMeshBuffer.m_bUpdate = true;
-        m_templateMeshLinesBuffer.m_bUpdate = true;
         m_templateVerticesNormalesBuffer.m_bUpdate = true;
         m_templateTrianglesNormalesBuffer.m_bUpdate = true;
 
         m_targetCloudBuffer.m_bUpdate = true;
         m_targetMeshBuffer.m_bUpdate = true;
-        m_targetMeshLinesBuffer.m_bUpdate = true;
         m_targetVerticesNormalesBuffer.m_bUpdate = true;
         m_targetTrianglesNormalesBuffer.m_bUpdate = true;
 
@@ -1383,6 +1418,15 @@ void SWGLOptimalStepNonRigidICP::setSourceMesh(const QString &sPathSource)
         m_pOSNRICP.reset();
         m_pSourceMesh.reset();
         m_pSourceMesh = SWMeshPtr(new swMesh::SWMesh(m_sPathSourceMesh));
+
+        std::vector<float> l_normal0;
+        if(!m_pSourceMesh->vertexNormal(l_normal0,0))
+        {
+            // the mesh doesn't have valid normals, they will be recomputed
+            m_pSourceMesh->updateNonOrientedTrianglesNormals();
+            m_pSourceMesh->updateNonOrientedVerticesNormals();
+        }
+
 
     // check if the mesh is too huge
         if(m_pSourceMesh->pointsNumber() > 10000)
@@ -1417,13 +1461,18 @@ void SWGLOptimalStepNonRigidICP::setSourceMesh(const QString &sPathSource)
             l_sSourceMeshInfos  += QString("STASM path : file not found");
         }
 
-
         emit sendSourceMeshInfos(l_sSourceMeshInfos);
 
     // launch the reset if source mesh and target mesh are defined
         if(m_pSourceMesh.get() && m_pTargetMesh.get())
         {
             resetMorphingWithNewMeshes();
+        }
+
+        if(m_pSourceMesh.get() && !m_pTargetMesh.get())
+        {
+            m_infoDisplay3D = tr("Template mesh set, now load the target mesh. ");
+            update();
         }
 }
 
@@ -1434,6 +1483,14 @@ void SWGLOptimalStepNonRigidICP::setTargetMesh(const QString &sPathTarget)
         m_pOSNRICP.reset();
         m_pTargetMesh.reset();
         m_pTargetMesh = SWMeshPtr(new swMesh::SWMesh(m_sPathTargetMesh));
+
+        std::vector<float> l_normal0;
+        if(!m_pTargetMesh->vertexNormal(l_normal0,0))
+        {
+            // the mesh doesn't have valid normals, they will be recomputed
+            m_pTargetMesh->updateNonOrientedTrianglesNormals();
+            m_pTargetMesh->updateNonOrientedVerticesNormals();
+        }
 
     // set the target stasm file path
         m_sPathStasmTarget = sPathTarget;
@@ -1466,6 +1523,12 @@ void SWGLOptimalStepNonRigidICP::setTargetMesh(const QString &sPathTarget)
     {
         resetMorphingWithNewMeshes();
     }
+
+    if(!m_pSourceMesh.get() && m_pTargetMesh.get())
+    {
+        m_infoDisplay3D = tr("Target mesh set, now load the template mesh. ");
+        update();
+    }
 }
 
 
@@ -1477,3 +1540,285 @@ QString SWGLOptimalStepNonRigidICP::getInfoMesh(const swMesh::SWMesh &oMesh)
     return l_sInfo;
 }
 
+void SWGLOptimalStepNonRigidICP::setTemplateMeshPointSelection(const bool templateMesh)
+{
+    m_bTemplateMeshPointSelection = templateMesh;
+}
+
+void SWGLOptimalStepNonRigidICP::updatePointMeshClicked()
+{
+    if(!m_pOSNRICP.get())
+    {
+        return;
+    }
+
+    std::vector<float> l_rayStart;
+    l_rayStart.push_back(m_rayStart.x());
+    l_rayStart.push_back(m_rayStart.y());
+    l_rayStart.push_back(m_rayStart.z());
+    std::vector<float> l_rayEnd;
+    l_rayEnd.push_back(m_rayEnd.x());
+    l_rayEnd.push_back(m_rayEnd.y());
+    l_rayEnd.push_back(m_rayEnd.z());
+
+
+    std::vector<std::vector<float> > l_vIntersectionPoints;
+
+    // update current selected point
+    //      on the template mesh
+    if(m_bTemplateMeshPointSelection)
+    {
+
+        for(uint ii = 0; ii < m_pOSNRICP->m_oSourceMesh.trianglesNumber(); ++ii)
+        {
+            std::vector<float> pt1,pt2,pt3;
+            m_pOSNRICP->m_oSourceMesh.trianglePoints(pt1,pt2,pt3,ii);
+
+
+            std::vector<float> l_intersectionPoint;
+            if(swUtil::segmentTriangleIntersect(l_rayStart,l_rayEnd,pt1,pt2,pt3,l_intersectionPoint) == 1)
+            {
+                l_vIntersectionPoints.push_back(l_intersectionPoint);
+            }
+        }
+    }
+    //      on the target mesh
+    else
+    {
+        for(uint ii = 0; ii < m_pOSNRICP->m_oTargetMesh.trianglesNumber(); ++ii)
+        {
+            std::vector<float> pt1,pt2,pt3;
+            m_pOSNRICP->m_oTargetMesh.trianglePoints(pt1,pt2,pt3,ii);
+
+
+            std::vector<float> l_intersectionPoint;
+            if(swUtil::segmentTriangleIntersect(l_rayStart,l_rayEnd,pt1,pt2,pt3,l_intersectionPoint) == 1)
+            {
+                l_vIntersectionPoints.push_back(l_intersectionPoint);
+            }
+        }
+    }
+
+    double l_distMin = DBL_MAX;
+    int l_idMin = -1;
+    for(uint ii = 0; ii < l_vIntersectionPoints.size(); ++ii)
+    {
+        QVector3D l_intersectionPoint(l_vIntersectionPoints[ii][0],l_vIntersectionPoints[ii][1],l_vIntersectionPoints[ii][2]);
+
+        double l_length = (l_intersectionPoint - m_pCamera->eyePosition()).length();
+
+        qDebug() << "lenght : " << l_length;
+
+        if(l_length < l_distMin)
+        {
+            l_distMin = l_length;
+            l_idMin = ii;
+        }
+    }
+
+    qDebug() << "l_idMin : " << l_idMin;
+
+
+    if(m_bTemplateMeshPointSelection)
+    {
+        if(l_idMin != -1)
+        {
+
+            m_idClickedPointOnSourceMesh = m_pOSNRICP->m_oSourceMesh.cloud()->idNearestPoint(l_vIntersectionPoints[l_idMin]);
+            m_clickedPointOnSourceMesh.setX(m_pOSNRICP->m_oSourceMesh.cloud()->coord(0)[m_idClickedPointOnSourceMesh]);
+            m_clickedPointOnSourceMesh.setY(m_pOSNRICP->m_oSourceMesh.cloud()->coord(1)[m_idClickedPointOnSourceMesh]);
+            m_clickedPointOnSourceMesh.setZ(m_pOSNRICP->m_oSourceMesh.cloud()->coord(2)[m_idClickedPointOnSourceMesh]);
+
+            qDebug() << "Clicked point on source mesh : " << m_clickedPointOnSourceMesh;
+        }
+    }
+    else
+    {
+        if(l_idMin != -1)
+        {
+            m_idClickedPointOnTargetMesh = m_pOSNRICP->m_oTargetMesh.cloud()->idNearestPoint(l_vIntersectionPoints[l_idMin]);
+            m_clickedPointOnTargetMesh.setX(m_pOSNRICP->m_oTargetMesh.cloud()->coord(0)[m_idClickedPointOnTargetMesh]);
+            m_clickedPointOnTargetMesh.setY(m_pOSNRICP->m_oTargetMesh.cloud()->coord(1)[m_idClickedPointOnTargetMesh]);
+            m_clickedPointOnTargetMesh.setZ(m_pOSNRICP->m_oTargetMesh.cloud()->coord(2)[m_idClickedPointOnTargetMesh]);
+
+            qDebug() << "Clicked point on target mesh : " << m_clickedPointOnTargetMesh;
+        }
+    }
+
+//    updateGL();
+
+    update();
+}
+
+void SWGLOptimalStepNonRigidICP::stockCurrentClickedMeshPoint(const bool templateMesh, int &clickedPointId, QVector3D &clickedPoint)
+{
+    if(templateMesh)
+    {
+        m_idClickedPointsOnSourceMesh.push_back(m_idClickedPointOnSourceMesh);
+        m_clickedPointsOnSourceMesh.push_back(m_clickedPointOnSourceMesh);
+        clickedPointId = m_idClickedPointOnSourceMesh;
+        clickedPoint = m_clickedPointOnSourceMesh;
+    }
+    else
+    {
+        m_idClickedPointsOnTargetMesh.push_back(m_idClickedPointOnTargetMesh);
+        m_clickedPointsOnTargetMesh.push_back(m_clickedPointOnTargetMesh);
+        clickedPointId = m_idClickedPointOnTargetMesh;
+        clickedPoint = m_clickedPointOnTargetMesh;
+    }
+}
+
+void SWGLOptimalStepNonRigidICP::eraseManuallyLandmarks()
+{
+    m_clickedPointsOnSourceMesh.clear();
+    m_clickedPointsOnTargetMesh.clear();
+
+    m_idClickedPointsOnSourceMesh.clear();
+    m_idClickedPointsOnTargetMesh.clear();
+
+    m_clickedPointOnSourceMesh = QVector3D(-1000,-1000,-1000);
+    m_clickedPointOnTargetMesh = QVector3D(-1000,-1000,-1000);
+
+//    updateGL();
+    update();
+}
+
+void SWGLOptimalStepNonRigidICP::updateLandmarksWithSTASM()
+{
+    if(m_pSourceMesh.get() && m_pTargetMesh.get())
+    {
+        m_pOSNRICP->updateLandmarksWithSTASM();
+    }
+}
+
+void SWGLOptimalStepNonRigidICP::updateLandmarksWithManualSelection()
+{
+    if(m_pSourceMesh.get() && m_pTargetMesh.get())
+    {
+        std::vector<int> l_idSource,l_idTarget;
+        for(int ii = 0; ii < m_idClickedPointsOnSourceMesh.size(); ++ii)
+        {
+            l_idSource.push_back(m_idClickedPointsOnSourceMesh[ii]);
+            l_idTarget.push_back(m_idClickedPointsOnTargetMesh[ii]);
+        }
+
+        m_pOSNRICP->updateLandmarksWithManualSelection(l_idSource,l_idTarget);
+    }
+}
+
+void SWGLOptimalStepNonRigidICP::updateTargetTexture(QString pathTargetTexture)
+{
+    qDebug() << pathTargetTexture;
+    m_targetTexture = QImage(pathTargetTexture);
+    m_targetTextureLocation = bindTexture(m_targetTexture);
+    m_targetMeshBuffer.m_bUpdate = true;
+
+    update();
+    //    updateGL();
+}
+
+void SWGLOptimalStepNonRigidICP::updateDisplayTextEndMorphing()
+{
+    m_infoDisplay3D = QString("Morphing done.");
+    update();
+}
+
+void SWGLOptimalStepNonRigidICP::setInfo3DDisplay(QString textToDisplay)
+{
+    m_infoDisplay3D = textToDisplay;
+    update();
+}
+
+
+void SWGLOptimalStepNonRigidICP::drawMesh(QGLShaderProgram &shader, SWGLBufferList &buffers, const SWMesh &mesh, const QMatrix4x4 &mvpMatrix, const bool fillMesh,
+                                          const GLObjectDisplayMode displayMode, const QVector3D unicolor, const int textureLocation)
+{
+    // bind shader for meshes
+    shader.bind();
+        checkGlError(true);
+
+        std::vector<float> l_coordText;
+        bool l_textureCoordinatesExist = mesh.textureCoordinate(0,l_coordText);
+
+    // release buffers
+        QGLBuffer::release(QGLBuffer::VertexBuffer);
+        QGLBuffer::release(QGLBuffer::IndexBuffer);
+
+    // set polygon mode
+        if(fillMesh)
+        {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        }
+        else
+        {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        }
+
+    // uniform
+        // camera
+            shader.setUniformValue("viewDirection", -m_pCamera->lookAt());
+        // transformations
+            shader.setUniformValue("mvpMatrix", mvpMatrix);
+        // color / texture
+            shader.setUniformValue("displayMode", displayMode);
+            shader.setUniformValue("uniColor", unicolor.x()/255., unicolor.y()/255., unicolor.z()/255.);
+        // lights
+            std::vector<float> l_lookAt;
+            shader.setUniformValue("lSourcePos" , QVector3D(0,0,-0.8f));
+            shader.setUniformValue("kSpecular" , 0.1f);
+
+            if(buffers.m_bUpdate)
+            {
+                // allocate buffers
+                    float  *l_vertexBuffer   = mesh.vertexBuffer();
+                    float  *l_colorBuffer    = mesh.colorBuffer();
+                    uint32 *l_indexBuffer    = mesh.indexVertexTriangleBuffer();
+                    float  *l_normalBuffer   = mesh.normalBuffer();
+                    float  *l_textureBuffer  = NULL;
+
+                    if(l_textureCoordinatesExist && displayMode == GLO_TEXTURE)
+                    {
+                        l_textureBuffer = mesh.textureBuffer();
+                        allocateBuffer(buffers.m_textureBuffer, l_textureBuffer, mesh.pointsNumber() * 2 * sizeof(float));
+                    }
+
+                    allocateBuffer(buffers.m_vertexBuffer,  l_vertexBuffer, mesh.pointsNumber() *  3 * sizeof(float) );
+                    allocateBuffer(buffers.m_indexBuffer,   l_indexBuffer,  mesh.trianglesNumber() * 3* sizeof(GLuint) );
+                    allocateBuffer(buffers.m_colorBuffer,   l_colorBuffer,  mesh.pointsNumber() *  3 * sizeof(float));
+                    allocateBuffer(buffers.m_normalBuffer,  l_normalBuffer, mesh.pointsNumber() *  3 * sizeof(float));
+
+                    deleteAndNullifyArray(l_vertexBuffer);
+                    deleteAndNullifyArray(l_colorBuffer);
+                    deleteAndNullifyArray(l_indexBuffer);
+                    deleteAndNullifyArray(l_normalBuffer);
+                    deleteAndNullifyArray(l_textureBuffer);
+
+                buffers.m_bUpdate = false;
+            }
+
+            // draw
+                if(displayMode == GLO_ORIGINAL_COLOR)
+                {
+                    drawBufferWithColor(buffers.m_indexBuffer, buffers.m_vertexBuffer,
+                                        buffers.m_colorBuffer, buffers.m_normalBuffer, shader, GL_TRIANGLES);
+                }
+                else if(l_textureCoordinatesExist && displayMode == GLO_TEXTURE)
+                {
+                    glEnable(GL_TEXTURE_2D);
+
+                    // bind texture
+                        glBindTexture(GL_TEXTURE_2D, textureLocation);
+
+                    drawBufferWithTexture(buffers.m_indexBuffer, buffers.m_vertexBuffer,
+                                          buffers.m_textureBuffer,buffers.m_normalBuffer, shader, GL_TRIANGLES);
+
+                    glDisable(GL_TEXTURE_2D);
+                }
+                else if(displayMode == GLO_UNI_COLOR || !l_textureCoordinatesExist)
+                {
+                    drawBuffer(buffers.m_indexBuffer, buffers.m_vertexBuffer,
+                               buffers.m_normalBuffer, shader, GL_TRIANGLES);
+                }
+
+        shader.release();
+}

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1196</width>
-    <height>790</height>
+    <width>1009</width>
+    <height>761</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -197,7 +197,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="5" column="0" colspan="2" alignment="Qt::AlignHCenter">
+                <item row="7" column="0" colspan="2" alignment="Qt::AlignHCenter">
                  <widget class="QPushButton" name="pbSaveMorphedMesh">
                   <property name="enabled">
                    <bool>false</bool>
@@ -213,7 +213,35 @@
                   </property>
                  </widget>
                 </item>
-                <item row="4" column="0" colspan="2" alignment="Qt::AlignHCenter">
+                <item row="1" column="0" colspan="2">
+                 <widget class="Line" name="line_7">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="0" colspan="2">
+                 <widget class="Line" name="line_8">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item row="5" column="0" colspan="2">
+                 <widget class="Line" name="line_9">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="0">
+                 <widget class="QPushButton" name="pbSetTargetTexture">
+                  <property name="text">
+                   <string>Set target texture</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="1">
                  <widget class="QPushButton" name="pbCorr">
                   <property name="enabled">
                    <bool>false</bool>
@@ -226,20 +254,6 @@
                   </property>
                   <property name="text">
                    <string>Compute correspondances</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="0" colspan="2">
-                 <widget class="Line" name="line_7">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                 </widget>
-                </item>
-                <item row="3" column="0" colspan="2">
-                 <widget class="Line" name="line_8">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
                   </property>
                  </widget>
                 </item>
@@ -394,20 +408,74 @@
              </layout>
             </widget>
            </item>
+           <item row="3" column="1">
+            <widget class="QGroupBox" name="gbLandmarks">
+             <property name="title">
+              <string>Manual landmarks</string>
+             </property>
+             <layout class="QGridLayout" name="gridLayout" columnstretch="0,0">
+              <item row="0" column="0" rowspan="2" colspan="2">
+               <layout class="QGridLayout" name="glLandmarks" rowstretch="1,1,1,5" columnstretch="5,1,5">
+                <item row="0" column="0">
+                 <widget class="QPushButton" name="pbSetLandManually">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="text">
+                   <string>Set landmarks  manually</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="0" alignment="Qt::AlignHCenter">
+                 <widget class="QLabel" name="label">
+                  <property name="text">
+                   <string>Template</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="2" alignment="Qt::AlignHCenter">
+                 <widget class="QLabel" name="label_5">
+                  <property name="text">
+                   <string>Target</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="0">
+                 <widget class="QTextBrowser" name="tbTemplateLandmarks"/>
+                </item>
+                <item row="3" column="2">
+                 <widget class="QTextBrowser" name="tbTargetLandmarks"/>
+                </item>
+                <item row="2" column="1" rowspan="2">
+                 <widget class="Line" name="line_10">
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="2">
+                 <widget class="QPushButton" name="pbEraseLand">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="text">
+                   <string>Erase landmarks</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0" colspan="3">
+                 <widget class="Line" name="line_11">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </widget>
+           </item>
           </layout>
-         </item>
-         <item row="1" column="0">
-          <spacer name="verticalSpacer">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>40</height>
-            </size>
-           </property>
-          </spacer>
          </item>
         </layout>
        </widget>
@@ -434,7 +502,7 @@
               </attribute>
               <layout class="QGridLayout" name="gridLayout_10">
                <item row="0" column="0">
-                <layout class="QGridLayout" name="glMainParameters" rowstretch="1,2,1,1,1,1" columnstretch="2,0,0">
+                <layout class="QGridLayout" name="glMainParameters" rowstretch="1,2,1,1,1,1,0" columnstretch="2,0,0">
                  <item row="4" column="2">
                   <widget class="QDoubleSpinBox" name="dsbTargetReduction">
                    <property name="enabled">
@@ -518,6 +586,20 @@
                    </property>
                    <property name="checked">
                     <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="6" column="1">
+                  <widget class="QRadioButton" name="rbStasm">
+                   <property name="text">
+                    <string>STASM</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="6" column="2">
+                  <widget class="QRadioButton" name="rbManual">
+                   <property name="text">
+                    <string>Manual</string>
                    </property>
                   </widget>
                  </item>
@@ -882,7 +964,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1196</width>
+     <width>1009</width>
      <height>21</height>
     </rect>
    </property>

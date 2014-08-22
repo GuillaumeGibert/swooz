@@ -155,17 +155,17 @@ SWMesh::SWMesh(const std::string &sPathObjFile) : m_ui32TrianglesNumber(0), m_ui
             buildEdgeVertexGraph();
             buildVerticesNeighbors();
 
-
         if(m_a2FTextures.size() != 2*pointsNumber())
         {
-            std::cerr << "Obj texture coordinates incorrect, all values set to (0.f 0.f) " << std::endl;
-            m_a2FTextures = std::vector<float>(2*pointsNumber(),0.f);
+            std::cerr << "Obj texture coordinates incorrect, values are not loaded. " << std::endl;
+            m_a2FTextures.clear();
         }
 
         if(m_a3FNormals.size() != 3*pointsNumber())
         {
-            std::cerr << "Obj normals incorrect, all values set to (0.f, 0.f, 0.f) " << std::endl;
-            m_a3FNormals = std::vector<float>(3*pointsNumber(),0.f);
+            std::cerr << "Obj normals incorrect, all values reoomputed. Normal orientation may be wrong. " << std::endl;
+            updateNonOrientedTrianglesNormals();
+            updateNonOrientedVerticesNormals();
         }
 
         m_meshLoadSucess = true;
@@ -311,13 +311,6 @@ void SWMesh::trianglePoints(float *aFXYZ, cuint ui32IdTriangle) const
     m_oCloud.point(&aFXYZ[6],m_aIdTriangles[ui32IdTriangle][2]);
 }
 
-void SWMesh::vertexNormal(float *a3FNormal, cuint ui32IdVertex) const
-{
-    a3FNormal[0] = m_a3FNonOrientedVerticesNormals[ui32IdVertex][0];
-    a3FNormal[1] = m_a3FNonOrientedVerticesNormals[ui32IdVertex][1];
-    a3FNormal[2] = m_a3FNonOrientedVerticesNormals[ui32IdVertex][2];
-}
-
 void SWMesh::invertAllNormals()
 {
     for(uint ii = 0; ii < pointsNumber(); ++ii)
@@ -326,73 +319,66 @@ void SWMesh::invertAllNormals()
     }
 }
 
-//bool SWMesh::transformNormals(cfloat *aFRotationMatrix)
-//{
-//    for(uint ii = 0; ii < pointsNumber(); ++ii)
-//    {
-//        float l_fNewX,l_fNewY,l_fNewZ;
+void SWMesh::deletePointsWithNoFaces()
+{
+    // check id with no faces
+        std::vector<bool> l_vertexToKeep(pointsNumber(), false);
+        for(uint ii = 0; ii < m_aIdFaces.size(); ++ii)
+        {
+            l_vertexToKeep[m_aIdFaces[ii]] = true;
+        }
 
-//        l_fNewX =   aFRotationMatrix[0] * m_a3FNormals[ii*3] +
-//                    aFRotationMatrix[1] * m_a3FNormals[ii*3+1] +
-//                    aFRotationMatrix[2] * m_a3FNormals[ii*3+2];
+    // constuct offset
+        std::vector<int> l_offsetPoints;
+        int l_offset = 0;
+        for(uint ii = 0; ii < l_vertexToKeep.size(); ++ii)
+        {
+            l_offsetPoints.push_back(l_offset);
 
-//        l_fNewY =   aFRotationMatrix[3] * m_a3FNormals[ii*3] +
-//                    aFRotationMatrix[4] * m_a3FNormals[ii*3+1] +
-//                    aFRotationMatrix[5] * m_a3FNormals[ii*3+2];
+            if(!l_vertexToKeep[ii])
+            {
+                ++l_offset;
+            }
+        }
 
-//        l_fNewZ =   aFRotationMatrix[6] * m_a3FNormals[ii*3] +
-//                    aFRotationMatrix[7] * m_a3FNormals[ii*3+1] +
-//                    aFRotationMatrix[8] * m_a3FNormals[ii*3+2];
+    // apply offsets
+        for(uint ii = 0; ii < m_aIdFaces.size(); ++ii)
+        {
+            m_aIdFaces[ii] -= l_offsetPoints[m_aIdFaces[ii]];
+        }
 
-//        m_a3FNormals[ii*3] = l_fNewX;
-//        m_a3FNormals[ii*3+1] = l_fNewY;
-//        m_a3FNormals[ii*3+2] = l_fNewZ;
-//    }
+    std::vector<float> l_vX,l_vY,l_vZ;
+    std::vector<uint8> l_vR,l_vG,l_vB;
+    std::vector<float> l_normals,l_textures;
+    for(uint ii = 0; ii < l_vertexToKeep.size(); ++ii)
+    {
+        if(l_vertexToKeep[ii])
+        {
+            l_vX.push_back(cloud()->coord(0)[ii]);
+            l_vY.push_back(cloud()->coord(1)[ii]);
+            l_vZ.push_back(cloud()->coord(2)[ii]);
 
-//    for(uint ii = 0; ii < pointsNumber(); ++ii)
-//    {
-//        float l_fNewX,l_fNewY,l_fNewZ;
+            l_vR.push_back(cloud()->color(0)[ii]);
+            l_vG.push_back(cloud()->color(1)[ii]);
+            l_vB.push_back(cloud()->color(2)[ii]);
 
-//        l_fNewX =   aFRotationMatrix[0] * m_a3FNonOrientedVerticesNormals[ii][0] +
-//                    aFRotationMatrix[1] * m_a3FNonOrientedVerticesNormals[ii][1] +
-//                    aFRotationMatrix[2] * m_a3FNonOrientedVerticesNormals[ii][2];
+            l_normals.push_back(m_a3FNormals[3*ii]);
+            l_normals.push_back(m_a3FNormals[3*ii+1]);
+            l_normals.push_back(m_a3FNormals[3*ii+2]);
 
-//        l_fNewY =   aFRotationMatrix[3] * m_a3FNonOrientedVerticesNormals[ii][0]+
-//                    aFRotationMatrix[4] * m_a3FNonOrientedVerticesNormals[ii][1] +
-//                    aFRotationMatrix[5] * m_a3FNonOrientedVerticesNormals[ii][2];
+            l_textures.push_back(m_a3FNormals[2*ii]);
+            l_textures.push_back(m_a2FTextures[2*ii+1]);
+        }
+    }
 
-//        l_fNewZ =   aFRotationMatrix[6] * m_a3FNonOrientedVerticesNormals[ii][0] +
-//                    aFRotationMatrix[7] * m_a3FNonOrientedVerticesNormals[ii][1] +
-//                    aFRotationMatrix[8] * m_a3FNonOrientedVerticesNormals[ii][2];
+    // construct new cloud
+        m_oCloud.erase();
+        m_oCloud = swCloud::SWCloud(l_vX,l_vY,l_vZ,l_vR,l_vG,l_vB);
 
-//        m_a3FNonOrientedVerticesNormals[ii][0] = l_fNewX;
-//        m_a3FNonOrientedVerticesNormals[ii][1] = l_fNewY;
-//        m_a3FNonOrientedVerticesNormals[ii][2] = l_fNewZ;
-//    }
-
-//    for(uint ii = 0; ii < trianglesNumber(); ++ii)
-//    {
-//        float l_fNewX,l_fNewY,l_fNewZ;
-
-//        l_fNewX =   aFRotationMatrix[0] * m_a3FNonOrientedTrianglesNormals[ii][0] +
-//                    aFRotationMatrix[1] * m_a3FNonOrientedTrianglesNormals[ii][1] +
-//                    aFRotationMatrix[2] * m_a3FNonOrientedTrianglesNormals[ii][2];
-
-//        l_fNewY =   aFRotationMatrix[3] * m_a3FNonOrientedTrianglesNormals[ii][0] +
-//                    aFRotationMatrix[4] * m_a3FNonOrientedTrianglesNormals[ii][1] +
-//                    aFRotationMatrix[5] * m_a3FNonOrientedTrianglesNormals[ii][2];
-
-//        l_fNewZ =   aFRotationMatrix[6] * m_a3FNonOrientedTrianglesNormals[ii][0] +
-//                    aFRotationMatrix[7] * m_a3FNonOrientedTrianglesNormals[ii][1] +
-//                    aFRotationMatrix[8] * m_a3FNonOrientedTrianglesNormals[ii][2];
-
-//        m_a3FNonOrientedTrianglesNormals[ii][0] = l_fNewX;
-//        m_a3FNonOrientedTrianglesNormals[ii][1] = l_fNewY;
-//        m_a3FNonOrientedTrianglesNormals[ii][2] = l_fNewZ;
-//    }
-
-//    return true;
-//}
+    // update normals/textures
+        m_a3FNormals  = l_normals;
+        m_a2FTextures = l_textures;
+}
 
 bool SWMesh::saveToObj(const std::string &sPath, const std::string &sNameObj, const std::string sNameMaterial, const std::string sNameTexture) // TODO : finish
 {
@@ -526,6 +512,12 @@ float *SWMesh::vertexBuffer() const
     return m_oCloud.vertexBuffer();
 }
 
+float *SWMesh::colorBuffer() const
+{
+    return m_oCloud.colorBuffer();
+}
+
+
 uint32 *SWMesh::indexVertexTriangleBuffer() const
 {
     if(m_aIdFaces.size() == 0)
@@ -635,18 +627,9 @@ uint SWMesh::idNearestPoint(cint i32IdSourcePoint,  SWMesh &oTarget)// const // 
     int     l_i32IdMin = -1;
     float   l_fDistMax = FLT_MAX;
 
-//    std::vector<float> l_oP1, l_oP2;
 
     for(uint ii = 0; ii < oTarget.pointsNumber(); ++ii)
     {
-//                point(l_oP1,i32IdSourcePoint);
-//        oTarget.point(l_oP2,ii);
-
-//        float l_fCurrSquareDist =
-//                (l_oP2[0] - l_oP1[0]) * (l_oP2[0] - l_oP1[0]) +
-//                (l_oP2[1] - l_oP1[1]) * (l_oP2[1] - l_oP1[1]) +
-//                (l_oP2[2] - l_oP1[2]) * (l_oP2[2] - l_oP1[2]);
-
         float l_fCurrSquareDist =
                 (oTarget.cloud()->coord(0)[ii] - cloud()->coord(0)[i32IdSourcePoint]) * (oTarget.cloud()->coord(0)[ii] - cloud()->coord(0)[i32IdSourcePoint]) +
                 (oTarget.cloud()->coord(1)[ii] - cloud()->coord(1)[i32IdSourcePoint]) * (oTarget.cloud()->coord(1)[ii] - cloud()->coord(1)[i32IdSourcePoint]) +

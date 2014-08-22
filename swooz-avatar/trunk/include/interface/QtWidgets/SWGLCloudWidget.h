@@ -99,7 +99,7 @@ class SWGLCloudWidget : public SWGLWidget
 
         float m_fDepthRect;         /**< .. */
 
-        QMatrix4x4  m_oMVPMatrix;          /**< model view projection matrix */
+//        QMatrix4x4  m_oMVPMatrix;          /**< model view projection matrix */
 
 //        swCloud::SWCloud *m_pCloud;        /**< cloud pointer*/
         swCloud::SWCloud m_oCloud;
