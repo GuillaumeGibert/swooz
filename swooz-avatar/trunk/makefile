@@ -27,7 +27,7 @@ STASM_LIST_OBJ=\
         $(LIBDIR)/rgbimutil.obj $(LIBDIR)/asmsearch.obj $(LIBDIR)/SWStasm.obj\
 
 SWOOZ_LIST_OBJ=\
-        $(LIBDIR)/SWCloud.obj $(LIBDIR)/SWMaskCloud.obj $(LIBDIR)/SWMesh.obj\
+        $(LIBDIR)/SWCloud.obj $(LIBDIR)/SWMaskCloud.obj $(LIBDIR)/SWMesh.obj $(LIBDIR)/SWAnimation.obj\
         $(LIBDIR)/SWHaarCascade.obj $(LIBDIR)/SWFaceDetection.obj $(LIBDIR)/SWFaceDetection_thread.obj $(LIBDIR)/SWTrackFlow.obj $(LIBDIR)/SWTrack.obj\
         $(LIBDIR)/SWDisplayImageWidget.obj $(LIBDIR)/SWDisplayCurvesWidget.obj\
         $(LIBDIR)/SWQtCamera.obj $(LIBDIR)/SWGLWidget.obj $(LIBDIR)/SWGLCloudWidget.obj $(LIBDIR)/SWGLMeshWidget.obj $(LIBDIR)/SWGLMultiObjectWidget.obj\
@@ -45,7 +45,7 @@ STASM_DYN_LIST_OBJ=\
         $(LIBDIR)/rgbimutil_d.obj $(LIBDIR)/asmsearch_d.obj $(LIBDIR)/SWStasm_d.obj\
 
 SWOOZ_DYN_LIST_OBJ=\
-        $(LIBDIR)/SWCloud_d.obj $(LIBDIR)/SWMaskCloud_d.obj\
+        $(LIBDIR)/SWCloud_d.obj $(LIBDIR)/SWMaskCloud_d.obj $(LIBDIR)/SWAnimation_d.obj\
         $(LIBDIR)/SWMesh_d.obj $(LIBDIR)/SWHaarCascade_d.obj $(LIBDIR)/SWFaceDetection_d.obj $(LIBDIR)/SWFaceDetection_thread_d.obj\
         $(LIBDIR)/SWTrackFlow_d.obj $(LIBDIR)/SWTrack_d.obj\
         $(LIBDIR)/SWDisplayImageWidget_d.obj $(LIBDIR)/SWDisplayCurvesWidget_d.obj\
@@ -102,7 +102,7 @@ MORPHING_LINK_D_OBJ=\
 
 # For generating SWAvatar_d.lib
 AVATAR_GEN_DYN_LIB_OBJ=\
-        $(STASM_DYN_LIST_OBJ) $(LIBDIR)/SWCloud_d.obj $(LIBDIR)/SWMaskCloud_d.obj $(LIBDIR)/SWMesh_d.obj\
+        $(STASM_DYN_LIST_OBJ) $(LIBDIR)/SWCloud_d.obj $(LIBDIR)/SWMaskCloud_d.obj $(LIBDIR)/SWMesh_d.obj $(LIBDIR)/SWAnimation_d.obj\
         $(LIBDIR)/SWHaarCascade_d.obj $(LIBDIR)/SWFaceDetection_d.obj $(LIBDIR)/SWFaceDetection_thread_d.obj\
         $(LIBDIR)/SWTrackFlow_d.obj $(LIBDIR)/SWTrack_d.obj $(LIBDIR)/SWDisplayImageWidget_d.obj $(LIBDIR)/SWDisplayCurvesWidget_d.obj\
         $(LIBDIR)/SWQtCamera_d.obj $(LIBDIR)/SWGLWidget_d.obj $(LIBDIR)/SWGLCloudWidget_d.obj $(LIBDIR)/SWGLMeshWidget_d.obj $(LIBDIR)/SWGLMultiObjectWidget_d.obj\
@@ -209,6 +209,10 @@ $(LIBDIR)/SWCreateAvatarWorker.obj: $(SRCDIR_QTWORKERS)/SWCreateAvatarWorker.cpp
 $(LIBDIR)/SWMorphingWorker.obj: $(SRCDIR_QTWORKERS)/SWMorphingWorker.cpp
         $(CC) -c $(SRCDIR_QTWORKERS)/SWMorphingWorker.cpp $(CFLAGS_STA) $(SW_MORPHING_WORKER) -Fo"$(LIBDIR)/"
 
+#           Animation
+$(LIBDIR)/SWAnimation.obj: ./src/animation/SWAnimation.cpp
+        $(CC) -c ./src/animation/SWAnimation.cpp $(CFLAGS_STA) $(SW_ANIMATION) -Fo"$(LIBDIR)/"
+
 #           Detect
 $(LIBDIR)/SWHaarCascade.obj: ./src/detect/SWHaarCascade.cpp
         $(CC) -c ./src/detect/SWHaarCascade.cpp $(CFLAGS_STA) $(SW_HAAR_CASCADE) -Fo"$(LIBDIR)/"
@@ -293,6 +297,10 @@ $(LIBDIR)/SWCreateAvatarWorker_d.obj: $(SRCDIR_QTWORKERS)/SWCreateAvatarWorker.c
 
 $(LIBDIR)/SWMorphingWorker_d.obj: $(SRCDIR_QTWORKERS)/SWMorphingWorker.cpp
         $(CC) -c $(SRCDIR_QTWORKERS)/SWMorphingWorker.cpp $(CFLAGS_DYN) $(SW_MORPHING_WORKER) -Fo"$(LIBDIR)/SWMorphingWorker_d.obj"
+
+#           Animation
+$(LIBDIR)/SWAnimation_d.obj: ./src/animation/SWAnimation.cpp
+        $(CC) -c ./src/animation/SWAnimation.cpp $(CFLAGS_DYN) $(SW_ANIMATION) -Fo"$(LIBDIR)/SWAnimation_d.obj"
 
 #           Detect
 $(LIBDIR)/SWHaarCascade_d.obj: ./src/detect/SWHaarCascade.cpp

@@ -235,6 +235,7 @@ void SWMesh::set(const std::vector<std::vector<float> > &v3FPoints,
         m_vVertexIdTriangle = std::vector<std::vector<uint> >(m_aIdFaces.size(), vector<uint>());
         for(uint ii = 0; ii < v3UIFaces.size(); ++ii)
         {
+            std::cout << ii << " ";
             uint l_ui32V1, l_ui32V2, l_ui32V3;
             l_ui32V1 = v3UIFaces[ii][0]-1;
             l_ui32V2 = v3UIFaces[ii][1]-1;

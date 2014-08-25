@@ -377,4 +377,46 @@ static GLenum drawBufferWithTexture(QGLBuffer &indexBuffer, QGLBuffer &vertexBuf
 }
 
 
+//struct SWObjFileData
+//{
+
+
+
+//};
+
+
+//static bool loadDataFromObjFile(const QString pathObjFile, SWObjFileData &data)
+//{
+//    QFile file(pathObjFile);
+//    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+//        return;
+
+//    int l_nbVertex = 0, l_nbNormals = 0, l_nbTexture = 0, l_nbFaces = 0;
+
+//    QTextStream in(&file);
+//    while (!in.atEnd())
+//    {
+//        QString line = in.readLine();
+
+//        if(line.left(1) == "v")
+//        {
+//            ++l_nbVertex;
+//        }
+//        else if(line.left(2) == "vn")
+//        {
+//            ++l_nbNormals;
+//        }
+//        else if(line.left(2) == "vt")
+//        {
+//            ++l_nbTexture;
+//        }
+//        else if(line.left(1) == "f")
+//        {
+//            ++l_nbFaces;
+//        }
+//    }
+//}
+
+
+
 #endif

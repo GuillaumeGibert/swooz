@@ -345,6 +345,7 @@ void SWMorphingInterface::disableGLFullScreen()
 void SWMorphingInterface::setLandmarksManually()
 {
     lockInterfaceForLandmarksSetting();
+
     m_bSetLandmarksManually = true;
     m_bSetLandmarksTemplate = true;
     setLandmarks3DDisplayTemplate();

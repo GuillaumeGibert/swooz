@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1225</width>
-    <height>817</height>
+    <width>1220</width>
+    <height>877</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -130,6 +130,45 @@
          <string>Actions / Parameters</string>
         </property>
         <layout class="QGridLayout" name="gridLayout_7">
+         <item row="1" column="0">
+          <widget class="QGroupBox" name="gbCamera">
+           <property name="title">
+            <string>Camera</string>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_3">
+            <item row="0" column="0">
+             <layout class="QGridLayout" name="gridLayout">
+              <item row="0" column="0">
+               <widget class="QPushButton" name="pbSetCamera">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>200</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>Set camera to current item</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QPushButton" name="pbResetCamera">
+                <property name="text">
+                 <string>Reset camera</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </item>
          <item row="0" column="0">
           <layout class="QGridLayout" name="glParameters">
            <item row="0" column="0">
@@ -869,53 +908,83 @@
            </item>
           </layout>
          </item>
-         <item row="1" column="0">
-          <widget class="QGroupBox" name="gbActions">
+         <item row="2" column="0">
+          <widget class="QGroupBox" name="gbAnimate">
            <property name="title">
-            <string>Actions</string>
+            <string>Animate</string>
            </property>
-           <layout class="QGridLayout" name="gridLayout_3">
+           <layout class="QGridLayout" name="gridLayout_8">
             <item row="0" column="0">
-             <layout class="QGridLayout" name="gridLayout">
-              <item row="2" column="0">
-               <widget class="QPushButton" name="pbResetParameters">
-                <property name="enabled">
-                 <bool>false</bool>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>200</width>
-                  <height>16777215</height>
-                 </size>
-                </property>
+             <layout class="QGridLayout" name="glAnimate">
+              <item row="1" column="2">
+               <widget class="QLineEdit" name="leSeq">
                 <property name="text">
-                 <string>Reset parameters (NA)</string>
+                 <string>...</string>
+                </property>
+                <property name="readOnly">
+                 <bool>true</bool>
                 </property>
                </widget>
               </item>
               <item row="0" column="0">
-               <widget class="QPushButton" name="pbSetCamera">
-                <property name="minimumSize">
-                 <size>
-                  <width>0</width>
-                  <height>0</height>
-                 </size>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>200</width>
-                  <height>16777215</height>
-                 </size>
-                </property>
+               <widget class="QPushButton" name="pbSetModFile">
                 <property name="text">
-                 <string>Set camera to current item</string>
+                 <string>Set</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="2">
+               <widget class="QLineEdit" name="leMod">
+                <property name="text">
+                 <string>...</string>
+                </property>
+                <property name="readOnly">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QLabel" name="laMod">
+                <property name="text">
+                 <string>Mod :</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QLabel" name="laSeq">
+                <property name="text">
+                 <string>Seq :</string>
                 </property>
                </widget>
               </item>
               <item row="1" column="0">
-               <widget class="QPushButton" name="pbResetCamera">
+               <widget class="QPushButton" name="pbSetSeqFile">
                 <property name="text">
-                 <string>Reset camera</string>
+                 <string>Set</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0" colspan="3">
+               <widget class="Line" name="line_2">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="0" colspan="2">
+               <widget class="QPushButton" name="pbLaunchAllAnim">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="text">
+                 <string>Launch all</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="2">
+               <widget class="QPushButton" name="pbResetAllAnim">
+                <property name="text">
+                 <string>Reset all</string>
                 </property>
                </widget>
               </item>
@@ -936,7 +1005,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1225</width>
+     <width>1220</width>
      <height>21</height>
     </rect>
    </property>

@@ -149,6 +149,8 @@ SW_CAPTURE_HEAD_M   = $(SW_ALIGN_CLOUDS) $(INC_GSL) $(INC_STASM)
 #       mesh
 SW_MESH             = $(COMMON)
 SW_OSNRICP          = $(SW_ALIGN_CLOUDS)
+#       animation
+SW_ANIMATION        = $(COMMON) $(INC_QT)
 #	stasm
 STASM		    = $(COMMON) $(INC_GSL) $(INC_STASM) $(INC_OPENCV)
 

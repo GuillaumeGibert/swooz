@@ -294,6 +294,15 @@ namespace swCloud
              */
             SWCloud &SWCloud::operator=(const SWCloud &oCloud);
 
+
+            /**
+             * @brief saveToObj
+             * @param sPath
+             * @param sNameObj
+             * @return
+             */
+            bool saveToObj(const std::string &path, const std::string &nameObj);
+
 			/**
 			 * \brief destructor of SWCloud
 			 */		

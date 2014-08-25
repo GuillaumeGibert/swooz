@@ -1555,141 +1555,38 @@ int SWCloud::idNearestPoint(const std::vector<float> &oPt, cfloat fDistMin) cons
 }
 
 
-//void SWCloud::adaptCloud(const SWCloud &oTarget, cint i32NearPointsNb, cfloat fDeviation)
-//{
-//    // fill nearest id point array
-////    vector<int> l_vI32CorrId;
-
-////    for(uint ii = 0; ii < size(); ++ii)
-////    {
-////        l_vI32CorrId.push_back(idNearestPoint(ii, oTarget));
-////    }
-
-////    for(uint ii = 0; ii < l_vI32CorrId.size(); ++ii)
-////    {
-////        coord(0)[ii] = oTarget.coord(0)[l_vI32CorrId[ii]];
-////        coord(1)[ii] = oTarget.coord(1)[l_vI32CorrId[ii]];
-////        coord(2)[ii] = oTarget.coord(2)[l_vI32CorrId[ii]];
-////    }
-
-//    cout << "Adapt cloud : " << i32NearPointsNb << " " << fDeviation << endl;
-
-//    for(uint ii = 0; ii < size(); ++ii)
-//    {
-//        vector<float> l_v3FCurrPoint;
-//        if(meanNearestPosition(l_v3FCurrPoint, ii, oTarget, i32NearPointsNb, fDeviation) > 0)
-//        {
-//            coord(0)[ii] = l_v3FCurrPoint[0];
-//            coord(1)[ii] = l_v3FCurrPoint[1];
-//            coord(2)[ii] = l_v3FCurrPoint[2];
-//        }
-//    }
-//}
 
 
-//int SWCloud::idNearestPoint(cint i32IdSourcePoint, const SWCloud &oTarget, float fDistMin) const
-//{
+bool SWCloud::saveToObj(const std::string &path, const std::string &nameObj)
+{
+    if(path.size() == 0 || nameObj.size() == 0)
+    {
+        std::cerr << "-ERROR : SWCloud::saveToObj, bad parameters. " << std::endl;
+        return false;
+    }
 
-////    idNearestPoint();
+    std::ofstream l_flowOBJ(path + nameObj);
+    l_flowOBJ << "# Cloud created with SWoOZ plateform (https://github.com/GuillaumeGibert/swooz) " << std::endl;
 
+    if(l_flowOBJ)
+    {
+        // save vertices
+        for(uint ii = 0; ii < size(); ++ii)
+        {
+            std::ostringstream l_v1, l_v2, l_v3;
 
-//    int l_i32IdMin = -1;
-//    float l_fDistMax = FLT_MAX;
+            l_v1 << coord(0)[ii];
+            l_v2 << coord(1)[ii];
+            l_v3 << coord(2)[ii];
 
-//    for(uint ii = 0; ii < oTarget.size(); ++ii)
-//    {
-//        float l_fCurrSquareDist =
-//                (oTarget.coord(0)[ii] - coord(0)[i32IdSourcePoint]) * (oTarget.coord(0)[ii] - coord(0)[i32IdSourcePoint]) +
-//                (oTarget.coord(1)[ii] - coord(1)[i32IdSourcePoint]) * (oTarget.coord(1)[ii] - coord(1)[i32IdSourcePoint]) +
-//                (oTarget.coord(2)[ii] - coord(2)[i32IdSourcePoint]) * (oTarget.coord(2)[ii] - coord(2)[i32IdSourcePoint]);
+            l_flowOBJ << "v " + l_v1.str() + " " + l_v2.str() + " " + l_v3.str() << std::endl;
+        }
+    }
+    else
+    {
+        std::cerr << "-ERROR : SWCloud::saveToObj, writing obj file. " << std::endl;
+        return false;
+    }
 
-//        if(l_fCurrSquareDist < l_fDistMax && (sqrt(l_fCurrSquareDist) > fDistMin))
-//        {
-//            l_fDistMax   = l_fCurrSquareDist;
-//            l_i32IdMin = ii;
-//        }
-//    }
-
-//    return l_i32IdMin;
-//}
-
-//int SWCloud::meanNearestPosition(vector<float> &oMeanPosition, cint i32IdSourcePoint, const SWCloud &oTarget, int i32NearPointsNumber, cfloat fDistMax) const
-//{
-//    float l_fDistMin = 0.f;
-
-//    int l_i32NumPoint = 0;
-//    oMeanPosition.clear();
-//    oMeanPosition.push_back(0.f); oMeanPosition.push_back(0.f); oMeanPosition.push_back(0.f);
-
-//    while(l_i32NumPoint < i32NearPointsNumber)
-//    {
-
-//        int l_i32TId = idNearestPoint(i32IdSourcePoint, oTarget, l_fDistMin);
-
-//        float l_fDiffX = (coord(0)[i32IdSourcePoint] - oTarget.coord(0)[l_i32TId]);
-//        float l_fDiffY = (coord(1)[i32IdSourcePoint] - oTarget.coord(1)[l_i32TId]);
-//        float l_fDiffZ = (coord(2)[i32IdSourcePoint] - oTarget.coord(2)[l_i32TId]);
-
-//        l_fDistMin = sqrt((l_fDiffX * l_fDiffX) + (l_fDiffY * l_fDiffY) + (l_fDiffZ * l_fDiffZ));
-
-//        if(l_fDistMin <  fDistMax)
-//        {
-//            oMeanPosition[0] += oTarget.coord(0)[l_i32TId];
-//            oMeanPosition[1] += oTarget.coord(1)[l_i32TId];
-//            oMeanPosition[2] += oTarget.coord(2)[l_i32TId];
-//            ++l_i32NumPoint;
-//        }
-//        else
-//        {
-//            i32NearPointsNumber = l_i32NumPoint;
-//        }
-//    }
-
-//    oMeanPosition[0] /= l_i32NumPoint;
-//    oMeanPosition[1] /= l_i32NumPoint;
-//    oMeanPosition[2] /= l_i32NumPoint;
-
-//    return l_i32NumPoint;
-
-//    // DEBUG
-////    cout << "mean : " << oMeanPosition[0] << " " << oMeanPosition[1] << " " << oMeanPosition[2] <<  " " << l_i32NumPoint << endl;
-//}
-
-
-
-//bool SWCloud::isNearbyPointsIn2DPlan(std::vector<float> &v3FPoint, cfloat fOffsetX, float fOffsetY)
-//{
-//    if(v3FPoint.size() < 2)
-//    {
-//        return false;
-//    }
-
-//    for(uint ii = 0; ii < size(); ++ii)
-//    {
-//        if(sqrt((coord(0)[ii] - v3FPoint[0]) * (coord(0)[ii] - v3FPoint[0])) < fOffsetX  &&
-//           sqrt((coord(1)[ii] - v3FPoint[1]) * (coord(1)[ii] - v3FPoint[1])) < fOffsetY)
-//        {
-//            return true;
-//        }
-//    }
-
-//    return false;
-//}
-
-//float SWCloud::computeMeanZPositionOfNearbyPointsIn2DPlan(vector<float> &v3FPoint, cfloat fOffsetX, float fOffsetY)
-//{
-//    int l_i32NumberOfPoints = 0;
-//    float l_fZPos = 0;
-
-//    for(uint ii = 0; ii < size(); ++ii)
-//    {
-//        if(sqrt((coord(0)[ii] - v3FPoint[0]) * (coord(0)[ii] - v3FPoint[0])) < fOffsetX  &&
-//           sqrt((coord(1)[ii] - v3FPoint[1]) * (coord(1)[ii] - v3FPoint[1])) < fOffsetY)
-//        {
-//            l_fZPos += coord(2)[ii];
-//            l_i32NumberOfPoints++;
-//        }
-//    }
-
-//    return l_fZPos/l_i32NumberOfPoints;
-//}
+    return true;
+}

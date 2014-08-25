@@ -114,6 +114,8 @@ INC_YARP	= -I"$(THIRD_PARTY_YARP)"/include\
 
 INC_LEAP        = -I"$(THIRD_PARTY_LEAP)"/include\
 
+INC_QT		= -I"$(THIRD_PARTY_QT)"/include/QtOpenGL -I"$(THIRD_PARTY_QT)"/include/QtGui -I"$(THIRD_PARTY_QT)"/include/QtCore -I"$(THIRD_PARTY_QT)"/include/Qt -I"$(THIRD_PARTY_QT)"/include\
+
 ############################ DEPENDENCIES
 
 COMMON	 	    = $(INC_VS) $(INC_OTHERS)
@@ -130,7 +132,7 @@ INC_MAIN_DETECT_FACE_STASM = $(COMMON) $(INC_OPENCV) $(INC_BOOST)
 #       display leap
 INC_MAIN_DISPLAY_LEAP = $(COMMON) $(INC_OPENCV) $(INC_BOOST) $(INC_LEAP)
 #       rapid process mesh
-INC_MAIN_PROCESS = $(COMMON)
+INC_MAIN_PROCESS = $(COMMON) $(INC_QT)
 ################################################################################################################# RELEASE MODE
 
 !IF  "$(CFG)" == "Release"
@@ -200,7 +202,7 @@ LIBS_MAIN_DETECT_FACE_STASM = $(LIBS_CV) $(LIBS_BOOST_D) $(LIBS_SWOOZ)
 
 LIBS_MAIN_DISPLAY_LEAP = $(LIBS_OPENNI) $(LIBS_CV) $(LIBS_BOOST_D) $(LIBS_SWOOZ) $(LIBS_LEAP)
 
-LIBS_MAIN_PROCESS = $(LIBS_SWOOZ)
+LIBS_MAIN_PROCESS = $(LIBS_SWOOZ) $(LIBS_QT)
 
 !ENDIF
 
