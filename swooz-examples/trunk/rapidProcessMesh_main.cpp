@@ -14,120 +14,6 @@
 
 #include <animation/SWAnimation.h>
 
-//#include <Qt/QtString>
-//#include <QtGui>
-
-
-
-static void extractPointFromModFile(QString pathModFile, swCloud::SWCloud &cloud)
-{
-    qDebug() << "start extractPointFromModFile";
-    QFile file(pathModFile);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-        return;
-
-    qDebug() << "mod file opened";
-
-    QTextStream in(&file);
-    while (!in.atEnd())
-    {
-        QString line = in.readLine();
-
-        if(line.left(3) == "  1")
-        {
-            break;
-        }
-    }
-
-
-    int ii = 0;
-
-    std::vector<float> vx,vy,vz;
-    while (!in.atEnd())
-    {
-        double px,py,pz;
-
-        in >> px;
-        QString line = in.readLine();
-        in >> py;
-        line = in.readLine();
-        in >> pz;
-        line = in.readLine();
-        line = in.readLine();
-//        qDebug() << ii << " " << px << " " << py << " " << pz;
-        ++ii;
-        vx.push_back(px);
-        vy.push_back(py);
-        vz.push_back(pz);
-    }
-
-    cloud.set(vx,vy,vz);
-}
-
-static void extractFacesFromMshFile(QString pathMshFile, const swCloud::SWCloud &cloud, swMesh::SWMesh &mesh)
-{
-
-    qDebug() << "start extractFacesFromMshFile";
-    QFile file(pathMshFile);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-        return;
-
-    qDebug() << "msh file opened";
-
-    QTextStream in(&file);
-
-    int l_nbFaces;
-    in >> l_nbFaces;
-    QString line = in.readLine();
-//    QString line
-
-
-    std::vector<std::vector<float> > l_vertices;
-    std::vector<std::vector<uint> > l_idFaces;
-    std::vector<std::vector<float> > l_texture(cloud.size(), std::vector<float>(2,0.f));
-
-
-
-
-    int ii = 0;
-    while (!in.atEnd() && ii < l_nbFaces)
-    {
-        uint id1,id2,id3;
-        std::vector<uint> l_idFace;
-
-//        line = in.readLine();
-
-        in >> id1;
-        in >> id2;
-        in >> id3;
-
-        line = in.readLine();
-
-//        qDebug() << ii << " " << id1 << " " << id2 << " " << id3;
-
-        l_idFace.push_back(id1+1);
-        l_idFace.push_back(id2+1);
-        l_idFace.push_back(id3+1);
-        l_idFaces.push_back(l_idFace);
-
-        ++ii;
-    }
-
-    for(int ii = 0; ii < cloud.size(); ++ii)
-    {
-        std::vector<float> l_pt;
-        l_pt.push_back(cloud.coord(0)[ii]);
-        l_pt.push_back(cloud.coord(1)[ii]);
-        l_pt.push_back(cloud.coord(2)[ii]);
-        l_vertices.push_back(l_pt);
-    }
-
-    mesh.set(l_vertices, l_idFaces, l_texture);
-}
-
-
-
-
 int main(int argc, char* argv[])
 {
     if(argc < 2)
@@ -145,55 +31,61 @@ int main(int argc, char* argv[])
     std::cout << "Open mesh file : " << argv[1] << std::endl;
 
     swAnimation::SWMod mod;
-
     mod.loadModFile("../data/mod/Stelarc_face.mod");
-//    mod.loadModFile("../data/mod/Stelarc_leftCornea.mod");
 
     swAnimation::SWSeq seq;
     seq.loadSeqFile("../data/seq/Block_1.seq");
 
+    swAnimation::SWMsh msh;
+    msh.loadMshFile("../data/msh/Stelarc_face.msh");
 
-//    swCloud::SWCloud cloud;
-//    swMesh::SWMesh mesh;
-//    extractPointFromModFile("../data/mod/Stelarc_face.mod",cloud);
-//    extractFacesFromMshFile("../data/msh/Stelarc_face.msh",cloud,mesh);
-//    cloud.saveToObj("../data/clouds/", "Stelarc_face.obj");
-//    mesh.saveToObj("../data/meshes/original_stelarc/", "Stelarc_face.obj");
+    swAnimation::SWAnimation animation;
+    animation.init(mod,seq,msh);
 
-//    extractPointFromModFile("../data/mod/Stelarc_head.mod",cloud);
-//    extractFacesFromMshFile("../data/msh/Stelarc_head.msh",cloud,mesh);
-//    cloud.saveToObj("../data/clouds/", "Stelarc_head.obj");
-//    mesh.saveToObj("../data/meshes/original_stelarc/", "Stelarc_head.obj");
+    swCloud::SWCloud cloud;
+    swMesh::SWMesh mesh;
 
-////    extractPointFromModFile("../data/mod/Stelarc_leftCornea.mod",cloud);
-////    extractFacesFromMshFile("../data/msh/Stelarc_cornea.msh",cloud,mesh);
-////    cloud.saveToObj("../data/clouds/", "Stelarc_leftCornea.obj");
-////    mesh.saveToObj("../data/meshes/original_stelarc/", "Stelarc_leftCornea.obj");
+    swMesh::SWMesh meshGenericClean("../data/meshes/processed/generic.obj");
+    animation.constructCorrId(meshGenericClean,true);
 
-//    extractPointFromModFile("../data/mod/Stelarc_leftEye.mod",cloud);
-//    extractFacesFromMshFile("../data/msh/Stelarc_eye.msh",cloud,mesh);
-//    cloud.saveToObj("../data/clouds/", "Stelarc_leftEye.obj");
-//    mesh.saveToObj("../data/meshes/original_stelarc/", "Stelarc_leftEye.obj");
+    swMesh::SWMesh meshMorphed("../data/meshes/results_mort_flo_stelarc/26_08_guillaume.obj");
 
-////    extractPointFromModFile("../data/mod/Stelarc_rightCornea.mod",cloud);
-////    extractFacesFromMshFile("../data/msh/Stelarc_cornea.msh",cloud,mesh);
-////    cloud.saveToObj("../data/clouds/", "Stelarc_rightCornea.obj");
-////    mesh.saveToObj("../data/meshes/original_stelarc/", "Stelarc_rightCornea.obj");
+    for(int ii = 0; ii < 20; ++ii)
+    {
+        QString l_nameObj("transfo_");
+        QString l_name2Obj("generic_trans_");
+        QString l_name3Obj("morphed_trans_");
+        l_nameObj += QString::number(ii +1);
+        l_name2Obj += QString::number(ii +1);
+        l_name3Obj += QString::number(ii +1);
+        l_nameObj += ".obj";
+        l_name2Obj += ".obj";
+        l_name3Obj += ".obj";
 
-//    extractPointFromModFile("../data/mod/Stelarc_rightEye.mod",cloud);
-//    extractFacesFromMshFile("../data/msh/Stelarc_eye.msh",cloud,mesh);
-//    cloud.saveToObj("../data/clouds/", "Stelarc_rightEye.obj");
-//    mesh.saveToObj("../data/meshes/original_stelarc/", "Stelarc_rightEye.obj");
+        animation.retrieveTransformedCloud(ii, cloud, true);
+        cloud.saveToObj("../data/clouds/", l_nameObj.toStdString());
 
-//    extractPointFromModFile("../data/mod/Stelarc_tongue.mod",cloud);
-//    extractFacesFromMshFile("../data/msh/Stelarc_tongue.msh",cloud,mesh);
-//    cloud.saveToObj("../data/clouds/", "Stelarc_tongue.obj");
-//    mesh.saveToObj("../data/meshes/original_stelarc/", "Stelarc_tongue.obj");
+        animation.retrieveTransformedMesh(ii, mesh, true);
+        mesh.saveToObj("../data/meshes/", l_nameObj.toStdString());
 
-//    extractPointFromModFile("../data/mod/Stelarc_tongue_original.mod",cloud);
-//    extractFacesFromMshFile("../data/msh/Stelarc_tongue.msh",cloud,mesh);
-//    cloud.saveToObj("../data/clouds/", "Stelarc_tongue_original.obj");
-//    mesh.saveToObj("../data/meshes/original_stelarc/", "Stelarc_tongue_original.obj");
+
+        swMesh::SWMesh currentMeshGenericTrans = meshGenericClean;
+        animation.transformMeshWithCorrId(ii,currentMeshGenericTrans);
+        currentMeshGenericTrans.saveToObj("../data/meshes/", l_name2Obj.toStdString());
+
+        swMesh::SWMesh currentMeshMorphedTrans = meshMorphed;
+        animation.transformMeshWithCorrId(ii,currentMeshMorphedTrans);
+        currentMeshMorphedTrans.saveToObj("../data/meshes/", l_name3Obj.toStdString());
+    }
+
+
+
+
+
+
+
+
+
 
 
 //    swMesh::SWMesh mesh(argv[1]);
