@@ -46,6 +46,21 @@ namespace swAnimation
     {
         public :
 
+            SWAnimation();
+
+            ~SWAnimation();
+
+            void setCloudCorr(swCloud::SWCloud *pCloudCorr);
+
+            void setSeq(const SWSeq &seq);
+
+            void setMod(const SWMod &mod);
+
+            void setMsh(const SWMsh &msh);
+
+            void setTransformationToApply(const swCloud::SWRigidMotion transfoToApply = swCloud::SWRigidMotion(0.f,180.f,0.f),cfloat scaleToApply = 0.025f);
+
+
             void init(const SWMod &mod, const SWSeq &seq, const SWMsh &msh, const swCloud::SWRigidMotion transfoToApply = swCloud::SWRigidMotion(0.f,180.f,0.f),
                       cfloat scaleToApply = 0.025f);
 
@@ -55,10 +70,25 @@ namespace swAnimation
             void retrieveTransformedMesh(cuint transformationId, swMesh::SWMesh &mesh, cbool applyTransfo= false);
 
 
-            void constructCorrId(swMesh::SWMesh &mesh, cbool applyTransfo = false);
+            void constructCorrId(cbool applyTransfo = false);
 
 
             void transformMeshWithCorrId(cuint transformationId, swMesh::SWMesh &mesh);
+
+            /**
+             * @brief SWAnimation::retrieveTransfosToApply
+             * @param transfoX
+             * @param transfoY
+             * @param transfoZ
+             */
+            void retrieveTransfosToApply(int numLine ,QVector<float> &transfoX,QVector<float> &transfoY,QVector<float> &transfoZ);
+
+            bool m_seqFileLoaded;
+            bool m_modFileLoaded;
+            bool m_mshFileLoaded;
+            bool m_idCorrBuilt;
+
+            swCloud::SWCloud *m_pCloudCorr;
 
         private :
 
@@ -69,9 +99,11 @@ namespace swAnimation
             swCloud::SWRigidMotion m_transfoToApply;
             float m_scaleToApply;
 
-            swMesh::SWMesh m_originalMesh;
-
             std::vector<int> m_idCorr;
+
+
+
+
     };
 }
 

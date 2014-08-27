@@ -68,6 +68,12 @@ struct SWGLObjectParameters
             double m_dSpecularK;
             double m_dSpecularP;
 
+        // animation
+            bool m_animationStarted;
+            QVector<float> m_animationOffsetsX;
+            QVector<float> m_animationOffsetsY;
+            QVector<float> m_animationOffsetsZ;
+
         // others
             QReadWriteLock m_parametersMutex;
 };
@@ -133,6 +139,14 @@ class SWGLMultiObjectWidget : public SWGLWidget
         virtual void paintGL();
 
 
+    signals :
+
+        /**
+         * @brief sendCloudAnim
+         */
+        void sendCloudAnim(bool, int, swCloud::SWCloud *);
+
+
     public slots:
 
 
@@ -172,6 +186,31 @@ class SWGLMultiObjectWidget : public SWGLWidget
          */
         void setCameraItem(cbool bIsCloudItem, cint i32IndexItem);
 
+        /**
+         * @brief beginAnimation
+         * @param isCloudItem
+         * @param indexItem
+         */
+        void beginAnimation(bool isCloudItem, int indexItem);
+
+        /**
+         * @brief stopAnimation
+         * @param isCloudItem
+         * @param indexItem
+         */
+        void stopAnimation(cbool isCloudItem, cuint indexItem);
+
+        /**
+         * @brief setAnimationOffset
+         * @param isCloudItem
+         * @param indexItem
+         * @param offsetValuesX
+         * @param offsetValuesY
+         * @param offsetValueZ
+         */
+        void setAnimationOffset(bool isCloudItem, int indexItem, QVector<float> offsetValuesX, QVector<float> offsetValuesY, QVector<float> offsetValueZ);
+
+
     private :
 
         /**
@@ -190,12 +229,11 @@ class SWGLMultiObjectWidget : public SWGLWidget
     private :
 
 
+        bool m_sendAnimations;  /**< wil emit sendCloudAnim each time a cloud/mesh is added, the destruction of this cloud must be done by the receiver */
+
         QGLShaderProgram m_oShaderCloud; /**< ... */
         QGLShaderProgram m_oShaderMesh;  /**< ... */
         QGLShaderProgram m_oShaderCubeMap;  /**< ... */
-
-
-//        QMatrix4x4  m_oMVPMatrix;	/**< ... */
 
 
         QList<SWMeshPtr> m_vMeshes;  /**< ... */
@@ -205,7 +243,6 @@ class SWGLMultiObjectWidget : public SWGLWidget
 
         QList<SWGLObjectParametersPtr> m_vCloudsParameters; /**< ... */
         QList<SWGLObjectParametersPtr> m_vMeshesParameters; /**< ... */
-
 
 
 //        QVector
@@ -221,32 +258,14 @@ class SWGLMultiObjectWidget : public SWGLWidget
         QList<QGLBufferPtr> m_vMeshesTextureBuffer;
         QList<QGLBufferPtr> m_vMeshesColorBuffer;
 
-//        QVector<QGLBufferPtr> m_vUnusedBuffers;
-
         QVector<QGLBufferPtr> m_vBuffersToDelete;
 
-//        QList<QImage> m_vMeshesTextures; /**< ... */
-//        QList<bool> m_vBMeshLinesRender; /**< ... */
-//        QList<bool> m_vBMeshApplyTextures; /**< ... */
-
-        //        bool m_bInitCamWithCloudPosition;
-        //        bool m_bBindTexture;            /**< ... */
-        //        GLuint m_textureLocation;
-        //        GLuint m_texHandle;
 
 
         QReadWriteLock m_oParamMutex; /**< ... */
 
         QReadWriteLock m_pListCloudsMutex;
         QReadWriteLock m_pListMeshesMutex;
-
-
-
-
-
-
-
-
 
 
 

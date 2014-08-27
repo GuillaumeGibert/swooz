@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1220</width>
-    <height>877</height>
+    <height>899</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -974,7 +974,7 @@
               <item row="3" column="0" colspan="2">
                <widget class="QPushButton" name="pbLaunchAllAnim">
                 <property name="enabled">
-                 <bool>false</bool>
+                 <bool>true</bool>
                 </property>
                 <property name="text">
                  <string>Launch all</string>
@@ -982,9 +982,9 @@
                </widget>
               </item>
               <item row="3" column="2">
-               <widget class="QPushButton" name="pbResetAllAnim">
+               <widget class="QPushButton" name="pbStopAllAnim">
                 <property name="text">
-                 <string>Reset all</string>
+                 <string>Stop all</string>
                 </property>
                </widget>
               </item>

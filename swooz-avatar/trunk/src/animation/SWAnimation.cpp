@@ -210,21 +210,12 @@ void swAnimation::SWAnimation::init(const swAnimation::SWMod &mod, const swAnima
     m_animationSeq = seq;
     m_animationMsh = msh;
 
+    m_modFileLoaded = true;
+    m_seqFileLoaded = true;
+    m_mshFileLoaded = true;
+
     m_scaleToApply = scaleToApply;
     m_transfoToApply = transfoToApply;
-
-    std::vector<std::vector<float> > l_vertices;
-    std::vector<std::vector<float> > l_texture(mod.cloud.size(), std::vector<float>(2,0.f));
-    for(uint ii = 0; ii < mod.cloud.size(); ++ii)
-    {
-        std::vector<float> l_pt;
-        l_pt.push_back(mod.cloud.coord(0)[ii]);
-        l_pt.push_back(mod.cloud.coord(1)[ii]);
-        l_pt.push_back(mod.cloud.coord(2)[ii]);
-        l_vertices.push_back(l_pt);
-    }
-
-    m_originalMesh.set(l_vertices, m_animationMsh.m_idFaces, l_texture);
 }
 
 void swAnimation::SWAnimation::retrieveTransformedCloud(cuint transformationId, swCloud::SWCloud &cloud, cbool applyTransfo)
@@ -279,11 +270,15 @@ void swAnimation::SWAnimation::retrieveTransformedMesh(cuint transformationId, s
     mesh.set(l_vertices, m_animationMsh.m_idFaces, l_texture);
 }
 
-void swAnimation::SWAnimation::constructCorrId(swMesh::SWMesh &mesh, cbool applyTransfo)
+
+void swAnimation::SWAnimation::constructCorrId(cbool applyTransfo)
 {
     swCloud::SWCloud l_originalCloud, l_testCloud;
-    l_originalCloud.copy(*m_originalMesh.cloud());
-    l_testCloud.copy(*mesh.cloud());
+    l_originalCloud.copy(m_animationMod.cloud);
+    qDebug() << "l_originalCloud " << l_originalCloud.size();
+    l_testCloud.copy(*m_pCloudCorr);
+
+    qDebug() << "l_originalCloud " << l_originalCloud.size() << " " << l_testCloud.size();
 
     if(applyTransfo)
     {
@@ -338,6 +333,43 @@ void swAnimation::SWAnimation::constructCorrId(swMesh::SWMesh &mesh, cbool apply
             l_testCloud.point(l_pt,ii);
             m_idCorr.push_back(l_originalCloud.idNearestPoint(l_pt));
         }
+
+    m_idCorrBuilt = true;
+}
+
+void swAnimation::SWAnimation::retrieveTransfosToApply(int numLine ,QVector<float> &transfoX,QVector<float> &transfoY,QVector<float> &transfoZ)
+{
+    transfoX.clear();
+    transfoY.clear();
+    transfoZ.clear();
+
+//    qDebug() << "mretrieveTransfosToApply " << m_animationSeq.m_transFactors.size() << " " << m_animationSeq.m_transFactors[0].size();
+
+    qDebug() << "num line " << numLine;
+
+    if(numLine > m_animationSeq.m_transFactors.size())
+    {
+        qDebug() << "end anim";
+        return;
+    }
+
+    for(uint ii = 0; ii < m_pCloudCorr->size(); ++ii)
+    {
+        transfoX.push_back(0.f);
+        transfoY.push_back(0.f);
+        transfoZ.push_back(0.f);
+
+        for(int jj = 0; jj < m_animationMod.m_vtx[0].size(); ++jj)
+        {
+            transfoX.last() += (3* m_animationMod.m_vtx[m_idCorr[ii]][jj]* m_animationSeq.m_transFactors[numLine][jj]);
+            transfoY.last() += (3* m_animationMod.m_vty[m_idCorr[ii]][jj]* m_animationSeq.m_transFactors[numLine][jj]);
+            transfoZ.last() += (3* m_animationMod.m_vtz[m_idCorr[ii]][jj]* m_animationSeq.m_transFactors[numLine][jj]);
+        }
+    }
+
+//    qDebug()<< transfoX;
+
+//    qDebug() << "end retrieveTransfosToApply ";
 }
 
 void swAnimation::SWAnimation::transformMeshWithCorrId(cuint transformationId, swMesh::SWMesh &mesh)
@@ -358,5 +390,47 @@ void swAnimation::SWAnimation::transformMeshWithCorrId(cuint transformationId, s
 }
 
 
+swAnimation::SWAnimation::SWAnimation() : m_pCloudCorr(NULL)
+{
+    m_seqFileLoaded = false;
+    m_modFileLoaded = false;
+    m_mshFileLoaded = false;
+    m_idCorrBuilt = false;
+}
+
+swAnimation::SWAnimation::~SWAnimation()
+{
+    deleteAndNullify(m_pCloudCorr);
+}
+
+void swAnimation::SWAnimation::setCloudCorr(swCloud::SWCloud *pCloudCorr)
+{
+    qDebug() <<"############################## setCloudCorr";
+    m_pCloudCorr = pCloudCorr;
+}
+
+void swAnimation::SWAnimation::setSeq(const swAnimation::SWSeq &seq)
+{
+    m_animationSeq = seq;
+    m_seqFileLoaded = true;
+}
+
+void swAnimation::SWAnimation::setMod(const swAnimation::SWMod &mod)
+{
+    m_animationMod = mod;
+    m_modFileLoaded = true;
+}
+
+void swAnimation::SWAnimation::setMsh(const swAnimation::SWMsh &msh)
+{
+    m_animationMsh = msh;
+    m_mshFileLoaded = true;
+}
+
+void swAnimation::SWAnimation::setTransformationToApply(const swCloud::SWRigidMotion transfoToApply,cfloat scaleToApply)
+{
+    m_scaleToApply = scaleToApply;
+    m_transfoToApply = transfoToApply;
+}
 
 

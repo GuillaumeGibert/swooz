@@ -145,7 +145,7 @@ SWMorphingInterface::SWMorphingInterface() : m_uiMorphing(new Ui::SWUI_Morphing)
         QObject::connect(m_uiMorphing->dsbDiffMax,          SIGNAL(valueChanged(double)),m_pGLOSNRICP,SLOT(setDiffMax(double)));
         QObject::connect(m_uiMorphing->dsbBeta,             SIGNAL(valueChanged(double)),m_pGLOSNRICP,SLOT(setBeta(double)));
         QObject::connect(m_uiMorphing->dsbGama,             SIGNAL(valueChanged(double)),m_pGLOSNRICP,SLOT(setGama(double)));
-        QObject::connect(m_uiMorphing->dsbAngleMax,         SIGNAL(valueChanged(double)),m_pGLOSNRICP,SLOT(setAngleMax(double)));        
+        QObject::connect(m_uiMorphing->dsbAngleMax,         SIGNAL(valueChanged(double)),m_pGLOSNRICP,SLOT(setAngleMax(double)));
 
 
         // fullscreen

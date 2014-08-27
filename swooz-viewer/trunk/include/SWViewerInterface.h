@@ -18,11 +18,15 @@
 
 #include "interface/QtWidgets/SWGLMultiObjectWidget.h"
 
+#include "animation/SWAnimation.h"
+
 
 
 namespace Ui {
     class SWUI_Viewer;
 }
+
+class SWViewerWorker;
 
 /**
  * \class SWViewerInterface
@@ -53,6 +57,8 @@ class SWViewerInterface : public QMainWindow
         // ############################################# METHODS
 
     public slots:
+
+        void closeEvent(QCloseEvent *event);
 
         void loadCloud();
 
@@ -85,9 +91,13 @@ class SWViewerInterface : public QMainWindow
          */
         void updateParameters();
 
-        void updateCloudInterfaceParameters(QListWidgetItem *);
+        void updateCloudInterfaceParameters(QListWidgetItem*);
 
-        void updateMeshInterfaceParameters(QListWidgetItem *);
+        void updateMeshInterfaceParameters(QListWidgetItem*);
+
+        void updateCloudInterfaceParameters();
+
+        void updateMeshInterfaceParameters();
 
         void updateInterfaceParameters();
 
@@ -114,7 +124,51 @@ class SWViewerInterface : public QMainWindow
          */
         void disableGLFullScreen();
 
+        /**
+         * @brief loadMod
+         */
+        void loadModFile();
+
+        /**
+         * @brief loadSeq
+         */
+        void loadSeqFile();
+
+        /**
+         * @brief updateAnimationPathFileDisplay
+         * @param modFilePath
+         * @param seqFilePath
+         */
+        void updateAnimationPathFileDisplay(QString modFilePath, QString seqFilePath);
+
+
     signals:
+
+        /**
+         * @brief stopLoop
+         */
+        void stopLoop();
+
+        /**
+         * @brief addAnimation
+         */
+        void addAnimation(bool);
+
+        /**
+         * @brief deleteAnimation
+         */
+        void deleteAnimation(bool, int);
+
+
+        /**
+         * @brief setModFilePath
+         */
+        void setModFilePath(bool, int, QString);
+
+        /**
+         * @brief setSeqFilePath
+         */
+        void setSeqFilePath(bool, int, QString);
 
 
     private :
@@ -136,9 +190,127 @@ class SWViewerInterface : public QMainWindow
         SWGLMultiObjectWidget *m_pGLMultiObject; /**< ... */
 
         // threads & workers
-//        SWViewerWorker  *m_pWViewer;    /**< viewer worker */
-        QThread            m_TViwer;    /**< viwer thread */
+        SWViewerWorker  *m_pWViewer;    /**< viewer worker */
+        QThread         m_TViewer;    /**< viewer thread */
 
+};
+
+
+/**
+ * @brief The SWViewerWorker class
+ */
+class SWViewerWorker : public QObject
+{
+    Q_OBJECT
+
+    public :
+
+        /**
+         * \brief constructor of SWViewerWorker
+         */
+        SWViewerWorker();
+
+        /**
+         * \brief destructor of SWViewerWorker
+         */
+//        ~SWViewerWorker();
+
+
+    public slots:
+
+
+        /**
+         * @brief startLoop
+         */
+        void startLoop();
+
+        /**
+         * @brief stopLoop
+         */
+        void stopLoop();
+
+        /**
+         * @brief updateCloudAnimationPath
+         */
+        void updateCloudAnimationPath(int indexCloud);
+
+        /**
+         * @brief updateMeshAnimationPath
+         */
+        void updateMeshAnimationPath(int indexMesh);
+
+        /**
+         * @brief setModFile
+         * @param isCloud
+         * @param indexObject
+         * @param pathFile
+         */
+        void setModFile(bool isCloud, int indexObject, QString pathFile);
+
+        /**
+         * @brief setSeqFile
+         * @param isCloud
+         * @param indexObject
+         * @param pathFile
+         */
+        void setSeqFile(bool isCloud, int indexObject, QString pathFile);
+
+        /**
+         * @brief setCorrId
+         * @param isCloud
+         * @param indexObject
+         * @param cloud
+         */
+        void setCorrId(bool isCloud, int indexObject, swCloud::SWCloud *cloud);
+
+        /**
+         * @brief addAnimation
+         * @param isCloud
+         */
+        void addAnimation(bool isCloud);
+
+        /**
+         * @brief deleteAnimation
+         * @param isCLoud
+         * @param indexObject
+         */
+        void deleteAnimation(bool isCLoud, int indexObject);
+
+    signals:
+
+        /**
+         * @brief sendAnimationPathFile
+         */
+        void sendAnimationPathFile(QString, QString);
+
+        /**
+         * @brief startAnimation
+         */
+        void startAnimation(bool, int);
+
+        /**
+         * @brief sendOffsetAnimation
+         */
+        void sendOffsetAnimation(bool, int, QVector<float>, QVector<float>, QVector<float>);
+
+
+    private :
+
+        int m_i32LoopPeriod;    /**< loop period */
+
+        bool m_bDoLoop;
+
+        QReadWriteLock m_oLoopMutex;    /**< mutex for the main worker loop */
+
+        QList<swAnimation::SWAnimation> m_vCloudsAnimation; /**< ... */
+        QList<swAnimation::SWAnimation> m_vMeshesAnimation;  /**< ... */
+
+        QList<QString> m_cloudModFileName;
+        QList<QString> m_cloudSeqFileName;
+        QList<QString> m_meshModFileName;
+        QList<QString> m_meshSeqFileName;
+
+        QReadWriteLock m_oMutex;                /**< ... */
 };
 
 
