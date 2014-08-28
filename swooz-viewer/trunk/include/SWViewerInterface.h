@@ -135,11 +135,28 @@ class SWViewerInterface : public QMainWindow
         void loadSeqFile();
 
         /**
+         * @brief loadMeshCorrFile
+         */
+        void loadMeshCorrFile();
+
+
+        /**
          * @brief updateAnimationPathFileDisplay
          * @param modFilePath
          * @param seqFilePath
+         * @param corrFilePath
          */
-        void updateAnimationPathFileDisplay(QString modFilePath, QString seqFilePath);
+        void updateAnimationPathFileDisplay(QString modFilePath, QString seqFilePath, QString corrFilePath);
+
+        /**
+         * @brief SWViewerInterface::updateCloudAnimationPath
+         */
+        void updateCloudAnimationPath(QListWidgetItem *);
+
+        /**
+         * @brief updateMeshAnimationPath
+         */
+        void updateMeshAnimationPath(QListWidgetItem *);
 
 
     signals:
@@ -170,6 +187,22 @@ class SWViewerInterface : public QMainWindow
          */
         void setSeqFilePath(bool, int, QString);
 
+        /**
+         * @brief setCorrFilePath
+         */
+        void setCorrFilePath(bool, int, QString);
+
+        /**
+         * @brief cloudCurrentRowChanged
+         */
+        void cloudCurrentRowChanged(int);
+
+        /**
+         * @brief meshCurrentRowChanged
+         */
+        void meshCurrentRowChanged(int);
+
+
 
     private :
 
@@ -195,6 +228,8 @@ class SWViewerInterface : public QMainWindow
 
 };
 
+
+typedef boost::shared_ptr<SWAnimationSendData> SWAnimationSendDataPtr;
 
 /**
  * @brief The SWViewerWorker class
@@ -256,12 +291,12 @@ class SWViewerWorker : public QObject
         void setSeqFile(bool isCloud, int indexObject, QString pathFile);
 
         /**
-         * @brief setCorrId
+         * @brief setCorrFilePath
          * @param isCloud
          * @param indexObject
-         * @param cloud
+         * @param pathFile
          */
-        void setCorrId(bool isCloud, int indexObject, swCloud::SWCloud *cloud);
+        void setCorrFilePath(bool isCloud, int indexObject, QString pathFile);
 
         /**
          * @brief addAnimation
@@ -281,7 +316,7 @@ class SWViewerWorker : public QObject
         /**
          * @brief sendAnimationPathFile
          */
-        void sendAnimationPathFile(QString, QString);
+        void sendAnimationPathFile(QString, QString, QString);
 
         /**
          * @brief startAnimation
@@ -291,7 +326,7 @@ class SWViewerWorker : public QObject
         /**
          * @brief sendOffsetAnimation
          */
-        void sendOffsetAnimation(bool, int, QVector<float>, QVector<float>, QVector<float>);
+        void sendOffsetAnimation(bool, int, QVector<float>, QVector<float>, QVector<float>, QVector<float>, int);
 
 
     private :
@@ -307,8 +342,11 @@ class SWViewerWorker : public QObject
 
         QList<QString> m_cloudModFileName;
         QList<QString> m_cloudSeqFileName;
+        QList<QString> m_cloudCorrFileName;
+
         QList<QString> m_meshModFileName;
-        QList<QString> m_meshSeqFileName;
+        QList<QString> m_meshSeqFileName;        
+        QList<QString> m_meshCorrFileName;
 
         QReadWriteLock m_oMutex;                /**< ... */
 };

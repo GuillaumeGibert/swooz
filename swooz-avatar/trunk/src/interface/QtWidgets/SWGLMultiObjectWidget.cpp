@@ -230,15 +230,6 @@ void SWGLMultiObjectWidget::addCloud(const QString &sPathCloud)
 
     m_pListCloudsMutex.unlock();
     setCameraItem(true, m_vClouds.size()-1);
-
-    if(m_sendAnimations)
-    {
-        qDebug() << "send cloud animation gl --> " << (m_vClouds.size()-1);
-        swCloud::SWCloud *l_pCloudAnim = new swCloud::SWCloud();
-        l_pCloudAnim->copy(*l_pCloud);
-        emit sendCloudAnim(true ,m_vClouds.size()-1, l_pCloudAnim);
-        qDebug() << "end send cloud animation gl ";
-    }
 }
 
 void SWGLMultiObjectWidget::addMesh(const QString &sPathMesh)
@@ -321,20 +312,10 @@ void SWGLMultiObjectWidget::addMesh(const QString &sPathMesh)
     m_oParamMutex.unlock();
 
     setCameraItem(true, m_vMeshes.size()-1);
-
-    if(m_sendAnimations)
-    {
-        qDebug() << "send mesh animation gl ";
-        swCloud::SWCloud *l_pCloudAnim = new swCloud::SWCloud();
-        l_pCloudAnim->copy(*l_pMesh->cloud());
-        emit sendCloudAnim(false ,m_vMeshes.size()-1, l_pCloudAnim);
-    }
 }
 
 void SWGLMultiObjectWidget::removeCloud(cuint ui32Index)
 {
-    qDebug() << "removeCloud  ";
-
     makeCurrent();
 
     m_pListCloudsMutex.lockForWrite();
@@ -377,8 +358,6 @@ void SWGLMultiObjectWidget::removeCloud(cuint ui32Index)
         std::cerr << "-ERROR : bad index removeCloud " << std::endl;
         return;
     }
-
-     qDebug() << "end removeCloud  ";
 
     updateGL();
 }
@@ -466,7 +445,6 @@ void SWGLMultiObjectWidget::beginAnimation(bool isCloudItem, int indexItem)
     {
         if(indexItem < static_cast<uint>(m_vCloudsParameters.size()))
         {
-            qDebug() << "begin anim " << isCloudItem << " " << indexItem;
             m_vCloudsParameters[indexItem]->m_parametersMutex.lockForWrite();
                 m_vCloudsParameters[indexItem]->m_animationStarted = true;
             m_vCloudsParameters[indexItem]->m_parametersMutex.unlock();
@@ -476,7 +454,6 @@ void SWGLMultiObjectWidget::beginAnimation(bool isCloudItem, int indexItem)
     {
         if(indexItem < static_cast<uint>(m_vMeshesParameters.size()))
         {
-            qDebug() << "begin anim " << isCloudItem << " " << indexItem;
             m_vMeshesParameters[indexItem]->m_parametersMutex.lockForWrite();
                 m_vMeshesParameters[indexItem]->m_animationStarted = true;
             m_vMeshesParameters[indexItem]->m_parametersMutex.unlock();
@@ -506,17 +483,19 @@ void SWGLMultiObjectWidget::stopAnimation(cbool isCloudItem, cuint indexItem)
     }
 }
 
-void SWGLMultiObjectWidget::setAnimationOffset(bool isCloudItem, int indexItem, QVector<float> offsetValuesX, QVector<float> offsetValuesY, QVector<float> offsetValuesZ)
+void SWGLMultiObjectWidget::setAnimationOffset(bool isCloudItem, int indexItem, QVector<float> offsetValuesX, QVector<float> offsetValuesY,
+                                               QVector<float> offsetValuesZ, QVector<float> rigidMotion, int indexRotTrans)
 {
     if(isCloudItem)
     {
         if(indexItem < static_cast<uint>(m_vCloudsParameters.size()))
         {
-            qDebug() << "new line ";
             m_vCloudsParameters[indexItem]->m_parametersMutex.lockForWrite();
                 m_vCloudsParameters[indexItem]->m_animationOffsetsX = offsetValuesX;
                 m_vCloudsParameters[indexItem]->m_animationOffsetsY = offsetValuesY;
                 m_vCloudsParameters[indexItem]->m_animationOffsetsZ = offsetValuesZ;
+                m_vCloudsParameters[indexItem]->m_animationRigidMotion = rigidMotion;
+                m_vCloudsParameters[indexItem]->m_animationIndexRotTrans = indexRotTrans;
             m_vCloudsParameters[indexItem]->m_parametersMutex.unlock();
         }
     }
@@ -524,11 +503,12 @@ void SWGLMultiObjectWidget::setAnimationOffset(bool isCloudItem, int indexItem, 
     {
         if(indexItem < static_cast<uint>(m_vMeshesParameters.size()))
         {
-            qDebug() << "new line ";
             m_vMeshesParameters[indexItem]->m_parametersMutex.lockForWrite();
                 m_vMeshesParameters[indexItem]->m_animationOffsetsX = offsetValuesX;
                 m_vMeshesParameters[indexItem]->m_animationOffsetsY = offsetValuesY;
                 m_vMeshesParameters[indexItem]->m_animationOffsetsZ = offsetValuesZ;
+                m_vMeshesParameters[indexItem]->m_animationRigidMotion = rigidMotion;
+                m_vMeshesParameters[indexItem]->m_animationIndexRotTrans = indexRotTrans;
             m_vMeshesParameters[indexItem]->m_parametersMutex.unlock();
         }
     }
@@ -653,6 +633,7 @@ void SWGLMultiObjectWidget::drawMeshes()
                     QVector<float> l_animationOffsetsX = m_vMeshesParameters[ii]->m_animationOffsetsX;
                     QVector<float> l_animationOffsetsY = m_vMeshesParameters[ii]->m_animationOffsetsY;
                     QVector<float> l_animationOffsetsZ = m_vMeshesParameters[ii]->m_animationOffsetsZ;
+                    QVector<float> l_animationRigidMotion = m_vMeshesParameters[ii]->m_animationRigidMotion;
                 m_vMeshesParameters[ii]->m_parametersMutex.unlock();
 
             // check visibility
@@ -710,17 +691,49 @@ void SWGLMultiObjectWidget::drawMeshes()
             if(m_vMeshesBufferToUpdate[ii])
             {
                 // allocate buffers
-                    float  *l_aFVertexBuffer   = m_vMeshes[ii]->vertexBuffer();
+                    float  *l_aFVertexBuffer = NULL;
 
                     if(l_animationStarted)
                     {
-                        // update vertex buffer by applying animation vectors offsets
-                        for(int jj = 0; jj < m_vMeshesParameters[ii]->m_animationOffsetsX.size(); ++jj)
+                        swCloud::SWCloud l_cloudAnim;
+                        l_cloudAnim.copy(*m_vMeshes[ii]->cloud());
+
+
+                        std::vector<float> l_off(3,0.f);
+                        l_off[0] = -l_cloudAnim.coord(0)[352];
+                        l_off[1] = -l_cloudAnim.coord(1)[352];
+                        l_off[2] = -l_cloudAnim.coord(2)[352];
+
+                        l_cloudAnim += l_off;
+
+//                        qDebug() << "verif :" << l_cloudAnim.coord(0)[352] << " " << l_cloudAnim.coord(1)[352] << " " << l_cloudAnim.coord(2)[352];
+
+                        for(int jj = 0; jj < l_cloudAnim.size(); ++jj)
                         {
-                            l_aFVertexBuffer[jj*3]   += l_animationOffsetsX[jj];
-                            l_aFVertexBuffer[jj*3+1] += l_animationOffsetsY[jj];
-                            l_aFVertexBuffer[jj*3+2] += l_animationOffsetsZ[jj];
+                            l_cloudAnim.coord(0)[jj] += l_animationOffsetsX[jj];
+                            l_cloudAnim.coord(1)[jj] += l_animationOffsetsY[jj];
+                            l_cloudAnim.coord(2)[jj] += l_animationOffsetsZ[jj];
                         }
+
+                        swCloud::SWRigidMotion l_rigidMotion((180.f/3.14)*l_animationRigidMotion[3],(180.f/3.14)*l_animationRigidMotion[4],(-180.f/3.14)*l_animationRigidMotion[5]);
+                        l_rigidMotion.m_aFTranslation[0] = l_animationRigidMotion[0]/40.f;
+                        l_rigidMotion.m_aFTranslation[1] = l_animationRigidMotion[1]/40.f;
+                        l_rigidMotion.m_aFTranslation[2] = -l_animationRigidMotion[2]/40.f;
+                        l_cloudAnim.transform(l_rigidMotion.m_aFRotation, l_rigidMotion.m_aFTranslation);
+
+                        l_off[0] = -l_off[0];
+                        l_off[1] = -l_off[1];
+                        l_off[2] = -l_off[2];
+
+                        l_cloudAnim += l_off;
+
+//                        qDebug() << "verif :" << l_cloudAnim.coord(0)[352] << " " << l_cloudAnim.coord(1)[352] << " " << l_cloudAnim.coord(2)[352];
+
+                        l_aFVertexBuffer = l_cloudAnim.vertexBuffer();
+                    }
+                    else
+                    {
+                        l_aFVertexBuffer = m_vMeshes[ii]->vertexBuffer();
                     }
 
                     float  *l_aFColorBuffer    = m_vMeshes[ii]->cloud()->colorBuffer();
@@ -742,17 +755,40 @@ void SWGLMultiObjectWidget::drawMeshes()
             }
             else if(l_animationStarted)
             {
-                float  *l_aFVertexBuffer   = m_vMeshes[ii]->vertexBuffer();
+                float  *l_aFVertexBuffer   = NULL;
 
-                qDebug() <<"############################ " <<  m_vMeshes[ii]->pointsNumber() << " "  << l_animationOffsetsX.size() << " "<<  l_animationOffsetsY.size() << " " << l_animationOffsetsZ.size();
-                    // update vertex buffer by applying animation vectors offsets
-                    for(int jj = 0; jj < l_animationOffsetsX.size(); ++jj)
-                    {
-//                        std::cout << jj << " ";
-                        l_aFVertexBuffer[jj*3]   += l_animationOffsetsX[jj];
-                        l_aFVertexBuffer[jj*3+1] += l_animationOffsetsY[jj];
-                        l_aFVertexBuffer[jj*3+2] += l_animationOffsetsZ[jj];
-                    }
+                swCloud::SWCloud l_cloudAnim;
+                l_cloudAnim.copy(*m_vMeshes[ii]->cloud());
+
+
+                std::vector<float> l_off(3,0.f);
+                l_off[0] = -l_cloudAnim.coord(0)[352];
+                l_off[1] = -l_cloudAnim.coord(1)[352];
+                l_off[2] = -l_cloudAnim.coord(2)[352];
+
+                l_cloudAnim += l_off;
+
+                for(int jj = 0; jj < l_cloudAnim.size(); ++jj)
+                {
+                    l_cloudAnim.coord(0)[jj] += l_animationOffsetsX[jj];
+                    l_cloudAnim.coord(1)[jj] += l_animationOffsetsY[jj];
+                    l_cloudAnim.coord(2)[jj] += l_animationOffsetsZ[jj];
+                }
+
+                swCloud::SWRigidMotion l_rigidMotion((180.f/3.14)*l_animationRigidMotion[3],(180.f/3.14)*l_animationRigidMotion[4],(-180.f/3.14)*l_animationRigidMotion[5]);
+                l_rigidMotion.m_aFTranslation[0] = l_animationRigidMotion[0]/40.f;
+                l_rigidMotion.m_aFTranslation[1] = l_animationRigidMotion[1]/40.f;
+                l_rigidMotion.m_aFTranslation[2] = -l_animationRigidMotion[2]/40.f;
+                l_cloudAnim.transform(l_rigidMotion.m_aFRotation, l_rigidMotion.m_aFTranslation);
+
+                l_off[0] = -l_off[0];
+                l_off[1] = -l_off[1];
+                l_off[2] = -l_off[2];
+
+                l_cloudAnim += l_off;
+
+
+                l_aFVertexBuffer = l_cloudAnim.vertexBuffer();
 
                 allocateBuffer(*m_vMeshesVertexBuffer[ii],  l_aFVertexBuffer,     m_vMeshes[ii]->pointsNumber() *  3 * sizeof(float) );
                 deleteAndNullifyArray(l_aFVertexBuffer);
@@ -786,10 +822,8 @@ void SWGLMultiObjectWidget::drawMeshes()
         m_oShaderMesh.release();
 }
 
-
 void SWGLMultiObjectWidget::drawScene()
 {
-    qDebug() << "drawScene ";
     drawAxes(m_oShaderCloud, m_oMVPMatrix, 0.02f);
     drawCubeMap(m_oShaderCloud, m_oMVPMatrix);
 
@@ -800,7 +834,6 @@ void SWGLMultiObjectWidget::drawScene()
     m_pListMeshesMutex.lockForRead();
         drawMeshes();
     m_pListMeshesMutex.unlock();
-    qDebug() << "end drawScene ";
 }
 
 

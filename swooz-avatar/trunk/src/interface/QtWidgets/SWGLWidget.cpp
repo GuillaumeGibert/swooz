@@ -537,7 +537,7 @@ void SWGLWidget::drawCubeMap(QGLShaderProgram &oShader, QMatrix4x4 &mvpMatrix)
     allocateBuffer(m_textureBufferCubeMap, l_textureFace, 6 * sizeof(float));
     allocateBuffer(m_indexBufferCubeMap, l_indexFace, 6 * sizeof(GLuint) );
 
-    qDebug() << m_cubeMapTextureNegXLocation << " " << m_cubeMapTexturePosZLocation << " " << m_cubeMapTexturePosXLocation << " " << m_cubeMapTextureNegZLocation;
+//    qDebug() << m_cubeMapTextureNegXLocation << " " << m_cubeMapTexturePosZLocation << " " << m_cubeMapTexturePosXLocation << " " << m_cubeMapTextureNegZLocation;
     allocateBuffer(m_vertexBufferCubeMap, l_vertexFace1, 8 *  3 * sizeof(float) );
     glBindTexture(GL_TEXTURE_2D, m_cubeMapTextureNegXLocation);
         checkGlError(true);

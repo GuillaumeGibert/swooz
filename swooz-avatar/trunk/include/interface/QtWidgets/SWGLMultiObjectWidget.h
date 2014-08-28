@@ -31,6 +31,17 @@ typedef boost::shared_ptr<QGLBuffer> QGLBufferPtr;
 typedef boost::shared_ptr<swMesh::SWMesh> SWMeshPtr;	/**< boost shared pointer for SWMesh */
 
 
+struct SWAnimationSendData
+{
+    bool m_animationStarted;
+    QVector<float> m_animationOffsetsX;
+    QVector<float> m_animationOffsetsY;
+    QVector<float> m_animationOffsetsZ;
+    QVector<float> m_animationRigidMotion;
+};
+
+
+
 struct SWGLObjectInfos
 {
     int m_points;
@@ -73,6 +84,8 @@ struct SWGLObjectParameters
             QVector<float> m_animationOffsetsX;
             QVector<float> m_animationOffsetsY;
             QVector<float> m_animationOffsetsZ;
+            QVector<float> m_animationRigidMotion;
+            int m_animationIndexRotTrans;
 
         // others
             QReadWriteLock m_parametersMutex;
@@ -138,15 +151,6 @@ class SWGLMultiObjectWidget : public SWGLWidget
          */
         virtual void paintGL();
 
-
-    signals :
-
-        /**
-         * @brief sendCloudAnim
-         */
-        void sendCloudAnim(bool, int, swCloud::SWCloud *);
-
-
     public slots:
 
 
@@ -207,8 +211,11 @@ class SWGLMultiObjectWidget : public SWGLWidget
          * @param offsetValuesX
          * @param offsetValuesY
          * @param offsetValueZ
+         * @param rigidMotion
+         * @param indexRotTrans
          */
-        void setAnimationOffset(bool isCloudItem, int indexItem, QVector<float> offsetValuesX, QVector<float> offsetValuesY, QVector<float> offsetValueZ);
+        void setAnimationOffset(bool isCloudItem, int indexItem, QVector<float> offsetValuesX,QVector<float> offsetValuesY,
+                                QVector<float> offsetValueZ, QVector<float> rigidMotion, int indexRotTrans);
 
 
     private :

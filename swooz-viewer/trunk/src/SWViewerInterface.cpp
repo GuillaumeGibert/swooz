@@ -13,7 +13,7 @@
 #include "interface/QtWidgets/SWGLMultiObjectWidget.h"
 
 #include <QCheckBox>
-
+#include <time.h>
 
 SWViewerInterface::SWViewerInterface() : m_uiViewer(new Ui::SWUI_Viewer), m_bDesactiveUpdateParameters(false), m_bGLFullScreen(false)
 {
@@ -52,6 +52,11 @@ SWViewerInterface::SWViewerInterface() : m_uiViewer(new Ui::SWUI_Viewer), m_bDes
 
         QObject::connect(m_uiViewer->lwClouds, SIGNAL(currentRowChanged(int)), m_pWViewer, SLOT(updateCloudAnimationPath(int)));
         QObject::connect(m_uiViewer->lwMeshes, SIGNAL(currentRowChanged(int)), m_pWViewer, SLOT(updateMeshAnimationPath(int)));
+        QObject::connect(this, SIGNAL(cloudCurrentRowChanged(int)), m_pWViewer, SLOT(updateCloudAnimationPath(int)));
+        QObject::connect(this, SIGNAL(meshCurrentRowChanged(int)), m_pWViewer, SLOT(updateMeshAnimationPath(int)));
+        QObject::connect(m_uiViewer->lwClouds, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(updateCloudAnimationPath(QListWidgetItem*)));
+        QObject::connect(m_uiViewer->lwMeshes, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(updateMeshAnimationPath(QListWidgetItem*)));
+
 
         // update interface
             QObject::connect(m_uiViewer->dsbRX, SIGNAL(valueChanged(double)), this, SLOT(updateParameters(double)));
@@ -97,6 +102,7 @@ SWViewerInterface::SWViewerInterface() : m_uiViewer(new Ui::SWUI_Viewer), m_bDes
             QObject::connect(m_uiViewer->pbLaunchAllAnim, SIGNAL(clicked()), m_pWViewer, SLOT(startLoop()));
             QObject::connect(m_uiViewer->pbSetModFile, SIGNAL(clicked()), this, SLOT(loadModFile()));
             QObject::connect(m_uiViewer->pbSetSeqFile, SIGNAL(clicked()), this, SLOT(loadSeqFile()));
+            QObject::connect(m_uiViewer->pbSetMeshCorr, SIGNAL(clicked()), this, SLOT(loadMeshCorrFile()));
 
         // fullscreen
             QObject::connect(m_pGLMultiObject, SIGNAL(enableFullScreen()), this, SLOT(enableGLFullScreen()));                        
@@ -106,18 +112,19 @@ SWViewerInterface::SWViewerInterface() : m_uiViewer(new Ui::SWUI_Viewer), m_bDes
             QObject::connect(this,  SIGNAL(stopLoop()), m_pWViewer, SLOT(stopLoop()));
             QObject::connect(this, SIGNAL(setModFilePath(bool,int,QString)), m_pWViewer, SLOT(setModFile(bool,int,QString)));
             QObject::connect(this, SIGNAL(setSeqFilePath(bool,int,QString)), m_pWViewer, SLOT(setSeqFile(bool,int,QString)));
-            QObject::connect(m_pWViewer, SIGNAL(sendAnimationPathFile(QString,QString)), this, SLOT(updateAnimationPathFileDisplay(QString,QString)));
-            QObject::connect(m_pWViewer, SIGNAL(sendAnimationPathFile(QString,QString)), this, SLOT(updateAnimationPathFileDisplay(QString,QString)));
-            QObject::connect(m_pGLMultiObject, SIGNAL(sendCloudAnim(bool,int,swCloud::SWCloud*)), m_pWViewer, SLOT(setCorrId(bool,int,swCloud::SWCloud*)));
+            QObject::connect(this, SIGNAL(setCorrFilePath(bool,int,QString)), m_pWViewer, SLOT(setCorrFilePath(bool,int,QString)));
+            QObject::connect(m_pWViewer, SIGNAL(sendAnimationPathFile(QString,QString,QString)), this, SLOT(updateAnimationPathFileDisplay(QString,QString,QString)));
             QObject::connect(this, SIGNAL(deleteAnimation(bool,int)), m_pWViewer, SLOT(deleteAnimation(bool,int)));
             QObject::connect(this, SIGNAL(addAnimation(bool)), m_pWViewer, SLOT(addAnimation(bool)));
-            QObject::connect(m_pWViewer, SIGNAL(sendOffsetAnimation(bool,int,QVector<float>,QVector<float>,QVector<float>)), m_pGLMultiObject, SLOT(setAnimationOffset(bool,int,QVector<float>,QVector<float>, QVector<float>)));
+            QObject::connect(m_pWViewer, SIGNAL(sendOffsetAnimation(bool,int,QVector<float>,QVector<float>,QVector<float>,QVector<float>, int)),
+                             m_pGLMultiObject, SLOT(setAnimationOffset(bool,int,QVector<float>,QVector<float>, QVector<float>,QVector<float>, int)));
             QObject::connect(m_pWViewer, SIGNAL(startAnimation(bool,int)), m_pGLMultiObject, SLOT(beginAnimation(bool,int)));
 
     // init thread
         m_pWViewer->moveToThread(&m_TViewer);
         m_TViewer.start();
 }
+
 
 SWViewerInterface::~SWViewerInterface()
 {
@@ -180,7 +187,6 @@ void SWViewerInterface::loadSeqFile()
             return;
         }
 
-    // retrieve item index to delete
         int l_i32Index;
 
         if(m_bIsCloudLastSelection)
@@ -202,10 +208,42 @@ void SWViewerInterface::loadSeqFile()
         }
 }
 
-void SWViewerInterface::updateAnimationPathFileDisplay(QString modFilePath, QString seqFilePath)
+void SWViewerInterface::loadMeshCorrFile()
+{
+    // retrieve obj path
+        QString l_sPathObjCorr = QFileDialog::getOpenFileName(this, "Load corr file", QString(), "Seq file (*.obj)");
+        if(l_sPathObjCorr == "")
+        {
+            return;
+        }
+
+    // retrieve item index to delete
+        int l_i32Index;
+
+        if(m_bIsCloudLastSelection)
+        {
+            l_i32Index = m_uiViewer->lwClouds->currentRow();
+        }
+        else
+        {
+            l_i32Index = m_uiViewer->lwMeshes->currentRow();
+        }
+
+        if(l_i32Index != -1)
+        {
+            emit setCorrFilePath(m_bIsCloudLastSelection, l_i32Index, l_sPathObjCorr);
+        }
+        else
+        {
+            std::cerr << "Load an object before loading a seq file. " << std::endl;
+        }
+}
+
+void SWViewerInterface::updateAnimationPathFileDisplay(QString modFilePath, QString seqFilePath, QString corrFilePath)
 {
     m_uiViewer->leMod->setText(modFilePath);
     m_uiViewer->leSeq->setText(seqFilePath);
+    m_uiViewer->leMeshCorr->setText(corrFilePath);
 }
 
 void SWViewerInterface::loadCloud()
@@ -260,33 +298,26 @@ void SWViewerInterface::loadMesh()
 
 void SWViewerInterface::deleteCloud()
 {  
-    qDebug() << "deleteCloud ";
     // retrieve item index to delete
         int l_i32IndexCloud = m_uiViewer->lwClouds->currentRow();
-        qDebug() << "---  " << l_i32IndexCloud;
 
     // delete cloud and item
         if(l_i32IndexCloud >= 0)
         {
-            qDebug() << "---aa  ";
-
             m_pGLMultiObject->removeCloud(l_i32IndexCloud);
 
-            qDebug() << "---  bb";
             delete m_uiViewer->lwClouds->takeItem(l_i32IndexCloud);
-            qDebug() << "---  ";
 
             emit deleteAnimation(true, l_i32IndexCloud);
         }
 
-     qDebug() << "---  ";
 
     // lock delete cloud button
         if(m_uiViewer->lwClouds->count() == 0)
         {
             m_uiViewer->pbDeleteCloud->setEnabled(false);
         }
-qDebug() << "---  ";
+
     // lock
         m_uiViewer->rbDisplayTexture->setEnabled(false);
         m_uiViewer->pbSetTexture->setEnabled(false);
@@ -307,14 +338,15 @@ qDebug() << "---  ";
         m_uiViewer->dsbLightX->setEnabled(false);
         m_uiViewer->dsbLightY->setEnabled(false);
         m_uiViewer->dsbLightZ->setEnabled(false);
-qDebug() << "---  ";
+
     // reset text
         m_uiViewer->leNameItem->setText(QString("..."));
         m_uiViewer->lePtNumber->setText(QString("..."));
         m_uiViewer->leTriNumber->setText(QString("..."));
         m_uiViewer->leNameItem->deselect();
 
-    qDebug() << "end deleteCloud ";
+    // update interface with new cloud parameters
+        updateCloudInterfaceParameters();
 }
 
 
@@ -365,6 +397,8 @@ void SWViewerInterface::deleteMesh()
         m_uiViewer->leTriNumber->setText(QString("..."));
         m_uiViewer->leNameItem->deselect();
 
+    // update interface with new mesh parameters
+        updateMeshInterfaceParameters();
 }
 
 void SWViewerInterface::updateParameters(int i32Inused)
@@ -456,9 +490,20 @@ void SWViewerInterface::updateMeshInterfaceParameters(QListWidgetItem *)
     updateMeshInterfaceParameters();
 }
 
+void SWViewerInterface::updateCloudAnimationPath(QListWidgetItem *)
+{
+    int index = m_uiViewer->lwClouds->currentRow();
+    emit cloudCurrentRowChanged(index);
+}
+
+void SWViewerInterface::updateMeshAnimationPath(QListWidgetItem *)
+{
+    int index = m_uiViewer->lwMeshes->currentRow();
+    emit meshCurrentRowChanged(index);
+}
+
 void SWViewerInterface::updateCloudInterfaceParameters()
 {
-    qDebug() <<"updateCloudInterfaceParameters " << m_pGLMultiObject->m_cloudsInfos.size() << " " << m_uiViewer->lwClouds->currentRow();
     if(m_uiViewer->lwClouds->currentRow() == -1 || m_uiViewer->lwClouds->currentRow() >= m_pGLMultiObject->m_cloudsInfos.size())
     {
         return;
@@ -511,18 +556,14 @@ void SWViewerInterface::updateCloudInterfaceParameters()
         m_uiViewer->sbColorB->setEnabled(true);
 
     updateInterfaceParameters();
-
-    qDebug() <<"end updateCloudInterfaceParameters";
 }
 
 void SWViewerInterface::updateMeshInterfaceParameters()
 {
-
     if(m_uiViewer->lwMeshes->currentRow() == -1 || m_uiViewer->lwMeshes->currentRow() >= m_pGLMultiObject->m_meshesInfos.size())
     {
         return;
     }
-
     // set the type of the last selected item
         m_bIsCloudLastSelection = false;
 
@@ -709,7 +750,7 @@ int main(int argc, char* argv[])
     return l_oApp.exec();
 }
 
-SWViewerWorker::SWViewerWorker() : m_i32LoopPeriod(100)
+SWViewerWorker::SWViewerWorker() : m_i32LoopPeriod(1000/60)
 {
     qDebug() << "start worker";
 
@@ -733,8 +774,16 @@ void SWViewerWorker::startLoop()
 
     int l_numLine = 0;
 
+    QVector<bool> l_currentAnimCloud(m_vCloudsAnimation.size(),true);
+    QVector<bool> l_currentAnimMesh(m_vMeshesAnimation.size(),true);
+
+    clock_t l_oProgramTime = clock();
+
     while(l_bDoLoop)
     {
+
+//        clock_t l_oProgramTime = clock();
+
         // control the time of the loop
             while(l_oStartTime.elapsed() < m_i32LoopPeriod)
             {
@@ -742,34 +791,82 @@ void SWViewerWorker::startLoop()
             }
             l_oStartTime.restart();
 
+            bool l_cloudAnimStillRunning = false;
+            for(int ii = 0; ii < l_currentAnimCloud.size(); ++ii)
+            {
+                if(l_currentAnimCloud[ii] == true)
+                {
+                    l_cloudAnimStillRunning = true;
+                    break;
+                }
+            }
+            bool l_meshAnimStillRunning = false;
+            for(int ii = 0; ii < l_currentAnimMesh.size(); ++ii)
+            {
+                if(l_currentAnimMesh[ii] == true)
+                {
+                    l_meshAnimStillRunning = true;
+                    break;
+                }
+            }
+
+            if(!l_cloudAnimStillRunning && !l_meshAnimStillRunning)
+            {
+                l_bDoLoop = false;
+                break;
+            }
+
         // ...
             for(int ii = 0; ii < m_vCloudsAnimation.size(); ++ii)
             {
-                if(m_vCloudsAnimation[ii].m_modFileLoaded && m_vCloudsAnimation[ii].m_seqFileLoaded && m_vCloudsAnimation[ii].m_idCorrBuilt)
+                if(!l_currentAnimCloud[ii])
                 {
-                    if(l_numLine == 0)
-                    {
-                        emit startAnimation(true, ii);
-                    }
+                    continue;
+                }
 
-                    QVector<float> vx,vy,vz;
-                    m_vCloudsAnimation[ii].retrieveTransfosToApply(l_numLine, vx,vy,vz);
-                    emit sendOffsetAnimation(true, ii, vx, vy, vz);
+                if(l_numLine == 0)
+                {
+                    emit startAnimation(true, ii);
+                }
+
+                QVector<float> vx,vy,vz,vrigidMotion;
+                if(!m_vCloudsAnimation[ii].retrieveTransfosToApply(l_numLine, vx,vy,vz,vrigidMotion))
+                {
+                    l_currentAnimCloud[ii] = false;
+                }
+                else
+                {
+                    emit sendOffsetAnimation(true, ii, vx, vy, vz, vrigidMotion, m_vCloudsAnimation[ii].m_indexRotTrans);
                 }
             }
             for(int ii = 0; ii < m_vMeshesAnimation.size(); ++ii)
             {
-//                qDebug() << m_vMeshesAnimation[ii].m_modFileLoaded << " " << m_vMeshesAnimation[ii].m_seqFileLoaded << " " << m_vMeshesAnimation[ii].m_idCorrBuilt;
-                if(m_vMeshesAnimation[ii].m_modFileLoaded && m_vMeshesAnimation[ii].m_seqFileLoaded && m_vMeshesAnimation[ii].m_idCorrBuilt)
+                if(!l_currentAnimMesh[ii])
                 {
-                    if(l_numLine == 0)
-                    {
-                        emit startAnimation(false, ii);
-                    }
+                    continue;
+                }
 
-                    QVector<float> vx,vy,vz;
-                    m_vMeshesAnimation[ii].retrieveTransfosToApply(l_numLine, vx,vy,vz);
-                    emit sendOffsetAnimation(false, ii, vx, vy, vz);
+                if(l_numLine == 0)
+                {
+                    emit startAnimation(false, ii);
+                }
+
+                QVector<float> vx,vy,vz,vrigidMotion;
+                if(!m_vMeshesAnimation[ii].retrieveTransfosToApply(l_numLine, vx,vy,vz,vrigidMotion))
+                {
+                    l_currentAnimMesh[ii] = false;
+                }
+                else
+                {
+//                    SWAnimationSendDataPtr dataToSend = SWAnimationSendDataPtr(new SWAnimationSendData());
+//                    dataToSend->m_animationOffsetsX = vx;
+//                    dataToSend->m_animationOffsetsY = vy;
+//                    dataToSend->m_animationOffsetsZ = vz;
+//                    emit sendOffsetAnimation(dataToSend.get());
+
+                    emit sendOffsetAnimation(false, ii, vx, vy, vz, vrigidMotion, m_vMeshesAnimation[ii].m_indexRotTrans);
+
+
                 }
             }
 
@@ -779,7 +876,12 @@ void SWViewerWorker::startLoop()
             m_oLoopMutex.unlock();
 
             ++l_numLine;
+
+//            qDebug() << " time -> " << ((float)(clock() - l_oProgramTime) / CLOCKS_PER_SEC);
+
     }
+
+    qDebug() << "ENNNNNNNNNNNNNNNNNNNNNNNNNNND time -> " << ((float)(clock() - l_oProgramTime) / CLOCKS_PER_SEC);
 }
 
 void SWViewerWorker::stopLoop()
@@ -789,43 +891,35 @@ void SWViewerWorker::stopLoop()
     m_oLoopMutex.unlock();
 }
 
+
+
 void SWViewerWorker::updateCloudAnimationPath(int indexCloud)
 {
-    qDebug() << "index anim cloud " << indexCloud;
-
     if(indexCloud  < m_vCloudsAnimation.size() && indexCloud > -1)
     {
-        sendAnimationPathFile(m_cloudModFileName[indexCloud], m_cloudSeqFileName[indexCloud]);
+        sendAnimationPathFile(m_cloudModFileName[indexCloud], m_cloudSeqFileName[indexCloud], m_cloudCorrFileName[indexCloud]);
     }
     else
     {
-        sendAnimationPathFile(QString("..."), QString("..."));
+        sendAnimationPathFile(QString("..."), QString("..."), QString("..."));
     }
-
-    qDebug() << "end index anim cloud " << indexCloud;
 }
 
 void SWViewerWorker::updateMeshAnimationPath(int indexMesh)
 {
-    qDebug() << "index anim mesh " << indexMesh;
-
     if(indexMesh  < m_vMeshesAnimation.size() && indexMesh > -1)
     {
-        sendAnimationPathFile(m_meshModFileName[indexMesh], m_meshSeqFileName[indexMesh]);
+        sendAnimationPathFile(m_meshModFileName[indexMesh], m_meshSeqFileName[indexMesh], m_meshCorrFileName[indexMesh]);
     }
     else
     {
-        sendAnimationPathFile(QString("..."), QString("..."));
+        sendAnimationPathFile(QString("..."), QString("..."), QString("..."));
     }
-
-    qDebug() << "end anim mesh " << indexMesh;
 }
 
 
 void SWViewerWorker::setModFile(bool isCloud, int indexObject, QString pathFile)
 {
-    qDebug() << "pathFile mod : " << pathFile << " " << m_vCloudsAnimation.size() << " " << m_vMeshesAnimation.size();
-
     swAnimation::SWMod l_mod;
     l_mod.loadModFile(pathFile);
 
@@ -855,27 +949,25 @@ void SWViewerWorker::setModFile(bool isCloud, int indexObject, QString pathFile)
 
 void SWViewerWorker::addAnimation(bool isCloud)
 {
-    qDebug() << "addAnimation ";
     swAnimation::SWAnimation l_animation;
     if(isCloud)
     {
         m_cloudSeqFileName.push_back("...");
         m_cloudModFileName.push_back("...");
+        m_cloudCorrFileName.push_back("...");
         m_vCloudsAnimation.push_back(l_animation);
     }
     else
     {
         m_meshSeqFileName.push_back("...");
         m_meshModFileName.push_back("...");
+        m_meshCorrFileName.push_back("...");
         m_vMeshesAnimation.push_back(l_animation);
     }
-    qDebug() << "end addAnimation ";
 }
 
 void SWViewerWorker::setSeqFile(bool isCloud, int indexObject, QString pathFile)
 {
-    qDebug() << "pathFile seq : " << pathFile;
-
     swAnimation::SWSeq l_seq;
     l_seq.loadSeqFile(pathFile);
 
@@ -901,34 +993,32 @@ void SWViewerWorker::setSeqFile(bool isCloud, int indexObject, QString pathFile)
     }
 }
 
-void SWViewerWorker::setCorrId(bool isCloud, int indexObject, swCloud::SWCloud *cloud)
+void SWViewerWorker::setCorrFilePath(bool isCloud, int indexObject, QString pathFile)
 {
-    qDebug() << "setCorrId " << indexObject << " "<< isCloud << " "  << m_vCloudsAnimation.size() << " " << m_vMeshesAnimation.size();;
     if(isCloud)
     {
         if(indexObject < m_vCloudsAnimation.size())
         {
-            qDebug() << "setCorrId " << cloud->size() << " " << m_vCloudsAnimation.size() << " " << m_vMeshesAnimation.size();
-            deleteAndNullify(m_vCloudsAnimation[indexObject].m_pCloudCorr);
-            m_vCloudsAnimation[indexObject].setCloudCorr(cloud);
+            m_vCloudsAnimation[indexObject].setCloudCorr(pathFile);
+            m_cloudCorrFileName[indexObject] = pathFile;
+            m_vCloudsAnimation[indexObject].constructCorrId();
+            updateCloudAnimationPath(indexObject);
         }
     }
     else
     {
         if(indexObject < m_vMeshesAnimation.size())
         {
-            qDebug() << "setCorrId " << cloud->size() << " " << m_vCloudsAnimation.size() << " " << m_vMeshesAnimation.size();
-            deleteAndNullify(m_vMeshesAnimation[indexObject].m_pCloudCorr);
-            m_vMeshesAnimation[indexObject].setCloudCorr(cloud);
+            m_vMeshesAnimation[indexObject].setCloudCorr(pathFile);
+            m_meshCorrFileName[indexObject] = pathFile;
+            m_vMeshesAnimation[indexObject].constructCorrId();
+            updateMeshAnimationPath(indexObject);
         }
     }
-
-    qDebug() << "end setCorrId ";
 }
 
 void SWViewerWorker::deleteAnimation(bool isCLoud, int indexObject)
 {
-    qDebug() << "deleteAnimation " << isCLoud << " " << indexObject << " " << m_vCloudsAnimation.size() << " "<< m_vMeshesAnimation.size();
     if(isCLoud)
     {
         if(indexObject < m_vCloudsAnimation.size())
@@ -936,6 +1026,7 @@ void SWViewerWorker::deleteAnimation(bool isCLoud, int indexObject)
             m_vCloudsAnimation.removeAt(indexObject);
             m_cloudModFileName.removeAt(indexObject);
             m_cloudSeqFileName.removeAt(indexObject);
+            m_cloudCorrFileName.removeAt(indexObject);
         }
     }
     else
@@ -945,8 +1036,7 @@ void SWViewerWorker::deleteAnimation(bool isCLoud, int indexObject)
             m_vMeshesAnimation.removeAt(indexObject);
             m_meshModFileName.removeAt(indexObject);
             m_meshSeqFileName.removeAt(indexObject);
+            m_meshCorrFileName.removeAt(indexObject);
         }
     }
-
-    qDebug() << "end deleteAnimation ";
 }

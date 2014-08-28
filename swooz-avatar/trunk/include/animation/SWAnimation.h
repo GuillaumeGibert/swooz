@@ -30,6 +30,7 @@ namespace swAnimation
 
             bool loadSeqFile(const QString &pathSeq);
             std::vector<std::vector<float> > m_transFactors;
+            std::vector<std::vector<float> > m_rigidMotion;
     };
 
 
@@ -50,7 +51,9 @@ namespace swAnimation
 
             ~SWAnimation();
 
-            void setCloudCorr(swCloud::SWCloud *pCloudCorr);
+            void setCloudCorr(QString pathFile);
+
+            void setRotTransIndex(cint index);
 
             void setSeq(const SWSeq &seq);
 
@@ -76,25 +79,33 @@ namespace swAnimation
             void transformMeshWithCorrId(cuint transformationId, swMesh::SWMesh &mesh);
 
             /**
-             * @brief SWAnimation::retrieveTransfosToApply
+             * @brief retrieveTransfosToApply
+             * @param numLine
              * @param transfoX
              * @param transfoY
              * @param transfoZ
+             * @param rigidMotion
+             * @return
              */
-            void retrieveTransfosToApply(int numLine ,QVector<float> &transfoX,QVector<float> &transfoY,QVector<float> &transfoZ);
+            bool retrieveTransfosToApply(int numLine ,QVector<float> &transfoX,QVector<float> &transfoY,QVector<float> &transfoZ, QVector<float> &rigidMotion);
 
             bool m_seqFileLoaded;
             bool m_modFileLoaded;
             bool m_mshFileLoaded;
+            bool m_cloudCorrLoaded;
             bool m_idCorrBuilt;
 
             swCloud::SWCloud *m_pCloudCorr;
+
+            int m_indexRotTrans; /**< index of the center of rotation to apply */
 
         private :
 
             SWSeq m_animationSeq;
             SWMod m_animationMod;
             SWMsh m_animationMsh;
+
+
 
             swCloud::SWRigidMotion m_transfoToApply;
             float m_scaleToApply;

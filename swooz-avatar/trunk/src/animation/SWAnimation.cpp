@@ -2,6 +2,7 @@
 #include "animation/SWAnimation.h"
 
 
+
 bool swAnimation::SWMod::loadModFile(const QString &pathMod)
 {
     QFile file(pathMod);
@@ -26,8 +27,6 @@ bool swAnimation::SWMod::loadModFile(const QString &pathMod)
 
                     break;
                 }
-
-
             }
 
         // count values
@@ -51,6 +50,8 @@ bool swAnimation::SWMod::loadModFile(const QString &pathMod)
                 }
             }
             in.seek(l_pos); // return to firt line
+
+        l_nbValues -= 6; // remove 6 last values
 
         std::vector<float> l_vx,l_vy,l_vz;
         m_vtx.clear();
@@ -166,6 +167,7 @@ bool swAnimation::SWMsh::loadMshFile(const QString &pathMsh)
 bool swAnimation::SWSeq::loadSeqFile(const QString &pathSeq)
 {
     m_transFactors.clear();
+    m_rigidMotion.clear();
 
     QFile file(pathSeq);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
@@ -187,15 +189,25 @@ bool swAnimation::SWSeq::loadSeqFile(const QString &pathSeq)
         in >> l_separator;
 
         std::vector<float> l_factors;
+        std::vector<float> l_rigidMotion;
 
         for(int ii = 0; ii < l_nbTransfo; ++ii)
         {
-            float l_factor;
-            in >> l_factor;
-            l_factors.push_back(l_factor);
+            float l_value;
+            in >> l_value;
+
+            if(ii < l_nbTransfo-6)
+            {
+                l_factors.push_back(l_value);
+            }
+            else
+            {
+                l_rigidMotion.push_back(l_value);
+            }
         }
 
         m_transFactors.push_back(l_factors);
+        m_rigidMotion.push_back(l_rigidMotion);
     }
 
     return true;
@@ -216,6 +228,8 @@ void swAnimation::SWAnimation::init(const swAnimation::SWMod &mod, const swAnima
 
     m_scaleToApply = scaleToApply;
     m_transfoToApply = transfoToApply;
+
+    m_indexRotTrans = 0;
 }
 
 void swAnimation::SWAnimation::retrieveTransformedCloud(cuint transformationId, swCloud::SWCloud &cloud, cbool applyTransfo)
@@ -273,12 +287,14 @@ void swAnimation::SWAnimation::retrieveTransformedMesh(cuint transformationId, s
 
 void swAnimation::SWAnimation::constructCorrId(cbool applyTransfo)
 {
+    if(!m_cloudCorrLoaded || !m_modFileLoaded)
+    {
+        return;
+    }
+
     swCloud::SWCloud l_originalCloud, l_testCloud;
     l_originalCloud.copy(m_animationMod.cloud);
-    qDebug() << "l_originalCloud " << l_originalCloud.size();
     l_testCloud.copy(*m_pCloudCorr);
-
-    qDebug() << "l_originalCloud " << l_originalCloud.size() << " " << l_testCloud.size();
 
     if(applyTransfo)
     {
@@ -286,44 +302,47 @@ void swAnimation::SWAnimation::constructCorrId(cbool applyTransfo)
         l_originalCloud.transform(m_transfoToApply.m_aFRotation, m_transfoToApply.m_aFTranslation);
     }
 
+    l_originalCloud.saveToObj("../data/clouds/", "originalBefore.obj");
+    l_testCloud.saveToObj("../data/clouds/", "id_testBefore.obj");
+
     // align with nose at 0.0.0
         std::vector<float> l_offsetToApply(3,0.f);
 
-        float l_zMin = FLT_MAX;
-        int l_idZMin = 0;
+        float l_zMax = -FLT_MAX;
+        int l_idZMax = 0;
         for(int ii = 0; ii < l_originalCloud.size(); ++ii)
         {
-            if(l_originalCloud.coord(2)[ii] < l_zMin)
+            if(l_originalCloud.coord(2)[ii] > l_zMax)
             {
-                l_zMin = l_originalCloud.coord(2)[ii];
-                l_idZMin = ii;
+                l_zMax = l_originalCloud.coord(2)[ii];
+                l_idZMax = ii;
             }
         }
 
-        l_offsetToApply[0] = -l_originalCloud.coord(0)[l_idZMin];
-        l_offsetToApply[1] = -l_originalCloud.coord(1)[l_idZMin];
-        l_offsetToApply[2] = -l_originalCloud.coord(2)[l_idZMin];
+        l_offsetToApply[0] = -l_originalCloud.coord(0)[l_idZMax];
+        l_offsetToApply[1] = -l_originalCloud.coord(1)[l_idZMax];
+        l_offsetToApply[2] = -l_originalCloud.coord(2)[l_idZMax];
         l_originalCloud += l_offsetToApply;
 
-        l_zMin = FLT_MAX;
-        l_idZMin = 0;
+        l_zMax = -FLT_MAX;
+        l_idZMax = 0;
         for(int ii = 0; ii < l_testCloud.size(); ++ii)
         {
-            if(l_testCloud.coord(2)[ii] < l_zMin)
+            if(l_testCloud.coord(2)[ii] > l_zMax)
             {
-                l_zMin = l_testCloud.coord(2)[ii];
-                l_idZMin = ii;
+                l_zMax = l_testCloud.coord(2)[ii];
+                l_idZMax = ii;
             }
         }
 
-        l_offsetToApply[0] = -l_testCloud.coord(0)[l_idZMin];
-        l_offsetToApply[1] = -l_testCloud.coord(1)[l_idZMin];
-        l_offsetToApply[2] = -l_testCloud.coord(2)[l_idZMin];
+        l_offsetToApply[0] = -l_testCloud.coord(0)[l_idZMax];
+        l_offsetToApply[1] = -l_testCloud.coord(1)[l_idZMax];
+        l_offsetToApply[2] = -l_testCloud.coord(2)[l_idZMax];
         l_testCloud += l_offsetToApply;
 
     // save debug
-        l_originalCloud.saveToObj("../data/clouds/", "original.obj");
-        l_testCloud.saveToObj("../data/clouds/", "id_test.obj");
+        l_originalCloud.saveToObj("../data/clouds/", "originalAfter.obj");
+        l_testCloud.saveToObj("../data/clouds/", "id_testAfter.obj");
 
     // retrieve id
         m_idCorr.clear();
@@ -337,20 +356,23 @@ void swAnimation::SWAnimation::constructCorrId(cbool applyTransfo)
     m_idCorrBuilt = true;
 }
 
-void swAnimation::SWAnimation::retrieveTransfosToApply(int numLine ,QVector<float> &transfoX,QVector<float> &transfoY,QVector<float> &transfoZ)
+bool swAnimation::SWAnimation::retrieveTransfosToApply(int numLine ,QVector<float> &transfoX,QVector<float> &transfoY,QVector<float> &transfoZ, QVector<float> &rigidMotion)
 {
+//    clock_t l_oProgramTime = clock();
+
+    if(!m_seqFileLoaded || !m_modFileLoaded || !m_idCorrBuilt || !m_cloudCorrLoaded)
+    {
+        return false;
+    }
+
     transfoX.clear();
     transfoY.clear();
     transfoZ.clear();
+    rigidMotion.clear();
 
-//    qDebug() << "mretrieveTransfosToApply " << m_animationSeq.m_transFactors.size() << " " << m_animationSeq.m_transFactors[0].size();
-
-    qDebug() << "num line " << numLine;
-
-    if(numLine > m_animationSeq.m_transFactors.size())
+    if(numLine == m_animationSeq.m_transFactors.size())
     {
-        qDebug() << "end anim";
-        return;
+        return false;
     }
 
     for(uint ii = 0; ii < m_pCloudCorr->size(); ++ii)
@@ -361,15 +383,20 @@ void swAnimation::SWAnimation::retrieveTransfosToApply(int numLine ,QVector<floa
 
         for(int jj = 0; jj < m_animationMod.m_vtx[0].size(); ++jj)
         {
-            transfoX.last() += (3* m_animationMod.m_vtx[m_idCorr[ii]][jj]* m_animationSeq.m_transFactors[numLine][jj]);
-            transfoY.last() += (3* m_animationMod.m_vty[m_idCorr[ii]][jj]* m_animationSeq.m_transFactors[numLine][jj]);
-            transfoZ.last() += (3* m_animationMod.m_vtz[m_idCorr[ii]][jj]* m_animationSeq.m_transFactors[numLine][jj]);
+            transfoX.last() += (m_animationMod.m_vtx[m_idCorr[ii]][jj]* m_animationSeq.m_transFactors[numLine][jj])/40.f;
+            transfoY.last() += (m_animationMod.m_vty[m_idCorr[ii]][jj]* m_animationSeq.m_transFactors[numLine][jj])/40.f;
+            transfoZ.last() -= (m_animationMod.m_vtz[m_idCorr[ii]][jj]* m_animationSeq.m_transFactors[numLine][jj])/40.f;
         }
     }
 
-//    qDebug()<< transfoX;
+    for(int ii = 0; ii < 6; ++ii)
+    {
+        rigidMotion.push_back(m_animationSeq.m_rigidMotion[numLine][ii]);
+    }
+//    qDebug() << " time -> " << ((float)(clock() - l_oProgramTime) / CLOCKS_PER_SEC);
 
-//    qDebug() << "end retrieveTransfosToApply ";
+
+    return true;
 }
 
 void swAnimation::SWAnimation::transformMeshWithCorrId(cuint transformationId, swMesh::SWMesh &mesh)
@@ -395,6 +422,7 @@ swAnimation::SWAnimation::SWAnimation() : m_pCloudCorr(NULL)
     m_seqFileLoaded = false;
     m_modFileLoaded = false;
     m_mshFileLoaded = false;
+    m_cloudCorrLoaded = false;
     m_idCorrBuilt = false;
 }
 
@@ -403,10 +431,22 @@ swAnimation::SWAnimation::~SWAnimation()
     deleteAndNullify(m_pCloudCorr);
 }
 
-void swAnimation::SWAnimation::setCloudCorr(swCloud::SWCloud *pCloudCorr)
+void swAnimation::SWAnimation::setCloudCorr(QString pathFile)
 {
-    qDebug() <<"############################## setCloudCorr";
-    m_pCloudCorr = pCloudCorr;
+    deleteAndNullify(m_pCloudCorr);
+
+    swMesh::SWMesh mesh(pathFile.toStdString());
+    m_pCloudCorr = new swCloud::SWCloud();
+    m_pCloudCorr->copy(*mesh.cloud());
+
+    m_cloudCorrLoaded = true;
+}
+
+
+
+void swAnimation::SWAnimation::setRotTransIndex(cint index)
+{
+    m_indexRotTrans = index;
 }
 
 void swAnimation::SWAnimation::setSeq(const swAnimation::SWSeq &seq)
