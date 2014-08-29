@@ -274,6 +274,7 @@ void SWMesh::set(const std::vector<std::vector<float> > &v3FPoints,
         m_aIdNormals.assign(m_aIdFaces.cbegin(), m_aIdFaces.cend());
         updateNonOrientedTrianglesNormals();
         updateNonOrientedVerticesNormals();
+
 }
 
 void SWMesh::clean()

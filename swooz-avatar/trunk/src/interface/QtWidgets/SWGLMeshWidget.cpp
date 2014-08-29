@@ -147,7 +147,7 @@ void SWGLMeshWidget::setMesh(swMesh::SWMesh *pMesh, bool bResetCamera)
         l_oLookAt.setY(l_v3FMean[1]);
         l_oLookAt.setZ(l_v3FMean[2]);
         l_oEye = l_oLookAt;
-        l_oEye.setZ(l_oEye.z() - 0.25f);
+        l_oEye.setZ(l_oEye.z() + 0.25f);
 
         setCamera(l_oEye,l_oLookAt);
         setCameraInitial(l_oEye,l_oLookAt, QVector3D(0,1,0));
@@ -160,7 +160,7 @@ void SWGLMeshWidget::setMesh(swMesh::SWMesh *pMesh, bool bResetCamera)
         l_oEye.setY((l_oBBox.m_fMaxY + l_oBBox.m_fMinY)/2);
         l_oEye.setZ((l_oBBox.m_fMaxZ + l_oBBox.m_fMinZ)/2);
         l_oLookAt = l_oEye;
-        l_oEye.setZ(l_oEye.z() - 0.25f);
+        l_oEye.setZ(l_oEye.z() + 0.25f);
         l_oLookAt.setZ(l_oLookAt.z() + 1.f);
 
         setCamera(l_oEye,l_oLookAt);

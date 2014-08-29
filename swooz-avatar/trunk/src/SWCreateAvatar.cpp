@@ -469,7 +469,7 @@ void SWCreateAvatar::constructAvatar()
     // save radial projection for display
         m_oFilteredRadialProjection = l_oFinalFilteredMat.clone();
 
-    // compute vertex and faces, and save the obj file
+    // compute vertex and faces
         swCloud::transformRadialProjToMesh(l_oFinalFilteredMat, m_oLastResultFaceMesh, l_oBBox, m_oCloudFaceBBox, m_i32WidthRadialProj, m_i32HeightRadialProj, 0.15f);
 
     if(m_bDetectStasmPoints)
@@ -477,7 +477,6 @@ void SWCreateAvatar::constructAvatar()
         computeSTASMCoords();
     }
 }
-
 
 void SWCreateAvatar::totalCloud(swCloud::SWCloud &oTotalCloud)
 {

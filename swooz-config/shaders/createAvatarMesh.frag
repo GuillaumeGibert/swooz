@@ -26,7 +26,7 @@ uniform vec3 lAmbiant  = vec3(0.3,0.3,0.3);
 uniform vec3 lDiffus   = vec3(1.0,1.0,1.0);
 uniform vec3 lSpecular = vec3(1.0,1.0,1.0);
 //  sources
-uniform vec3 lSourcePos = vec3(0.1,0.1,-0.13);
+uniform vec3 lSourcePos = vec3(0.1,0.1,+1.0);
 
 // texture
 uniform bool applyTexture = false;

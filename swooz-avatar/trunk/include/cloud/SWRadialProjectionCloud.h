@@ -1096,23 +1096,30 @@ namespace swCloud
         // set the new mesh
             oResultMesh = swMesh::SWMesh(l_vVertexCoords, l_vIndexTri, l_vTextureCoords);
 
-            // TODO : fix mirror
-//            SWCloudBBox l_bBox = oResultMesh.cloud()->bBox();
 
+            swCloud::SWRigidMotion rigidMotion(0.f,180.f,0.f);
+            oResultMesh.cloud()->transform(rigidMotion.m_aFRotation, rigidMotion.m_aFTranslation);
 
-//            // fix mirror effect
-//            for(uint ii = 0; ii < oResultMesh.pointsNumber(); ++ii)
-//            {
-//                oResultMesh.cloud()->coord(2)[ii] -= 2*(oResultMesh.cloud()->coord(2)[ii] - l_bBox.m_fMaxZ);
-//            }
+            std::vector<float> l_offsetToApply(3,0.f);
 
-////            swCloud::SWRigidMotion l_transfo(0.f,180.f,0.f);
-////            oResultMesh.cloud()->transform(l_transfo.m_aFRotation, l_transfo.m_aFTranslation);
-//////            oResultMesh.transformNormals(l_transfo.m_aFRotation, l_transfo.m_aFTranslation);
+            float l_zMax = -FLT_MAX;
+            int l_idZMax = 0;
+            for(int ii = 0; ii < oResultMesh.pointsNumber(); ++ii)
+            {
+                if(oResultMesh.cloud()->coord(2)[ii] > l_zMax)
+                {
+                    l_zMax = oResultMesh.cloud()->coord(2)[ii];
+                    l_idZMax = ii;
+                }
+            }
 
-////            oResultMesh.updateNonOrientedTrianglesNormals();
-////            oResultMesh.updateNonOrientedVerticesNormals();
-//            oResultMesh.invertAllNormals();
+            l_offsetToApply[0] = -oResultMesh.cloud()->coord(0)[l_idZMax];
+            l_offsetToApply[1] = -oResultMesh.cloud()->coord(1)[l_idZMax];
+            l_offsetToApply[2] = -oResultMesh.cloud()->coord(2)[l_idZMax];
+            (*oResultMesh.cloud()) += l_offsetToApply;
+
+            oResultMesh.updateNonOrientedTrianglesNormals();
+            oResultMesh.updateNonOrientedVerticesNormals();
 
 
         return true;

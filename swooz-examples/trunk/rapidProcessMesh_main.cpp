@@ -32,15 +32,50 @@ int main(int argc, char* argv[])
     std::cout << "Open mesh file : " << argv[1] << std::endl;
 
 //    swAnimation::SWMod mod;
-//    mod.loadModFile("../data/mod/Stelarc_face.mod");
+//    mod.loadModFile("../data/mod/Stelarc_head.mod");
 
 //    swAnimation::SWSeq seq;
 //    seq.loadSeqFile("../data/seq/Block_1.seq");
 
 //    swAnimation::SWMsh msh;
-//    msh.loadMshFile("../data/msh/Stelarc_face.msh");
+//    msh.loadMshFile("../data/msh/Stelarc_head.msh");
 
 //    swAnimation::SWAnimation animation;
+//    animation.init(mod,seq,msh);
+
+
+    swMesh::SWMesh mesh("../data/meshes/processed/generic.obj");
+//    animation.retrieveTransformedMesh(7, mesh, true);
+
+    swCloud::SWRigidMotion rigidMotion(0.f,180.f,0.f);
+    mesh.cloud()->transform(rigidMotion.m_aFRotation, rigidMotion.m_aFTranslation);
+
+
+    std::vector<float> l_offsetToApply(3,0.f);
+
+    float l_zMin = -FLT_MAX;
+    int l_idZMax = 0;
+    for(int ii = 0; ii < mesh.pointsNumber(); ++ii)
+    {
+        if(mesh.cloud()->coord(2)[ii] > l_zMin)
+        {
+            l_zMin = mesh.cloud()->coord(2)[ii];
+            l_idZMax = ii;
+        }
+    }
+
+    l_offsetToApply[0] = -mesh.cloud()->coord(0)[l_idZMax];
+    l_offsetToApply[1] = -mesh.cloud()->coord(1)[l_idZMax];
+    l_offsetToApply[2] = -mesh.cloud()->coord(2)[l_idZMax];
+    (*mesh.cloud()) += l_offsetToApply;
+
+    mesh.updateNonOrientedTrianglesNormals();
+    mesh.updateNonOrientedVerticesNormals();
+    std::string l_sName("generic3");
+    mesh.saveToObj("../data/meshes/processed/", l_sName + ".obj", l_sName + ".mtl", l_sName + ".png");
+
+
+
 //    animation.init(mod,seq,msh);
 
 //    swCloud::SWCloud cloud;

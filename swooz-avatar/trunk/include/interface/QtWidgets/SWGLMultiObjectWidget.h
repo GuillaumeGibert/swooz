@@ -33,7 +33,10 @@ typedef boost::shared_ptr<swMesh::SWMesh> SWMeshPtr;	/**< boost shared pointer f
 
 struct SWAnimationSendData
 {
-    bool m_animationStarted;
+    bool m_isCloud;
+    int m_index;
+
+    bool m_animationStarted;    
     QVector<float> m_animationOffsetsX;
     QVector<float> m_animationOffsetsY;
     QVector<float> m_animationOffsetsZ;
@@ -88,10 +91,13 @@ struct SWGLObjectParameters
             int m_animationIndexRotTrans;
 
         // others
+            QReadWriteLock m_animationMutex;
             QReadWriteLock m_parametersMutex;
 };
 
 typedef boost::shared_ptr<SWGLObjectParameters> SWGLObjectParametersPtr;	/**< boost shared pointer for SWGLObjectParameters */
+typedef boost::shared_ptr<SWAnimationSendData> SWAnimationSendDataPtr;
+
 
 class SWGLMultiObjectWidget : public SWGLWidget
 {
@@ -139,6 +145,7 @@ class SWGLMultiObjectWidget : public SWGLWidget
          */
         void meshParameters(cuint ui32Index,SWGLObjectParameters &oParams);
 
+
     protected:
 
         /**
@@ -151,8 +158,8 @@ class SWGLMultiObjectWidget : public SWGLWidget
          */
         virtual void paintGL();
 
-    public slots:
 
+    public slots:
 
         /**
          * @brief addCloud
@@ -214,8 +221,14 @@ class SWGLMultiObjectWidget : public SWGLWidget
          * @param rigidMotion
          * @param indexRotTrans
          */
-        void setAnimationOffset(bool isCloudItem, int indexItem, QVector<float> offsetValuesX,QVector<float> offsetValuesY,
-                                QVector<float> offsetValueZ, QVector<float> rigidMotion, int indexRotTrans);
+//        void setAnimationOffset(bool isCloudItem, int indexItem, QVector<float> offsetValuesX,QVector<float> offsetValuesY,
+//                                QVector<float> offsetValueZ, QVector<float> rigidMotion, int indexRotTrans);
+
+        /**
+         * @brief setAnimationOffset
+         * @param animationSendData
+         */
+        void setAnimationOffset(SWAnimationSendDataPtr animationSendData);
 
 
     private :
@@ -266,10 +279,6 @@ class SWGLMultiObjectWidget : public SWGLWidget
         QList<QGLBufferPtr> m_vMeshesColorBuffer;
 
         QVector<QGLBufferPtr> m_vBuffersToDelete;
-
-
-
-        QReadWriteLock m_oParamMutex; /**< ... */
 
         QReadWriteLock m_pListCloudsMutex;
         QReadWriteLock m_pListMeshesMutex;

@@ -229,7 +229,6 @@ class SWViewerInterface : public QMainWindow
 };
 
 
-typedef boost::shared_ptr<SWAnimationSendData> SWAnimationSendDataPtr;
 
 /**
  * @brief The SWViewerWorker class
@@ -326,8 +325,14 @@ class SWViewerWorker : public QObject
         /**
          * @brief sendOffsetAnimation
          */
-        void sendOffsetAnimation(bool, int, QVector<float>, QVector<float>, QVector<float>, QVector<float>, int);
+//        void sendOffsetAnimation(bool, int, QVector<float>, QVector<float>, QVector<float>, QVector<float>, int);
+        void sendOffsetAnimation(SWAnimationSendDataPtr);
 
+
+        /**
+         * @brief drawSceneSignal
+         */
+        void drawSceneSignal();
 
     private :
 
