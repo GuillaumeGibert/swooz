@@ -61,7 +61,6 @@ class SWSonyHMZT3W
     private :
 
         // display infos
-        bool m_leftRightImg;        /**< ... */
         bool m_fullScreen;          /**< is fullscreen display ? */
         int m_displayImgWidth;      /**< width image display */
         int m_displayImgHeight;     /**< height image display */

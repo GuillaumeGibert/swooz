@@ -14,49 +14,61 @@ using namespace yarp::os;
 
 bool SWSonyHMZT3W::loop()
 {
-    ImageOf<PixelRgb> *inputImage = NULL;
-
+	ImageOf<PixelRgb> *inputImage1 = NULL;
+	ImageOf<PixelRgb> *inputImage2 = NULL;
+	
     if(m_eyeToDisplay == 0)
     {
-        if (m_leftRightImg) //left image
-        {
-            inputImage= m_leftEyeImagePort.read(false);
-            m_leftRightImg = false;
-
-        }
-        else //right image
-        {
-            inputImage= m_rightEyeImagePort.read(false);
-            m_leftRightImg = true;
-        }
+	inputImage1 = m_rightEyeImagePort.read(false);
+        inputImage2 = inputImage1;
     }
     else if(m_eyeToDisplay == 1)
     {
-        inputImage= m_leftEyeImagePort.read(false);
+        inputImage1 = m_leftEyeImagePort.read(false);
+        inputImage2 = inputImage1;
     }
     else
     {
-        inputImage= m_rightEyeImagePort.read(false);
+	inputImage1 = m_leftEyeImagePort.read(false);
+        inputImage2 = m_rightEyeImagePort.read(false);
     }
 
-    if (inputImage!=NULL)
+    if (inputImage1!=NULL && inputImage2!=NULL)
     {
         // creates opencv image to store the input images
-        cv::Mat inBgrImg(cv::Size(inputImage->width(), inputImage->height()), CV_8UC3, cv::Scalar::all(0));
+	cv::Mat inBgrImg(cv::Size(inputImage1->width()+inputImage2->width(), inputImage1->height()), CV_8UC3, cv::Scalar::all(0));
+        cv::Mat inBgrImg1(cv::Size(inputImage1->width(), inputImage1->height()), CV_8UC3, cv::Scalar::all(0));
+	cv::Mat inBgrImg2(cv::Size(inputImage2->width(), inputImage2->height()), CV_8UC3, cv::Scalar::all(0));
 
-        // fills the left image
-        for (int x=0; x<inputImage->width(); x++)
+        // fills the first image
+        for (int x=0; x<inputImage1->width(); x++)
         {
-            for (int y=0; y<inputImage->height(); y++)
+            for (int y=0; y<inputImage1->height(); y++)
             {
-                PixelRgb& pixel = inputImage->pixel(x,y);
+                PixelRgb& pixel = inputImage1->pixel(x,y);
 
-                inBgrImg.data[inBgrImg.step[0]*y + inBgrImg.step[1]* x + 0] = pixel.b;
-                inBgrImg.data[inBgrImg.step[0]*y + inBgrImg.step[1]* x + 1] = pixel.g;
-                inBgrImg.data[inBgrImg.step[0]*y + inBgrImg.step[1]* x + 2] = pixel.r;
+                inBgrImg1.data[inBgrImg1.step[0]*y + inBgrImg1.step[1]* x + 0] = pixel.b;
+                inBgrImg1.data[inBgrImg1.step[0]*y + inBgrImg1.step[1]* x + 1] = pixel.g;
+                inBgrImg1.data[inBgrImg1.step[0]*y + inBgrImg1.step[1]* x + 2] = pixel.r;
+            }
+        }
+	
+	// fills the second image
+        for (int x=0; x<inputImage2->width(); x++)
+        {
+            for (int y=0; y<inputImage2->height(); y++)
+            {
+                PixelRgb& pixel = inputImage2->pixel(x,y);
+
+                inBgrImg2.data[inBgrImg2.step[0]*y + inBgrImg2.step[1]* x + 0] = pixel.b;
+                inBgrImg2.data[inBgrImg2.step[0]*y + inBgrImg2.step[1]* x + 1] = pixel.g;
+                inBgrImg2.data[inBgrImg2.step[0]*y + inBgrImg2.step[1]* x + 2] = pixel.r;
             }
         }
 
+	// concats the 2 images
+	cv::hconcat(inBgrImg1, inBgrImg2, inBgrImg);
+	
         // resizes to the output size
         cv::resize(inBgrImg, m_diplayImage, m_diplayImage.size(),0,0,CV_INTER_LINEAR);
     }
@@ -103,12 +115,12 @@ bool SWSonyHMZT3W::loop()
         }
         else if(m_eyeToDisplay == 1)
         {
-            std::cout << "Display only right eye. " << std::endl;
+            std::cout << "Display left and right eye alternately. " << std::endl;
             m_eyeToDisplay = 2;
         }
         else
         {
-            std::cout << "Display left and right eye alternately. " << std::endl;
+            std::cout << "Display only right eye. " << std::endl;
             m_eyeToDisplay = 0;
         }
     }
@@ -128,9 +140,6 @@ bool SWSonyHMZT3W::open(int displayImgWidth, int displayImgHeight)
     m_displayImgWidth  = displayImgWidth;
     m_displayImgHeight = displayImgHeight;
     m_diplayImage = cv::Mat(cv::Size(m_displayImgWidth, m_displayImgHeight), CV_8UC3, cv::Scalar::all(0));
-
-    // starts with left eye
-    m_leftRightImg = true;
 
     // creates a full screen cv window
     cv::namedWindow("SonyHMZT3W", CV_NORMAL);
