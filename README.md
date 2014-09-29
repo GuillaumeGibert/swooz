@@ -1,4 +1,4 @@
-![SWoOZ (Super Wizard of OZ)](http://uppix.com/f-swooz54295d670017b31b.jpg "SWoOZ")
+![SWoOZ (Super Wizard of OZ)](http://i.imgur.com/RHBTY0F.jpg "SWoOZ")
 
 Description :
 -------------
