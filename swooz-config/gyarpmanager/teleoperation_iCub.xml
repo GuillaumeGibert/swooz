@@ -82,7 +82,13 @@
                 <protocol>tcp</protocol>
         </connection>
 
-
+	<!---  TOBII -->
+		<!---  GAZE -->
+        <connection>
+                <from>/tracking/tobii/tobiiSDK/gaze</from>
+                <to>/teleoperation/icub/gaze</to>
+                <protocol>tcp</protocol>
+        </connection>
 
 </application>
 
