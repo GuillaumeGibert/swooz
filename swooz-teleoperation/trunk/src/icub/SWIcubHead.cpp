@@ -420,75 +420,94 @@ bool swTeleop::SWIcubHead::checkBottles()
                     break;
                     case swTracking::TOBII_LIB :
                     {
-                            // eye position
-                            int l_i32ScreenHeight = l_pGazeTarget->get(27).asInt();
-                            int l_i32ScreenWidth  = l_pGazeTarget->get(28).asInt();
-                            int l_i32DistanceInterEye  = l_pGazeTarget->get(29).asInt();
+			    // eye position
+			    int l_i32ScreenHeight = l_pGazeTarget->get(27).asInt();
+			    int l_i32ScreenWidth  = l_pGazeTarget->get(28).asInt();
+			    int l_i32DistanceInterEye  = l_pGazeTarget->get(29).asInt();
 
-                            double l_leftValidity = l_pGazeTarget->get(1).asDouble();
-                            double l_rightValidity = l_pGazeTarget->get(2).asDouble();
+			    double l_leftValidity = l_pGazeTarget->get(1).asDouble();
+			    double l_rightValidity = l_pGazeTarget->get(2).asDouble();
 
-                            std::vector<double> l_vRightEyePosition3D;
-                            l_vRightEyePosition3D.push_back(l_pGazeTarget->get(8).asDouble());
-                            l_vRightEyePosition3D.push_back(l_pGazeTarget->get(9).asDouble());
-                            l_vRightEyePosition3D.push_back(l_pGazeTarget->get(10).asDouble());
-                            std::vector<double> l_vRightGazePoint2D;
-                            l_vRightGazePoint2D.push_back(l_pGazeTarget->get(25).asDouble());
-                            l_vRightGazePoint2D.push_back(l_pGazeTarget->get(26).asDouble());
+			    std::vector<double> l_vRightEyePosition3D;
+			    l_vRightEyePosition3D.push_back(l_pGazeTarget->get(8).asDouble());
+			    l_vRightEyePosition3D.push_back(l_pGazeTarget->get(9).asDouble());
+			    l_vRightEyePosition3D.push_back(l_pGazeTarget->get(10).asDouble());
+			    std::vector<double> l_vRightGazePoint2D;
+			    l_vRightGazePoint2D.push_back(l_pGazeTarget->get(25).asDouble());
+			    l_vRightGazePoint2D.push_back(l_pGazeTarget->get(26).asDouble());
 
-                            std::vector<double> l_vLeftEyePosition3D;
-                            l_vLeftEyePosition3D.push_back(l_pGazeTarget->get(5).asDouble());
-                            l_vLeftEyePosition3D.push_back(l_pGazeTarget->get(6).asDouble());
-                            l_vLeftEyePosition3D.push_back(l_pGazeTarget->get(7).asDouble());
-                            std::vector<double> l_vLeftGazePoint2D;
-                            l_vLeftGazePoint2D.push_back(l_pGazeTarget->get(23).asDouble());
-                            l_vLeftGazePoint2D.push_back(l_pGazeTarget->get(24).asDouble());
-
+			    std::vector<double> l_vLeftEyePosition3D;
+			    l_vLeftEyePosition3D.push_back(l_pGazeTarget->get(5).asDouble());
+			    l_vLeftEyePosition3D.push_back(l_pGazeTarget->get(6).asDouble());
+			    l_vLeftEyePosition3D.push_back(l_pGazeTarget->get(7).asDouble());
+			    std::vector<double> l_vLeftGazePoint2D;
+			    l_vLeftGazePoint2D.push_back(l_pGazeTarget->get(23).asDouble());
+			    l_vLeftGazePoint2D.push_back(l_pGazeTarget->get(24).asDouble());
 
                             bool l_blink = (l_leftValidity + l_rightValidity) == 8;
 
                             double l_subjectDistance, l_rightEyeRotationY, l_leftEyeRotationY, l_rightEyeRotationX, l_leftEyeRotationX;
 
                             // TODO : simon code, check
-                            if(l_leftValidity == 4) //Right eye only is valid
-                            {
-                                l_subjectDistance = l_vRightEyePosition3D[2];
+			    if(l_blink)
+			    {
+				// eye closure
+				Bottle &l_oFaceMotionBottle = m_oFaceHandlerPort.prepare();
+				l_oFaceMotionBottle.clear();
+				double l_dLeftEyeClosure = l_pGazeTarget->get(8).asDouble(), l_dRightEyeClosure = l_pGazeTarget->get(13).asDouble();
+				l_oFaceMotionBottle.addString(eyesOpeningCode(0.0, m_dMinEyelids, m_dMaxEyelids).c_str());
+				m_oFaceHandlerPort.write();
+			    }
+                            else
+			    {
+					if(l_leftValidity == 4) //Right eye only is valid
+					{
+						l_subjectDistance = l_vRightEyePosition3D[2];
 
-                                l_rightEyeRotationY = (atan((l_vRightGazePoint2D[1] -0.5)*l_i32ScreenHeight/l_subjectDistance))*180/PI;
-                                l_leftEyeRotationY  = l_rightEyeRotationY;  // we hypothesize that both eyes are going up/down synchronously
-                                l_vHeadJoints[3] = (l_leftEyeRotationY + l_rightEyeRotationY)/2;
+						l_rightEyeRotationY = (atan((l_vRightGazePoint2D[1] -0.5)*l_i32ScreenHeight/l_subjectDistance))*180/PI;
+						l_leftEyeRotationY  = l_rightEyeRotationY;  // we hypothesize that both eyes are going up/down synchronously
+						l_vHeadJoints[3] = -(l_leftEyeRotationY + l_rightEyeRotationY)/2;
 
-                                l_rightEyeRotationX = (atan(((l_vRightGazePoint2D[0] -0.5)*l_i32ScreenWidth - l_i32DistanceInterEye/2)/l_subjectDistance))*180/PI;
-                                l_leftEyeRotationX = l_rightEyeRotationX;
-                                l_vHeadJoints[4] = (l_leftEyeRotationX + l_rightEyeRotationX)/2;
-                                l_vHeadJoints[5] = -l_leftEyeRotationX + l_rightEyeRotationX;
-                            }
-                            else if(l_rightValidity == 4) // left eye is valid
-                            {
-                                l_subjectDistance = l_vLeftEyePosition3D[2];
+						l_rightEyeRotationX = (atan(((l_vRightGazePoint2D[0] -0.5)*l_i32ScreenWidth - l_i32DistanceInterEye/2)/l_subjectDistance))*180/PI;
+						l_leftEyeRotationX = l_rightEyeRotationX;
+						l_vHeadJoints[4] = (l_leftEyeRotationX + l_rightEyeRotationX)/2;
+						l_vHeadJoints[5] = -l_leftEyeRotationX + l_rightEyeRotationX;
+					}
+					else if(l_rightValidity == 4) // left eye is valid
+					{
+						l_subjectDistance = l_vLeftEyePosition3D[2];
 
-                                l_leftEyeRotationY = (atan(l_vLeftGazePoint2D[1] -0.5) * l_i32ScreenHeight/l_subjectDistance)*180/PI;
-                                l_rightEyeRotationY = l_leftEyeRotationY; // we hypothesize that both eyes are going up/down synchronously
-                                l_vHeadJoints[3] = (l_leftEyeRotationY + l_rightEyeRotationY)/2;
+						l_leftEyeRotationY = (atan(l_vLeftGazePoint2D[1] -0.5) * l_i32ScreenHeight/l_subjectDistance)*180/PI;
+						l_rightEyeRotationY = l_leftEyeRotationY; // we hypothesize that both eyes are going up/down synchronously
+						l_vHeadJoints[3] = -(l_leftEyeRotationY + l_rightEyeRotationY)/2;
 
-                                l_rightEyeRotationX = (atan(((l_vLeftGazePoint2D[0]-.5)*l_i32ScreenWidth-l_i32DistanceInterEye/2)/l_subjectDistance))*180/PI;
-                                l_leftEyeRotationX = (atan(((l_vLeftGazePoint2D[0]-.5)*l_i32ScreenWidth+l_i32DistanceInterEye/2)/l_subjectDistance))*180/PI;
-                                l_vHeadJoints[4] = (l_leftEyeRotationX + l_rightEyeRotationX)/2;
-                                l_vHeadJoints[5] = -l_leftEyeRotationX + l_rightEyeRotationX;
-                            }
-                            else //Both eyes are valid - use the average of values
-                            {
-                                l_subjectDistance = (l_vLeftEyePosition3D[2] +  l_vRightEyePosition3D[2])/2;
+						l_rightEyeRotationX = (atan(((l_vLeftGazePoint2D[0]-.5)*l_i32ScreenWidth-l_i32DistanceInterEye/2)/l_subjectDistance))*180/PI;
+						l_leftEyeRotationX = (atan(((l_vLeftGazePoint2D[0]-.5)*l_i32ScreenWidth+l_i32DistanceInterEye/2)/l_subjectDistance))*180/PI;
+						l_vHeadJoints[4] = (l_leftEyeRotationX + l_rightEyeRotationX)/2;
+						l_vHeadJoints[5] = -l_leftEyeRotationX + l_rightEyeRotationX;
+					}
+					else //Both eyes are valid - use the average of values
+					{
+						l_subjectDistance = (l_vLeftEyePosition3D[2] +  l_vRightEyePosition3D[2])/2;
 
-                                l_leftEyeRotationY = (atan((l_vLeftGazePoint2D[1]-.5)*l_i32ScreenHeight/l_subjectDistance))*180/PI;
-                                l_rightEyeRotationY = (atan((l_vRightGazePoint2D[1]-.5)*l_i32ScreenHeight/l_subjectDistance))*180/PI;
-                                l_vHeadJoints[3] = (l_leftEyeRotationY + l_rightEyeRotationY)/2;
+						l_leftEyeRotationY = (atan((l_vLeftGazePoint2D[1]-.5)*l_i32ScreenHeight/l_subjectDistance))*180/PI;
+						l_rightEyeRotationY = (atan((l_vRightGazePoint2D[1]-.5)*l_i32ScreenHeight/l_subjectDistance))*180/PI;
+						l_vHeadJoints[3] = -(l_leftEyeRotationY + l_rightEyeRotationY)/2;
 
-                                l_rightEyeRotationX = (atan(((l_vRightGazePoint2D[0]-.5)*l_i32ScreenWidth-l_i32DistanceInterEye/2)/l_subjectDistance))*180/PI;
-                                l_leftEyeRotationX = (atan(((l_vLeftGazePoint2D[0]-.5)*l_i32ScreenWidth+l_i32DistanceInterEye/2)/l_subjectDistance))*180/PI;
-                                l_vHeadJoints[4] = (l_leftEyeRotationX + l_rightEyeRotationX)/2;
-                                l_vHeadJoints[5] = -l_leftEyeRotationX + l_rightEyeRotationX;
-                            }
+						l_rightEyeRotationX = (atan(((l_vRightGazePoint2D[0]-.5)*l_i32ScreenWidth-l_i32DistanceInterEye/2)/l_subjectDistance))*180/PI;
+						l_leftEyeRotationX = (atan(((l_vLeftGazePoint2D[0]-.5)*l_i32ScreenWidth+l_i32DistanceInterEye/2)/l_subjectDistance))*180/PI;
+						l_vHeadJoints[4] = (l_leftEyeRotationX + l_rightEyeRotationX)/2;
+						l_vHeadJoints[5] = -l_leftEyeRotationX + l_rightEyeRotationX;
+					}
+				
+				// eye closure
+				Bottle &l_oFaceMotionBottle = m_oFaceHandlerPort.prepare();
+				l_oFaceMotionBottle.clear();
+				double l_dLeftEyeClosure = l_pGazeTarget->get(8).asDouble(), l_dRightEyeClosure = l_pGazeTarget->get(13).asDouble();
+				l_oFaceMotionBottle.addString(eyesOpeningCode(1.0, m_dMinEyelids, m_dMaxEyelids).c_str());
+				m_oFaceHandlerPort.write();
+					
+			}
                     }
                     break;
                     case swTracking::COREDATA_LIB :
