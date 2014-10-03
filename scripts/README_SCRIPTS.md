@@ -23,7 +23,7 @@ This README is only for Windows 7, others Windows have not been tested.
 
  * Checkout of the git repository...
 
- * Install the [swooz-3rdparty installer](https://mega.co.nz/#!uBFXASIA!OYLLWZji6aiUiMYuRuky_I19OU9cJXKg1o32EziN05U) in the swooz directory
+ * Install the [swooz-3rdparty installer](https://mega.co.nz/#!jM1QDIQI!K7eaQ0bLk7--PscWxjgZgtDaUx29udqO9GGrCO2m_78) in the swooz directory
 
  * Perl is needed for launching the scripts, you can install this perl distribution : http://strawberryperl.com/
 
