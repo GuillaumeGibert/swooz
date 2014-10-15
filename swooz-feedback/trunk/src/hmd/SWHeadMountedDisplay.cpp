@@ -45,7 +45,7 @@ class SWHeadMountedDisplay: public RFModule
 
         double getPeriod()
         {
-            return 1.0f/m_i32Fps;
+            return 1.0/m_i32Fps;
         }
 
         bool updateModule()
