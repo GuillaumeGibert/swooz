@@ -65,8 +65,8 @@ SWFaceDetection::SWFaceDetection(const cv::Size &oMinDetectFaceSize, const cv::S
         std::string l_sCascadeNoseFile  = "../data/classifier/haarcascade_mcs_nose.xml";
 
     // set sizes for the nose
-        m_oMinDetectNoseSize = cv::Size(30,30);
-        m_oMaxDetectNoseSize = cv::Size(100,100);
+        m_oMinDetectNoseSize = cv::Size(40,40);
+        m_oMaxDetectNoseSize = cv::Size(80,80);
 
     if(m_bVerbose)
     {
@@ -320,8 +320,8 @@ cv::Point3f SWFaceDetection::computeNoseTip(cv::Mat &oMatDepth, int &idX, int &i
         l_i32SumJJ += l_oMinPoints[ii].jj;
     }
 
-    l_i32SumII /= l_oMinPoints.size();
-    l_i32SumJJ /= l_oMinPoints.size();
+    l_i32SumII /= static_cast<int>(l_oMinPoints.size());
+    l_i32SumJJ /= static_cast<int>(l_oMinPoints.size());
 
 
     idY = l_i32SumII;

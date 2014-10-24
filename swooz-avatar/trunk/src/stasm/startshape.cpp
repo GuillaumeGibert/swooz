@@ -157,7 +157,7 @@ char s[SLEN]; sprintf(s, "^%s$", sGetBase(sImage));
 
 StasmVec v = FindMatInFile(sShapeFile, psImageDirs, s, DetAttr, DetAttr);
 
-int nelems = v.nelems();
+int nelems = static_cast<int>(v.nelems());
 if (nelems == 0)
     return false;
 
@@ -440,7 +440,7 @@ else    // MeanShape.nrows() > PrevShape.nrows()
     SHAPE Combined(PrevShape);
     Combined.dimKeep(MeanShape.nrows(), 2);
     AlignShape(StartShape, Combined);
-    const int nRows = PrevShape.nrows();
+    const int nRows = static_cast<int>(PrevShape.nrows());
     for (unsigned iRow = 0; iRow < unsigned(nRows); iRow++)
         if (fPointUsed(StartShape, iRow))
             StartShape.row(iRow) = PrevShape.row(iRow);

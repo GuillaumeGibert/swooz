@@ -44,7 +44,8 @@ extern "C" {
     
 static int nGetProfWidthFromModel (int iPoint, const ASM_LEVEL_DATA &AsmLev)
 {
-	return nGetProfWidth(AsmLev.Profs[iPoint].ncols(), AsmLev.ProfSpecs[iPoint]);
+
+    return nGetProfWidth(static_cast<int>(AsmLev.Profs[iPoint].ncols()), AsmLev.ProfSpecs[iPoint]);
 }
 
 
@@ -138,7 +139,7 @@ static int GetSuggestedShape (
 {
 	int nGoodLandmarks = 0;
 	int ixBest, iyBest;
-	int nPoints = SuggestedShape.nrows();
+    int nPoints = static_cast<int>(SuggestedShape.nrows());
 
 	for (int iPoint = 0; iPoint < nPoints; iPoint++)
 	{
@@ -198,7 +199,7 @@ static int GetSuggestedShape (
 
 	StasmVec b(Model.EigVecs.nrows());
 
-	int nPoints = Shape.nrows();
+    int nPoints = static_cast<int>(Shape.nrows());
 
 	while ((iter < Model.AsmLevs[iLev].nMaxSearchIters) &&
 	(nGoodLandmarks <= (Model.AsmLevs[iLev].nQualifyingDisp * nPoints)/100))

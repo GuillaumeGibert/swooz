@@ -30,6 +30,8 @@
 // threads in a 2D block is BLOCK_SIZE*BLOCK_SIZE
 #define BLOCK_SIZE 16
 
+static bool m_cudaInitialized = false;
+
 namespace registration
 {
     typedef struct {

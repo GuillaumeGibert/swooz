@@ -79,6 +79,8 @@ class SWFastrakTracking : public yarp::os::RFModule
         //yarp ports and bottle
         std::string m_trackerPortName;
         yarp::os::BufferedPort<yarp::os::Bottle> m_trackerPort;
+
+        int m_fps;   /**< refresh rate of updateModule calling */
 };
 
 #endif // SWFASTRAKTRACKING_H

@@ -11,6 +11,7 @@ our $PThird_party  = $PBase . "swooz-3rdparty/";
 
 $ENV{PATH} ="";
 
+$ENV{PATH} = $PBase . "dist/" . $ENV{PATH};
 $ENV{PATH} = $PThird_party . "ace/ace-6.1.0/bin;" . $ENV{PATH};
 $ENV{PATH} = $PThird_party . "gtk/bin;" . $ENV{PATH};
 $ENV{PATH} = $PThird_party . "opencv/opencv-2.49/build/bin/Release;" . $ENV{PATH};

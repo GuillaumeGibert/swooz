@@ -114,7 +114,7 @@ int swAnimation::SWMod::nbTransformations() const
 {
     if(m_vtx.size() > 0)
     {
-        return m_vtx[0].size();
+        return static_cast<int>(m_vtx[0].size());
     }
     else
     {
@@ -332,7 +332,7 @@ void swAnimation::SWAnimation::constructCorrId(cbool applyTransfo)
 
         float l_zMax = -FLT_MAX;
         int l_idZMax = 0;
-        for(int ii = 0; ii < l_originalCloud.size(); ++ii)
+        for(uint ii = 0; ii < l_originalCloud.size(); ++ii)
         {
             if(l_originalCloud.coord(2)[ii] > l_zMax)
             {
@@ -348,7 +348,7 @@ void swAnimation::SWAnimation::constructCorrId(cbool applyTransfo)
 
         l_zMax = -FLT_MAX;
         l_idZMax = 0;
-        for(int ii = 0; ii < l_testCloud.size(); ++ii)
+        for(uint ii = 0; ii < l_testCloud.size(); ++ii)
         {
             if(l_testCloud.coord(2)[ii] > l_zMax)
             {
@@ -401,7 +401,7 @@ bool swAnimation::SWAnimation::retrieveTransfosToApply(int numLine ,QVector<floa
         transfoY.push_back(0.f);
         transfoZ.push_back(0.f);
 
-        for(int jj = 0; jj < m_animationMod.m_vtx[0].size(); ++jj)
+        for(uint jj = 0; jj < m_animationMod.m_vtx[0].size(); ++jj)
         {
             transfoX.last() += (m_animationMod.m_vtx[m_idCorr[ii]][jj]* m_animationSeq.m_transFactors[numLine][jj])/40.f;
             transfoY.last() += (m_animationMod.m_vty[m_idCorr[ii]][jj]* m_animationSeq.m_transFactors[numLine][jj])/40.f;
@@ -421,7 +421,7 @@ bool swAnimation::SWAnimation::retrieveTransfosToApply(int numLine ,QVector<floa
 
 void swAnimation::SWAnimation::transformMeshWithCorrId(cuint transformationId, swMesh::SWMesh &mesh)
 {
-    for(int ii = 0; ii < mesh.pointsNumber(); ++ii)
+    for(uint ii = 0; ii < mesh.pointsNumber(); ++ii)
     {
         mesh.cloud()->coord(0)[ii] *= (1.f/m_scaleToApply);
         mesh.cloud()->coord(1)[ii] *= (1.f/m_scaleToApply);

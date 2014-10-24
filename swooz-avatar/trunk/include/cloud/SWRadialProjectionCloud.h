@@ -1104,7 +1104,7 @@ namespace swCloud
 
             float l_zMax = -FLT_MAX;
             int l_idZMax = 0;
-            for(int ii = 0; ii < oResultMesh.pointsNumber(); ++ii)
+            for(uint ii = 0; ii < oResultMesh.pointsNumber(); ++ii)
             {
                 if(oResultMesh.cloud()->coord(2)[ii] > l_zMax)
                 {

@@ -212,7 +212,7 @@ DiscardShapesWithDifferentNbrOfPoints (vec_SHAPE &Shapes,    // io: updated
                                        int nWantedPoints)
 {
 unsigned iShape1 = 0;
-unsigned nShapes = Tags.size();
+unsigned nShapes = static_cast<int>(Tags.size());
 
 ASSERT(Shapes.size() == nShapes);
 

@@ -7,13 +7,15 @@
 using namespace std;
 
 
+#pragma warning (disable : 4996) // to remove fopen warning
+
 bool CRTree::loadTree(const char* filename) {
 
 	cout << "Load Tree (BIN) " << filename << " " << flush;
 	int dummy;
 	bool success = true;
 
-	FILE* fp = fopen(filename,"rb");
+    FILE* fp = fopen(filename,"rb");
 
 	if(!fp){
 		cout << "failed" << endl;

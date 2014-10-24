@@ -28,7 +28,7 @@ CheckConfFileHeader (const char sMagic[], const char sFile[], FILE *pFile) // in
 char s[SLEN];
 Fgets(s, SLEN-1, pFile);
 
-int n = strlen(sMagic);
+int n = static_cast<int>(strlen(sMagic));
 if (strncmp(s, sMagic, n) != 0) // check CONF file magic number
     {
     // truncate s at the first white space or after 20 chars

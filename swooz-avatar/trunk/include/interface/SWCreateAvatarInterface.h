@@ -205,7 +205,6 @@ class SWCreateAvatarInterface : public QMainWindow
 
         // cloud
         int m_i32NumCloud;                      /**< current cloud number */
-        swCloud::SWCloud *m_pCloudToDisplay;    /**< cloud to be displayed in the gl cloud widget */
 
         // detection
         cv::Rect m_oFaceRect;                   /**< face detection rectangle */

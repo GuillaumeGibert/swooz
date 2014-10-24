@@ -53,9 +53,16 @@ using namespace std;
 void initCuda()
 {    
 	// init CUDA
-//    CUT_DEVICE_INIT(param.argc, param.argv);
+    printf("Init CUDA. \n");
     cudaSetDevice(0);
     cudaFree(0);
+
+    cublasInit();
+}
+
+void closeCuda()
+{
+    cublasShutdown();
 }
 
 
@@ -258,6 +265,12 @@ bool emicp(int Xsize, int Ysize,
 	   float* h_R, float* h_t, 
 	   registration::registrationParameters param)	   
 {    
+    if(!m_cudaInitialized)
+    {
+        initCuda();
+        m_cudaInitialized = true;
+    }
+
 	// initialize parameters
 	bool l_bNoError    = true;
 	float sigma_p2 	   = param.sigma_p2;
@@ -400,7 +413,7 @@ bool emicp(int Xsize, int Ysize,
 	//
 	// initializing cublas
 	//
-	cublasInit();
+//    cublasInit();
 
 	// EM-ICP main loop
 	int Titer = 1;
@@ -702,7 +715,8 @@ bool emicp(int Xsize, int Ysize,
 	}
 	
 
-	cublasShutdown();
+
+//    cublasShutdown();
 
 	CUDA_SAFE_CALL(cudaFree(d_X));
 	CUDA_SAFE_CALL(cudaFree(d_Y));
@@ -736,81 +750,333 @@ bool emicp(int Xsize, int Ysize,
 }
 
 
-//// TEST CUDA FUNCTIONS
+//bool emicp2(int Xsize, int Ysize, const float* h_X,const float* h_Y,float* h_R, float* h_t, registration::registrationParameters param)
+//{
+//    if(!m_cudaInitialized)
+//    {
+//        initCuda();
+//        m_cudaInitialized = true;
+//    }
 
-#define LINEAR_BLOCK_SIZE 512
-#define IDC2D(i, j, ld)(((j)*(ld))+(i))
+//    // initialize parameters
+//    bool l_bNoError    = true;
+//    float sigma_p2 	   = param.sigma_p2;
+//    float sigma_inf    = param.sigma_inf;
+//    float sigma_factor = param.sigma_factor;
+//    float d_02         = param.d_02;
 
-// Gauss-Jordan elimination row switching kernel code.
-__global__ void switchRows( float *matrix,float *result, int index, int rowToSwitch, int lda )
-{
-    int y = threadIdx.y + LINEAR_BLOCK_SIZE * blockIdx.y;
-    float tmp_m, tmp_r;
-    if ( y < lda )
-    {
-        tmp_m = matrix[ IDC2D( index, y, lda ) ];
-        matrix[ IDC2D( index, y, lda ) ] = matrix[ IDC2D( rowToSwitch, y, lda ) ];
-        matrix[ IDC2D( rowToSwitch, y, lda ) ] = tmp_m;
-        tmp_r = result[ IDC2D( index, y, lda ) ];
-        result[ IDC2D( index, y, lda ) ] = result[ IDC2D( rowToSwitch, y, lda ) ];
-        result[ IDC2D( rowToSwitch, y, lda ) ] = tmp_r;
-    }
-}
+//    // memory allocation
+//    #define memCUDA(var,num)						\
+//        float* d_ ## var; CUDA_SAFE_CALL(cudaMalloc((void**) &(d_ ## var), sizeof(float)*num));
+//    #define memHostToCUDA(var,num)						\
+//        float* d_ ## var; CUDA_SAFE_CALL(cudaMalloc((void**) &(d_ ## var), sizeof(float)*num)); \
+//        CUDA_SAFE_CALL(cudaMemcpy(d_ ## var, h_ ## var, sizeof(float)*num, cudaMemcpyHostToDevice));
 
-// Gauss-Jordan elimination pivot row normalization kernel code
-__global__ void normalizePivotRow( float *matrix, float *result, int index, int lda )
-{
-    // Position of each thread inside the block
-    int ty = threadIdx.y;
-    // Position of each thread inside the matrix
-    int y = ty + LINEAR_BLOCK_SIZE * blockIdx.y;
-    // Pivot value of the row
-    __shared__ float pivotValue;
-    if ( y < lda )
-    {
-        if ( ty == 0 )
-        // First thread of each block loads pivotValue
-            pivotValue = matrix[ IDC2D( index, index, lda) ];
-        __syncthreads();
+//    memHostToCUDA(X, Xsize*3);
+//    float* d_Xx = &d_X[Xsize*0];
+//    float* d_Xy = &d_X[Xsize*1];
+//    float* d_Xz = &d_X[Xsize*2];
 
-        // Every thread divides the element of its position by pivotValue
-        matrix[ IDC2D( index, y, lda )] /= pivotValue;
-        result[ IDC2D( index, y, lda )] /= pivotValue;
-    }
-}
+//    memHostToCUDA(Y, Ysize*3);
+//    float* d_Yx = &d_Y[Ysize*0];
+//    float* d_Yy = &d_Y[Ysize*1];
+//    float* d_Yz = &d_Y[Ysize*2];
 
-// Gauss-Jordan elimination zero-maker kernel code.
-__global__ void linearMge( float *matrix, float *result, int index, int lda )
-{
-    int ty = threadIdx.y;
-    int x = blockIdx.x;
-    int y = ty + blockIdx.y * LINEAR_BLOCK_SIZE;
-    __shared__ float multColumn[ LINEAR_BLOCK_SIZE ];
-    __shared__ float matrixPivotValue;
-    __shared__ float matrixRow[ LINEAR_BLOCK_SIZE ];
-    __shared__ float resultPivotValue;
-    __shared__ float resultRow[ LINEAR_BLOCK_SIZE];
-    float newMatrixValue; float newResultValue;
-    if ( y < lda )
-    {
-        // Each block loads the value of the pivot Row to be substracted
-        if ( ty == 0 )
-        {
-            matrixPivotValue = matrix[ IDC2D( index, x, lda )];
-            resultPivotValue = result[ IDC2D( index, x, lda )];
-        }
-        multColumn[ ty ] = matrix[ IDC2D( y, index, lda )];
-        matrixRow[ ty ] = matrix[ IDC2D( y, x, lda )];
-        resultRow[ ty ] = result[ IDC2D( y, x, lda )];
-        __syncthreads();
+//    memCUDA(Xprime, Ysize*3);
+//    float *d_XprimeX = &d_Xprime[Ysize*0];
+//    float *d_XprimeY = &d_Xprime[Ysize*1];
+//    float *d_XprimeZ = &d_Xprime[Ysize*2];
 
-        if ( y!= index )
-        {
-            newMatrixValue = matrixRow[ty] - multColumn[ty] * matrixPivotValue;
-            newResultValue = resultRow[ty] - multColumn[ty] * resultPivotValue;
-            // Copy to the matrix
-            matrix[ IDC2D( y, x, lda) ] = newMatrixValue;
-            result[ IDC2D( y, x, lda) ] = newResultValue;
-        }
-    }
-}
+//    float *d_XprimeCenterd = d_Xprime;
+//    float *d_XprimeCenterdX = &d_XprimeCenterd[Ysize*0];
+//    float *d_XprimeCenterdY = &d_XprimeCenterd[Ysize*1];
+//    float *d_XprimeCenterdZ = &d_XprimeCenterd[Ysize*2];
+
+//    memCUDA(YCenterd, Ysize*3);
+//    float *d_YCenterdX = &d_YCenterd[Ysize*0];
+//    float *d_YCenterdY = &d_YCenterd[Ysize*1];
+//    float *d_YCenterdZ = &d_YCenterd[Ysize*2];
+
+//    // center of X, Y
+//    float h_Xc[3], h_Yc[3];
+//    memCUDA(Xc, 3);
+//    memCUDA(Yc, 3);
+
+//    // R, t
+//    memHostToCUDA(R, 3*3);
+//    memHostToCUDA(t, 3);
+
+//    // S for finding R, t
+//    float h_S[9];
+//    memCUDA(S, 9);
+
+//    // NOTESTASM on matrix A
+//    // number of rows:     Ysize, or rowsA
+//    // number of columns : Xsize, or colsA
+//    //
+//    //                    [0th in X] [1st]  ... [(Xsize-1)]
+//    // [0th point in Y] [ A(0,0)     A(0,1) ... A(0,Xsize-1)      ]
+//    // [1st           ] [ A(1,0)     A(1,1) ...                   ]
+//    // ...              [ ...                                     ]
+//    // [(Ysize-1)     ] [ A(Ysize-1, 0)     ... A(Ysize-1,Xsize-1)]
+//    //
+//    //
+//    // CAUTION on matrix A
+//    // A is allcoated as a column-maijor format for the use of cublas.
+//    // This means that you must acces an element at row r and column c as:
+//    // A(r,c) = A[c * pitchA + r]
+//    int rowsA = Ysize;
+//    int colsA = Xsize;
+
+//    // pitchA: leading dimension of A, which is ideally equal to rowsA,
+//    //          but actually larger than that.
+//    int pitchA = (rowsA / 4 + 1) * 4;
+
+//    memCUDA(A, pitchA*colsA);
+
+//    // a vector with all elements of 1.0f
+//    float* h_one = new float [max(Xsize,Ysize)];
+//    for(int t = 0; t < max(Xsize,Ysize); t++) h_one[t] = 1.0f;
+//    memHostToCUDA(one, max(Xsize,Ysize));
+
+//    memCUDA(sumOfMRow, rowsA);
+//    memCUDA(C, rowsA); // sum of a row in A
+//    memCUDA(lambda, rowsA); // weight of a row in A
+
+//    // threads
+//    //  for 2D block
+//    dim3 dimBlockForA(BLOCK_SIZE, BLOCK_SIZE); // a block is (BLOCK_SIZE*BLOCK_SIZE) threads
+//    dim3 dimGridForA( (pitchA + dimBlockForA.x - 1) / dimBlockForA.x,
+//            (colsA  + dimBlockForA.y - 1) / dimBlockForA.y);
+//    //  for 1D block
+//    int threadsPerBlockForYsize = 512; // a block is 512 threads
+//    int blocksPerGridForYsize = (Ysize + threadsPerBlockForYsize - 1 ) / threadsPerBlockForYsize;
+
+//    CUDA_SAFE_CALL( cudaThreadSynchronize() );
+
+//    // EM-ICP main loop
+//    int Titer = 1;
+
+//    while(sigma_p2 > sigma_inf)
+//    {
+//        Titer++;
+
+//        // UpdateA
+//        updateA <<< dimGridForA, dimBlockForA >>>(rowsA, colsA, pitchA,d_Xx, d_Xy, d_Xz, d_Yx, d_Yy, d_Yz,
+//            d_R, d_t,d_A, sigma_p2);
+
+//        //
+//        // Normalization of A
+//        //
+//        // cublasSgemv (char trans, int m, int n, float alpha, const float *A, int lda,
+//        //              const float *x, int incx, float beta, float *y, int incy)
+//        //    y = alpha * op(A) * x + beta * y,
+
+//        // A * one vector = vector with elements of row-wise sum
+//        //     d_A      *    d_one    =>  d_C
+//        //(rowsA*colsA) *  (colsA*1)  =  (rowsA*1)
+//        cublasSgemv('n',          // char trans
+//              rowsA, colsA, // int m (rows of A), n (cols of A) ; not op(A)
+//              1.0f,         // float alpha
+//              d_A, pitchA,  // const float *A, int lda
+//              d_one, 1,     // const float *x, int incx
+//              0.0f,         // float beta
+//              d_C, 1);      // float *y, int incy
+
+//        if(cublasGetError() != CUBLAS_STATUS_SUCCESS)
+//        {
+//            l_bNoError = false;
+//            fprintf(stderr,"CUDA ERROR !\n");
+//        }
+
+//        // alpha * x + y => y
+//        // exp(-d_0^2/sigma_p2) * d_one + d_C => d_C
+//        cublasSaxpy(rowsA, expf(-d_02/sigma_p2), d_one, 1, d_C, 1);
+
+//        if(cublasGetError() != CUBLAS_STATUS_SUCCESS)
+//        {
+//            l_bNoError = false;
+//            fprintf(stderr,"CUDA ERROR !\n");
+//        }
+
+//        normalizeRowsOfA <<< dimGridForA, dimBlockForA >>> (rowsA, colsA, pitchA, d_A, d_C);
+
+//        //
+//        // update R,T
+//        // compute lambda
+//        // A * one vector = vector with elements of row-wise sum
+//        //     d_A      *    d_one    =>  d_lambda
+//        //(rowsA*colsA) *  (colsA*1)  =  (rowsA*1)
+//        cublasSgemv('n',          // char trans
+//              rowsA, colsA, // int m (rows of A), n (cols of A) ; not op(A)
+//              1.0f,         // float alpha
+//              d_A, pitchA,  // const float *A, int lda
+//              d_one, 1,     // const float *x, int incx
+//              0.0f,         // float beta
+//              d_lambda, 1); // float *y, int incy
+
+//        if(cublasGetError() != CUBLAS_STATUS_SUCCESS)
+//        {
+//            l_bNoError = false;
+//            fprintf(stderr,"CUDA ERROR !\n");
+//        }
+
+//        float sumLambda = cublasSasum (rowsA, d_lambda, 1);
+
+//        // compute X'
+//        // cublasSgemm (char transa, char transb, int m, int n, int k, float alpha,
+//        //              const float *A, int lda, const float *B, int ldb, float beta,
+//        //              float *C, int ldc)
+//        //   C = alpha * op(A) * op(B) + beta * C,
+//        //
+//        // m      number of rows of matrix op(A) and rows of matrix C
+//        // n      number of columns of matrix op(B) and number of columns of C
+//        // k      number of columns of matrix op(A) and number of rows of op(B)
+
+//        // A * X => X'
+//        //     d_A      *    d_X    =>  d_Xprime
+//        //(rowsA*colsA) *  (colsA*3)  =  (rowsA*3)
+//        //   m  * k           k * n        m * n
+//        cublasSgemm('n', 'n', rowsA, 3, colsA, 1.0f, d_A, pitchA, d_X, colsA, 0.0f, d_Xprime, rowsA);
+
+//        if(cublasGetError() != CUBLAS_STATUS_SUCCESS)
+//        {
+//            l_bNoError = false;
+//            fprintf(stderr,"CUDA ERROR !\n");
+//        }
+
+//        // X' ./ lambda => X'
+//        elementwiseDivision <<< blocksPerGridForYsize, threadsPerBlockForYsize>>>(rowsA, d_XprimeX, d_XprimeY, d_XprimeZ, d_lambda);
+
+//        //
+//        // centering X' and Y
+//        //
+
+//        // find weighted center of X' and Y
+//        // d_Xprime^T *    d_lambda     =>   h_Xc
+//        //  (3 * rowsA)   (rowsA * 1)  =  (3 * 1)
+//        cublasSgemv('t',          // char trans
+//              rowsA, 3,     // int m (rows of A), n (cols of A) ; not op(A)
+//              1.0f,         // float alpha
+//              d_Xprime, rowsA,  // const float *A, int lda
+//              d_lambda, 1,     // const float *x, int incx
+//              0.0f,         // float beta
+//              d_Xc, 1);     // float *y, int incy
+
+//        if(cublasGetError() != CUBLAS_STATUS_SUCCESS)
+//        {
+//            fprintf(stderr,"CUDA ERROR !\n");
+//            l_bNoError = false;
+//        }
+
+//        // d_Y^T *    d_lambda     =>   h_Yc
+//        //  (3 * rowsA)   (rowsA * 1)  =  (3 * 1)
+//        cublasSgemv('t',          // char trans
+//              rowsA, 3,     // int m (rows of A), n (cols of A) ; not op(A)
+//              1.0f,         // float alpha
+//              d_Y, rowsA,  // const float *A, int lda
+//              d_lambda, 1,     // const float *x, int incx
+//              0.0f,         // float beta
+//              d_Yc, 1);     // float *y, int incy
+
+//        if(cublasGetError() != CUBLAS_STATUS_SUCCESS)
+//        {
+//            fprintf(stderr,"CUDA ERROR !\n");
+//            l_bNoError = false;
+//        }
+
+//        // void cublasSscal (int n, float alpha, float *x, int incx)
+//        // it replaces x[ix + i * incx] with alpha * x[ix + i * incx]
+//        cublasSscal (3, 1/sumLambda, d_Xc, 1);
+
+//        if(cublasGetError() != CUBLAS_STATUS_SUCCESS)
+//        {
+//            fprintf(stderr,"CUDA ERROR !\n");
+//            l_bNoError = false;
+//        }
+
+//        cublasSscal (3, 1/sumLambda, d_Yc, 1);
+
+//        if(cublasGetError() != CUBLAS_STATUS_SUCCESS)
+//        {
+//            l_bNoError = false;
+//        }
+
+//        CUDA_SAFE_CALL(cudaMemcpy(h_Xc, d_Xc, sizeof(float)*3, cudaMemcpyDeviceToHost));
+//        CUDA_SAFE_CALL(cudaMemcpy(h_Yc, d_Yc, sizeof(float)*3, cudaMemcpyDeviceToHost));
+
+//        // centering X and Y
+//        // d_Xprime .- d_Xc => d_XprimeCenterd
+//        // d_Y      .- d_Yc => d_YCenterd
+//        centeringXandY
+//            <<< blocksPerGridForYsize, threadsPerBlockForYsize>>>
+//                (rowsA,
+//                 d_Xc, d_Yc,
+//                 d_XprimeX, d_XprimeY, d_XprimeZ,
+//                 d_Yx, d_Yy, d_Yz,
+//                 d_XprimeCenterdX, d_XprimeCenterdY, d_XprimeCenterdZ,
+//                 d_YCenterdX, d_YCenterdY, d_YCenterdZ);
+
+
+//        // XprimeCented .* d_lambda => XprimeCented
+//        elementwiseMultiplication
+//            <<< blocksPerGridForYsize, threadsPerBlockForYsize>>>
+//                (rowsA, d_XprimeCenterdX, d_XprimeCenterdY, d_XprimeCenterdZ, d_lambda);
+
+//        // compute S
+//        //  d_XprimeCented^T *   d_YCenterd     =>  d_S
+//        //    (3*rowsA)  *  (rowsA*3)  =  (3*3)
+//        //   m  * k           k * n        m * n
+//        cublasSgemm('t', 'n', 3, 3, rowsA,
+//              1.0f, d_XprimeCenterd, rowsA,
+//              d_YCenterd, rowsA,
+//              0.0f, d_S, 3);
+
+//        if(cublasGetError() != CUBLAS_STATUS_SUCCESS)
+//        {
+//            fprintf(stderr,"CUDA ERROR !\n");
+//            l_bNoError = false;
+//        }
+
+//        CUDA_SAFE_CALL(cudaMemcpy(h_S, d_S, sizeof(float)*9, cudaMemcpyDeviceToHost));
+
+//        // find RT from S
+//        findRTfromS(h_Xc, h_Yc, h_S, h_R, h_t);
+
+//        // copy R,t to device
+//        CUDA_SAFE_CALL(cudaMemcpy(d_R, h_R, sizeof(float)*3*3, cudaMemcpyHostToDevice));
+//        CUDA_SAFE_CALL(cudaMemcpy(d_t, h_t, sizeof(float)*3,   cudaMemcpyHostToDevice));
+//        sigma_p2 *= sigma_factor;
+//    }
+
+//    CUDA_SAFE_CALL( cudaThreadSynchronize() );
+
+//    CUDA_SAFE_CALL(cudaFree(d_X));
+//    CUDA_SAFE_CALL(cudaFree(d_Y));
+//    CUDA_SAFE_CALL(cudaFree(d_Xprime));
+//    CUDA_SAFE_CALL(cudaFree(d_YCenterd));
+//    CUDA_SAFE_CALL(cudaFree(d_Xc));
+//    CUDA_SAFE_CALL(cudaFree(d_Yc));
+
+//    CUDA_SAFE_CALL(cudaFree(d_R));
+//    CUDA_SAFE_CALL(cudaFree(d_t));
+//    CUDA_SAFE_CALL(cudaFree(d_A));
+
+//    CUDA_SAFE_CALL(cudaFree(d_S));
+//    CUDA_SAFE_CALL(cudaFree(d_one));
+//    CUDA_SAFE_CALL(cudaFree(d_sumOfMRow));
+//    CUDA_SAFE_CALL(cudaFree(d_C));
+//    CUDA_SAFE_CALL(cudaFree(d_lambda));
+
+//    if(cudaGetLastError() != CUBLAS_STATUS_SUCCESS)
+//    {
+//        fprintf(stderr,"CUDA ERROR !\n");
+//        l_bNoError = false;
+//    }
+
+
+//    delete [] h_one;
+
+//    return l_bNoError;
+//}
+

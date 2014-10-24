@@ -979,6 +979,58 @@ void SWCloud::erase()
 	m_ui32ArraySize      = 0;
 }
 
+void SWCloud::reduce2(int randomSamplingPercentage)
+{
+    bool *keepPoints = new bool[size()];
+
+    int l_newNbOfPoints = 0;
+    for(uint ii = 0; ii < size(); ++ii)
+    {
+        if(rand()%randomSamplingPercentage == 0)
+        {
+            keepPoints[ii] = true;
+            ++l_newNbOfPoints;
+        }
+        else
+        {
+            keepPoints[ii] = false;
+        }
+    }
+
+    float *l_newCoords = new float[l_newNbOfPoints*3];
+    uint8 *l_newColors = new uint8[l_newNbOfPoints*3];
+
+    uint l_addedPoints = 0;
+
+    // add selected points
+    for(uint ii = 0; ii < m_ui32NumberOfPoints; ++ii)
+    {
+        if(keepPoints[ii])
+        {
+            l_newCoords[l_newNbOfPoints * 0 + l_addedPoints] = coord(0)[ii];
+            l_newCoords[l_newNbOfPoints * 1 + l_addedPoints] = coord(1)[ii];
+            l_newCoords[l_newNbOfPoints * 2 + l_addedPoints] = coord(2)[ii];
+
+            l_newColors[l_newNbOfPoints * 0 + l_addedPoints] = color(0)[ii];
+            l_newColors[l_newNbOfPoints * 1 + l_addedPoints] = color(1)[ii];
+            l_newColors[l_newNbOfPoints * 2 + l_addedPoints] = color(2)[ii];
+
+            l_addedPoints++;
+        }
+    }
+
+    // delete data
+    delete[] m_aFCoords;
+    delete[] m_aUi8Colors;
+    delete[] keepPoints;
+
+    // assign new data
+    m_aFCoords           = l_newCoords;
+    m_aUi8Colors         = l_newColors;
+    m_ui32NumberOfPoints = l_newNbOfPoints;
+    m_ui32ArraySize      = 3*m_ui32NumberOfPoints;
+}
+
 
 bool SWCloud::reduce(float fRandomSamplingPercentage, float fMinDistBeforeReduction)
 {
@@ -1004,11 +1056,11 @@ bool SWCloud::reduce(float fRandomSamplingPercentage, float fMinDistBeforeReduct
 		}
 	}
 	
-	#ifndef WIN32
-		srand48((long)time(NULL));
-	#else
-		// srand((long)time(NULL));
-	#endif
+    #ifndef WIN32
+        srand48((long)time(NULL));
+    #else
+        // srand((long)time(NULL));
+    #endif
 
     int l_i32NumberOfRandomlySampledPoints = 0;
 
@@ -1019,7 +1071,7 @@ bool SWCloud::reduce(float fRandomSamplingPercentage, float fMinDistBeforeReduct
 	{
 		#ifndef WIN32
 
-			if((coord(2)[ii] < l_fMinDist + fMinDistBeforeReduction) || (drand48() < fRandomSamplingPercentage))
+            if((coord(2)[ii] < l_fMinDist + fMinDistBeforeReduction) || (drand48() < fRandomSamplingPercentage))
 			{
 				l_aI32Flag[ii] = 1;
 				l_i32NumberOfRandomlySampledPoints++;
@@ -1066,7 +1118,7 @@ bool SWCloud::reduce(float fRandomSamplingPercentage, float fMinDistBeforeReduct
 
 	// delete data
 	delete[] l_aI32Flag;
-	delete[] m_aFCoords;
+    delete[] m_aFCoords;
 	delete[] m_aUi8Colors;
 	
 	// assign new data
@@ -1140,13 +1192,13 @@ float SWCloud::squareDistanceCloud(const SWCloud &oCloud, cbool bReduce, cfloat 
 	
 	if(bReduce)
 	{
-		l_oCloud.reduce(ui32CoeffReduce);
+        l_oCloud.reduce2(static_cast<int>(ui32CoeffReduce));
 	}
-	
-	for(uint ii = 0; ii < l_oCloud.size(); ++ii)
-	{
-		l_squareDistance += squareDistancePoint(l_oCloud,ii);
-	}
+    #pragma omp parallel for num_threads(4)
+        for(int ii = 0; ii < static_cast<int>(l_oCloud.size()); ++ii)
+        {
+            l_squareDistance += squareDistancePoint(l_oCloud,ii);
+        }
 	
 	return l_squareDistance/l_oCloud.size();
 }

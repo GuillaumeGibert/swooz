@@ -170,7 +170,7 @@ else
 static void GetPrevAndNext (int &iPrev, int &iNext,              // out
                             int iPoint, const SHAPE &Shape)      // in
 {
-const int nPoints = Shape.nrows();
+const int nPoints = static_cast<int>(Shape.nrows());
 iNext = iPoint;
 int nCount = 0; // safety counter, needed if no points are used
 do
@@ -210,9 +210,9 @@ else
     GetPrevAndNext(iPrev, iNext, iPoint, Shape);
     int iPrev1 = iPrev, iNext1 = iNext;   // handle wraparound
     if (iPrev > iPoint)
-        iPrev1 -= Shape.nrows();
+        iPrev1 -= static_cast<int>(Shape.nrows());
     if (iNext < iPoint)
-        iNext1 += Shape.nrows();
+        iNext1 += static_cast<int>(Shape.nrows());
     double ScalePrev = double(iNext1 - iPoint) / (iNext1 - iPrev1);
     double ScaleNext = double(iPoint - iPrev1) / (iNext1 - iPrev1);
     x = ScalePrev * Shape(iPrev, VX) + ScaleNext * Shape(iNext, VX);

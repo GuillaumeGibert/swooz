@@ -20,7 +20,6 @@
 SWCreateAvatarInterface::SWCreateAvatarInterface(QWidget *oQWRelative) : QMainWindow(oQWRelative), m_uiCreateAvatar(new Ui::SWUI_WCreateAvatar),
     m_oTimer(new QBasicTimer), m_bGLFullScreen(false)
 {
-    m_pCloudToDisplay = NULL;
     m_bWorkStarted = false;
     m_bResetKinect = false;
 
@@ -214,9 +213,6 @@ SWCreateAvatarInterface::~SWCreateAvatarInterface()
     // delete worker and ui
         deleteAndNullify(m_WCreateAvatar);
         deleteAndNullify(m_uiCreateAvatar);
-
-    // delete others
-        deleteAndNullify(m_pCloudToDisplay);
 }
 
 void SWCreateAvatarInterface::timerEvent(QTimerEvent *e)
@@ -298,18 +294,25 @@ void SWCreateAvatarInterface::updateDisplay()
             m_CFaceDetectPtr->detectFace(l_oBGRForeGround);
 
         // cloud
-            deleteAndNullify(m_pCloudToDisplay);
-            m_pCloudToDisplay = new swCloud::SWCloud();
+            swCloud::SWCloud *l_pCloudToDisplay = new swCloud::SWCloud();
 
             if(m_CFaceDetectPtr->faceRect().width > 0)
             {
                 cv::Mat l_oFaceCloudMat = l_oCloud(m_CFaceDetectPtr->faceRect());
-                swCloud::convCloudMat2SWCloud(l_oFaceCloudMat, l_oBGR(m_CFaceDetectPtr->faceRect()), *m_pCloudToDisplay,0.f,1.2f);
+                swCloud::convCloudMat2SWCloud(l_oFaceCloudMat, l_oBGR(m_CFaceDetectPtr->faceRect()), *l_pCloudToDisplay,0.f,1.2f);
 
-                if(m_pCloudToDisplay->size() > 0)
+                if(l_pCloudToDisplay->size() > 0)
                 {
-                    m_WCloudGL->setCloud(m_pCloudToDisplay);
+                    m_WCloudGL->setCloud(l_pCloudToDisplay);
                 }
+                else
+                {
+                    deleteAndNullify(l_pCloudToDisplay);
+                }
+            }
+            else
+            {
+                deleteAndNullify(l_pCloudToDisplay);
             }
 
         // display image

@@ -55,7 +55,7 @@ int main(int argc, char* argv[])
 
     float l_zMin = -FLT_MAX;
     int l_idZMax = 0;
-    for(int ii = 0; ii < mesh.pointsNumber(); ++ii)
+    for(uint ii = 0; ii < mesh.pointsNumber(); ++ii)
     {
         if(mesh.cloud()->coord(2)[ii] > l_zMin)
         {

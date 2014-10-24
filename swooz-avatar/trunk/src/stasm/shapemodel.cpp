@@ -42,7 +42,7 @@ return x != 0 || y != 0;
 
 void JitterPoints (SHAPE &Shape)  // io
 {
-const int nPoints = Shape.nrows();
+const int nPoints = static_cast<int>(Shape.nrows());
 
 for (int i = 0; i < nPoints; i++)
     if (!fPointUsed(Shape, i))
@@ -88,7 +88,7 @@ ASSERT(Shape.ncols() == 2);
 ASSERT(TransformMat.ncols() == 3 || TransformMat.nrows() == 2);
 
 SHAPE OutShape(Shape);
-int iRow = Shape.nrows();
+int iRow = static_cast<int>(Shape.nrows());
 while (iRow--)
     if (fPointUsed(Shape, iRow))  // points at 0,0 must remain at 0,0
         {
@@ -156,7 +156,7 @@ if (pWeights && pWeights->nrows() == 0)
 if (pWeights)
     ASSERT(Shape.nrows() == pWeights->nelems());
 double X1 = 0, Y1 = 0, X2 = 0, Y2 = 0, W = 0, Z = 0, C1 = 0, C2 = 0;
-int iRow = Shape.nrows();
+int iRow = static_cast<int>(Shape.nrows());
 while (iRow--)
     {
     const double x1 = AnchorShape(iRow, VX);
@@ -218,7 +218,7 @@ CheckSameNbrRows(Shape, AnchorShape, "GetAlignTransform");
 double Sx = 0, Sy = 0, Sxx = 0, Syy = 0, Sxy = 0;
 double SAx = 0, SAy = 0, SAxx = 0, SAyy = 0, SAxy = 0, SAyx = 0;
 
-const int nPoints = Shape.nrows();
+const int nPoints = static_cast<int>(Shape.nrows());
 
 for (int i = 0; i < nPoints; i++)
     {
@@ -249,7 +249,7 @@ for (int i = 0; i < nPoints; i++)
     }
 double AData[] = { Sxx, Sxy, Sx,
                    Sxy, Syy, Sy,
-                   Sx,  Sy,  Shape.nrows() };
+                   Sx,  Sy,  static_cast<int>(Shape.nrows()) };
 
 MatView A(AData, 3, 3, 0);  // 3x3, tda=0
 
@@ -297,7 +297,7 @@ for (iEig = 0; iEig < nPrincipalEigs; iEig++)
     }
 // discard unused higher components
 
-const int nPoints = EigVals.nrows();
+const int nPoints = static_cast<int>(EigVals.nrows());
 
 while (iEig < nPoints)
     b(iEig++) = 0.0;

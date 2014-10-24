@@ -451,7 +451,7 @@ void SWGLMultiObjectWidget::beginAnimation(bool isCloudItem, int indexItem)
 {
     if(isCloudItem)
     {
-        if(indexItem < static_cast<uint>(m_vCloudsParameters.size()))
+        if(indexItem < static_cast<int>(m_vCloudsParameters.size()))
         {
             m_vCloudsParameters[indexItem]->m_animationMutex.lockForWrite();
                 m_vCloudsParameters[indexItem]->m_animationStarted = true;
@@ -460,7 +460,7 @@ void SWGLMultiObjectWidget::beginAnimation(bool isCloudItem, int indexItem)
     }
     else
     {
-        if(indexItem < static_cast<uint>(m_vMeshesParameters.size()))
+        if(indexItem < static_cast<int>(m_vMeshesParameters.size()))
         {
             m_vMeshesParameters[indexItem]->m_animationMutex.lockForWrite();
                 m_vMeshesParameters[indexItem]->m_animationStarted = true;
@@ -498,7 +498,7 @@ void SWGLMultiObjectWidget::setAnimationOffset(SWAnimationSendDataPtr animationS
 
     if(animationSendData->m_isCloud)
     {
-        if(indexItem < static_cast<uint>(m_vCloudsParameters.size()))
+        if(indexItem < static_cast<int>(m_vCloudsParameters.size()))
         {
             m_vCloudsParameters[indexItem]->m_animationMutex.lockForWrite();
                 m_vCloudsParameters[indexItem]->m_animationOffsetsX = animationSendData->m_animationOffsetsX;
@@ -511,7 +511,7 @@ void SWGLMultiObjectWidget::setAnimationOffset(SWAnimationSendDataPtr animationS
     }
     else
     {
-        if(indexItem < static_cast<uint>(m_vMeshesParameters.size()))
+        if(indexItem < static_cast<int>(m_vMeshesParameters.size()))
         {
             m_vMeshesParameters[indexItem]->m_animationMutex.lockForWrite();
                 m_vMeshesParameters[indexItem]->m_animationOffsetsX = animationSendData->m_animationOffsetsX;
@@ -720,7 +720,7 @@ void SWGLMultiObjectWidget::drawMeshes()
 
 //                        qDebug() << "verif :" << l_cloudAnim.coord(0)[352] << " " << l_cloudAnim.coord(1)[352] << " " << l_cloudAnim.coord(2)[352];
 
-                        for(int jj = 0; jj < l_cloudAnim.size(); ++jj)
+                        for(uint jj = 0; jj < l_cloudAnim.size(); ++jj)
                         {
                             l_cloudAnim.coord(0)[jj] += l_animationOffsetsX[jj];
                             l_cloudAnim.coord(1)[jj] += l_animationOffsetsY[jj];
@@ -780,7 +780,7 @@ void SWGLMultiObjectWidget::drawMeshes()
 
                 l_cloudAnim += l_off;
 
-                for(int jj = 0; jj < l_cloudAnim.size(); ++jj)
+                for(uint jj = 0; jj < l_cloudAnim.size(); ++jj)
                 {
                     l_cloudAnim.coord(0)[jj] += l_animationOffsetsX[jj];
                     l_cloudAnim.coord(1)[jj] += l_animationOffsetsY[jj];

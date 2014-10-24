@@ -163,7 +163,7 @@ Init_nEigs_bMax (ASM_MODEL &Asm,            // io
                  int iLev, int f2dProfs,    // in
                  const char sConfFile[])    // in: for error reporting only
 {
-const int nEigsTotal = Asm.EigVecs.nrows();
+const int nEigsTotal = static_cast<int>(Asm.EigVecs.nrows());
 if (iLev)
     {
     Assign_nEigs(Asm.AsmLevs[iLev].nEigs,
@@ -212,7 +212,7 @@ if (CONF_fXm2vts)
     InitLandTab(Asm.nPoints);
 
 if (CONF_nEigs == -1)                       // uses default nEigs?
-    CONF_nEigs = Asm.EigVecs.ncols() / 3;   // just a crude approx to optimimum val
+    CONF_nEigs = static_cast<int>(Asm.EigVecs.ncols()) / 3;   // just a crude approx to optimimum val
 if (CONF_nEigs < 1)
     CONF_nEigs = 1;
 

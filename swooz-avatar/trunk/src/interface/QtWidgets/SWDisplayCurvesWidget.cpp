@@ -11,7 +11,7 @@
 using namespace std;
 
 SWDisplayCurvesWidget::SWDisplayCurvesWidget(QWidget* oParent, const std::vector<std::string> &aSCurvesLabel, QSize &oSize, cfloat fScale, cuint ui32Xtic, cuint ui32YTic, cint i32TaitSize) :
-						   m_ui32NumberOfCurves(aSCurvesLabel.size()), m_oSize(oSize), m_fScaleValue(fScale), m_ui32XTic(ui32Xtic), m_ui32YTic(ui32YTic),
+                           m_ui32NumberOfCurves(static_cast<uint>(aSCurvesLabel.size())), m_oSize(oSize), m_fScaleValue(fScale), m_ui32XTic(ui32Xtic), m_ui32YTic(ui32YTic),
 						   m_i32TraitSize(i32TaitSize)
 {
     // set parameters
@@ -139,7 +139,7 @@ void SWDisplayCurvesWidget::paintEvent(QPaintEvent *)
         }
 
 
-        uint l_ui32LegendTextWidth = m_oSize.width() / m_aLCurvesValues.size();
+        uint l_ui32LegendTextWidth = m_oSize.width() / static_cast<uint>(m_aLCurvesValues.size());
 
         for(uint ii = 0; ii < m_aLCurvesValues.size(); ++ii)
         {

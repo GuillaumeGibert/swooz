@@ -19,7 +19,6 @@
 using namespace swDevice;
 
 
-
 // ############################################# CONSTRUCTORS / DESTRUCTORS
 
 SWCreateAvatar::SWCreateAvatar(cbool bVerbose) : m_bVerbose(bVerbose), m_i32NumCloud(0)
@@ -205,6 +204,11 @@ void SWCreateAvatar::lastRadialProjection(cv::Mat &oFilteredRadialProj) const
 
 bool SWCreateAvatar::addCloudToAvatar(const cv::Mat &oRgb, const cv::Mat &oDepth)
 {
+    clock_t l_timeTraining = clock();
+    std::cout << "1 debug -> " << static_cast<double>((clock() - l_timeTraining)) / CLOCKS_PER_SEC << std::endl;
+
+
+
    // copy input data
        cv::Mat l_oRgb   = oRgb.clone();
        cv::Mat l_oDepth = oDepth.clone();
@@ -215,8 +219,12 @@ bool SWCreateAvatar::addCloudToAvatar(const cv::Mat &oRgb, const cv::Mat &oDepth
            cv::resize(l_oRgb, l_oRgb, cv::Size(l_oDepth.cols,l_oDepth.rows));
        }
 
+
+
    // remove background
        cv::Mat l_oRgbForeGround    = swImage::swUtil::removeBackground(l_oRgb, l_oDepth, m_fRemoveBackGroundDistance);
+
+//       std::cout << "2 debug -> " << static_cast<double>((clock() - l_timeTraining)) / CLOCKS_PER_SEC << std::endl;
 
    // detect face
        if(!m_CFaceDetectPtr->detectFace(l_oRgbForeGround))
@@ -243,9 +251,12 @@ bool SWCreateAvatar::addCloudToAvatar(const cv::Mat &oRgb, const cv::Mat &oDepth
                 m_oLastRectFace.height += (int)(m_oLastRectFace.height *0.1);
         }
 
+//       std::cout << "3 debug -> " << static_cast<double>((clock() - l_timeTraining)) / CLOCKS_PER_SEC << std::endl;
+
     // detect nose
        cv::Rect l_oCurrentNoseRect = m_CFaceDetectPtr->detectNose(l_oRgbForeGround(m_oLastRectFace));
 
+//       std::cout << "4 debug -> " << static_cast<double>((clock() - l_timeTraining)) / CLOCKS_PER_SEC << std::endl;
 
    // compute nose tip
        int l_i32IdNoseX, l_i32IdNoseY;
@@ -267,6 +278,8 @@ bool SWCreateAvatar::addCloudToAvatar(const cv::Mat &oRgb, const cv::Mat &oDepth
             l_oRectangleFromNoseTip.y = m_oLastRectFace.y + l_i32IdNoseY - 50;
        }
 
+//       std::cout << "5 debug -> " << static_cast<double>((clock() - l_timeTraining)) / CLOCKS_PER_SEC << std::endl;
+
        l_oRectangleFromNoseTip.width   = 60;
        l_oRectangleFromNoseTip.height  = 70;
        m_oLastRectNose = l_oRectangleFromNoseTip;
@@ -282,10 +295,14 @@ bool SWCreateAvatar::addCloudToAvatar(const cv::Mat &oRgb, const cv::Mat &oDepth
             m_CStasmDetectPtr->compute3DPoints(l_oDepth, m_vP3FStasm3DPoints);           
         }
 
+//        std::cout << "6 debug -> " << static_cast<double>((clock() - l_timeTraining)) / CLOCKS_PER_SEC << std::endl;
+
     // create cloud
         swCloud::SWCloud l_oFaceCloud, l_oNoseCloud;
         swCloud::convCloudMat2SWCloud(l_oDepth(m_oLastRectFace), l_oRgb(m_oLastRectFace), l_oFaceCloud, l_oNoseTip.z-0.5f, m_fDepthCloud+0.5f);
         swCloud::convCloudMat2SWCloud(l_oDepth(m_oLastRectNose), l_oRgb(m_oLastRectNose), l_oNoseCloud, l_oNoseTip.z-0.5f, m_fDepthCloud+0.5f );
+
+//        std::cout << "7 debug -> " << static_cast<double>((clock() - l_timeTraining)) / CLOCKS_PER_SEC << std::endl;
 
     bool l_bIsLastCloudValid = false;
 
@@ -293,6 +310,8 @@ bool SWCreateAvatar::addCloudToAvatar(const cv::Mat &oRgb, const cv::Mat &oDepth
     {
         // save reference face cloud
             m_oFaceCloudRef.copy(l_oFaceCloud);
+//            m_oFaceCloudRef.reduce2(40);
+
         // save reference nose cloud
             m_oNoseCloudRef.copy(l_oNoseCloud);
         // retrieve face texture
@@ -310,14 +329,25 @@ bool SWCreateAvatar::addCloudToAvatar(const cv::Mat &oRgb, const cv::Mat &oDepth
        else
        {
            // align clouds
+//        std::cout << "7_1 debug -> " << static_cast<double>((clock() - l_timeTraining)) / CLOCKS_PER_SEC << std::endl;
            m_oAlignClouds.setClouds(m_oNoseCloudRef, l_oNoseCloud);
-           m_oAlignClouds.setCloudDownscale(m_fTargetDownScale, m_fTemplateDownScale);
+//        std::cout << "7_2 debug -> " << static_cast<double>((clock() - l_timeTraining)) / CLOCKS_PER_SEC << std::endl;
+//           m_oAlignClouds.setCloudDownscale(m_fTargetDownScale, m_fTemplateDownScale);
+           m_oAlignClouds.setCloudDownscale(40, 40);
+//        std::cout << "7_3 debug -> " << static_cast<double>((clock() - l_timeTraining)) / CLOCKS_PER_SEC << std::endl;
            m_oAlignClouds.alignClouds();
+
+//           std::cout << "8_1 debug -> " << static_cast<double>((clock() - l_timeTraining)) / CLOCKS_PER_SEC << std::endl;
 
            // transform clouds
            m_oAlignClouds.transformedCloud(l_oFaceCloud);
 
-           float l_fScore = m_oFaceCloudRef.squareDistanceCloud(l_oFaceCloud, true, 0.1f);
+//            std::cout << "8_2 debug -> " << static_cast<double>((clock() - l_timeTraining)) / CLOCKS_PER_SEC << std::endl;
+
+//           float l_fScore = m_oFaceCloudRef.squareDistanceCloud(l_oFaceCloud, true, 0.1f);
+           float l_fScore = m_oFaceCloudRef.squareDistanceCloud(l_oFaceCloud, true, 40);
+//           std::cout << "8_3 debug -> " << static_cast<double>((clock() - l_timeTraining)) / CLOCKS_PER_SEC << std::endl;
+
            if(m_bVerbose)
            {
                std::cout << "Score : " << l_fScore << " --- " << m_fDistMaxAlignment << " : " << endl;
@@ -333,19 +363,26 @@ bool SWCreateAvatar::addCloudToAvatar(const cv::Mat &oRgb, const cv::Mat &oDepth
            {
                l_bIsLastCloudValid = true;
            }
+
+//           std::cout << "9_1 debug -> " << static_cast<double>((clock() - l_timeTraining)) / CLOCKS_PER_SEC << std::endl;
        }
 
    // add cloud to the sum of clouds
        if(l_bIsLastCloudValid)
        {
+//           std::cout << "9_2 debug -> " << static_cast<double>((clock() - l_timeTraining)) / CLOCKS_PER_SEC << std::endl;
            m_oAccumulatedFaceClouds += l_oFaceCloud;
+//           std::cout << "9_3 debug -> " << static_cast<double>((clock() - l_timeTraining)) / CLOCKS_PER_SEC << std::endl;
            m_vUi32CloudNumbersOfPoints.push_back(l_oFaceCloud.size());
+//           std::cout << "9_4 debug -> " << static_cast<double>((clock() - l_timeTraining)) / CLOCKS_PER_SEC << std::endl;
 
            if(m_bDetectStasmPoints && m_vStasm3DPoints.size() < 5)
            {
                 m_vStasm3DPoints.push_back(m_vP3FStasm3DPoints);
            }
        }
+
+       std::cout << "10 debug -> " << static_cast<double>((clock() - l_timeTraining)) / CLOCKS_PER_SEC << std::endl;
 
    return true;
 }
@@ -479,8 +516,9 @@ void SWCreateAvatar::constructAvatar()
 }
 
 void SWCreateAvatar::totalCloud(swCloud::SWCloud &oTotalCloud)
-{
+{    
     oTotalCloud.copy(m_oAccumulatedFaceClouds);
+    std::cout << "cloud : " << oTotalCloud.size() << std::endl;
 }
 
 void SWCreateAvatar::lastResultFaceMesh(swMesh::SWMesh &oResultMesh)

@@ -510,7 +510,10 @@ namespace swCloud
 			 * \return true if success, else return false			 
 			 */			
 			bool reduce(float fRandomSamplingPercentage, float fMinDistBeforeReduction = 0);
-		
+
+
+            void reduce2(int randomSamplingPercentage);
+
 			/**
 			 * \brief apply the input transformation to the cloud
 			 * \param [in] m_aFRotationMatrix    : rotation matrix [3x3]

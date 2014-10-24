@@ -16,6 +16,7 @@ using namespace swCloud;
 using namespace swDevice;
 using namespace cv;
 
+#include <time.h>
 
 // ############################################# CONSTRUCTORS / DESTRUCTORS
  
@@ -29,7 +30,7 @@ SWCaptureHeadMotion::SWCaptureHeadMotion(cfloat fAlignmentReducCoeff, cfloat fSc
         m_fDistMax     = 0.00015f;
 
     // init face detection
-        m_CFaceDetectPtr = SWFaceDetectionPtr(new swDetect::SWFaceDetection(Size(80,80),false, std::string("../data/classifier/haarcascade_frontalface_alt.xml")));
+        m_CFaceDetectPtr = SWFaceDetectionPtr(new swDetect::SWFaceDetection(cv::Size(95,95), cv::Size(130,130),false, std::string("../data/classifier/haarcascade_frontalface_alt.xml")));
 }
 
 // ############################################# METHODS
@@ -38,11 +39,13 @@ SWCaptureHeadMotion::SWCaptureHeadMotion(cfloat fAlignmentReducCoeff, cfloat fSc
 int SWCaptureHeadMotion::computeHeadMotion(SWRigidMotion &oHeadRigidMotion, const cv::Mat &oRgb, const cv::Mat &oDepth,
                                            cv::Mat &oDisplayDetectFace, cv::Point3f oNoseTip)
 {
-    // DEBUG
-//        clock_t l_oFirstTime = clock();
+     clock_t l_oFirstTime = clock();
+
 
     cv::Mat l_oRgbForeGround    = swImage::swUtil::removeBackground(oRgb, oDepth, 1.5);//, 5, cv::Vec3b(0,255,0 ));
     oDisplayDetectFace          = l_oRgbForeGround.clone();
+
+    std::cout << "1 -> " << (float)(clock() - l_oFirstTime) / CLOCKS_PER_SEC << std::endl;
 
     // detect face
         if(!m_CFaceDetectPtr->detectFace(l_oRgbForeGround))
@@ -65,10 +68,10 @@ int SWCaptureHeadMotion::computeHeadMotion(SWRigidMotion &oHeadRigidMotion, cons
             m_oLastDetectedRectFace = m_CFaceDetectPtr->faceRect();
         }
 
+    std::cout << "2 -> " << (float)(clock() - l_oFirstTime) / CLOCKS_PER_SEC << std::endl;
 
     // detect nose
        cv::Rect l_oCurrentNoseRect = m_CFaceDetectPtr->detectNose(l_oRgbForeGround(m_oLastDetectedRectFace));
-
 
        // compute nose tip
            int l_i32IdNoseX, l_i32IdNoseY;
@@ -76,10 +79,10 @@ int SWCaptureHeadMotion::computeHeadMotion(SWRigidMotion &oHeadRigidMotion, cons
 
            cv::Rect l_oRectangleFromNoseTip;
 
-           if(l_oCurrentNoseRect.width > 0)
+           if(l_oCurrentNoseRect.width > 0 && (l_oCurrentNoseRect.x + l_oCurrentNoseRect.width  < m_oLastDetectedRectFace.width) &&
+                                              (l_oCurrentNoseRect.y + l_oCurrentNoseRect.height < m_oLastDetectedRectFace.height))
            {
                 l_oNoseTip = m_CFaceDetectPtr->computeNoseTip((oDepth(m_oLastDetectedRectFace))(l_oCurrentNoseRect), l_i32IdNoseX, l_i32IdNoseY);
-
                 l_oRectangleFromNoseTip.x = m_oLastDetectedRectFace.x + l_oCurrentNoseRect.x + l_i32IdNoseX - 30;
                 l_oRectangleFromNoseTip.y = m_oLastDetectedRectFace.y + l_oCurrentNoseRect.y + l_i32IdNoseY - 50;
            }
@@ -90,28 +93,10 @@ int SWCaptureHeadMotion::computeHeadMotion(SWRigidMotion &oHeadRigidMotion, cons
                 l_oRectangleFromNoseTip.y = m_oLastDetectedRectFace.y + l_i32IdNoseY - 50;
            }
 
-//           l_oRectangleFromNoseTip.width   = 60;
-//           l_oRectangleFromNoseTip.height  = 70;
-//           m_oLastRectNose = l_oRectangleFromNoseTip;
-
-
-
-    // compute nose tip
-//        int l_i32IdNoseX, l_i32IdNoseY;
-//        cv::Point3f l_oNoseTip = m_CFaceDetectPtr->computeNoseTip(oDepth(m_oLastDetectedRectFace), l_i32IdNoseX, l_i32IdNoseY);
-
-//        cv::Rect l_oNoseRectangle;
-//        l_oNoseRectangle.x      =       l_oFaceRectangle.x + l_i32IdNoseX -30;
-//        l_oNoseRectangle.y      = (int)(l_oFaceRectangle.y + l_oFaceRectangle.height*0.2);// + l_i32IdNoseY + l_oFaceRectangle.height*0.5;//-40;
-//        l_oNoseRectangle.width  = 60;
-//        l_oNoseRectangle.height = (int)(l_oFaceRectangle.height*0.6);//95;
-
-
-//        l_oNoseRectangle.x = m_oLastDetectedRectFace.x + l_i32IdNoseX -30;
         l_oRectangleFromNoseTip.width  = 60;
-//        l_oNoseRectangle.y = m_oLastDetectedRectFace.y + l_i32IdNoseY - 50;
         l_oRectangleFromNoseTip.height  = 70;
 
+         std::cout << "3 -> " << (float)(clock() - l_oFirstTime) / CLOCKS_PER_SEC << std::endl;
     // display
         if(swUtil::isInside(m_oLastDetectedRectFace, oDisplayDetectFace))
         {
@@ -149,6 +134,7 @@ int SWCaptureHeadMotion::computeHeadMotion(SWRigidMotion &oHeadRigidMotion, cons
             return 0;
         }
 
+
     // check if the cloud is valid
         if(m_ui32SizeFaceCloudRef > 3 * l_ui32SizeCurrentFaceCloud)
         {
@@ -176,20 +162,20 @@ int SWCaptureHeadMotion::computeHeadMotion(SWRigidMotion &oHeadRigidMotion, cons
         m_oDisplayFaceCloud.copy(l_oFaceCloud);
         m_oDisplayTransformedFaceCloud.copy(l_oTransformedFaceCloud);
 
-        float l_fScore = m_oFaceCloudRef.squareDistanceCloud(l_oTransformedFaceCloud, true, m_fScoreReductionCoeff);
+//        float l_fScore = m_oFaceCloudRef.squareDistanceCloud(l_oTransformedFaceCloud, true, 1.f/m_fScoreReductionCoeff);
 
-        if(m_bVerbose)
-        {
-            std::cout << "Score : " << l_fScore << " / " << m_fDistMax << std::endl;
-        }
+//        if(m_bVerbose)
+//        {
+//            std::cout << "Score : " << l_fScore << " / " << m_fDistMax << std::endl;
+//        }
 
-        if(l_fScore > m_fDistMax)
-        {
-            oHeadRigidMotion = SWRigidMotion();
-            std::cerr << "Alignment score is too bad, head rigid reinitialized. Score : "<< l_fScore << " , max : " << m_fDistMax << std::endl;
-            return -1;
-        }
-        else
+//        if(l_fScore > m_fDistMax)
+//        {
+//            oHeadRigidMotion = SWRigidMotion();
+//            std::cerr << "Alignment score is too bad, head rigid reinitialized. Score : "<< l_fScore << " , max : " << m_fDistMax << std::endl;
+//            return -1;
+//        }
+//        else
         {
             oHeadRigidMotion       = m_oAlignClouds.rigidMotion();
             m_oLastRigidMotion     = oHeadRigidMotion;

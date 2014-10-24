@@ -170,7 +170,7 @@ bool SWStasm::launchAsmSearch(const cv::Mat &oCurrRgbMat,  cv::Rect &oCurrFaceRe
 				ReduceImage(l_oSearchImgs.Img, l_dPyrScale, l_oModel->PyrReduceMethod);
 				
 				InitGradsIfNeeded(l_oSearchImgs.Grads,   	        // get l_oSearchImgs.Grads
-				l_oModel->AsmLevs[iiLev].ProfSpecs, l_oSearchImgs.Img, l_oWorkingShape.nrows());
+                l_oModel->AsmLevs[iiLev].ProfSpecs, l_oSearchImgs.Img, static_cast<int>(l_oWorkingShape.nrows()));
 
 				AsmLevSearch(l_oWorkingShape, l_oSearchImgs, m_oModels[iiModel], iiLev, gLandTab);
 

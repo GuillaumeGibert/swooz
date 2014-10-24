@@ -59,8 +59,8 @@ void StasmMat::getDim (int *pnRows, int *pnCols) const
 {
 if (m)
     {
-    *pnRows = nrows();
-    *pnCols = ncols();
+    *pnRows = static_cast<int>(nrows());
+    *pnCols = static_cast<int>(ncols());
     }
 else
     {
@@ -930,7 +930,7 @@ if (!fgets(sTag, SLEN-1, pFile))
 
 if (sOptionalTag)   // user wants the tag?
     {
-    int iLen = strlen(sTag);
+    int iLen = static_cast<int>(strlen(sTag));
     if (iLen == 0)
         Err("empty tag in line %d of %s", nGetLineNbr(pFile), sFile);
     char *pDest = strchr(sTag, '"');
@@ -1134,7 +1134,7 @@ free();
 if (nRows * nCols)
     {
     m = gsl_matrix_alloc(nRows, nCols);
-    ReadData(m, nRows, nCols, pFile, sFile);
+    ReadData(m, static_cast<int>(nRows), static_cast<int>(nCols), pFile, sFile);
     }
 
 // make sure that next non-white char is matrix terminator '}'
@@ -1225,7 +1225,7 @@ int iRet = gsl_linalg_LU_decomp(result.m, pPerm, &Sign);
 
 // check if matrix is singular i.e. has a zero pivot
 // we use FLT_EPSILON as a convenient small nbr
-for (int i = result.nrows()-1; i >= 0; i--)    // smallest last so look there 1st
+for (int i = static_cast<int>(result.nrows())-1; i >= 0; i--)    // smallest last so look there 1st
     ASSERT(!fEqual(result(i,i), FLT_EPSILON));
 
 ASSERT(iRet == 0);
@@ -1308,14 +1308,14 @@ return v;
 MatView StasmMat::view (size_t iStartRow, size_t iStartCol,
                     size_t nRows, size_t nCols, size_t Tda)
 {
-    MatView View(*this, iStartRow, iStartCol, nRows, nCols, Tda);
+    MatView View(*this, static_cast<int>(iStartRow), static_cast<int>(iStartCol), static_cast<int>(nRows), static_cast<int>(nCols), static_cast<int>(Tda));
     return View;
 }
 
 const MatView StasmMat::view (size_t iStartRow, size_t iStartCol,
                         size_t nRows, size_t nCols, size_t Tda) const
 {
-    MatView View(*this, iStartRow, iStartCol, nRows, nCols, Tda);
+    MatView View(*this, static_cast<int>(iStartRow), static_cast<int>(iStartCol), static_cast<int>(nRows), static_cast<int>(nCols), static_cast<int>(Tda));
     return View;
 }
 
@@ -1351,12 +1351,12 @@ const VecView StasmMat::col (size_t iCol) const
 
 VecView StasmMat::viewDiagAsCol ()
 {
-    return VecView(*this, 0, 0, this->nrows(), 1, ncols()+1);
+    return VecView(*this, 0, 0, static_cast<int>(this->nrows()), 1, static_cast<int>(ncols())+1);
 }
 
 const VecView StasmMat::viewDiagAsCol () const
 {
-    return VecView(*this, 0, 0, this->nrows(), 1, ncols()+1);
+    return VecView(*this, 0, 0, static_cast<int>(this->nrows()), 1, static_cast<int>(ncols())+1);
 }
 
 VecView StasmMat::viewAsRow ()
@@ -1385,7 +1385,7 @@ MatView StasmMat::viewAsSquare ()
     // check that can square properly (assertion is not
     // essential but protects the user)
     ASSERT(nCols * nCols == this->nelems());
-    return MatView(*this, 0, 0, nCols, nCols, nCols);
+    return MatView(*this, 0, 0, static_cast<int>(nCols), static_cast<int>(nCols), static_cast<int>(nCols));
 }
 
 const MatView StasmMat::viewAsSquare () const
@@ -1394,7 +1394,7 @@ const MatView StasmMat::viewAsSquare () const
     // check that can square properly (assertion is not
     // essential but protects the user)
     ASSERT(nCols * nCols == this->nelems());
-    return MatView(*this, 0, 0, nCols, nCols, nCols);
+    return MatView(*this, 0, 0, static_cast<int>(nCols), static_cast<int>(nCols), static_cast<int>(nCols));
 }
 
 //-----------------------------------------------------------------------------
@@ -1403,7 +1403,7 @@ const MatView StasmMat::viewAsSquare () const
 StasmVec StasmMat::colSums () const
 {
 StasmVec Cols(ncols(), ROWVEC);  // initialized to 0
-int iRow = nrows();
+int iRow = static_cast<int>(nrows());
 while (iRow--)
     Cols += row(iRow);
 return Cols;

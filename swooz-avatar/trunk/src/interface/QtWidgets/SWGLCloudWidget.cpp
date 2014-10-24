@@ -97,9 +97,12 @@ void SWGLCloudWidget::setCloud(swCloud::SWCloud *oCloud)
         return;
     }
 
+    m_oCloud.copy(*oCloud);
+    deleteAndNullify(oCloud);
+
     if(m_bInitCamWithCloudPosition)
     {
-        swCloud::SWCloudBBox l_oBBox = oCloud->bBox();
+        swCloud::SWCloudBBox l_oBBox = m_oCloud.bBox();
         QVector3D l_oEye,l_oLookAt;
         l_oEye.setX((l_oBBox.m_fMaxX + l_oBBox.m_fMinX)/2);
         l_oEye.setY((l_oBBox.m_fMaxY + l_oBBox.m_fMinY)/2);
@@ -112,13 +115,11 @@ void SWGLCloudWidget::setCloud(swCloud::SWCloud *oCloud)
         setCamera(l_oEye,l_oLookAt);
 
         m_bInitCamWithCloudPosition = false;
-    }
+    }    
 
-    m_oCloud.copy(*oCloud);
-
-    if(oCloud->size() > 0 && m_fDepthRect > 0.f)
+    if(m_oCloud.size() > 0 && m_fDepthRect > 0.f)
     {
-        m_oCloudBBox = oCloud->bBox();
+        m_oCloudBBox = m_oCloud.bBox();
         m_oCloudBBox.m_fMaxZ =  m_oCloudBBox.m_fMinZ + m_fDepthRect;
         m_oCloudBBox.m_fMinZ -= 0.1f;
 

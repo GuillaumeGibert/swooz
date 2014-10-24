@@ -118,7 +118,7 @@ if (!pFile)
             s = " (unknown mode)";
             break;
         }
-    int nErr = errno; // save before print below clears it
+//    int nErr = static_cast<int>(errno); // save before print below clears it
     // lprintf("\nfopen: %s\n", strerror(nErr));
 
     if (sOptionalMsg && sOptionalMsg[0])
@@ -191,7 +191,7 @@ do
     if (p)
         {
         // discard \r
-        int len = strlen(s);
+        int len = static_cast<int>(strlen(s));
         if (len >= 2 && s[len-2] == '\r')
             {
             s[len-2] = '\n';
@@ -563,7 +563,7 @@ void makepath(char * path, const char * drive,
     }
     if (directory && directory[0])
     {
-        unsigned int len = strlen(directory);
+        unsigned int len = static_cast<unsigned int>(strlen(directory));
         memmove(p, directory, len);
         p += len;
         if (p[-1] != '/' && p[-1] != '\\')
@@ -571,7 +571,7 @@ void makepath(char * path, const char * drive,
     }
     if (filename && filename[0])
     {
-        unsigned int len = strlen(filename);
+        unsigned int len = static_cast<unsigned int>(strlen(filename));
         memmove(p, filename, len);
         p += len;
     }

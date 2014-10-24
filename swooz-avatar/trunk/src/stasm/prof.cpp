@@ -116,7 +116,7 @@ static void GetPrevNextLandmarks (int &iPrev, int &iNext,   // out
                     const LANDMARK LandTab[],               // in
                     const bool fExplicitPrevNext)           // in
 {
-const int nPoints = Shape.nrows();
+const int nPoints = static_cast<int>(Shape.nrows());
 if (fExplicitPrevNext)
     {
     iPrev = LandTab[iPoint].iPrev;
@@ -286,7 +286,7 @@ ASSERT(iPoint == igProfPoint);
 ASSERT(Img.buf == pgProfImage);
 ASSERT(SubProfSpec == gSubProfSpec);
 
-const int nProfWidth = Prof.ncols();      // +-nSamplePoints and middle point
+const int nProfWidth = static_cast<int>(Prof.ncols());      // +-nSamplePoints and middle point
 Prof = gProf.view(0,
             ngProfWidth/2 + iOffset - nProfWidth/2, 1, nProfWidth);
 
@@ -301,7 +301,7 @@ Normalize2d (StasmVec &Prof,                                     // io
 ASSERT(IS_2D(SubProfSpec));
 ASSERT((SubProfSpec & PROF_NormalizationField) == PROF_SigmAbsSum);
 
-const int nelems = Prof.nelems();
+const int nelems = static_cast<int>(Prof.nelems());
 int iCol = 0;
 double * const pData = Prof.m->data; // for efficiency, access mat buf directly
 
@@ -351,8 +351,8 @@ ASSERT(Grads.nrows() && Grads.ncols());
 ASSERT((ProfSpec & PROF_WindowField) == PROF_WindowEquallyWeighted);
 
 const int nProfWidthEachSide = (nProfWidth - 1) / 2;
-const int nRows = Grads.nrows();
-const int nCols = Grads.ncols();
+const int nRows = static_cast<int>(Grads.nrows());
+const int nCols = static_cast<int>(Grads.ncols());
 
 // convert shape coords to mat coords,
 // offset by ixOffset and iyOffset and nProfWidthEachSide
@@ -370,7 +370,7 @@ ASSERT(Prof.nelems() == unsigned(nProfWidth * nProfWidth));
 
 double *pData = Prof.m->data; // for speed, access mat buf directly
 const double * const pGrad = Grads.m->data;
-const int Tda = Grads.m->tda;
+const int Tda = static_cast<int>(Grads.m->tda);
 
 // For efficiency there are two loops: one to hande the case where the
 // profile is entirely in the image boundaries and one for the case where
@@ -448,7 +448,7 @@ ImageToMat (StasmMat &m,             // out
 {
 m.dim(Img.height, Img.width);
 
-const int Tda = m.m->tda;
+const int Tda = static_cast<int>(m.m->tda);
 
 for (int iy = 0; iy < Img.height; iy++)
     {
@@ -463,8 +463,8 @@ static void
 InitGrads_GradBelowRight (StasmMat &Grads,           // out
                           const StasmMat &ImgMat)    // in
 {
-const int nCols = ImgMat.ncols();
-const int nRows = ImgMat.nrows();
+const int nCols = static_cast<int>(ImgMat.ncols());
+const int nRows = static_cast<int>(ImgMat.nrows());
 
 for (int iy = 0; iy < nRows-1; iy++)
     for (int ix = 0; ix < nCols-1; ix++)

@@ -22,7 +22,7 @@
 void CopyMatToSparseMat (SparseMat &S,  // out
                          const StasmMat &M)  // in
 {
-const int nSparseRows = M.nrows();
+const int nSparseRows = static_cast<int>(M.nrows());
 S.resize(nSparseRows);
 
 for (int i = 0; i < nSparseRows; i++)
@@ -52,7 +52,7 @@ return A.ncols() == 3 && A(0,2) == SPARSE_SYMMETRIC;
 
 double Sparse_xAx (const StasmVec &x, const SparseMat &A)    // in: all args
 {
-const int nx = x.nelems();
+const int nx = static_cast<int>(x.nelems());
 ASSERT(x.ncols() == 1 || x.nrows() == 1);
 ASSERT(A[0].iRow == nx);                // first elem is nrows,ncols,SPARSE_SYMMETRIC
 ASSERT(A[0].iCol == nx);
@@ -73,7 +73,7 @@ for (i = 0; i < nx; i++)
     }
 // sum upper right triangle elements
 
-const int nSparseRows = A.size();
+const int nSparseRows = static_cast<int>(A.size());
 for (i++; i < nSparseRows; i++)
     {
     DASSERT(A[i].iRow != A[i].iCol);

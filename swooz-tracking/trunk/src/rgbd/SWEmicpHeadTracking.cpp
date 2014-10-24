@@ -117,7 +117,6 @@ void SWEmicpHeadTrackingWorker::doWork()
         // tracking
             cv::Mat l_oBGR   = m_oKinectThread.bgrImage();
 
-
             for(int ii = 0; ii < l_oBGR.rows/5; ++ii)
             {
                 for(int jj = 0; jj < l_oBGR.cols; ++jj)
@@ -127,13 +126,12 @@ void SWEmicpHeadTrackingWorker::doWork()
                 }
             }
 
-
             cv::Mat l_oCloud = m_oKinectThread.cloudMap();
 
         // resize the rgb mat
             if(m_CKinectParams.m_oOriginalSize != m_CKinectParams.m_oVideoSize)
             {
-                resize(l_oBGR, l_oBGR, m_CKinectParams.m_oVideoSize);
+                cv::resize(l_oBGR, l_oBGR, m_CKinectParams.m_oVideoSize);
             }
 
         // check if the loop must be stopped
@@ -145,15 +143,9 @@ void SWEmicpHeadTrackingWorker::doWork()
             cv::Mat l_oRGBDetect;
             swCloud::SWRigidMotion l_oRigidMotion;
 
-            // DEBUG
-//                qDebug() << "launch head motion computing : " << (float)(clock() - l_oFirstTime) / CLOCKS_PER_SEC;
-
             m_oParametersMutex.lockForRead();
                 int l_i32Res = m_oCaptureHeadMotion.computeHeadMotion(l_oRigidMotion, l_oBGR, l_oCloud, l_oRGBDetect);
             m_oParametersMutex.unlock();
-
-            // DEBUG
-//                qDebug() << "end head motion computing : " << (float)(clock() - l_oFirstTime) / CLOCKS_PER_SEC;
 
             if(l_i32Res == -1)
             {
@@ -188,10 +180,6 @@ void SWEmicpHeadTrackingWorker::doWork()
 
             m_oHeadTrackingPort.write();
 
-
-        // compute total delay between the getting of the kinect data and the send of the bottle conainting the rigid motion
-            float l_fDelay = (float)(clock() - l_oFirstTime) / CLOCKS_PER_SEC;
-
             // display
             if(l_i32Res == 0)
             {
@@ -202,14 +190,16 @@ void SWEmicpHeadTrackingWorker::doWork()
                 m_pReferenceCloud->reduce(0.5f);
             }
 
+            swCloud::SWCloud *l_currCloud = NULL;
+
             if(l_i32Res == 1)
             {
-                deleteAndNullify(m_pCurrCloud);
-                m_pCurrCloud = new swCloud::SWCloud();
-                m_pCurrCloud->copy(m_oCaptureHeadMotion.debugTransformedFaceCloud());
-                m_pCurrCloud->setUnicolor(0,255,0);
-                m_pCurrCloud->reduce(0.5f);
-                (*m_pCurrCloud) += (*m_pReferenceCloud);
+//                deleteAndNullify(m_pCurrCloud);
+                l_currCloud = new swCloud::SWCloud();
+                l_currCloud->copy(m_oCaptureHeadMotion.debugTransformedFaceCloud());
+                l_currCloud->setUnicolor(0,255,0);
+                l_currCloud->reduce(0.5f);
+                (*l_currCloud) += (*m_pReferenceCloud);
             }
 
             // retrieve rectangles
@@ -224,17 +214,24 @@ void SWEmicpHeadTrackingWorker::doWork()
             // send the cloud and the rectangles to the interface for displaying
                 emit sendFaceRect(m_pCurrentFaceRect);
                 emit sendNoseRect(m_pCurrentNoseRect);
-                emit sendCloudToDisplay(m_pCurrCloud);
+
+
+                if(l_currCloud != NULL)
+                {
+                    emit sendCloudToDisplay(l_currCloud);
+                }
 
                 deleteAndNullify(m_pCurrentRigidMotion);
 
                 m_pCurrentRigidMotion = new swCloud::SWRigidMotion(m_oCurrentRigidMotion);
                 emit sendRigidMotion(m_pCurrentRigidMotion);
 
+            // compute total delay between the getting of the kinect data and the send of the bottle conainting the rigid motion
+                float l_fDelay = (float)(clock() - l_oFirstTime) / CLOCKS_PER_SEC;
+
             // send the delay to be displayed in a widget
                 emit sendDelay(l_fDelay);
     }
-
     m_oCaptureHeadMotion.reset();
     m_bWorkStopped = true;
 }
@@ -317,7 +314,6 @@ SWEmicpHeadTrackingInterface::SWEmicpHeadTrackingInterface() : m_uiMainWindow(ne
 
         // init worker
             m_pWTracking = new SWEmicpHeadTrackingWorker();
-
 
             m_uiMainWindow->dsbP2->setValue(0.001f);
             m_uiMainWindow->dsbINF->setValue(0.000005f);
@@ -463,10 +459,8 @@ void SWEmicpHeadTrackingInterface::updateImageDisplay()
     // get the current image from the kinect
     cv::Mat l_oRgb = m_oKinectThread.bgrImage();
 
-
     std::string l_sDelay("D ");
     std::ostringstream l_osDelay;
-
 
     // apply a filter on the zones where detection could fail
 
@@ -478,7 +472,6 @@ void SWEmicpHeadTrackingInterface::updateImageDisplay()
             l_oRgb.at<cv::Vec3b>(l_oRgb.rows - 1 - ii,jj) = cv::Vec3b(0,0,0);
         }
     }
-
 
     // apply rectangles used for the rigid motion computing on the cv mat image
     m_oMutex.lockForRead();
