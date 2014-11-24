@@ -198,7 +198,7 @@ class SWCreateAvatarWorker : public QObject
         /**
          * \brief ...
          */
-        void sendCloud(swCloud::SWCloud*);
+        void sendCloud(swCloud::SWCloud*, bool);
 
         /**
          * @brief sendMesh

@@ -16,7 +16,6 @@
 #include "interface/SWConvQtOpencv.h"
 #include "cloud/SWImageProcessing.h"
 
-
 SWCreateAvatarInterface::SWCreateAvatarInterface(QWidget *oQWRelative) : QMainWindow(oQWRelative), m_uiCreateAvatar(new Ui::SWUI_WCreateAvatar),
     m_oTimer(new QBasicTimer), m_bGLFullScreen(false)
 {
@@ -56,6 +55,7 @@ SWCreateAvatarInterface::SWCreateAvatarInterface(QWidget *oQWRelative) : QMainWi
 
     //	cloud gl widget
     m_WCloudGL = new SWGLCloudWidget(l_glContext1, this);
+    m_WCloudGL->setCameraMode(SWQtCamera::TRACKBALL_CAMERA);
 //    m_WCloudGL->setMaximumSize(640,480);
     m_uiCreateAvatar->hlCloud->addWidget(m_WCloudGL);
     // mesh gl widget
@@ -95,7 +95,7 @@ SWCreateAvatarInterface::SWCreateAvatarInterface(QWidget *oQWRelative) : QMainWi
         QObject::connect(m_WCreateAvatar, SIGNAL(sendStasmPoints(std::vector<cv::Point2i>)), this, SLOT(updateStasmPoints(std::vector<cv::Point2i>)));
 
     //      cloud
-        QObject::connect(m_WCreateAvatar, SIGNAL(sendCloud(swCloud::SWCloud*)), m_WCloudGL, SLOT(setCloud(swCloud::SWCloud*)));
+        QObject::connect(m_WCreateAvatar, SIGNAL(sendCloud(swCloud::SWCloud*, bool)), m_WCloudGL, SLOT(setCloud(swCloud::SWCloud*, bool)));
 
     //      mesh
         QObject::connect(m_WCreateAvatar, SIGNAL(sendMesh(swMesh::SWMesh*,bool)), m_WMeshGL, SLOT(setMesh(swMesh::SWMesh*,bool)));

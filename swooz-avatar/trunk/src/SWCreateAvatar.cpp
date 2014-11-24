@@ -382,8 +382,6 @@ bool SWCreateAvatar::addCloudToAvatar(const cv::Mat &oRgb, const cv::Mat &oDepth
            }
        }
 
-       std::cout << "10 debug -> " << static_cast<double>((clock() - l_timeTraining)) / CLOCKS_PER_SEC << std::endl;
-
    return true;
 }
 

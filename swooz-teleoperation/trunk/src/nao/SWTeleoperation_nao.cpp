@@ -173,6 +173,10 @@ bool SWTeleoperation_nao::configure(ResourceFinder &oRf)
             return false;
         }
 
+        std::cout << "end start posture " << std::endl;
+
+         std::cout << "stiffness activaded : " << m_bHeadActivated << " " << m_bTorsoActivated << " " << m_bLeftArmActivated << " " << m_bRightArmActivated << std::endl;
+
         // set stiffnesses
         if(m_bHeadActivated)
         {
@@ -190,6 +194,8 @@ bool SWTeleoperation_nao::configure(ResourceFinder &oRf)
         {
             m_oRobotMotionProxy->setStiffnesses("RArm", 1.0f);
         }
+
+        std::cout << "end stiffness activaded : " << m_bHeadActivated << " " << m_bTorsoActivated << " " << m_bLeftArmActivated << " " << m_bRightArmActivated << std::endl;
 
     return true;
 }
@@ -363,6 +369,8 @@ bool SWTeleoperation_nao::close()
 
 bool SWTeleoperation_nao::updateModule()
 {
+    std::cout << "u-> ";
+
     AL::ALValue l_headNames = AL::ALValue::array("HeadYaw", "HeadPitch");
     AL::ALValue l_headAngles = AL::ALValue::array(0.f,0.f);
 
@@ -727,6 +735,8 @@ bool SWTeleoperation_nao::updateModule()
     {       
         m_oRobotMotionProxy->setAngles(AL::ALValue("RArm"), m_aRArmAngles, static_cast<float>(m_dJointVelocityValue));
     }
+
+    std::cout << " <-u\n";
 
     return true;
 }

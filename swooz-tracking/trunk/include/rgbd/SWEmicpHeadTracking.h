@@ -116,7 +116,7 @@ class SWEmicpHeadTrackingWorker : public QObject
         /**
          * \brief Signal for sending the current cloud to display
          */
-        void sendCloudToDisplay(swCloud::SWCloud*);
+        void sendCloudToDisplay(swCloud::SWCloud*, bool);
 
         /**
          * @brief Signal for sending the face rectangle
@@ -228,7 +228,7 @@ class SWEmicpHeadTrackingInterface : public QMainWindow
          * @brief Update the cloud display widget
          * @param [in] pCloud : cloud to display (the pointer is not deleted)
          */
-        void updateCloudDisplay(swCloud::SWCloud *pCloud);
+        void updateCloudDisplay(swCloud::SWCloud *pCloud, bool resetCamera = false);
 
         /**
          * @brief Update the face rectangle to be displayed

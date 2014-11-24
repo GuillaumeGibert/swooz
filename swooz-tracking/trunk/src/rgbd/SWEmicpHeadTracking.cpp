@@ -99,8 +99,10 @@ void SWEmicpHeadTrackingWorker::doWork()
     }
 
     bool l_bContinueLoop = true;
+    bool l_resetCamera = true;
     m_bDoWork     = true;
     m_bWorkStopped= false;
+
 
     while(l_bContinueLoop)
     {
@@ -218,7 +220,15 @@ void SWEmicpHeadTrackingWorker::doWork()
 
                 if(l_currCloud != NULL)
                 {
-                    emit sendCloudToDisplay(l_currCloud);
+                    if(l_resetCamera)
+                    {
+                        emit sendCloudToDisplay(l_currCloud, true);
+                        l_resetCamera = false;
+                    }
+                    else
+                    {
+                        emit sendCloudToDisplay(l_currCloud, false);
+                    }
                 }
 
                 deleteAndNullify(m_pCurrentRigidMotion);
@@ -289,7 +299,8 @@ SWEmicpHeadTrackingInterface::SWEmicpHeadTrackingInterface() : m_uiMainWindow(ne
             l_glFormat.setSampleBuffers( true );
             QGLContext *l_glContext = new QGLContext(l_glFormat);
             m_pGLCloudWidget        = new SWGLCloudWidget(l_glContext, this);
-            m_pGLCloudWidget->setCamera(QVector3D(0.f, 0.0f, 0.6f), QVector3D(0.f, 0.0f,  1.f), QVector3D(0.f, 1.f,  0.f), false);
+            m_pGLCloudWidget->setCameraMode(SWQtCamera::TRACKBALL_CAMERA);
+            //m_pGLCloudWidget->setCamera(QVector3D(0.f, 0.0f, 0.6f), QVector3D(0.f, 0.0f,  1.f), QVector3D(0.f, 1.f,  0.f), false);
 
             std::vector<std::string> l_aSRotationsLabel;
             l_aSRotationsLabel.push_back("rX");
@@ -326,7 +337,7 @@ SWEmicpHeadTrackingInterface::SWEmicpHeadTrackingInterface() : m_uiMainWindow(ne
             QObject::connect(this,                   SIGNAL(stopModule()),   m_pWTracking, SLOT(stopWork()));
             QObject::connect(this,                   SIGNAL(cleanModule()),  m_pWTracking, SLOT(clean()));
             QObject::connect(m_pWTracking,           SIGNAL(leaveProgram()), this,         SLOT(close()));
-            QObject::connect(m_pWTracking,           SIGNAL(sendCloudToDisplay(swCloud::SWCloud*)), this, SLOT(updateCloudDisplay(swCloud::SWCloud*)));
+            QObject::connect(m_pWTracking,           SIGNAL(sendCloudToDisplay(swCloud::SWCloud*, bool)), this, SLOT(updateCloudDisplay(swCloud::SWCloud*, bool)));
             QObject::connect(m_pWTracking,           SIGNAL(sendFaceRect(cv::Rect*)), this, SLOT(updateFaceRectangle(cv::Rect*)));
             QObject::connect(m_pWTracking,           SIGNAL(sendNoseRect(cv::Rect*)), this, SLOT(updateNoseRectangle(cv::Rect*)));
             QObject::connect(m_pWTracking,           SIGNAL(sendRigidMotion(swCloud::SWRigidMotion*)), this, SLOT(updateHistogramDisplay(swCloud::SWRigidMotion*)));
@@ -416,13 +427,13 @@ void SWEmicpHeadTrackingInterface::timerEvent(QTimerEvent *e)
     updateImageDisplay();
 }
 
-void SWEmicpHeadTrackingInterface::updateCloudDisplay(swCloud::SWCloud *pCloud)
+void SWEmicpHeadTrackingInterface::updateCloudDisplay(swCloud::SWCloud *pCloud, bool resetCamera)
 {
     if(pCloud)
     {
         if(pCloud->size() > 0)
         {
-            m_pGLCloudWidget->setCloud(pCloud);
+            m_pGLCloudWidget->setCloud(pCloud, resetCamera);
         }
     }
 }

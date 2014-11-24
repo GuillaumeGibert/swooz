@@ -78,8 +78,9 @@ class SWGLCloudWidget : public SWGLWidget
         /**
          * \brief Set the current cloud point to display.
          * \param [in] oCloud          : cloud point to display in the scene,
+         * \param [in] bResetCamera    :
          */
-        void setCloud(swCloud::SWCloud *oCloud);
+        void setCloud(swCloud::SWCloud *oCloud, bool bResetCamera = false);
 
 
     private :
@@ -102,7 +103,10 @@ class SWGLCloudWidget : public SWGLWidget
 //        QMatrix4x4  m_oMVPMatrix;          /**< model view projection matrix */
 
 //        swCloud::SWCloud *m_pCloud;        /**< cloud pointer*/
-        swCloud::SWCloud m_oCloud;
+//        swCloud::SWCloud m_oCloud;
+
+        swCloud::SWCloud *m_pCloud; /**< ... */
+
         swCloud::SWCloudBBox m_oCloudBBox; /**< bounded box of the cloud */
 
         bool m_bNewCloud;

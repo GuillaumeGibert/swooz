@@ -33,7 +33,7 @@ using namespace swDevice;
 
 SWCreateAvatarWorker::SWCreateAvatarWorker(swDevice::SWKinect_thread *pRGBDDeviceThread) :
     m_pRGBDDeviceThread(pRGBDDeviceThread)
-{	    
+{
     m_bSendStasmPoints = false;
     m_bInitKinect = false;
     m_pFaceMeshResult = NULL;
@@ -76,19 +76,20 @@ SWCreateAvatarWorker::SWCreateAvatarWorker(swDevice::SWKinect_thread *pRGBDDevic
     {
         emit noKinectSignal();
     }
-}	
+}
 
 SWCreateAvatarWorker::~SWCreateAvatarWorker()
-{	
+{
     deleteAndNullify(m_pCloudToDisplay);
     deleteAndNullify(m_pFaceMeshResult);
     deleteAndNullify(m_pRadialProjectionToDisplay);
     deleteAndNullify(m_pFaceTexture);
 }
-			
+
 void SWCreateAvatarWorker::doWork()
 {
     bool l_bContinueLoop = false;
+    bool l_bCamCloudInitialized = false;
 
     if(m_bInitKinect)
     {
@@ -99,9 +100,8 @@ void SWCreateAvatarWorker::doWork()
     m_i32CurrentCloudNumber = 0;
 
     while(l_bContinueLoop)
-    {        
+    {
         clock_t l_timeTraining = clock();
-        std::cout << "a -> " << static_cast<double>((clock() - l_timeTraining)) / CLOCKS_PER_SEC << std::endl;
 
         // check if must stop loop
             m_oLoopMutex.lockForRead();
@@ -140,18 +140,12 @@ void SWCreateAvatarWorker::doWork()
 
                 swCloud::SWCloud *l_pCloudToDisplay = NULL;
 
-
-                std::cout << "r-> " << static_cast<double>((clock() - l_timeTraining)) / CLOCKS_PER_SEC << std::endl;
                 bool l_bAddCloudSuccess = m_CAvatarPtr->addCloudToAvatar(l_oBGR, l_oCloud);
-
-                std::cout << "s -> " << static_cast<double>((clock() - l_timeTraining)) / CLOCKS_PER_SEC << std::endl;
 
                 if(l_bAddCloudSuccess)
                 {
                     ++m_i32CurrentCloudNumber;
                     emit sendNumCloud(m_i32CurrentCloudNumber);
-
-                    std::cout << "t -> " << static_cast<double>((clock() - l_timeTraining)) / CLOCKS_PER_SEC << std::endl;
 
                     // retrieve total cloud
 //                        deleteAndNullify(m_pCloudToDisplay);
@@ -160,12 +154,9 @@ void SWCreateAvatarWorker::doWork()
                         l_pCloudToDisplay = new swCloud::SWCloud;
                         m_CAvatarPtr->totalCloud(*l_pCloudToDisplay);
 
-                        std::cout << "u -> " << static_cast<double>((clock() - l_timeTraining)) / CLOCKS_PER_SEC << std::endl;
-
                     // retrieve stasm points
                         std::vector<cv::Point2i> l_vP2IStasm;
 
-                        std::cout << "v -> " << static_cast<double>((clock() - l_timeTraining)) / CLOCKS_PER_SEC << std::endl;
                         if(m_bSendStasmPoints)
                         {
                             if(m_i32NumberStasm++ < m_i32MaxNumberStasm) // TODO : add mutex
@@ -174,8 +165,6 @@ void SWCreateAvatarWorker::doWork()
                             }
                         }
                         emit sendStasmPoints(l_vP2IStasm);
-
-                        std::cout << "w -> " << static_cast<double>((clock() - l_timeTraining)) / CLOCKS_PER_SEC << std::endl;
                 }
                 else if(m_i32CurrentCloudNumber == 0)
                 {
@@ -187,7 +176,7 @@ void SWCreateAvatarWorker::doWork()
                         stopWork();
                         l_bContinueLoop = false;
                 }
-                std::cout << "x -> " << static_cast<double>((clock() - l_timeTraining)) / CLOCKS_PER_SEC << std::endl;
+
                 if(m_i32CurrentCloudNumber > 0)
                 {
                     // retrieve rectangles
@@ -204,17 +193,25 @@ void SWCreateAvatarWorker::doWork()
 //                        {
 //                            if(m_pCloudToDisplay->size() > 0)
 //                            {
-//                                emit sendCloud(m_pCloudToDisplay);
+//                                emit sendCloud(m_pCloudToDisplay,false);
 //                            }
 //                        }
                         if(l_pCloudToDisplay)
                         {
-                            emit sendCloud(l_pCloudToDisplay);
+                            if(l_pCloudToDisplay->size() > 2)
+                            {
+                                if(!l_bCamCloudInitialized)
+                                {
+                                    emit sendCloud(l_pCloudToDisplay, true);
+                                    l_bCamCloudInitialized = true;
+                                }
+                                else
+                                {
+                                    emit sendCloud(l_pCloudToDisplay, false);
+                                }
+                            }
                         }
                 }
-
-
-                std::cout << "y -> " << static_cast<double>((clock() - l_timeTraining)) / CLOCKS_PER_SEC << std::endl;
 
 //                if(m_CAvatarPtr->addCloudToAvatar(l_oBGR, l_oCloud))
 //                {
@@ -289,8 +286,6 @@ void SWCreateAvatarWorker::doWork()
 
             }
         }
-
-         std::cout << "z -> " << static_cast<double>((clock() - l_timeTraining)) / CLOCKS_PER_SEC << std::endl;
     }
 
 }
@@ -340,7 +335,7 @@ void SWCreateAvatarWorker::reconstruct()
 void SWCreateAvatarWorker::saveMeshFile(QString sPath)
 {
     if(sPath.size() > 0)
-    {        
+    {
         int l_i32SeparatorsNb = 0;
         QString l_sName(sPath);
         for(int ii = 0; ii < sPath.size(); ++ii)
