@@ -118,15 +118,16 @@ double SWGLOptimalStepNonRigidICP::coeffAlpha() const
     return m_dCoeffAlpha;
 }
 
+
 void SWGLOptimalStepNonRigidICP::alignWithNose(swMesh::SWMesh &oSourceMesh, swMesh::SWMesh &oTargetMesh)
 {
-    swCloud::SWCloud *l_oSource = oSourceMesh.cloud(), *l_oTarget = oTargetMesh.cloud();
+    swCloud::SWCloud *l_oSource = oSourceMesh.cloud(), *l_oTarget = oTargetMesh.cloud();   
 
     std::vector<float> l_A3FSourceMeanPoint = l_oSource->meanPoint();
     vector<float> l_A3FTargetMeanPoint = l_oTarget->meanPoint();
 
-    l_A3FSourceMeanPoint[2] -= 10.f;
-    l_A3FTargetMeanPoint[2] -= 10.f;
+    l_A3FSourceMeanPoint[2] += 10.f;
+    l_A3FTargetMeanPoint[2] += 10.f;
     int idCloseSource = l_oSource->idNearestPoint(l_A3FSourceMeanPoint);
     int idCloseTarget = l_oTarget->idNearestPoint(l_A3FTargetMeanPoint);
 
@@ -1346,7 +1347,7 @@ void SWGLOptimalStepNonRigidICP::resetMorphing()
                 l_oLookAt.setY(l_v3FMean[1]);
                 l_oLookAt.setZ(l_v3FMean[2]);
                 l_oEye = l_oLookAt;
-                l_oEye.setZ(l_oEye.z() - 0.25f);
+                l_oEye.setZ(l_oEye.z() + 0.25f);
 
                 setCamera(l_oEye,l_oLookAt);
                 setCameraInitial(l_oEye,l_oLookAt, QVector3D(0,1,0));
@@ -1764,7 +1765,7 @@ void SWGLOptimalStepNonRigidICP::drawMesh(QGLShaderProgram &shader, SWGLBufferLi
             shader.setUniformValue("uniColor", unicolor.x()/255., unicolor.y()/255., unicolor.z()/255.);
         // lights
             std::vector<float> l_lookAt;
-            shader.setUniformValue("lSourcePos" , QVector3D(0,0,-0.8f));
+            shader.setUniformValue("lSourcePos" , QVector3D(0,0,+0.8f));
             shader.setUniformValue("kSpecular" , 0.1f);
 
             if(buffers.m_bUpdate)

@@ -32,7 +32,7 @@ SWOptimalStepNonRigidICP::SWOptimalStepNonRigidICP(const SWMesh &oSource, const 
                                                    m_sPathSourceStasmCorr(sPathSourceStasmCorr), m_sPathTargetStasmCorr(sPathTargetStasmCorr)
 {        
     std::vector<float> l_A3FTargetMeanPoint = m_oTargetMesh.cloud()->meanPoint();
-    l_A3FTargetMeanPoint[2] -= 10.f;
+    l_A3FTargetMeanPoint[2] += 10.f;
 
     int l_i32IdCloseSource = m_oSourceMesh.cloud()->idNearestPoint(l_A3FTargetMeanPoint);
     int l_i32IdCloseTarget = m_oTargetMesh.cloud()->idNearestPoint(l_A3FTargetMeanPoint);
