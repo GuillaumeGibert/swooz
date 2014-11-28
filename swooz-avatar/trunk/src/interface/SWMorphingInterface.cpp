@@ -34,6 +34,7 @@ SWMorphingInterface::SWMorphingInterface() : m_uiMorphing(new Ui::SWUI_Morphing)
     // init main widget
     m_uiMorphing->setupUi(this);
     this->setWindowTitle(QString("SWoOz : Morphing"));
+    this->setWindowIcon(QIcon(QString("../data/images/logos/icon_swooz_morphing.png")));
 
     // set default values
     m_i32RotXDefaultValue = m_i32RotYDefaultValue = m_i32RotZDefaultValue = 1800;

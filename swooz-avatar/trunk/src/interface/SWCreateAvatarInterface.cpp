@@ -29,6 +29,7 @@ SWCreateAvatarInterface::SWCreateAvatarInterface(QWidget *oQWRelative) : QMainWi
 	// init main widget
     m_uiCreateAvatar->setupUi(this);
 	this->setWindowTitle(QString("SWoOz : Create avatar"));
+    this->setWindowIcon(QIcon(QString("../data/images/logos/icon_swooz_avatar.png")));
 
 	// init opengl context
     QHBoxLayout *l_pGLContainerLayout = new QHBoxLayout();

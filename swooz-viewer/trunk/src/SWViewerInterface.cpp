@@ -21,6 +21,7 @@ SWViewerInterface::SWViewerInterface() : m_uiViewer(new Ui::SWUI_Viewer), m_bDes
     // init main widget
     m_uiViewer->setupUi(this);
     this->setWindowTitle(QString("SWoOz : Viewer"));
+    this->setWindowIcon(QIcon(QString("../data/images/logos/icon_swooz_viewer.png")));
 
     // middle container
         QHBoxLayout *l_pGLContainerLayout = new QHBoxLayout();

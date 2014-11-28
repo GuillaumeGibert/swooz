@@ -130,6 +130,7 @@ void SWGLCloudWidget::setCloud(swCloud::SWCloud *oCloud, bool bResetCamera)
 
     deleteAndNullify(m_pCloud);
     m_pCloud = new swCloud::SWCloud(*oCloud);
+    deleteAndNullify(oCloud);
     m_bNewCloud = true;
 
     updateGL();
