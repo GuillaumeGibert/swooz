@@ -28,6 +28,7 @@ SWOpenNITracking::SWOpenNITracking()
     m_oTorsoTrackingPort.open(m_sTorsoTrackingPortName.c_str());
     m_oLeftArmTrackingPort.open(m_sLeftArmTrackingPortName.c_str());
     m_oRightArmTrackingPort.open(m_sRightArmTrackingPortName.c_str());
+    m_oAllJointsTrackingPort.open("/tracking/joints:o");
 
     initOpenNi();
 }
@@ -39,6 +40,7 @@ SWOpenNITracking::~SWOpenNITracking()
     m_oTorsoTrackingPort.close();
     m_oLeftArmTrackingPort.close();
     m_oRightArmTrackingPort.close();
+    m_oAllJointsTrackingPort.close();
 }
 
 void SWOpenNITracking::initOpenNi()
@@ -74,6 +76,7 @@ bool SWOpenNITracking::interruptModule() {
     m_oTorsoTrackingPort    .interrupt();
     m_oLeftArmTrackingPort	.interrupt();
     m_oRightArmTrackingPort	.interrupt();
+    m_oAllJointsTrackingPort	.interrupt();
 	return true;
 }
 
@@ -141,6 +144,20 @@ bool SWOpenNITracking::updateModule()
 			l_RightArmBottle.addDouble(l_pointRElbow.X);	l_RightArmBottle.addDouble(l_pointRElbow.Y);	l_RightArmBottle.addDouble(l_pointRElbow.Z);
 			l_RightArmBottle.addDouble(l_pointRHand.X);		l_RightArmBottle.addDouble(l_pointRHand.Y);		l_RightArmBottle.addDouble(l_pointRHand.Z);
         m_oRightArmTrackingPort.write();      
+
+
+        yarp::os::Bottle &l_allJointsBottle = m_oAllJointsTrackingPort.prepare();
+        l_allJointsBottle.clear();
+            l_HeadBottle.addDouble(l_pointNeck.X);			l_HeadBottle.addDouble(l_pointNeck.Y);			l_HeadBottle.addDouble(l_pointNeck.Z);
+            l_HeadBottle.addDouble(l_pointHead.X);			l_HeadBottle.addDouble(l_pointHead.Y);			l_HeadBottle.addDouble(l_pointHead.Z);
+            l_HeadBottle.addDouble(l_pointLShoulder.X);		l_HeadBottle.addDouble(l_pointLShoulder.Y);		l_HeadBottle.addDouble(l_pointLShoulder.Z);
+            l_HeadBottle.addDouble(l_pointRShoulder.X);		l_HeadBottle.addDouble(l_pointRShoulder.Y);		l_HeadBottle.addDouble(l_pointRShoulder.Z);
+            l_TorsoBottle.addDouble(l_pointTorso.X);		l_TorsoBottle.addDouble(l_pointTorso.Y);		l_TorsoBottle.addDouble(l_pointTorso.Z);
+            l_LeftArmBottle.addDouble(l_pointLElbow.X);		l_LeftArmBottle.addDouble(l_pointLElbow.Y);		l_LeftArmBottle.addDouble(l_pointLElbow.Z);
+            l_RightArmBottle.addDouble(l_pointRElbow.X);	l_RightArmBottle.addDouble(l_pointRElbow.Y);	l_RightArmBottle.addDouble(l_pointRElbow.Z);
+            l_LeftArmBottle.addDouble(l_pointLHand.X);		l_LeftArmBottle.addDouble(l_pointLHand.Y);		l_LeftArmBottle.addDouble(l_pointLHand.Z);
+            l_RightArmBottle.addDouble(l_pointRHand.X);		l_RightArmBottle.addDouble(l_pointRHand.Y);		l_RightArmBottle.addDouble(l_pointRHand.Z);
+        m_oAllJointsTrackingPort.write();
 	}
 
 	return true; // RF Module OK

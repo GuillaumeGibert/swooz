@@ -101,6 +101,9 @@ INC_OPENNI	= -I$(THIRD_PARTY_OPENNI)/Include\
 
 INC_LEAP        = -I"$(THIRD_PARTY_LEAP)"/include\
 
+INC_YARP	= -I"$(THIRD_PARTY_YARP)/include"\
+
+
 ############################ DEPENDENCIES
 
 COMMON			= $(INC_TOOLKIT) $(INC_OTHERS) $(INC_VS)
@@ -129,6 +132,7 @@ SW_SDIMENCO3DPLAY   	= $(COMMON) $(INC_OPENCV)
 
 SW_LEAP                 = $(COMMON) $(INC_LEAP) $(INC_BOOST)
 
+SW_KINECT               = $(COMMON) $(INC_OPENCV) $(INC_YARP) $(INC_BOOST) $(INC_OPENNI)
 
 !IF  "$(CFG)" == "Release"
 
@@ -138,6 +142,7 @@ CFLAGS_STA = -nologo -O2 -GF -Gy -W3 -MT -EHsc -DWIN32 -MP$(NUMBER_OF_PROCESSORS
 CFLAGS_DYN = -nologo -O2 -GF -Gy -W3 -MD -EHsc -DWIN32 -MP$(NUMBER_OF_PROCESSORS)
 
 LFLAGS=-nologo -nodefaultlib:MSVCPRT
+LFLAGS2=-nologo
 
 ############################ LIBS RELEASE
 
@@ -146,6 +151,17 @@ LIBS_OPENCV=\
     $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_highgui249.lib\
     $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_core249.lib\
     $(THIRD_PARTY_OPENCV)/build/lib/Release/opencv_imgproc249.lib\
+
+LIBS_YARP       = $(THIRD_PARTY_YARP)/lib/YARP_OS.lib\
+                  $(THIRD_PARTY_YARP)/lib/YARP_init.lib\
+                  $(THIRD_PARTY_YARP)/lib/YARP_sig.lib\
+                  $(THIRD_PARTY_YARP)/lib/YARP_dev.lib\
+                  $(THIRD_PARTY_YARP)/lib/YARP_math.lib\
+
+LIBS_ACE        = $(THIRD_PARTY_ACE)/lib/ACE.lib\
+
+LIBS_BOOST_D     = "$(THIRD_PARTY_BOOST)/lib/libboost_thread-vc100-mt-1_49.lib" "$(THIRD_PARTY_BOOST)/lib/libboost_date_time-vc100-mt-1_49.lib"\
+                  "$(THIRD_PARTY_BOOST)/lib/libboost_iostreams-vc100-mt-1_49.lib"\
 
 !ENDIF
 
@@ -170,5 +186,8 @@ LIBS_OPENCV=\
 ############################ LIBS EXE
 
 LIBS_DIMENCO = $(LIBS_OPENCV)\
+
+LIBS_KINECT = $(LIBS_OPENCV) $(LIBS_YARP) $(LIBS_BOOST_D) $(LIBS_ACE)\
+
 
 

@@ -34,12 +34,15 @@ KINECT_DIMENCO_OBJ=\
     $(LIBDIR)/SWKinect.obj\
     $(LIBDIR)/SWDimenco3DDisplay.obj\
 
+KINECT_OBJ=\
+     $(LIBDIR)/SWKinectRFModule_d.obj $(LIBDIR)/SWKinect_d.obj $(LIBDIR)/SWKinect_thread_d.obj\
+
 ############################################################################## Makefile commands
 	
 # $(KINECT_OBJ) $(FACELAB_OBJ) $(TOBII_OBJ) $(FASTRAK_OBJ)
 
 !if  "$(ARCH)" == "x86"
-all: $(BINDIR)/SWDisplayKinectOnDimenco.exe $(LIBDIR)/SWToolkit.lib $(LIBDIR)/SWToolkit_d.lib
+all: $(BINDIR)/SWDisplayKinectOnDimenco.exe $(BINDIR)/SWKinectRFModule.exe $(LIBDIR)/SWToolkit.lib $(LIBDIR)/SWToolkit_d.lib
 #$(FILTER_OBJ)
 !endif
 
@@ -59,6 +62,10 @@ $(LIBDIR)/SWToolkit_d.lib: $(TOOLKIT_DYN_OBJ)
 
 $(BINDIR)/SWDisplayKinectOnDimenco.exe: $(KINECT_DIMENCO_OBJ)  $(LIBS_DIMENCO)
         $(LINK) /OUT:$(BINDIR)/SWDisplayKinectOnDimenco.exe $(LFLAGS) $(KINECT_DIMENCO_OBJ)  $(SETARGV) $(BINMODE) $(LIBS_DIMENCO) $(WINLIBS)
+
+$(BINDIR)/SWKinectRFModule.exe: $(KINECT_OBJ)  $(LIBS_KINECT)
+        $(LINK) /OUT:$(BINDIR)/SWKinectRFModule.exe $(LFLAGS2) $(KINECT_OBJ)  $(SETARGV) $(BINMODE) $(LIBS_KINECT) $(WINLIBS)
+
 
 ##################################################### devices
 
@@ -126,3 +133,6 @@ $(LIBDIR)/SWKinectSkeleton_d.obj: ./src/devices/rgbd/SWKinectSkeleton.cpp
 
 $(LIBDIR)/SWLeap_d.obj: ./src/devices/leap/SWLeap.cpp
         $(CC) -c ./src/devices/leap/SWLeap.cpp $(CFLAGS_DYN) $(SW_LEAP) -Fo"$(LIBDIR)/SWLeap_d.obj"
+
+$(LIBDIR)/SWKinectRFModule_d.obj: ./src/devices/rgbd/SWKinectRFModule.cpp
+        $(CC) -c ./src/devices/rgbd/SWKinectRFModule.cpp $(CFLAGS_DYN) $(SW_KINECT) -Fo"$(LIBDIR)/SWKinectRFModule_d.obj"
