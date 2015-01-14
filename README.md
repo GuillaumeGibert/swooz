@@ -19,7 +19,8 @@ Links :
     * [How to build with the scripts](https://github.com/GuillaumeGibert/swooz/blob/master/scripts/README_SCRIPTS.md)
     * [Releases](https://github.com/GuillaumeGibert/swooz/wiki/releases)
     * [Doc doxygen](https://08e729ee992f921ade589fc6589c5f6ffb64b65a.googledrive.com/host/0BywmJqNNU7owTEhFVTRfUzZVSWs/index.html)
-
+    * [Resources](https://github.com/GuillaumeGibert/swooz/wiki/resources)
+    
 
 Content :
 ---------
