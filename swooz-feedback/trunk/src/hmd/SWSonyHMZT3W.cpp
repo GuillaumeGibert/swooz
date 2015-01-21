@@ -19,7 +19,7 @@ bool SWSonyHMZT3W::loop()
 	
     if(m_eyeToDisplay == 0)
     {
-	inputImage1 = m_rightEyeImagePort.read(false);
+        inputImage1 = m_rightEyeImagePort.read(false);
         inputImage2 = inputImage1;
     }
     else if(m_eyeToDisplay == 1)
@@ -29,16 +29,34 @@ bool SWSonyHMZT3W::loop()
     }
     else
     {
-	inputImage1 = m_leftEyeImagePort.read(false);
+        inputImage1 = m_leftEyeImagePort.read(false);
         inputImage2 = m_rightEyeImagePort.read(false);
     }
 
+
+//    if(inputImage1 != NULL)
+//    {
+//        if(inputImage1->getRowSize() == 0)
+//        {
+//            return true;
+//        }
+//    }
+//    if(inputImage2 != NULL)
+//    {
+//        if(inputImage2->getRowSize() == 0)
+//        {
+//            return true;
+//        }
+//    }
+
     if (inputImage1!=NULL && inputImage2!=NULL)
     {
+
+
         // creates opencv image to store the input images
-	cv::Mat inBgrImg(cv::Size(inputImage1->width()+inputImage2->width(), inputImage1->height()), CV_8UC3, cv::Scalar::all(0));
+        cv::Mat inBgrImg(cv::Size(inputImage1->width()+inputImage2->width(), inputImage1->height()), CV_8UC3, cv::Scalar::all(0));
         cv::Mat inBgrImg1(cv::Size(inputImage1->width(), inputImage1->height()), CV_8UC3, cv::Scalar::all(0));
-	cv::Mat inBgrImg2(cv::Size(inputImage2->width(), inputImage2->height()), CV_8UC3, cv::Scalar::all(0));
+        cv::Mat inBgrImg2(cv::Size(inputImage2->width(), inputImage2->height()), CV_8UC3, cv::Scalar::all(0));
 
         // fills the first image
         for (int x=0; x<inputImage1->width(); x++)
@@ -66,11 +84,11 @@ bool SWSonyHMZT3W::loop()
             }
         }
 
-	// concats the 2 images
-	cv::hconcat(inBgrImg1, inBgrImg2, inBgrImg);
+        // concats the 2 images
+        cv::hconcat(inBgrImg1, inBgrImg2, inBgrImg);
 	
         // resizes to the output size
-        cv::resize(inBgrImg, m_diplayImage, m_diplayImage.size(),0,0,CV_INTER_LINEAR);
+        cv::resize(inBgrImg, m_displayImage, m_displayImage.size(),0,0,CV_INTER_LINEAR);
     }
 
 
@@ -78,10 +96,10 @@ bool SWSonyHMZT3W::loop()
     // test 3D
 //    m_diplayImage.resize();
 
-
     // display current output
-    cv::imshow("SonyHMZT3W", m_diplayImage);
+//    cv::imshow("SonyHMZT3W", m_displayImage);
     char l_key = cv::waitKey(1);
+
 
     if(l_key == 'q')
     {
@@ -126,7 +144,6 @@ bool SWSonyHMZT3W::loop()
     }
 
     return true;
-
 }
 
 
@@ -139,7 +156,7 @@ bool SWSonyHMZT3W::open(int displayImgWidth, int displayImgHeight)
     // Filled from ini file
     m_displayImgWidth  = displayImgWidth;
     m_displayImgHeight = displayImgHeight;
-    m_diplayImage = cv::Mat(cv::Size(m_displayImgWidth, m_displayImgHeight), CV_8UC3, cv::Scalar::all(0));
+    m_displayImage = cv::Mat(cv::Size(m_displayImgWidth, m_displayImgHeight), CV_8UC3, cv::Scalar::all(0));
 
     // creates a full screen cv window
     cv::namedWindow("SonyHMZT3W", CV_NORMAL);

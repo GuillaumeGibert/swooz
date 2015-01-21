@@ -64,11 +64,12 @@ class SWKinectRFModule : public yarp::os::RFModule
 
     private:
 
+        yarp::sig::ImageOf<yarp::sig::PixelRgb>    m_rgb;
 
         swDevice::SWKinect_thread m_kinectThread;
 
-        yarp::os::BufferedPort<yarp::sig::ImageOf<yarp::sig::PixelRgb> > m_rgb;
-        yarp::os::BufferedPort<yarp::sig::ImageOf<yarp::sig::PixelRgbInt> > m_depth; // s
+        yarp::os::BufferedPort<yarp::sig::ImageOf<yarp::sig::PixelRgb> > m_rgbPort;
+        yarp::os::BufferedPort<yarp::sig::ImageOf<yarp::sig::PixelRgbInt> > m_depthPort; // s
 
         int m_fps;   /**< refresh rate of updateModule calling */
 };

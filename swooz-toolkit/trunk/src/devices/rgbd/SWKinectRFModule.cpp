@@ -18,8 +18,8 @@ bool SWKinectRFModule::configure()
     m_kinectThread.init(0);
     m_kinectThread.startListening();
 
-    m_rgb.open("/tracking/image:o");
-    m_depth.open("/tracking/depth:o");
+    m_rgbPort.open("/tracking/image:o");
+    m_depthPort.open("/tracking/depth:o");
 
     return true;
 }
@@ -27,45 +27,53 @@ bool SWKinectRFModule::configure()
 
 bool SWKinectRFModule::updateModule()
 {
-    cv::Mat rgb   = m_kinectThread.bgrImage();
-    cv::Mat depth = m_kinectThread.depthMap();
+    cv::Mat rgb   = m_kinectThread.bgrImage().clone();
+    cv::Mat depth = m_kinectThread.depthMap().clone();
 
-    ImageOf<PixelRgb>    l_rgb;
-    l_rgb = m_rgb.prepare();
-
-    l_rgb.resize(rgb.rows, rgb.cols);
-    for(int ii = 0; ii < rgb.rows; ++ii)
+    if(rgb.rows > 0)
     {
-        for(int jj = 0; jj < rgb.cols; ++jj)
+        m_rgb = m_rgbPort.prepare();
+
+        m_rgb.resize(rgb.rows, rgb.cols);
+        for(int ii = 0; ii < rgb.rows; ++ii)
         {
-            PixelRgb pix;
-            cv::Vec<uchar, 3> vec = rgb.at<cv::Vec<uchar,3> >(ii,jj);
-            pix.r = vec[0];
-            pix.g = vec[1];
-            pix.b = vec[2];
-            l_rgb.pixel(ii,jj) = pix;
+            for(int jj = 0; jj < rgb.cols; ++jj)
+            {
+                PixelRgb pix;
+                cv::Vec<uchar, 3> vec = rgb.at<cv::Vec<uchar,3> >(ii,jj);
+                pix.r = vec[0];
+                pix.g = vec[1];
+                pix.b = vec[2];
+                m_rgb.pixel(ii,jj) = pix;
+            }
+        }
+
+        ImageOf<PixelRgbInt> l_depth;
+        l_depth = m_depthPort.prepare();
+
+        l_depth.resize(depth.rows, depth.cols);
+        for(int ii = 0; ii < depth.rows; ++ii)
+        {
+            for(int jj = 0; jj < depth.cols; ++jj)
+            {
+                PixelRgbInt pix;
+                cv::Vec<ushort, 1> vec = depth.at<cv::Vec<ushort,1> >(ii,jj);
+                pix.r = static_cast<int>(vec[0]);
+                pix.g = static_cast<int>(vec[1]);
+                pix.b = static_cast<int>(vec[2]);
+                l_depth.pixel(ii,jj) = pix;
+            }
+        }
+
+        if(!m_rgbPort.isWriting())
+        {
+            m_rgbPort.write(true);
+        }
+        if(!m_depthPort.isWriting())
+        {
+            m_depthPort.write(true);
         }
     }
-
-    ImageOf<PixelRgbInt> l_depth;
-    l_depth = m_depth.prepare();
-
-    l_depth.resize(depth.rows, depth.cols);
-    for(int ii = 0; ii < depth.rows; ++ii)
-    {
-        for(int jj = 0; jj < depth.cols; ++jj)
-        {
-            PixelRgbInt pix;
-            cv::Vec<ushort, 1> vec = depth.at<cv::Vec<ushort,1> >(ii,jj);
-            pix.r = static_cast<int>(vec[0]);
-            pix.g = static_cast<int>(vec[1]);
-            pix.b = static_cast<int>(vec[2]);
-            l_depth.pixel(ii,jj) = pix;
-        }
-    }
-
-    m_rgb.write();
-    m_depth.write();
 
     return true;
 }
@@ -79,8 +87,8 @@ double SWKinectRFModule::getPeriod()
 bool SWKinectRFModule::interruptModule()
 {
 
-    m_rgb.interrupt();
-    m_depth.interrupt();
+    m_rgbPort.interrupt();
+    m_depthPort.interrupt();
     std::cout << "--> Interrupting the Kinect Tracking module..." << std::endl;
     return true;
 }
@@ -89,8 +97,8 @@ bool SWKinectRFModule::close()
 {
     m_kinectThread.stopListening();
 
-    m_rgb.close();
-    m_depth.close();
+    m_rgbPort.close();
+    m_depthPort.close();
 
     return true;
 }

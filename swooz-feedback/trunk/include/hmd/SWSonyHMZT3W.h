@@ -66,7 +66,7 @@ class SWSonyHMZT3W
         int m_displayImgHeight;     /**< height image display */
         int m_eyeToDisplay;         /**< eyes to diplay : 0 -> the both alternately, 1 -> left, 2 -> right */
 
-        cv::Mat m_diplayImage;
+        cv::Mat m_displayImage;
 
 
         yarp::os::BufferedPort<yarp::sig::ImageOf<yarp::sig::PixelRgb> > m_leftEyeImagePort;  // make a port for reading left eye images

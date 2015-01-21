@@ -65,7 +65,10 @@ SWMorphingInterface::SWMorphingInterface() : m_uiMorphing(new Ui::SWUI_Morphing)
             m_uiMorphing->cbCorr->setChecked(true);
             m_uiMorphing->cbLandmarks->setChecked(true);
             m_uiMorphing->cbUseLandmarks->setChecked(true);
-            m_uiMorphing->rbStasm->setChecked(true);
+            m_uiMorphing->rbManual->setChecked(true);
+
+        setStyleSheet("QGroupBox { color: blue; } ");
+
 
     // middle container
         QHBoxLayout *l_pGLContainerLayout = new QHBoxLayout();
@@ -85,7 +88,6 @@ SWMorphingInterface::SWMorphingInterface() : m_uiMorphing(new Ui::SWUI_Morphing)
         l_pGLContainerLayout->addWidget(m_pGLOSNRICP);
         m_pGLContainer->setLayout(l_pGLContainerLayout);
         m_uiMorphing->glScene->addWidget(m_pGLContainer);
-
 
     // init worker
         m_pWMorphing = new SWMorphingWorker(m_pGLOSNRICP);
