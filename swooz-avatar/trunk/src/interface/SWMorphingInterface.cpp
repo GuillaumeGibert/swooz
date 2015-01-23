@@ -14,7 +14,6 @@
 
 #include "interface/QtWidgets/SWGLOptimalStepNonRigidICP.h"
 
-
 #include <cloud/SWAlignClouds.h>
 
 
@@ -22,7 +21,19 @@
 
 #include <time.h>
 
-SWMorphingInterface::SWMorphingInterface() : m_uiMorphing(new Ui::SWUI_Morphing)
+int main(int argc, char* argv[])
+{
+    QApplication l_oApp(argc, argv);
+    SWMorphingInterface l_oMorphingInterface(&l_oApp);
+    l_oMorphingInterface.resize(1800, 900);
+    l_oMorphingInterface.move(50,50);
+    l_oMorphingInterface.show();
+
+    return l_oApp.exec();
+}
+
+
+SWMorphingInterface::SWMorphingInterface(QApplication *parent) : m_uiMorphing(new Ui::SWUI_Morphing)
 {      
     m_bTemplateDefined  = false;
     m_bTargetDefined    = false;
@@ -89,10 +100,11 @@ SWMorphingInterface::SWMorphingInterface() : m_uiMorphing(new Ui::SWUI_Morphing)
         m_pGLContainer->setLayout(l_pGLContainerLayout);
         m_uiMorphing->glScene->addWidget(m_pGLContainer);
 
+
     // init worker
         m_pWMorphing = new SWMorphingWorker(m_pGLOSNRICP);
 
-        // m_pWMorphing
+        // m_pWMorphing        
         QObject::connect(m_pWMorphing,  SIGNAL(updateSceneDisplaySignal()),     m_pGLOSNRICP,               SLOT(refreshDisplay()));
         QObject::connect(m_pWMorphing,  SIGNAL(endMorphingSignal()),            this,                       SLOT(unlockInterface()));
         QObject::connect(m_pWMorphing,  SIGNAL(endMorphingSignal()),            m_pGLOSNRICP,               SLOT(updateDisplayTextEndMorphing()));
@@ -104,6 +116,11 @@ SWMorphingInterface::SWMorphingInterface() : m_uiMorphing(new Ui::SWUI_Morphing)
         QObject::connect(this,          SIGNAL(sendInfoTargetClickedPoints(QString)), m_uiMorphing->tbTargetLandmarks, SLOT(setText(QString)));
 
         // m_uiMorphing
+            // menu
+        QObject::connect(m_uiMorphing->actionExit, SIGNAL(triggered()), parent, SLOT(quit()));
+        QObject::connect(m_uiMorphing->actionOnlineDocumentation, SIGNAL(triggered()), this, SLOT(openOnlineDocumentation()));
+        QObject::connect(m_uiMorphing->actionSaveResult, SIGNAL(triggered()), this, SLOT(saveMeshFile()));
+        QObject::connect(m_uiMorphing->actionAbout, SIGNAL(triggered()), this, SLOT(openAboutWindow()));
             // pushbuttons
         QObject::connect(m_uiMorphing->pbSetTargetTexture,  SIGNAL(clicked()),      this,                   SLOT(setTargetTexture()));
         QObject::connect(m_uiMorphing->pbStart,             SIGNAL(clicked()),      m_pWMorphing,           SLOT(startMorphing()));
@@ -118,7 +135,7 @@ SWMorphingInterface::SWMorphingInterface() : m_uiMorphing(new Ui::SWUI_Morphing)
         QObject::connect(m_uiMorphing->pbCorr,              SIGNAL(clicked()),      m_pGLOSNRICP,           SLOT(computeDistWAndCorr()));
         QObject::connect(m_uiMorphing->pbResetParameters,   SIGNAL(clicked()),      this,                   SLOT(resetAllParameters()));
         QObject::connect(m_uiMorphing->pbSetLandManually,   SIGNAL(clicked()),      this,                   SLOT(setLandmarksManually()));
-        QObject::connect(m_uiMorphing->pbEraseLand,   SIGNAL(clicked()),      this,                         SLOT(eraseManuallyLandmarks()));
+        QObject::connect(m_uiMorphing->pbEraseLand,         SIGNAL(clicked()),      this,                         SLOT(eraseManuallyLandmarks()));
             // combobox
         QObject::connect(m_uiMorphing->cbUseLandmarks,      SIGNAL(clicked(bool)),  m_pGLOSNRICP, SLOT(setUseLandMarks(bool)));
         QObject::connect(m_uiMorphing->cbTemplateCloud,     SIGNAL(clicked(bool)),  m_pGLOSNRICP, SLOT(setCloudSDisplay(bool)));
@@ -184,6 +201,22 @@ SWMorphingInterface::~SWMorphingInterface()
 }
 
 
+void SWMorphingInterface::openAboutWindow()
+{
+    QString l_text("<p><a href=\"http://swooz.free.fr\"> SWoOz</a> is a software platform written in C++ used for behavioral experiments based on interactions between people and robots or 3D avatars.<br /><br />");
+    l_text += "Morphing software for fitting references avatars meshes.<br /> </b>";
+    l_text += "Developped in the Robotic Cognition Laboratory of the <a href=\"http://www.sbri.fr/\"> SBRI</a> under the direction of <b>Guillaume Gibert. </b>";
+    l_text += "<br /><br /> Author : <b>Lance Florian </b> <a href=\"https://github.com/FlorianLance\"> Github profile</a> <br />";
+    l_text += "<a href=\"https://github.com/GuillaumeGibert/swooz\"> Repository</a>";
+    QMessageBox::about(this, "About the software", l_text);
+}
+
+
+void SWMorphingInterface::openOnlineDocumentation()
+{
+    QDesktopServices::openUrl(QUrl("https://github.com/GuillaumeGibert/swooz/wiki/avatar#morphing", QUrl::TolerantMode));
+}
+
 void SWMorphingInterface::resetAllParameters()
 {
     // set default values
@@ -227,10 +260,12 @@ void SWMorphingInterface::setTemplateMeshPath()
     {
         m_uiMorphing->pbStart->setEnabled(true);
         m_uiMorphing->pbSaveMorphedMesh->setEnabled(true);
+        m_uiMorphing->actionSaveResult->setEnabled(true);
         m_uiMorphing->pbCorr->setEnabled(true);
         m_uiMorphing->pbSetLandManually->setEnabled(true);
     }
 }
+
 
 void SWMorphingInterface::setTargetMeshPath()
 {
@@ -243,27 +278,20 @@ void SWMorphingInterface::setTargetMeshPath()
     {
         m_uiMorphing->pbStart->setEnabled(true);
         m_uiMorphing->pbSaveMorphedMesh->setEnabled(true);
+        m_uiMorphing->actionSaveResult->setEnabled(true);
         m_uiMorphing->pbCorr->setEnabled(true);
         m_uiMorphing->pbSetLandManually->setEnabled(true);
         m_uiMorphing->pbEraseLand->setEnabled(true);
     }
 }
 
-int main(int argc, char* argv[])
-{
-    QApplication l_oApp(argc, argv);
-    SWMorphingInterface l_oMorphingInterface;
-    l_oMorphingInterface.resize(1800, 900);
-    l_oMorphingInterface.move(50,50);
-    l_oMorphingInterface.show();
 
-    return l_oApp.exec();
-}
 
 void SWMorphingInterface::unlockInterface()
 {
     m_uiMorphing->pbStart->setEnabled(true);
     m_uiMorphing->pbSaveMorphedMesh->setEnabled(true);
+    m_uiMorphing->actionSaveResult->setEnabled(true);
     m_uiMorphing->pbResetParameters->setEnabled(true);
     m_uiMorphing->pbCorr->setEnabled(true);
     m_uiMorphing->pbResetMorphing->setEnabled(true);
@@ -296,6 +324,7 @@ void SWMorphingInterface::lockInterface()
 {
     m_uiMorphing->pbStart->setDisabled(true);
     m_uiMorphing->pbSaveMorphedMesh->setDisabled(true);
+    m_uiMorphing->actionSaveResult->setDisabled(true);
     m_uiMorphing->pbResetParameters->setDisabled(true);
     m_uiMorphing->pbCorr->setDisabled(true);
     m_uiMorphing->pbResetMorphing->setDisabled(true);

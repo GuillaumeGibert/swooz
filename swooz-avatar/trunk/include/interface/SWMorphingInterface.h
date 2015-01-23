@@ -36,7 +36,7 @@ class SWMorphingInterface : public QMainWindow
         /**
          * \brief Constructor of SWMorphingInterface
          */
-        SWMorphingInterface();
+        SWMorphingInterface(QApplication *parent);
 
         /**
          * \brief Destructor of SWMorphingInterface
@@ -47,6 +47,11 @@ class SWMorphingInterface : public QMainWindow
         // ############################################# METHODS
 
     public slots:
+
+        /**
+         * @brief openOnlineDocumentation
+         */
+        void openOnlineDocumentation();
 
         /**
          * \brief Lock critical widgets
@@ -94,24 +99,55 @@ class SWMorphingInterface : public QMainWindow
          */
         void setLandmarksManually();
 
-
+        /**
+         * @brief lockInterfaceForLandmarksSetting
+         */
         void lockInterfaceForLandmarksSetting();
 
+        /**
+         * @brief unlockInterfaceForLandmarksSetting
+         */
         void unlockInterfaceForLandmarksSetting();
 
+        /**
+         * @brief landmarksSetManuallyEscape
+         */
         void landmarksSetManuallyEscape();
 
+        /**
+         * @brief setLandmarks3DDisplayTemplate
+         */
         void setLandmarks3DDisplayTemplate();
 
+        /**
+         * @brief setLandmarks3DDisplayTarget
+         */
         void setLandmarks3DDisplayTarget();
 
+        /**
+         * @brief landmarksSetManuallyNextPoint
+         */
         void landmarksSetManuallyNextPoint();
 
+        /**
+         * @brief eraseManuallyLandmarks
+         */
         void eraseManuallyLandmarks();
 
+        /**
+         * @brief setLandmarksUsage
+         */
         void setLandmarksUsage();
 
+        /**
+         * @brief setTargetTexture
+         */
         void setTargetTexture();
+
+        /**
+         * @brief openAboutWindow
+         */
+        void openAboutWindow();
 
 
     signals:

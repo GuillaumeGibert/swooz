@@ -44,15 +44,29 @@
            <item row="6" column="1" colspan="2">
             <widget class="QPushButton" name="pbSetTarget">
              <property name="text">
-              <string>Set target mesh</string>
+              <string>Set target</string>
              </property>
             </widget>
            </item>
            <item row="3" column="1" rowspan="2" colspan="3">
-            <widget class="QTextBrowser" name="tbInfosTemplate"/>
+            <widget class="QTextBrowser" name="tbInfosTemplate">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>150</height>
+              </size>
+             </property>
+            </widget>
            </item>
            <item row="8" column="1" rowspan="2" colspan="3">
-            <widget class="QTextBrowser" name="tbInfosTarget"/>
+            <widget class="QTextBrowser" name="tbInfosTarget">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>150</height>
+              </size>
+             </property>
+            </widget>
            </item>
            <item row="1" column="0" rowspan="2">
             <widget class="QLabel" name="label_2">
@@ -71,7 +85,7 @@
            <item row="0" column="1" colspan="2">
             <widget class="QPushButton" name="pbSetTemplate">
              <property name="text">
-              <string>Set template mesh</string>
+              <string>Set template</string>
              </property>
             </widget>
            </item>
@@ -115,7 +129,7 @@
               </size>
              </property>
              <property name="text">
-              <string>Save morphed mesh</string>
+              <string>Save morphing</string>
              </property>
             </widget>
            </item>
@@ -151,11 +165,11 @@
            <item row="0" column="0">
             <widget class="QTabWidget" name="twParameters">
              <property name="currentIndex">
-              <number>1</number>
+              <number>0</number>
              </property>
              <widget class="QWidget" name="tabMainParameters">
               <attribute name="title">
-               <string>Main</string>
+               <string>BASIC</string>
               </attribute>
               <layout class="QGridLayout" name="gridLayout_10">
                <item row="0" column="0">
@@ -280,7 +294,7 @@
              </widget>
              <widget class="QWidget" name="tabDisplayedParameters">
               <attribute name="title">
-               <string>Displayed</string>
+               <string>DISPLAY</string>
               </attribute>
               <layout class="QGridLayout" name="gridLayout_9">
                <item row="0" column="0">
@@ -537,7 +551,7 @@
              </widget>
              <widget class="QWidget" name="tab_3">
               <attribute name="title">
-               <string>Expert</string>
+               <string>EMCIP</string>
               </attribute>
               <layout class="QGridLayout" name="gridLayout_4">
                <item row="0" column="0">
@@ -903,7 +917,7 @@
                 <item row="0" column="0" colspan="2" alignment="Qt::AlignHCenter">
                  <widget class="QLabel" name="laTrans">
                   <property name="text">
-                   <string>Translation</string>
+                   <string>Translations</string>
                   </property>
                  </widget>
                 </item>
@@ -1112,8 +1126,59 @@
      <height>21</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionSaveResult"/>
+    <addaction name="actionExit"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionAbout"/>
+    <addaction name="actionOnlineDocumentation"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionSaveResult">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Save result</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="text">
+    <string>Exit</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+A</string>
+   </property>
+  </action>
+  <action name="actionOnlineDocumentation">
+   <property name="text">
+    <string>Online documentation</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+D</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>
