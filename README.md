@@ -25,7 +25,7 @@ Links :
 Content :
 ---------
  * A toolkit for working with tracking devices :
-   * interfaces (Kinect/Xtion, Leap, FaceLab, Fastrak Polhemus, Tobii, Sony hmz, Oculus Rift(soon),...)
+   * interfaces (Kinect/Xtion, Leap, FaceLab, Fastrak Polhemus, Tobii, Sony hmz,...)
  * Modules based on yarp :
    * Tracking human movements without intrusive devices : head, gaze, face, torso, arms, hands, fingers
    * Teleoperation for iCub, NAO, 3D Avatars based on the tracking modules
