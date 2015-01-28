@@ -175,9 +175,12 @@ class SWMorphingInterface : public QMainWindow
 
     private :
 
-        bool m_bTemplateDefined;
-        bool m_bTargetDefined;
-        bool m_bGLFullScreen;
+
+        QString m_absolutePath;         /**< absolute path used for init dialog boxes */
+
+        bool m_isTemplateDefined;       /**< is the template mesh defined ? */
+        bool m_isTargetDefined;         /**< ... */
+        bool m_isGLFullScreen;          /**< ... */
 
         bool m_bSetLandmarksManually;
         bool m_bSetLandmarksTemplate;

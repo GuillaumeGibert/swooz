@@ -35,9 +35,9 @@ int main(int argc, char* argv[])
 
 SWMorphingInterface::SWMorphingInterface(QApplication *parent) : m_uiMorphing(new Ui::SWUI_Morphing)
 {      
-    m_bTemplateDefined  = false;
-    m_bTargetDefined    = false;
-    m_bGLFullScreen     = false;
+    m_isTemplateDefined  = false;
+    m_isTargetDefined    = false;
+    m_isGLFullScreen     = false;
     m_pathTargetTexture = "";
 
     m_bSetLandmarksManually = false;
@@ -254,9 +254,9 @@ void SWMorphingInterface::setTemplateMeshPath()
     QString l_sPathTemplateMesh = QFileDialog::getOpenFileName(this, "Load template mesh", QString(), "Mesh file (*.obj)");;
     m_uiMorphing->lePathTemplate->setText(l_sPathTemplateMesh);
     m_pGLOSNRICP->setSourceMesh(l_sPathTemplateMesh);   
-    m_bTemplateDefined = true;
+    m_isTemplateDefined = true;
 
-    if(m_bTemplateDefined && m_bTargetDefined)
+    if(m_isTemplateDefined && m_isTargetDefined)
     {
         m_uiMorphing->pbStart->setEnabled(true);
         m_uiMorphing->pbSaveMorphedMesh->setEnabled(true);
@@ -272,9 +272,9 @@ void SWMorphingInterface::setTargetMeshPath()
     QString l_sPathTargetMesh = QFileDialog::getOpenFileName(this, "Load target mesh", QString(), "Mesh file (*.obj)");;
     m_uiMorphing->lePathTarget->setText(l_sPathTargetMesh);
     m_pGLOSNRICP->setTargetMesh(l_sPathTargetMesh);
-    m_bTargetDefined = true;
+    m_isTargetDefined = true;
 
-    if(m_bTemplateDefined && m_bTargetDefined)
+    if(m_isTemplateDefined && m_isTargetDefined)
     {
         m_uiMorphing->pbStart->setEnabled(true);
         m_uiMorphing->pbSaveMorphedMesh->setEnabled(true);
@@ -356,20 +356,20 @@ void SWMorphingInterface::lockInterface()
 
 void SWMorphingInterface::enableGLFullScreen()
 {
-    if(!m_bGLFullScreen)
+    if(!m_isGLFullScreen)
     {
         m_pGLContainer->setParent(0);
         m_pGLContainer->showFullScreen();
-        m_bGLFullScreen = true;
+        m_isGLFullScreen = true;
     }
 }
 
 void SWMorphingInterface::disableGLFullScreen()
 {
-    if(m_bGLFullScreen)
+    if(m_isGLFullScreen)
     {
         m_uiMorphing->glScene->addWidget(m_pGLContainer);
-        m_bGLFullScreen = false;
+        m_isGLFullScreen = false;
     }
 }
 
