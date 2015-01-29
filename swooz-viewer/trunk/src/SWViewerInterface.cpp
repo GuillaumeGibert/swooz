@@ -40,12 +40,15 @@
 #include <time.h>
 
 
-SWViewerInterface::SWViewerInterface() : m_uiViewer(new Ui::SWUI_Viewer), m_bDesactiveUpdateParameters(false), m_bGLFullScreen(false)
+SWViewerInterface::SWViewerInterface(QApplication *parent) : m_uiViewer(new Ui::SWUI_Viewer), m_bDesactiveUpdateParameters(false), m_bGLFullScreen(false)
 {
+    // set absolute path
+        m_absolutePath = QDir::currentPath() + "/";
+
     // init main widget
     m_uiViewer->setupUi(this);
     this->setWindowTitle(QString("SWoOz : Viewer"));
-    this->setWindowIcon(QIcon(QString("../data/images/logos/icon_swooz_viewer.png")));
+    this->setWindowIcon(QIcon(m_absolutePath + "../data/images/logos/icon_swooz_viewer.png"));
 
     // middle container
         QHBoxLayout *l_pGLContainerLayout = new QHBoxLayout();
@@ -65,6 +68,10 @@ SWViewerInterface::SWViewerInterface() : m_uiViewer(new Ui::SWUI_Viewer), m_bDes
         m_pWViewer = new SWViewerWorker();
 
     // init connections
+        // menu
+            QObject::connect(m_uiViewer->actionExit, SIGNAL(triggered()), parent, SLOT(quit()));
+            QObject::connect(m_uiViewer->actionOnline_documentation, SIGNAL(triggered()), this, SLOT(openOnlineDocumentation()));
+            QObject::connect(m_uiViewer->actionAbout, SIGNAL(triggered()), this, SLOT(openAboutWindow()));
         QObject::connect(m_uiViewer->pbLoadCloud, SIGNAL(clicked()), this, SLOT(loadCloud()));
         QObject::connect(m_uiViewer->pbLoadMesh, SIGNAL(clicked()), this, SLOT(loadMesh()));
         QObject::connect(m_uiViewer->pbDeleteCloud, SIGNAL(clicked()), this, SLOT(deleteCloud()));
@@ -148,6 +155,10 @@ SWViewerInterface::SWViewerInterface() : m_uiViewer(new Ui::SWUI_Viewer), m_bDes
 
             QObject::connect(m_pWViewer, SIGNAL(drawSceneSignal()), m_pGLMultiObject, SLOT(updateGL()));
 
+
+            setStyleSheet("QGroupBox { padding: 10 0px 0 0px; color: blue; border: 1px solid gray; border-radius: 5px; margin-top: 1ex; /* leave space at the top for the title */}");
+
+
     // init thread
         m_pWViewer->moveToThread(&m_TViewer);
         m_TViewer.start();
@@ -178,7 +189,7 @@ void SWViewerInterface::closeEvent(QCloseEvent *event)
 void SWViewerInterface::loadModFile()
 {
     // retrieve obj path
-        QString l_sPathMod = QFileDialog::getOpenFileName(this, "Load mod file", QString(), "Mod file (*.mod)");
+        QString l_sPathMod = QFileDialog::getOpenFileName(this, "Load mod file", m_absolutePath + "../data/animation", "Mod file (*.mod)");
         if(l_sPathMod == "")
         {
             return;
@@ -209,7 +220,7 @@ void SWViewerInterface::loadModFile()
 void SWViewerInterface::loadSeqFile()
 {
     // retrieve obj path
-        QString l_sPathSeq = QFileDialog::getOpenFileName(this, "Load seq file", QString(), "Seq file (*.seq)");
+        QString l_sPathSeq = QFileDialog::getOpenFileName(this, "Load seq file", m_absolutePath + "../data/animation", "Seq file (*.seq)");
         if(l_sPathSeq == "")
         {
             return;
@@ -239,7 +250,7 @@ void SWViewerInterface::loadSeqFile()
 void SWViewerInterface::loadMeshCorrFile()
 {
     // retrieve obj path
-        QString l_sPathObjCorr = QFileDialog::getOpenFileName(this, "Load corr file", QString(), "Seq file (*.obj)");
+        QString l_sPathObjCorr = QFileDialog::getOpenFileName(this, "Load corr file", m_absolutePath + "../data/animation", "Seq file (*.obj)");
         if(l_sPathObjCorr == "")
         {
             return;
@@ -277,7 +288,7 @@ void SWViewerInterface::updateAnimationPathFileDisplay(QString modFilePath, QStr
 void SWViewerInterface::loadCloud()
 {
     // retrieve obj path
-        QString l_sPathCloud = QFileDialog::getOpenFileName(this, "Load cloud", QString(), "Mesh file (*.obj)");
+        QString l_sPathCloud = QFileDialog::getOpenFileName(this, "Load cloud", m_absolutePath + "../data/clouds", "Mesh file (*.obj)");
 
         if(l_sPathCloud == "")
         {
@@ -302,7 +313,7 @@ void SWViewerInterface::loadCloud()
 void SWViewerInterface::loadMesh()
 {
     // retrieve obj path
-        QString l_sPathMesh = QFileDialog::getOpenFileName(this, "Load mesh", QString(), "Mesh file (*.obj)");
+        QString l_sPathMesh = QFileDialog::getOpenFileName(this, "Load mesh", m_absolutePath + "../data/meshes", "Mesh file (*.obj)");
 
         if(l_sPathMesh == "")
         {
@@ -428,6 +439,7 @@ void SWViewerInterface::deleteMesh()
     // update interface with new mesh parameters
         updateMeshInterfaceParameters();
 }
+
 
 void SWViewerInterface::updateParameters(int i32Inused)
 {
@@ -728,7 +740,7 @@ void SWViewerInterface::updateInterfaceParameters()
 void SWViewerInterface::setTexture()
 {
     // retrieve obj path
-        QString l_sPathTexture = QFileDialog::getOpenFileName(this, "Load texture", QString(), "Texture file (*.png)");
+        QString l_sPathTexture = QFileDialog::getOpenFileName(this, "Load texture", m_absolutePath + "../data/meshes", "Texture file (*.png)");
         m_uiViewer->leTexturePath->setText(l_sPathTexture);
 }
 
@@ -763,15 +775,32 @@ void SWViewerInterface::disableGLFullScreen()
     }
 }
 
+void SWViewerInterface::openAboutWindow()
+{
+    QString l_text("<p><a href=\"http://swooz.free.fr\"> SWoOz</a> is a software platform written in C++ used for behavioral experiments based on interactions between people and robots or 3D avatars.<br /><br />");
+    l_text += "A cloud/mesh viewer software.<br /> </b>";
+    l_text += "Developped in the Robotic Cognition Laboratory of the <a href=\"http://www.sbri.fr/\"> SBRI</a> under the direction of <b>Guillaume Gibert. </b>";
+    l_text += "<br /><br /> Author : <b>Lance Florian </b> <a href=\"https://github.com/FlorianLance\"> Github profile</a> <br />";
+    l_text += "<a href=\"https://github.com/GuillaumeGibert/swooz\"> Repository</a>";
+    QMessageBox::about(this, "About the software", l_text);
+}
+
+void SWViewerInterface::openOnlineDocumentation()
+{
+    QDesktopServices::openUrl(QUrl("https://github.com/GuillaumeGibert/swooz/wiki/avatar#morphing", QUrl::TolerantMode));
+}
+
+
+
 int main(int argc, char* argv[])
 {
-    QApplication l_oApp(argc, argv);
-    SWViewerInterface l_oViewerInterface;
-    l_oViewerInterface.resize(1800, 900);
-    l_oViewerInterface.move(50,50);
-    l_oViewerInterface.show();
+    QApplication l_app(argc, argv);
+    SWViewerInterface l_viewerInterface(&l_app);
+    l_viewerInterface.resize(1800, 900);
+    l_viewerInterface.move(50,50);
+    l_viewerInterface.show();
 
-    return l_oApp.exec();
+    return l_app.exec();
 }
 
 SWViewerWorker::SWViewerWorker() : m_i32LoopPeriod(1000/60)

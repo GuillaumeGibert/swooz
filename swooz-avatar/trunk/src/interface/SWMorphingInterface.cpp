@@ -60,6 +60,9 @@ int main(int argc, char* argv[])
 
 SWMorphingInterface::SWMorphingInterface(QApplication *parent) : m_uiMorphing(new Ui::SWUI_Morphing)
 {      
+// set absolute path
+    m_absolutePath = QDir::currentPath() + "/";
+
     m_isTemplateDefined  = false;
     m_isTargetDefined    = false;
     m_isGLFullScreen     = false;
@@ -70,7 +73,7 @@ SWMorphingInterface::SWMorphingInterface(QApplication *parent) : m_uiMorphing(ne
     // init main widget
     m_uiMorphing->setupUi(this);
     this->setWindowTitle(QString("SWoOz : Morphing"));
-    this->setWindowIcon(QIcon(QString("../data/images/logos/icon_swooz_morphing.png")));
+    this->setWindowIcon(QIcon(m_absolutePath + "../data/images/logos/icon_swooz_morphing.png"));
 
     // set default values
     m_i32RotXDefaultValue = m_i32RotYDefaultValue = m_i32RotZDefaultValue = 1800;
@@ -207,6 +210,9 @@ SWMorphingInterface::SWMorphingInterface(QApplication *parent) : m_uiMorphing(ne
         QObject::connect(this, SIGNAL(updateTargetTexture(QString)), m_pGLOSNRICP, SLOT(updateTargetTexture(QString)));
 
 
+        setStyleSheet("QGroupBox { padding: 10 0px 0 0px; color: blue; border: 1px solid gray; border-radius: 5px; margin-top: 1ex; /* leave space at the top for the title */}");
+
+
         // this
         QObject::connect(this,                              SIGNAL(saveMeshFileSignal(QString)),m_pWMorphing,SLOT(saveMeshFile(QString)));
 
@@ -270,13 +276,13 @@ void SWMorphingInterface::resetAllParameters()
 
 void SWMorphingInterface::saveMeshFile()
 {
-    QString l_sPathFileToSave = QFileDialog::getSaveFileName(this, "Save mesh file", QString(), "Mesh file (*.obj)");
+    QString l_sPathFileToSave = QFileDialog::getSaveFileName(this, "Save mesh file",  m_absolutePath + "../data/meshes", "Mesh file (*.obj)");
     emit saveMeshFileSignal(l_sPathFileToSave);
 }
 
 void SWMorphingInterface::setTemplateMeshPath()
 {
-    QString l_sPathTemplateMesh = QFileDialog::getOpenFileName(this, "Load template mesh", QString(), "Mesh file (*.obj)");;
+    QString l_sPathTemplateMesh = QFileDialog::getOpenFileName(this, "Load template mesh",  m_absolutePath + "../data/meshes", "Mesh file (*.obj)");;
     m_uiMorphing->lePathTemplate->setText(l_sPathTemplateMesh);
     m_pGLOSNRICP->setSourceMesh(l_sPathTemplateMesh);   
     m_isTemplateDefined = true;
@@ -294,7 +300,7 @@ void SWMorphingInterface::setTemplateMeshPath()
 
 void SWMorphingInterface::setTargetMeshPath()
 {
-    QString l_sPathTargetMesh = QFileDialog::getOpenFileName(this, "Load target mesh", QString(), "Mesh file (*.obj)");;
+    QString l_sPathTargetMesh = QFileDialog::getOpenFileName(this, "Load target mesh", m_absolutePath + "../data/meshes", "Mesh file (*.obj)");;
     m_uiMorphing->lePathTarget->setText(l_sPathTargetMesh);
     m_pGLOSNRICP->setTargetMesh(l_sPathTargetMesh);
     m_isTargetDefined = true;
@@ -491,7 +497,6 @@ void SWMorphingInterface::landmarksSetManuallyNextPoint()
         int l_idClickedTemplateMeshPoint;
         QVector3D l_clickedTemplateMeshPoint;
         m_pGLOSNRICP->stockCurrentClickedMeshPoint(true, l_idClickedTemplateMeshPoint,l_clickedTemplateMeshPoint);
-        qDebug() << "template point selected : " << l_clickedTemplateMeshPoint << " id -> " << l_idClickedTemplateMeshPoint;
         m_bSetLandmarksTemplate = false;
         m_pGLOSNRICP->setTemplateMeshPointSelection(false);
 
@@ -508,7 +513,6 @@ void SWMorphingInterface::landmarksSetManuallyNextPoint()
         int l_idClickedTargetMeshPoint;
         QVector3D l_clickedTargetMeshPoint;
         m_pGLOSNRICP->stockCurrentClickedMeshPoint(false, l_idClickedTargetMeshPoint,l_clickedTargetMeshPoint);
-        qDebug() << "target point selected : " << l_clickedTargetMeshPoint << " id -> " << l_idClickedTargetMeshPoint;
         m_bSetLandmarksTemplate = true;
         m_pGLOSNRICP->setTemplateMeshPointSelection(true);
 
@@ -586,7 +590,7 @@ void SWMorphingInterface::landmarksSetManuallyEscape()
 void SWMorphingInterface::setTargetTexture()
 {
     // retrieve obj path
-        m_pathTargetTexture = QFileDialog::getOpenFileName(this, "Load texture", QString(), "Texture file (*.png)");
+        m_pathTargetTexture = QFileDialog::getOpenFileName(this, "Load texture", m_absolutePath + "../data/meshes", "Texture file (*.png)");
         emit updateTargetTexture(m_pathTargetTexture);
 
         m_pGLOSNRICP->setInfo3DDisplay("Texture loaded on the taget mesh. ");

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1220</width>
-    <height>899</height>
+    <height>956</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,7 +20,7 @@
       <item row="0" column="0">
        <widget class="QGroupBox" name="gbItems">
         <property name="title">
-         <string>Items</string>
+         <string>ITEMS</string>
         </property>
         <layout class="QGridLayout" name="gridLayout_5">
          <item row="0" column="0">
@@ -52,7 +52,7 @@
            <item row="0" column="0">
             <widget class="QLabel" name="laClouds">
              <property name="text">
-              <string>Clouds :</string>
+              <string>CLOUDS</string>
              </property>
             </widget>
            </item>
@@ -66,7 +66,7 @@
            <item row="4" column="0">
             <widget class="QLabel" name="laMeshes">
              <property name="text">
-              <string>Meshes :</string>
+              <string>MESHES</string>
              </property>
             </widget>
            </item>
@@ -115,7 +115,7 @@
       <item row="0" column="1">
        <widget class="QGroupBox" name="gbScene">
         <property name="title">
-         <string>Scene</string>
+         <string>SCENE</string>
         </property>
         <layout class="QGridLayout" name="gridLayout_4">
          <item row="0" column="0">
@@ -127,13 +127,13 @@
       <item row="0" column="2">
        <widget class="QGroupBox" name="gbParameters">
         <property name="title">
-         <string>Actions / Parameters</string>
+         <string>ACTIONS / PARAMETERS</string>
         </property>
         <layout class="QGridLayout" name="gridLayout_7">
          <item row="1" column="0">
           <widget class="QGroupBox" name="gbCamera">
            <property name="title">
-            <string>Camera</string>
+            <string>CAMERA</string>
            </property>
            <layout class="QGridLayout" name="gridLayout_3">
             <item row="0" column="0">
@@ -174,7 +174,7 @@
            <item row="0" column="0">
             <widget class="QGroupBox" name="gbSelectedItem">
              <property name="title">
-              <string>Selected item</string>
+              <string>SLECTED ITEM</string>
              </property>
              <layout class="QGridLayout" name="gridLayout_9">
               <item row="0" column="0">
@@ -911,7 +911,7 @@
          <item row="2" column="0">
           <widget class="QGroupBox" name="gbAnimate">
            <property name="title">
-            <string>Animate</string>
+            <string>ANIMATE</string>
            </property>
            <layout class="QGridLayout" name="gridLayout_8">
             <item row="0" column="0">
@@ -1043,8 +1043,47 @@
      <height>21</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionExit"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionAbout"/>
+    <addaction name="actionOnline_documentation"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionExit">
+   <property name="text">
+    <string>Exit</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+A</string>
+   </property>
+  </action>
+  <action name="actionOnline_documentation">
+   <property name="text">
+    <string>Online documentation</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+D</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

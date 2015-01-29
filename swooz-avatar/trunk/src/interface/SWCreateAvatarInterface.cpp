@@ -41,9 +41,12 @@
 #include "interface/SWConvQtOpencv.h"
 #include "cloud/SWImageProcessing.h"
 
-SWCreateAvatarInterface::SWCreateAvatarInterface(QWidget *oQWRelative) : QMainWindow(oQWRelative), m_uiCreateAvatar(new Ui::SWUI_WCreateAvatar),
+SWCreateAvatarInterface::SWCreateAvatarInterface(QApplication *parent) :  m_uiCreateAvatar(new Ui::SWUI_WCreateAvatar),
     m_oTimer(new QBasicTimer), m_bGLFullScreen(false)
 {
+    // set absolute path
+        m_absolutePath = QDir::currentPath() + "/";
+
     m_bWorkStarted = false;
     m_bResetKinect = false;
 
@@ -54,7 +57,7 @@ SWCreateAvatarInterface::SWCreateAvatarInterface(QWidget *oQWRelative) : QMainWi
 	// init main widget
     m_uiCreateAvatar->setupUi(this);
 	this->setWindowTitle(QString("SWoOz : Create avatar"));
-    this->setWindowIcon(QIcon(QString("../data/images/logos/icon_swooz_avatar.png")));
+    this->setWindowIcon(QIcon(m_absolutePath + "../data/images/logos/icon_swooz_avatar.png"));
 
 	// init opengl context
     QHBoxLayout *l_pGLContainerLayout = new QHBoxLayout();
@@ -85,7 +88,7 @@ SWCreateAvatarInterface::SWCreateAvatarInterface(QWidget *oQWRelative) : QMainWi
 //    m_WCloudGL->setMaximumSize(640,480);
     m_uiCreateAvatar->hlCloud->addWidget(m_WCloudGL);
     // mesh gl widget
-    m_WMeshGL = new SWGLMeshWidget(l_glContext2, this, "../data/shaders/createAvatarMesh.vert", "../data/shaders/createAvatarMesh.frag");  
+    m_WMeshGL = new SWGLMeshWidget(l_glContext2, this, m_absolutePath + "../data/shaders/createAvatarMesh.vert", m_absolutePath + "../data/shaders/createAvatarMesh.frag");
     m_WMeshGL->setCameraMode(SWQtCamera::TRACKBALL_CAMERA);
 
 
@@ -97,6 +100,11 @@ SWCreateAvatarInterface::SWCreateAvatarInterface(QWidget *oQWRelative) : QMainWi
     m_WCreateAvatar = new SWCreateAvatarWorker(&m_oKinectThread);
 
     // set connections
+    //      menu
+        QObject::connect(m_uiCreateAvatar->actionExit, SIGNAL(triggered()), parent, SLOT(quit()));
+        QObject::connect(m_uiCreateAvatar->actionOnline_documentation, SIGNAL(triggered()), this, SLOT(openOnlineDocumentation()));
+        QObject::connect(m_uiCreateAvatar->actionSave_result, SIGNAL(triggered()), this, SLOT(saveMeshFile()));
+        QObject::connect(m_uiCreateAvatar->actionAbout, SIGNAL(triggered()), this, SLOT(openAboutWindow()));
     //      start work
         QObject::connect(m_uiCreateAvatar->pbStart, SIGNAL(clicked()), this, SLOT(startWork()));
         QObject::connect(this, SIGNAL(startWorkSignal()), m_WCreateAvatar, SLOT(doWork()));
@@ -141,7 +149,7 @@ SWCreateAvatarInterface::SWCreateAvatarInterface(QWidget *oQWRelative) : QMainWi
     //          projection
         QObject::connect(m_uiCreateAvatar->sbWidth,     SIGNAL(valueChanged(int)),  m_WCreateAvatar,  SLOT(setRadialWidth(const int)));
         QObject::connect(m_uiCreateAvatar->sbHeight,    SIGNAL(valueChanged(int)),  m_WCreateAvatar,  SLOT(setRadialHeight(const int)));
-        QObject::connect(m_uiCreateAvatar->dsbRadius,   SIGNAL(valueChanged(double)),m_WCreateAvatar, SLOT(setCylinderRadius(double)));
+//        QObject::connect(m_uiCreateAvatar->dsbRadius,   SIGNAL(valueChanged(double)),m_WCreateAvatar, SLOT(setCylinderRadius(double)));
         QObject::connect(m_uiCreateAvatar->sbErode,     SIGNAL(valueChanged(int)),  m_WCreateAvatar,  SLOT(setErode(int)));
         QObject::connect(m_uiCreateAvatar->sbDilate,    SIGNAL(valueChanged(int)),  m_WCreateAvatar,  SLOT(setDilate(int)));
         QObject::connect(m_uiCreateAvatar->sbExpandValue,SIGNAL(valueChanged(int)), m_WCreateAvatar,  SLOT(setExpandValue(int)));
@@ -151,7 +159,7 @@ SWCreateAvatarInterface::SWCreateAvatarInterface(QWidget *oQWRelative) : QMainWi
     //          filter
         QObject::connect(m_uiCreateAvatar->sbColor,     SIGNAL(valueChanged(int)),  m_WCreateAvatar,  SLOT(setBilateralColor(const int)));
         QObject::connect(m_uiCreateAvatar->sbSpace,     SIGNAL(valueChanged(int)),  m_WCreateAvatar,  SLOT(setBilateralSpace(const int)));
-        QObject::connect(m_uiCreateAvatar->sbDiameter,  SIGNAL(valueChanged(int)),  m_WCreateAvatar,  SLOT(setBilateralDiameter(const int)));
+//        QObject::connect(m_uiCreateAvatar->sbDiameter,  SIGNAL(valueChanged(int)),  m_WCreateAvatar,  SLOT(setBilateralDiameter(const int)));
         QObject::connect(m_uiCreateAvatar->sbClouds,    SIGNAL(valueChanged(int)),  m_WCreateAvatar,  SLOT(setCloudNumberValue(const int)));
         QObject::connect(m_uiCreateAvatar->cbBilateralFilter,SIGNAL(toggled(bool)) ,m_WCreateAvatar,  SLOT(setUseBilateralFilter(bool)));
     //          rgbd device
@@ -164,8 +172,8 @@ SWCreateAvatarInterface::SWCreateAvatarInterface(QWidget *oQWRelative) : QMainWi
     //          display
         QObject::connect(m_uiCreateAvatar->cbDisplayLines,   SIGNAL(toggled(bool)), m_WMeshGL,        SLOT(setMeshLinesRender(const bool)));
         QObject::connect(m_uiCreateAvatar->cbApplyTexture,   SIGNAL(toggled(bool)), m_WMeshGL,        SLOT(applyTexture(bool)));
-        QObject::connect(m_uiCreateAvatar->dsbFOV,      SIGNAL(valueChanged(double)),m_WMeshGL,       SLOT(setFOV(const double)));
-        QObject::connect(m_uiCreateAvatar->dsbFOV,      SIGNAL(valueChanged(double)),m_WCloudGL,      SLOT(setFOV(const double)));
+//        QObject::connect(m_uiCreateAvatar->dsbFOV,      SIGNAL(valueChanged(double)),m_WMeshGL,       SLOT(setFOV(const double)));
+//        QObject::connect(m_uiCreateAvatar->dsbFOV,      SIGNAL(valueChanged(double)),m_WCloudGL,      SLOT(setFOV(const double)));
         QObject::connect(m_WCreateAvatar,               SIGNAL(sendNumCloud(int)),  this,             SLOT(setNumCloud(const int)));
 
     //      reset kinect
@@ -186,7 +194,7 @@ SWCreateAvatarInterface::SWCreateAvatarInterface(QWidget *oQWRelative) : QMainWi
         // spatial filter
             m_WCreateAvatar->setBilateralColor(m_uiCreateAvatar->sbColor->value());
             m_WCreateAvatar->setBilateralSpace(m_uiCreateAvatar->sbSpace->value());
-            m_WCreateAvatar->setBilateralDiameter(m_uiCreateAvatar->sbDiameter->value());
+            m_WCreateAvatar->setBilateralDiameter(-1);
         // temporal filter
             m_WCreateAvatar->setCloudNumberValue(m_uiCreateAvatar->sbClouds->value());
         // calibration
@@ -207,14 +215,14 @@ SWCreateAvatarInterface::SWCreateAvatarInterface(QWidget *oQWRelative) : QMainWi
             m_WCloudGL->setDepthRect(m_uiCreateAvatar->dsbFaceDepth->value());
             m_WCreateAvatar->setDepthCloud(m_uiCreateAvatar->dsbFaceDepth->value());
 
-
     // desactive debug interface components
-            m_uiCreateAvatar->laPixelDiameter->setVisible(false);
-            m_uiCreateAvatar->sbDiameter->setVisible(false);
-            m_uiCreateAvatar->laCynlinderRadius->setVisible(false);
-            m_uiCreateAvatar->dsbRadius->setVisible(false);
-            m_uiCreateAvatar->laFOV->setVisible(false);
-            m_uiCreateAvatar->dsbFOV->setVisible(false);
+//            m_uiCreateAvatar->laPixelDiameter->setVisible(false);
+//            m_uiCreateAvatar->sbDiameter->setVisible(false);
+//            m_uiCreateAvatar->laCynlinderRadius->setVisible(false);
+//            m_uiCreateAvatar->dsbRadius->setVisible(false);
+//            m_uiCreateAvatar->laFOV->setVisible(false);
+//            m_uiCreateAvatar->dsbFOV->setVisible(false);
+    setStyleSheet("QGroupBox { padding: 10 0px 0 0px; color: blue; border: 1px solid gray; border-radius: 5px; margin-top: 1ex; /* leave space at the top for the title */}");
 
 
     // init and start create avatar thread
@@ -264,6 +272,7 @@ void SWCreateAvatarInterface::startWork()
 {
     m_uiCreateAvatar->tw3D->setCurrentIndex(0);
     m_uiCreateAvatar->pbSaveAvatar->setEnabled(false);
+    m_uiCreateAvatar->actionSave_result->setEnabled(false);
 
     m_oMutex.lockForWrite();
         m_bWorkStarted = true;
@@ -450,13 +459,14 @@ void SWCreateAvatarInterface::updateNoseRectangle(cv::Rect *pNoseRect)
 
 void SWCreateAvatarInterface::saveMeshFile()
 {
-    QString l_sPathFileToSave = QFileDialog::getSaveFileName(this, "Save mesh file", QString(), "Mesh file (*.obj)");
+    QString l_sPathFileToSave = QFileDialog::getSaveFileName(this, "Save mesh file", m_absolutePath + "../data/meshes", "Mesh file (*.obj)");
     emit saveMeshFileSignal(l_sPathFileToSave);
 }
 
 void SWCreateAvatarInterface::enableInterface()
 {
     m_uiCreateAvatar->pbSaveAvatar->setEnabled(true);
+    m_uiCreateAvatar->actionSave_result->setEnabled(true);
     m_uiCreateAvatar->pbReconstruct->setEnabled(true);
 }
 
@@ -480,11 +490,27 @@ void SWCreateAvatarInterface::disableGLFullScreen()
     }
 }
 
+void SWCreateAvatarInterface::openAboutWindow()
+{
+    QString l_text("<p><a href=\"http://swooz.free.fr\"> SWoOz</a> is a software platform written in C++ used for behavioral experiments based on interactions between people and robots or 3D avatars.<br /><br />");
+    l_text += "This program used kinect/xtion data for creating a mesh of the user's face.<br /> </b>";
+    l_text += "Developped in the Robotic Cognition Laboratory of the <a href=\"http://www.sbri.fr/\"> SBRI</a> under the direction of <b>Guillaume Gibert. </b>";
+    l_text += "<br /><br /> Author : <b>Lance Florian </b> <a href=\"https://github.com/FlorianLance\"> Github profile</a> <br />";
+    l_text += "<a href=\"https://github.com/GuillaumeGibert/swooz\"> Repository</a>";
+    QMessageBox::about(this, "About the software", l_text);
+}
+
+void SWCreateAvatarInterface::openOnlineDocumentation()
+{
+    QDesktopServices::openUrl(QUrl("https://github.com/GuillaumeGibert/swooz/wiki/avatar#morphing", QUrl::TolerantMode));
+}
+
 int main(int argc, char* argv[])
 {
-    QApplication l_oApp(argc, argv);
-    SWCreateAvatarInterface l_oQtInterface;
-    l_oQtInterface.show();
+    QApplication l_app(argc, argv);
+    SWCreateAvatarInterface l_createAvatarInterface(&l_app);
+    l_createAvatarInterface.move(50,50);
+    l_createAvatarInterface.show();
 
-    return l_oApp.exec();
+    return l_app.exec();
 }

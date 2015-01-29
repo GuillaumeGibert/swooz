@@ -70,7 +70,7 @@ class SWViewerInterface : public QMainWindow
         /**
          * \brief Constructor of SWViewerInterface
          */
-        SWViewerInterface();
+        SWViewerInterface(QApplication *parent);
 
         /**
          * \brief Destructor of SWViewerInterface
@@ -82,14 +82,40 @@ class SWViewerInterface : public QMainWindow
 
     public slots:
 
+        /**
+         * @brief openOnlineDocumentation
+         */
+        void openOnlineDocumentation();
+
+        /**
+         * @brief openAboutWindow
+         */
+        void openAboutWindow();
+
+        /**
+         * @brief closeEvent
+         * @param event
+         */
         void closeEvent(QCloseEvent *event);
 
+        /**
+         * @brief loadCloud
+         */
         void loadCloud();
 
+        /**
+         * @brief loadMesh
+         */
         void loadMesh();
 
+        /**
+         * @brief deleteCloud
+         */
         void deleteCloud();
 
+        /**
+         * @brief deleteMesh
+         */
         void deleteMesh();
 
         /**
@@ -131,12 +157,6 @@ class SWViewerInterface : public QMainWindow
          * @brief setCameraToCurrentItem
          */
         void setCameraToCurrentItem();
-
-        /**
-         * \brief Timer event
-         * \param [in] e : qt timer event
-         */
-//        virtual void timerEvent(QTimerEvent *e);
 
         /**
          * @brief enableFullScreen
@@ -227,9 +247,9 @@ class SWViewerInterface : public QMainWindow
         void meshCurrentRowChanged(int);
 
 
-
     private :
 
+        QString m_absolutePath;
 
         bool m_bIsCloudLastSelection;
         bool m_bDesactiveUpdateParameters;
@@ -359,6 +379,7 @@ class SWViewerWorker : public QObject
         void drawSceneSignal();
 
     private :
+
 
         int m_i32LoopPeriod;    /**< loop period */
 

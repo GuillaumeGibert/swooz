@@ -494,7 +494,7 @@ void SWManipulationWorker::updateBottleStart(int i32IndexPort, bool bStart)
 
 // ########################### SWManipulationInterface
 
-SWManipulationInterface::SWManipulationInterface() : m_uiManipulation(new Ui::SWUI_Manipulation())
+SWManipulationInterface::SWManipulationInterface(QApplication *parent) : m_uiManipulation(new Ui::SWUI_Manipulation())
 {
     m_i32YarpConnectNumber = 5;
     m_i32ModifiersNumber      = 9;
@@ -626,8 +626,10 @@ SWManipulationInterface::SWManipulationInterface() : m_uiManipulation(new Ui::SW
         // init worker
             m_pWManipulation = new SWManipulationWorker();
 
-
         // init connections
+        //   menu
+            QObject::connect(m_uiManipulation->actionOnline_documentation, SIGNAL(triggered()), this, SLOT(openOnlineDocumentation()));
+            QObject::connect(m_uiManipulation->actionAbout, SIGNAL(triggered()), this, SLOT(openAboutWindow()));
         //  loop -> start/stop
             QObject::connect(this, SIGNAL(startLoop()), m_pWManipulation, SLOT(startLoop()));
             QObject::connect(this, SIGNAL(stopLoop()), m_pWManipulation, SLOT(stopLoop()));
@@ -673,6 +675,9 @@ SWManipulationInterface::SWManipulationInterface() : m_uiManipulation(new Ui::SW
             {
                 // std::cerr
             }
+
+            setStyleSheet("QGroupBox { padding: 10 0px 0 0px; color: blue; border: 1px solid gray; border-radius: 5px; margin-top: 1ex; /* leave space at the top for the title */}");
+
 
     m_oTimer.start(m_dTimeLoop, this);
 }
@@ -964,6 +969,22 @@ void SWManipulationInterface::stopAllBottlesPlanification()
     }
 }
 
+void SWManipulationInterface::openAboutWindow()
+{
+    QString l_text("<p><a href=\"http://swooz.free.fr\"> SWoOz</a> is a software platform written in C++ used for behavioral experiments based on interactions between people and robots or 3D avatars.<br /><br />");
+    l_text += "Interface for using manipuling/modifiying yarp bottles form the tracking modules.<br /> </b>";
+    l_text += "Developped in the Robotic Cognition Laboratory of the <a href=\"http://www.sbri.fr/\"> SBRI</a> under the direction of <b>Guillaume Gibert. </b>";
+    l_text += "<br /><br /> Author : <b>Lance Florian </b> <a href=\"https://github.com/FlorianLance\"> Github profile</a> <br />";
+    l_text += "<a href=\"https://github.com/GuillaumeGibert/swooz\"> Repository</a>";
+    QMessageBox::about(this, "About the software", l_text);
+}
+
+void SWManipulationInterface::openOnlineDocumentation()
+{
+    QDesktopServices::openUrl(QUrl("https://github.com/GuillaumeGibert/swooz/wiki/avatar#morphing", QUrl::TolerantMode));
+}
+
+
 
 int main(int argc, char* argv[])
 {
@@ -976,11 +997,13 @@ int main(int argc, char* argv[])
         }
 
     // create module
-        QApplication l_oApp(argc, argv);
-        SWManipulationInterface l_oManipulationInterface;
-//        l_oManipulationInterface.resize(QSize(1200,600));
-        l_oManipulationInterface.move(50,50);
-        l_oManipulationInterface.show();
+        QApplication l_app(argc, argv);
+        SWManipulationInterface l_manipulationInterface(&l_app);
+        l_manipulationInterface.move(50,50);
+        l_manipulationInterface.show();
 
-    return l_oApp.exec();
+    return l_app.exec();
 }
+
+
+

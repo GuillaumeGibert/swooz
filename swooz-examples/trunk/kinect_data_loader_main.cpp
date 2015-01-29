@@ -44,7 +44,7 @@ int main()
     cvMoveWindow("rgb_kinect",200,200);
     cvMoveWindow("cloud_map_kinect",200+640,200);
 
-    std::string path("./kinect_save/data_");
+    std::string path("../data/kinect_save/data_");
 
     swDevice::SWLoadKinectData dataLoader(path);
 

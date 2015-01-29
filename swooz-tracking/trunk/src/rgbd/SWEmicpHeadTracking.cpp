@@ -313,6 +313,7 @@ SWEmicpHeadTrackingInterface::SWEmicpHeadTrackingInterface() : m_uiMainWindow(ne
         // init main widget
             m_uiMainWindow->setupUi(this);
             this->setWindowTitle(QString("SWoOz : EMICP head tracking"));
+            this->setWindowIcon(QIcon(QString("../data/images/logos/icon_swooz.png")));
 
         // init widgets
             m_pDisplayImageWidget = new SWDisplayImageWidget();
@@ -356,6 +357,8 @@ SWEmicpHeadTrackingInterface::SWEmicpHeadTrackingInterface() : m_uiMainWindow(ne
             m_uiMainWindow->dsbD02->setValue( 0.01f);
 
         // init connections
+            QObject::connect(m_uiMainWindow->actionOnline_documentation, SIGNAL(triggered()), this, SLOT(openOnlineDocumentation()));
+            QObject::connect(m_uiMainWindow->actionAbout, SIGNAL(triggered()), this, SLOT(openAboutWindow()));
             QObject::connect(m_uiMainWindow->pbStart,SIGNAL(clicked()),      m_pWTracking, SLOT(doWork()));
             QObject::connect(m_uiMainWindow->pbStop, SIGNAL(clicked()),      m_pWTracking, SLOT(stopWork()));
             QObject::connect(this,                   SIGNAL(stopModule()),   m_pWTracking, SLOT(stopWork()));
@@ -415,6 +418,10 @@ SWEmicpHeadTrackingInterface::SWEmicpHeadTrackingInterface() : m_uiMainWindow(ne
                 std::cerr << "Leave program, please check if a kinect/xtion is plugged.  " << std::endl;
                 QTimer::singleShot(0, this, SLOT(close()));
             }
+
+            setStyleSheet("QGroupBox { padding: 10 0px 0 0px; color: blue; border: 1px solid gray; border-radius: 5px; margin-top: 1ex; /* leave space at the top for the title */}");
+
+
 
 }
 
@@ -573,6 +580,22 @@ void SWEmicpHeadTrackingInterface::updateDelay(float fDelay)
         m_fDelay = fDelay;
     m_oMutex.unlock();
 }
+
+void SWEmicpHeadTrackingInterface::openAboutWindow()
+{
+    QString l_text("<p><a href=\"http://swooz.free.fr\"> SWoOz</a> is a software platform written in C++ used for behavioral experiments based on interactions between people and robots or 3D avatars.<br /><br />");
+    l_text += "Interface for using the EM-ICP head tracking.<br /> </b>";
+    l_text += "Developped in the Robotic Cognition Laboratory of the <a href=\"http://www.sbri.fr/\"> SBRI</a> under the direction of <b>Guillaume Gibert. </b>";
+    l_text += "<br /><br /> Author : <b>Lance Florian </b> <a href=\"https://github.com/FlorianLance\"> Github profile</a> <br />";
+    l_text += "<a href=\"https://github.com/GuillaumeGibert/swooz\"> Repository</a>";
+    QMessageBox::about(this, "About the software", l_text);
+}
+
+void SWEmicpHeadTrackingInterface::openOnlineDocumentation()
+{
+    QDesktopServices::openUrl(QUrl("https://github.com/GuillaumeGibert/swooz/wiki/avatar#morphing", QUrl::TolerantMode));
+}
+
 
 
 int main(int argc, char* argv[])

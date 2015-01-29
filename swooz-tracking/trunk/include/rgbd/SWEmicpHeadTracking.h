@@ -249,6 +249,16 @@ class SWEmicpHeadTrackingInterface : public QMainWindow
     public slots :
 
         /**
+         * @brief openOnlineDocumentation
+         */
+        void openOnlineDocumentation();
+
+        /**
+         * @brief openAboutWindow
+         */
+        void openAboutWindow();
+
+        /**
          * @brief Update the cloud display widget
          * @param [in] pCloud : cloud to display (the pointer is not deleted)
          */

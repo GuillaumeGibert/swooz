@@ -63,7 +63,7 @@ class SWCreateAvatarInterface : public QMainWindow
 		/**
          * \brief default constructor of SWCreateAvatarInterface
 		 */		
-        explicit SWCreateAvatarInterface(QWidget *oQWRelative = 0);
+        explicit SWCreateAvatarInterface(QApplication *parent);
 	
 		/**
          * \brief destructor of SWCreateAvatarInterface
@@ -90,6 +90,16 @@ class SWCreateAvatarInterface : public QMainWindow
 
 	
 	public slots:
+
+        /**
+         * @brief openOnlineDocumentation
+         */
+        void openOnlineDocumentation();
+
+        /**
+         * @brief openAboutWindow
+         */
+        void openAboutWindow();
 
         /**
          * @brief startWork
@@ -197,6 +207,7 @@ class SWCreateAvatarInterface : public QMainWindow
 		
 	private :
 
+        QString m_absolutePath; /**< absolute path */
 
         bool m_bGLFullScreen;
         QWidget *m_pGLContainer;

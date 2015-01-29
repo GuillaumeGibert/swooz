@@ -64,8 +64,8 @@ int main()
         cv::waitKey(5);
     }
 
-    std::string path("./kinect_save/data_");
-    boost::filesystem::path dir("./kinect_save");
+    std::string path("../data/kinect_save/data_");
+    boost::filesystem::path dir("../data/kinect_save");
     boost::filesystem::create_directory(dir);
 
     double maxLength = 60.0; // maximum length of the saving

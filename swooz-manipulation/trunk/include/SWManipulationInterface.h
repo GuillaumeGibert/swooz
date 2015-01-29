@@ -55,12 +55,14 @@
 //#include <yarp/os/ResourceFinder.h>
 
 // QT
-#include <QThread>
-#include <QReadWriteLock>
-#include <QDebug>
-#include <QTime>
-#include <QVector>
-#include <QBasicTimer>
+//#include <QThread>
+//#include <QReadWriteLock>
+//#include <QDebug>
+//#include <QTime>
+//#include <QVector>
+//#include <QBasicTimer>
+
+#include <QtGui>
 
 //using namespace yarp::os;
 //using namespace yarp::dev;
@@ -290,7 +292,7 @@ class SWManipulationInterface : public QMainWindow
         /**
          * \brief constructor of SWManipulationInterface
          */
-        SWManipulationInterface();
+        SWManipulationInterface(QApplication *parent);
 
         /**
          * \brief destructor of SWManipulationInterface
@@ -311,6 +313,16 @@ class SWManipulationInterface : public QMainWindow
 
 
     public slots :
+
+        /**
+         * @brief openOnlineDocumentation
+         */
+        void openOnlineDocumentation();
+
+        /**
+         * @brief openAboutWindow
+         */
+        void openAboutWindow();
 
         /**
          * @brief updateBottleContentDisplay

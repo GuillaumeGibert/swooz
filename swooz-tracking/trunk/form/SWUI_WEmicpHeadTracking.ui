@@ -22,7 +22,7 @@
         <item row="0" column="1">
          <widget class="QGroupBox" name="gbClouds">
           <property name="title">
-           <string>Clouds</string>
+           <string>CLOUDS</string>
           </property>
           <layout class="QHBoxLayout" name="horizontalLayout_7">
            <item>
@@ -34,7 +34,7 @@
         <item row="0" column="0">
          <widget class="QGroupBox" name="gbVideo">
           <property name="title">
-           <string>Video</string>
+           <string>VIDEO</string>
           </property>
           <layout class="QHBoxLayout" name="horizontalLayout_3">
            <item>
@@ -46,7 +46,7 @@
         <item row="1" column="0">
          <widget class="QGroupBox" name="gbRotations">
           <property name="title">
-           <string>Rotations</string>
+           <string>ROTATIONS</string>
           </property>
           <layout class="QHBoxLayout" name="horizontalLayout_8">
            <item>
@@ -58,7 +58,7 @@
         <item row="1" column="1">
          <widget class="QGroupBox" name="gbTranslations">
           <property name="title">
-           <string>Translations</string>
+           <string>TRANSLATIONS</string>
           </property>
           <layout class="QHBoxLayout" name="horizontalLayout_9">
            <item>
@@ -74,12 +74,26 @@
         <item>
          <widget class="QGroupBox" name="gbParameters">
           <property name="title">
-           <string>Parameters</string>
+           <string>PARAMETERS</string>
           </property>
           <layout class="QGridLayout" name="gridLayout_3">
            <item row="0" column="0">
             <layout class="QGridLayout" name="glParameters">
-             <item row="1" column="5">
+             <item row="2" column="5" rowspan="4">
+              <widget class="Line" name="line_2">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0" colspan="2" alignment="Qt::AlignHCenter">
+              <widget class="QLabel" name="laEMICPParams">
+               <property name="text">
+                <string>EMICP</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="7">
               <widget class="QCheckBox" name="cbSmoothRigidMotion">
                <property name="enabled">
                 <bool>false</bool>
@@ -92,21 +106,14 @@
                </property>
               </widget>
              </item>
-             <item row="1" column="2" alignment="Qt::AlignHCenter">
-              <widget class="QLabel" name="laTemplateCloudReduction">
-               <property name="text">
-                <string>Template cloud reduction :</string>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="2" alignment="Qt::AlignHCenter">
+             <item row="3" column="3" alignment="Qt::AlignHCenter">
               <widget class="QLabel" name="laTargetCloudReduction">
                <property name="text">
                 <string>Target cloud reduction :</string>
                </property>
               </widget>
              </item>
-             <item row="3" column="3">
+             <item row="4" column="4">
               <widget class="QDoubleSpinBox" name="dsbScoreComputingReduction">
                <property name="enabled">
                 <bool>false</bool>
@@ -122,23 +129,86 @@
                </property>
               </widget>
              </item>
-             <item row="2" column="3">
-              <widget class="QDoubleSpinBox" name="dsbTargetCloudReduction">
+             <item row="2" column="3" alignment="Qt::AlignHCenter">
+              <widget class="QLabel" name="laTemplateCloudReduction">
+               <property name="text">
+                <string>Template cloud reduction :</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="2" rowspan="4">
+              <widget class="Line" name="line">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="5" column="6" alignment="Qt::AlignHCenter">
+              <widget class="QLabel" name="laKRotSmooth">
+               <property name="text">
+                <string>K rot smooth const</string>
+               </property>
+              </widget>
+             </item>
+             <item row="5" column="7">
+              <widget class="QDoubleSpinBox" name="dsbKRotSmoothConst">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="minimum">
+                <double>1.000000000000000</double>
+               </property>
+               <property name="maximum">
+                <double>5000.000000000000000</double>
+               </property>
+               <property name="singleStep">
+                <double>10.000000000000000</double>
+               </property>
+               <property name="value">
+                <double>10.000000000000000</double>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="7">
+              <widget class="QSpinBox" name="sbKSmooth">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="maximum">
+                <number>50</number>
+               </property>
+               <property name="value">
+                <number>5</number>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="0" alignment="Qt::AlignHCenter">
+              <widget class="QLabel" name="laInf">
+               <property name="text">
+                <string>INF :</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="1">
+              <widget class="QDoubleSpinBox" name="dsbFactor">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
                <property name="minimum">
                 <double>0.010000000000000</double>
                </property>
                <property name="maximum">
-                <double>1.000000000000000</double>
+                <double>0.990000000000000</double>
                </property>
                <property name="singleStep">
                 <double>0.010000000000000</double>
                </property>
                <property name="value">
-                <double>0.200000000000000</double>
+                <double>0.750000000000000</double>
                </property>
               </widget>
              </item>
-             <item row="1" column="1">
+             <item row="2" column="1">
               <widget class="QDoubleSpinBox" name="dsbP2">
                <property name="enabled">
                 <bool>false</bool>
@@ -160,40 +230,86 @@
                </property>
               </widget>
              </item>
-             <item row="1" column="0" alignment="Qt::AlignHCenter">
+             <item row="3" column="6" alignment="Qt::AlignHCenter">
+              <widget class="QLabel" name="laKSmooth">
+               <property name="text">
+                <string>K smooth</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="4">
+              <widget class="QDoubleSpinBox" name="dsbTemplateCloudReduction">
+               <property name="minimum">
+                <double>0.010000000000000</double>
+               </property>
+               <property name="maximum">
+                <double>1.000000000000000</double>
+               </property>
+               <property name="singleStep">
+                <double>0.010000000000000</double>
+               </property>
+               <property name="value">
+                <double>0.200000000000000</double>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="4">
+              <widget class="QDoubleSpinBox" name="dsbTargetCloudReduction">
+               <property name="minimum">
+                <double>0.010000000000000</double>
+               </property>
+               <property name="maximum">
+                <double>1.000000000000000</double>
+               </property>
+               <property name="singleStep">
+                <double>0.010000000000000</double>
+               </property>
+               <property name="value">
+                <double>0.200000000000000</double>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="3" alignment="Qt::AlignHCenter">
+              <widget class="QLabel" name="laScoreComputingReduction">
+               <property name="text">
+                <string>Score computing reduction :</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="6" alignment="Qt::AlignHCenter">
+              <widget class="QLabel" name="laKTransConst">
+               <property name="text">
+                <string>K trans smooth const</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="7">
+              <widget class="QDoubleSpinBox" name="dsbKTransSmoothConst">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="minimum">
+                <double>1.000000000000000</double>
+               </property>
+               <property name="maximum">
+                <double>5000.000000000000000</double>
+               </property>
+               <property name="singleStep">
+                <double>10.000000000000000</double>
+               </property>
+               <property name="value">
+                <double>10.000000000000000</double>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0" alignment="Qt::AlignHCenter">
               <widget class="QLabel" name="laP2">
                <property name="text">
                 <string>P2 :</string>
                </property>
               </widget>
              </item>
-             <item row="0" column="0" colspan="2" alignment="Qt::AlignHCenter">
-              <widget class="QLabel" name="laEMICPParams">
-               <property name="text">
-                <string>EMICP</string>
-               </property>
-              </widget>
-             </item>
              <item row="3" column="1">
-              <widget class="QDoubleSpinBox" name="dsbFactor">
-               <property name="enabled">
-                <bool>true</bool>
-               </property>
-               <property name="minimum">
-                <double>0.010000000000000</double>
-               </property>
-               <property name="maximum">
-                <double>0.990000000000000</double>
-               </property>
-               <property name="singleStep">
-                <double>0.010000000000000</double>
-               </property>
-               <property name="value">
-                <double>0.750000000000000</double>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="1">
               <widget class="QDoubleSpinBox" name="dsbINF">
                <property name="enabled">
                 <bool>false</bool>
@@ -215,28 +331,21 @@
                </property>
               </widget>
              </item>
-             <item row="3" column="0" alignment="Qt::AlignHCenter">
-              <widget class="QLabel" name="laFactor">
+             <item row="0" column="3" colspan="2" alignment="Qt::AlignHCenter">
+              <widget class="QLabel" name="laCloudsParams">
                <property name="text">
-                <string>Factor :</string>
+                <string>Clouds</string>
                </property>
               </widget>
              </item>
-             <item row="2" column="0" alignment="Qt::AlignHCenter">
-              <widget class="QLabel" name="laInf">
-               <property name="text">
-                <string>INF :</string>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="0" alignment="Qt::AlignHCenter">
+             <item row="5" column="0" alignment="Qt::AlignHCenter">
               <widget class="QLabel" name="laD02">
                <property name="text">
                 <string>D02 :</string>
                </property>
               </widget>
              </item>
-             <item row="4" column="1">
+             <item row="5" column="1">
               <widget class="QDoubleSpinBox" name="dsbD02">
                <property name="enabled">
                 <bool>false</bool>
@@ -252,112 +361,38 @@
                </property>
               </widget>
              </item>
-             <item row="1" column="3">
-              <widget class="QDoubleSpinBox" name="dsbTemplateCloudReduction">
-               <property name="minimum">
-                <double>0.010000000000000</double>
-               </property>
-               <property name="maximum">
-                <double>1.000000000000000</double>
-               </property>
-               <property name="singleStep">
-                <double>0.010000000000000</double>
-               </property>
-               <property name="value">
-                <double>0.200000000000000</double>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="2" alignment="Qt::AlignHCenter">
-              <widget class="QLabel" name="laScoreComputingReduction">
+             <item row="4" column="0" alignment="Qt::AlignHCenter">
+              <widget class="QLabel" name="laFactor">
                <property name="text">
-                <string>Score computing reduction :</string>
+                <string>Factor :</string>
                </property>
               </widget>
              </item>
-             <item row="0" column="2" colspan="2" alignment="Qt::AlignHCenter">
-              <widget class="QLabel" name="laCloudsParams">
-               <property name="text">
-                <string>Clouds</string>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="4" alignment="Qt::AlignHCenter">
-              <widget class="QLabel" name="laKSmooth">
-               <property name="text">
-                <string>K smooth</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="4" colspan="2" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+             <item row="0" column="6" colspan="2" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
               <widget class="QLabel" name="laRigidMotion">
                <property name="text">
                 <string>Rigid motion</string>
                </property>
               </widget>
              </item>
-             <item row="2" column="5">
-              <widget class="QSpinBox" name="sbKSmooth">
-               <property name="enabled">
-                <bool>false</bool>
-               </property>
-               <property name="maximum">
-                <number>50</number>
-               </property>
-               <property name="value">
-                <number>5</number>
+             <item row="1" column="0" colspan="8">
+              <widget class="Line" name="line_3">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
                </property>
               </widget>
              </item>
-             <item row="3" column="5">
-              <widget class="QDoubleSpinBox" name="dsbKTransSmoothConst">
-               <property name="enabled">
-                <bool>false</bool>
-               </property>
-               <property name="minimum">
-                <double>1.000000000000000</double>
-               </property>
-               <property name="maximum">
-                <double>5000.000000000000000</double>
-               </property>
-               <property name="singleStep">
-                <double>10.000000000000000</double>
-               </property>
-               <property name="value">
-                <double>10.000000000000000</double>
+             <item row="0" column="2">
+              <widget class="Line" name="line_4">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
                </property>
               </widget>
              </item>
-             <item row="4" column="5">
-              <widget class="QDoubleSpinBox" name="dsbKRotSmoothConst">
-               <property name="enabled">
-                <bool>false</bool>
-               </property>
-               <property name="minimum">
-                <double>1.000000000000000</double>
-               </property>
-               <property name="maximum">
-                <double>5000.000000000000000</double>
-               </property>
-               <property name="singleStep">
-                <double>10.000000000000000</double>
-               </property>
-               <property name="value">
-                <double>10.000000000000000</double>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="4" alignment="Qt::AlignHCenter">
-              <widget class="QLabel" name="laKTransConst">
-               <property name="text">
-                <string>K trans smooth const</string>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="4" alignment="Qt::AlignHCenter">
-              <widget class="QLabel" name="laKRotSmooth">
-               <property name="text">
-                <string>K rot smooth const</string>
+             <item row="0" column="5">
+              <widget class="Line" name="line_5">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
                </property>
               </widget>
              </item>
@@ -369,7 +404,7 @@
         <item>
          <widget class="QGroupBox" name="gbActions">
           <property name="title">
-           <string>Actions</string>
+           <string>ACTIONS</string>
           </property>
           <layout class="QGridLayout" name="gridLayout_2">
            <item row="0" column="0">
@@ -395,11 +430,11 @@
                <property name="maximumSize">
                 <size>
                  <width>100</width>
-                 <height>16777215</height>
+                 <height>40</height>
                 </size>
                </property>
                <property name="text">
-                <string>Start</string>
+                <string>START</string>
                </property>
               </widget>
              </item>
@@ -430,8 +465,40 @@
      <height>21</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionAbout"/>
+    <addaction name="actionOnline_documentation"/>
+   </widget>
+   <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionExit">
+   <property name="text">
+    <string>Exit</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+A</string>
+   </property>
+  </action>
+  <action name="actionOnline_documentation">
+   <property name="text">
+    <string>Online documentation</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+D</string>
+   </property>
+  </action>
  </widget>
  <tabstops>
   <tabstop>dsbP2</tabstop>
