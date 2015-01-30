@@ -10,7 +10,7 @@ Links :
 -------
 
  * [Website](http://swooz.free.fr/)
- * [Wiki(in progress)](https://github.com/GuillaumeGibert/swooz/wiki)
+ * [Wiki](https://github.com/GuillaumeGibert/swooz/wiki)
  * Videos :
     * [Robotic teleoperation](https://github.com/GuillaumeGibert/swooz/wiki/videos_teleop)
     * [Avatars](https://github.com/GuillaumeGibert/swooz/wiki/videos_avatars)
