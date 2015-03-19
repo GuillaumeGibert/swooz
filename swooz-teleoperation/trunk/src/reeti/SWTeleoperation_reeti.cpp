@@ -108,7 +108,9 @@ bool SWTeleoperation_reeti::configure(ResourceFinder &oRf)
 	
 	// miscellaneous
         m_i32Fps                    	= oRf.check("fps",              yarp::os::Value(30),  "Frame per second (int)").asInt();
-        m_i32HeadTimeoutReset      	= oRf.check("headTimeoutReset", yarp::os::Value(3000), "Head gaze timeout reset Reeti (int)").asInt();
+        m_i32HeadTimeoutReset      	= oRf.check("headTimeoutReset", yarp::os::Value(3000), "Head timeout reset Reeti (int)").asInt();
+	m_i32FaceTimeoutReset      	= oRf.check("faceTimeoutReset", yarp::os::Value(3000), "Face timeout reset Reeti (int)").asInt();
+	m_i32GazeTimeoutReset      	= oRf.check("gazeTimeoutReset", yarp::os::Value(3000), "Gaze timeout reset Reeti (int)").asInt();
 
 	// init ports
         std::string l_sHeadTrackerPortName  = "/teleoperation/" + m_sRobotName + "/head";

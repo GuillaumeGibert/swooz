@@ -1,0 +1,81 @@
+<application>
+
+  <name>SWoOz reeti connections teleoperation </name>
+  <description>teleoperation reeti</description>
+	
+
+        <!---  FOREST -->
+            <!---  HEAD -->
+        <connection>
+                <from>/tracking/rgbd/forest/head</from>
+                <to>/teleoperation/reeti/head</to>
+                <protocol>tcp</protocol>
+        </connection>
+
+        <!---  EMCIP -->
+            <!---  HEAD -->
+        <connection>
+                <from>/tracking/rgbd/emicp/head</from>
+                <to>/teleoperation/reeti/head</to>
+                <protocol>tcp</protocol>
+        </connection>
+
+        <!---  FASTRAK -->
+            <!---  HEAD -->
+        <connection>
+                <from>/tracking/polhemus/fastrak/head</from>
+                <to>/teleoperation/reeti/head</to>
+                <protocol>tcp</protocol>
+        </connection>
+
+        <!---  FACELAB -->
+            <!---  HEAD -->
+        <connection>
+                <from>/tracking/facelab/coredata/head</from>
+                <to>/teleoperation/reeti/head</to>
+                <protocol>tcp</protocol>
+        </connection>
+            <!---  FACE -->
+	<connection>
+                <from>/tracking/facelab/coredata/face</from>
+                <to>/teleoperation/reeti/face</to>
+                <protocol>tcp</protocol>
+        </connection>
+            <!---  GAZE -->
+        <connection>
+                <from>/tracking/facelab/coredata/gaze</from>
+                <to>/teleoperation/reeti/gaze</to>
+                <protocol>tcp</protocol>
+        </connection>
+
+    
+        <!---  FACESHIFT -->
+            <!---  HEAD -->
+        <connection>
+                <from>/tracking/rgbd/faceshift/head</from>
+                <to>/teleoperation/reeti/head</to>
+                <protocol>tcp</protocol>
+        </connection>
+            <!---  FACE -->
+        <connection>
+                <from>/tracking/rgbd/faceshift/face</from>
+                <to>/teleoperation/reeti/face</to>
+                <protocol>tcp</protocol>
+        </connection>
+            <!---  GAZE -->
+        <connection>
+                <from>/tracking/rgbd/faceshift/gaze</from>
+                <to>/teleoperation/reeti/gaze</to>
+                <protocol>tcp</protocol>
+        </connection>
+
+	<!---  TOBII -->
+		<!---  GAZE -->
+        <connection>
+                <from>/tracking/tobii/tobiiSDK/gaze</from>
+                <to>/teleoperation/reeti/gaze</to>
+                <protocol>tcp</protocol>
+        </connection>
+
+</application>
+
