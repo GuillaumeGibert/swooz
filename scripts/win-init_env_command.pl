@@ -126,7 +126,7 @@ $ENV{THIRD_PARTY_ACE_64}= $PThird_party . "ace/amd64/Ace642/";
 $ENV{THIRD_PARTY_OPENNI}    = $PThird_party . "openni/openni-1.5.4.0/";
 $ENV{THIRD_PARTY_OPENNI2_64}= $PThird_party . "openni/amd64/openni-2.1.0.4-64/";
 ##################### OPENCV
-$ENV{THIRD_PARTY_OPENCV}   = $PThird_party . "opencv/opencv-2.49/";
+$ENV{THIRD_PARTY_OPENCV}   = $PThird_party . "opencvQt/opencv-2.49/";
 $ENV{THIRD_PARTY_OPENCV_64}= $PThird_party . "opencv/amd64/opencv-2.48/";
 ##################### FREEGLUT
 $ENV{THIRD_PARTY_FREEGLUT}   = $PThird_party . "freeglut/";

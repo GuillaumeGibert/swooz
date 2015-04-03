@@ -31,7 +31,7 @@
 	
 SWDimenco3DDisplay::~SWDimenco3DDisplay(void)
 {
-	cvDestroyWindow("dimenco3D");
+	cv::destroyWindow("dimenco3D");
 }
 
 
@@ -84,7 +84,7 @@ int SWDimenco3DDisplay::init(int msize) //the buffer
 	}
 	
 	// creates a full screen cv window
-	cvNamedWindow("dimenco3D", CV_WINDOW_NORMAL);
+	cv::namedWindow("dimenco3D", CV_WINDOW_NORMAL);
 	cv::setWindowProperty("dimenco3D", CV_WND_PROP_FULLSCREEN ,CV_WINDOW_FULLSCREEN );
 	cv::waitKey(10);
 	
@@ -137,7 +137,7 @@ void SWDimenco3DDisplay::refresh(const cv::Mat& rgbImg, const cv::Mat& depthImg)
 	int64 fps = static_cast<int64>(freq/(cv::getTickCount() - tm) );
 	tm = cv::getTickCount();
 
-    cv::putText( zeroAddedRGBDImg, "fps: " + swUtil::int2string(static_cast<int>(fps)), cv::Point( 15,50), cv::FONT_HERSHEY_SIMPLEX, 1, RED, 3 );
+	cv::putText( zeroAddedRGBDImg, "fps: " + swUtil::int2string(static_cast<int>(fps)), cv::Point( 15,50), cv::FONT_HERSHEY_SIMPLEX, 1, RED, 3 );
 	cv::imshow("dimenco3D",zeroAddedRGBDImg );
 	
 }
