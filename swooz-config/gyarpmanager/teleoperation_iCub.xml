@@ -3,7 +3,70 @@
   <name>SWoOz iCub connections teleoperation </name>
   <description>teleoperation iCub </description>
 	
-
+	<module>
+		<name>perl sw-faceshiftTracking.pl</name>
+		<parameters></parameters>
+		<node>localhost</node>
+		<stdio>localhost</stdio>
+		<tag>faceshift</tag>
+	</module>
+	
+	<module>
+		<name>perl sw-fastrakTracking.pl</name>
+		<parameters></parameters>
+		<node>localhost</node>
+		<stdio>localhost</stdio>
+		<tag>fastrak</tag>
+	</module>
+	
+	<module>
+		<name>perl sw-faceLabTracking.pl</name>
+		<parameters></parameters>
+		<node>localhost</node>
+		<stdio>localhost</stdio>
+		<tag>facelab</tag>
+	</module>
+	
+	<module>
+		<name>perl sw-headForestTracking.pl</name>
+		<parameters></parameters>
+		<node>localhost</node>
+		<stdio>localhost</stdio>
+		<tag>forest</tag>
+	</module>
+	
+	<module>
+		<name>perl sw-headEmicpTracking.pl</name>
+		<parameters></parameters>
+		<node>localhost</node>
+		<stdio>localhost</stdio>
+		<tag>emicp</tag>
+	</module>
+	
+	<module>
+		<name>perl sw-headTobiiTracking.pl</name>
+		<parameters></parameters>
+		<node>localhost</node>
+		<stdio>localhost</stdio>
+		<tag>tobii</tag>
+	</module>
+	
+	<module>
+		<name>perl sw-leapTracking.pl</name>
+		<parameters></parameters>
+		<node>localhost</node>
+		<stdio>localhost</stdio>
+		<tag>leap</tag>
+	</module>
+	
+	<module>
+		<name>perl sw-teleoperation_iCub.pl</name>
+		<parameters></parameters>
+		<node>localhost</node>
+		<stdio>localhost</stdio>
+		<tag>teleoperation_iCub</tag>
+	</module>
+	
         <!---  FOREST -->
             <!---  HEAD -->
         <connection>

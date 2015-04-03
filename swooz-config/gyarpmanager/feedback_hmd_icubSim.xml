@@ -1,5 +1,14 @@
 <application>
 	<name>Feedback HMD icubSim</name>
+	
+	<module>
+		<name>perl sw-feedback.pl</name>
+		<parameters></parameters>
+		<node>localhost</node>
+		<stdio>localhost</stdio>
+		<tag>feedback</tag>
+	</module>
+	
 	<connection>
 		<output>/icubSim/cam/left</output>
 		<input> /hmd/left/in</input>
