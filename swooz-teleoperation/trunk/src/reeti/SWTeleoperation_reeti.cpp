@@ -9,22 +9,22 @@
 
 #include "SWTrackingDevice.h"
 
-#include <sstream>
-#include <vector>
+
 #include <cmath>
 #include <iostream>
 
-
-#include "opencv2/core/core.hpp"
-#include "opencvUtility.h"
 #include "geometryUtility.h"
+
+
+//using namespace std;
+using namespace urbi;
 
 SWTeleoperation_reeti::SWTeleoperation_reeti() :  m_i32HeadTimeLastBottle(0)
 {    
-	m_bHeadActivatedDefault     = true;
-	m_bFaceActivatedDefault	= false;
-	m_bGazeActivatedDefault     = false;
-	m_bLEDSActivatedDefault     = false;   
+	m_bHeadActivatedDefault     	= true;
+	m_bFaceActivatedDefault		= true;
+	m_bGazeActivatedDefault     	= true;
+	m_bLEDSActivatedDefault     	= false;   
 }
 
 SWTeleoperation_reeti::~SWTeleoperation_reeti()
@@ -49,22 +49,25 @@ bool SWTeleoperation_reeti::configure(ResourceFinder &oRf)
 	m_dNeckRotatMinValueJoint = oRf.check("neckRotaMinValueJoint",  yarp::os::Value(0.0f), "Neck Rotat minimum Joint Value (float)").asDouble();
 	m_dNeckRotatMaxValueJoint = oRf.check("neckRotaMaxValueJoint",  yarp::os::Value(100.0f), "Neck Rotat maximum Joint Value (float)").asDouble();
 	m_dNeckRotatNeuValueJoint = oRf.check("neckRotaNeuValueJoint",  yarp::os::Value(50.0f), "Neck Rotat neutral Joint Value (float)").asDouble();
+	m_dNeckRotatCoeffValueJoint = oRf.check("neckRotaCoeffValueJoint",  yarp::os::Value(1.0f), "Neck Rotat coefficient Joint Value (float)").asDouble();
 	// neckTilt
 	m_dNeckTiltMinValueJoint = oRf.check("neckTiltMinValueJoint",  yarp::os::Value(0.0f), "Neck Tilt minimum Joint Value (float)").asDouble();
 	m_dNeckTiltMaxValueJoint = oRf.check("neckTiltMaxValueJoint",  yarp::os::Value(100.0f), "Neck Tilt maximum Joint Value (float)").asDouble();
-	m_dNeckTiltNeuValueJoint = oRf.check("neckTiltNeuValueJoint",  yarp::os::Value(55.0f), "Neck Tilt neutral Joint Value (float)").asDouble();
+	m_dNeckTiltNeuValueJoint = oRf.check("neckTiltNeuValueJoint",  yarp::os::Value(50.0f), "Neck Tilt neutral Joint Value (float)").asDouble();
+	m_dNeckTiltCoeffValueJoint = oRf.check("neckTiltCoeffValueJoint",  yarp::os::Value(4.0f), "Neck Tilt coeffticient Joint Value (float)").asDouble();
         // neckPan
 	m_dNeckPanMinValueJoint = oRf.check("neckPanMinValueJoint",  yarp::os::Value(0.0f), "Neck Pan minimum Joint Value (float)").asDouble();
 	m_dNeckPanMaxValueJoint = oRf.check("neckPanMaxValueJoint",  yarp::os::Value(100.0f), "Neck Pan maximum Joint Value (float)").asDouble();
 	m_dNeckPanNeuValueJoint = oRf.check("neckPanNeuValueJoint",  yarp::os::Value(50.0f), "Neck Pan neutral Joint Value (float)").asDouble();
+	m_dNeckPanCoeffValueJoint = oRf.check("neckPanCoeffValueJoint",  yarp::os::Value(3.3f), "Neck Pan coefficient Joint Value (float)").asDouble();
 	// leftLC
 	m_dLeftLCMinValueJoint = oRf.check("leftLCMinValueJoint",  yarp::os::Value(0.0f), "Left LC minimum Joint Value (float)").asDouble();
 	m_dLeftLCMaxValueJoint = oRf.check("leftLCMaxValueJoint",  yarp::os::Value(100.0f), "Left LC maximum Joint Value (float)").asDouble();
-	m_dLeftLCNeuValueJoint = oRf.check("leftLCNeuValueJoint",  yarp::os::Value(43.8f), "Left LC neutral Joint Value (float)").asDouble();
+	m_dLeftLCNeuValueJoint = oRf.check("leftLCNeuValueJoint",  yarp::os::Value(50.0f), "Left LC neutral Joint Value (float)").asDouble();
 	// rightLC
 	m_dRightLCMinValueJoint = oRf.check("rightLCMinValueJoint",  yarp::os::Value(0.0f), "Right LC minimum Joint Value (float)").asDouble();
 	m_dRightLCMaxValueJoint = oRf.check("rightLCMaxValueJoint",  yarp::os::Value(100.0f), "Right LC maximum Joint Value (float)").asDouble();
-	m_dRightLCNeuValueJoint = oRf.check("rightLCNeuValueJoint",  yarp::os::Value(56.1f), "Right LC neutral Joint Value (float)").asDouble();
+	m_dRightLCNeuValueJoint = oRf.check("rightLCNeuValueJoint",  yarp::os::Value(50.0f), "Right LC neutral Joint Value (float)").asDouble();
 	// topLip
 	m_dTopLipMinValueJoint = oRf.check("topLipMinValueJoint",  yarp::os::Value(0.0f), "Top Lip minimum Joint Value (float)").asDouble();
 	m_dTopLipMaxValueJoint = oRf.check("topLipMaxValueJoint",  yarp::os::Value(100.0f), "Top Lip maximum Joint Value (float)").asDouble();
@@ -72,7 +75,7 @@ bool SWTeleoperation_reeti::configure(ResourceFinder &oRf)
 	// bottomLip
 	m_dBottomLipMinValueJoint = oRf.check("bottomLipMinValueJoint",  yarp::os::Value(0.0f), "Bottom Lip minimum Joint Value (float)").asDouble();
 	m_dBottomLipMaxValueJoint = oRf.check("bottomLipMaxValueJoint",  yarp::os::Value(100.0f), "Bottom Lip maximum Joint Value (float)").asDouble();
-	m_dBottomLipNeuValueJoint = oRf.check("bottomLipNeuValueJoint",  yarp::os::Value(81.0f), "Bottom Lip neutral Joint Value (float)").asDouble();
+	m_dBottomLipNeuValueJoint = oRf.check("bottomLipNeuValueJoint",  yarp::os::Value(80.0f), "Bottom Lip neutral Joint Value (float)").asDouble();
 	// rightEar
 	m_dRightEarMinValueJoint = oRf.check("rightEarMinValueJoint",  yarp::os::Value(0.0f), "Right Ear minimum Joint Value (float)").asDouble();
 	m_dRightEarMaxValueJoint = oRf.check("rightEarMaxValueJoint",  yarp::os::Value(100.0f), "Right Ear maximum Joint Value (float)").asDouble();
@@ -84,19 +87,23 @@ bool SWTeleoperation_reeti::configure(ResourceFinder &oRf)
 	// rightEyeTilt
 	m_dRightEyeTiltMinValueJoint = oRf.check("rightEyeTiltMinValueJoint",  yarp::os::Value(0.0f), "Right Eye Tilt minimum Joint Value (float)").asDouble();
 	m_dRightEyeTiltMaxValueJoint = oRf.check("rightEyeTiltMaxValueJoint",  yarp::os::Value(100.0f), "Right Eye Tilt maximum Joint Value (float)").asDouble();
-	m_dRightEyeTiltNeuValueJoint = oRf.check("rightEyeTiltNeuValueJoint",  yarp::os::Value(60.0f), "Right Eye Tilt neutral Joint Value (float)").asDouble();
+	m_dRightEyeTiltNeuValueJoint = oRf.check("rightEyeTiltNeuValueJoint",  yarp::os::Value(50.0f), "Right Eye Tilt neutral Joint Value (float)").asDouble();
+	m_dRightEyeTiltCoeffValueJoint = oRf.check("rightEyeTiltCoeffValueJoint",  yarp::os::Value(1.3f), "Right Eye Tilt coefficient Joint Value (float)").asDouble();
 	// leftEyeTilt
 	m_dLeftEyeTiltMinValueJoint = oRf.check("lefttEyeTiltMinValueJoint",  yarp::os::Value(0.0f), "Left Eye Tilt minimum Joint Value (float)").asDouble();
 	m_dLeftEyeTiltMaxValueJoint = oRf.check("leftEyeTiltMaxValueJoint",  yarp::os::Value(100.0f), "Left Eye Tilt maximum Joint Value (float)").asDouble();
-	m_dLeftEyeTiltNeuValueJoint = oRf.check("leftEyeTiltNeuValueJoint",  yarp::os::Value(40.0f), "Left Eye Tilt neutral Joint Value (float)").asDouble();
+	m_dLeftEyeTiltNeuValueJoint = oRf.check("leftEyeTiltNeuValueJoint",  yarp::os::Value(50.0f), "Left Eye Tilt neutral Joint Value (float)").asDouble();
+	m_dLeftEyeTiltCoeffValueJoint = oRf.check("leftEyeTiltCoeffValueJoint",  yarp::os::Value(1.3f), "Left Eye Tilt coefficient Joint Value (float)").asDouble();
 	// rightEyePan
 	m_dRightEyePanMinValueJoint = oRf.check("rightEyePanMinValueJoint",  yarp::os::Value(0.0f), "Right Eye Pan minimum Joint Value (float)").asDouble();
 	m_dRightEyePanMaxValueJoint = oRf.check("rightEyePanMaxValueJoint",  yarp::os::Value(100.0f), "Right Eye Pan maximum Joint Value (float)").asDouble();
-	m_dRightEyePanNeuValueJoint = oRf.check("rightEyePanNeuValueJoint",  yarp::os::Value(42.5f), "Right Eye Pan neutral Joint Value (float)").asDouble();
+	m_dRightEyePanNeuValueJoint = oRf.check("rightEyePanNeuValueJoint",  yarp::os::Value(50.0f), "Right Eye Pan neutral Joint Value (float)").asDouble();
+	m_dRightEyePanCoeffValueJoint = oRf.check("rightEyePanCoeffValueJoint",  yarp::os::Value(1.5f), "Right Eye Pan coefficient Joint Value (float)").asDouble();
 	// leftEyePan
 	m_dLeftEyePanMinValueJoint = oRf.check("lefttEyePanMinValueJoint",  yarp::os::Value(0.0f), "Left Eye Pan minimum Joint Value (float)").asDouble();
 	m_dLeftEyePanMaxValueJoint = oRf.check("leftEyePanMaxValueJoint",  yarp::os::Value(100.0f), "Left Eye Pan maximum Joint Value (float)").asDouble();
-	m_dLeftEyePanNeuValueJoint = oRf.check("leftEyePanNeuValueJoint",  yarp::os::Value(42.5f), "Left Eye Pan neutral Joint Value (float)").asDouble();
+	m_dLeftEyePanNeuValueJoint = oRf.check("leftEyePanNeuValueJoint",  yarp::os::Value(50.0f), "Left Eye Pan neutral Joint Value (float)").asDouble();
+	m_dLeftEyePanCoeffValueJoint = oRf.check("leftEyePanCoeffValueJoint",  yarp::os::Value(1.5f), "Left Eye Pan coefficient Joint Value (float)").asDouble();
 	// rightEyeLid
 	m_dRightEyeLidMinValueJoint = oRf.check("rightEyeLidMinValueJoint",  yarp::os::Value(0.0f), "Right Eye Lid minimum Joint Value (float)").asDouble();
 	m_dRightEyeLidMaxValueJoint = oRf.check("rightEyeLidMaxValueJoint",  yarp::os::Value(100.0f), "Right Eye Lid maximum Joint Value (float)").asDouble();
@@ -107,7 +114,7 @@ bool SWTeleoperation_reeti::configure(ResourceFinder &oRf)
 	m_dLeftEyeLidNeuValueJoint = oRf.check("leftEyeLidNeuValueJoint",  yarp::os::Value(90.0f), "Left Eye Lid neutral Joint Value (float)").asDouble();
 	
 	// miscellaneous
-        m_i32Fps                    	= oRf.check("fps",              yarp::os::Value(30),  "Frame per second (int)").asInt();
+        m_i32Fps                    	= oRf.check("fps",              yarp::os::Value(10),  "Frame per second (int)").asInt();
         m_i32HeadTimeoutReset      	= oRf.check("headTimeoutReset", yarp::os::Value(3000), "Head timeout reset Reeti (int)").asInt();
 	m_i32FaceTimeoutReset      	= oRf.check("faceTimeoutReset", yarp::os::Value(3000), "Face timeout reset Reeti (int)").asInt();
 	m_i32GazeTimeoutReset      	= oRf.check("gazeTimeoutReset", yarp::os::Value(3000), "Gaze timeout reset Reeti (int)").asInt();
@@ -129,7 +136,14 @@ bool SWTeleoperation_reeti::configure(ResourceFinder &oRf)
         }
 
 	// creates an urbi client to send commands to the Reeti robot
-	client=new UClient(m_sRobotAddress, m_i32RobotPort);
+	m_pClient=new UClient(m_sRobotAddress, m_i32RobotPort);
+
+	// switches on LED on red for the fun
+	if (m_bLEDSActivated)
+	{
+		std::string cmd_initLED = "Global.servo.changeLedColor(\"blue\");";
+		m_pClient->send("%s", cmd_initLED.c_str());
+	}
      
 	return true;
 }
@@ -149,53 +163,53 @@ void SWTeleoperation_reeti::resetPosition()
 {
 	if(m_bHeadActivated)
 	{
-		string cmd = "Global.servo.neckRotat(" + m_dNeckRotatNeuValueJoint + ");"; 
-		client->send("%s", cmd.c_str());
+		std::string cmd_neckRotat = "Global.servo.neckRotat=" +  to_string(m_dNeckRotatNeuValueJoint) + ";"; 
+		m_pClient->send("%s", cmd_neckRotat.c_str());
 		
-		string cmd = "Global.servo.neckTilt(" + m_dNeckTiltNeuValueJoint + ");"; 
-		client->send("%s", cmd.c_str());
+		std::string cmd_neckPan = "Global.servo.neckPan=" +  to_string(m_dNeckPanNeuValueJoint) + ";"; 
+		m_pClient->send("%s", cmd_neckPan.c_str());
 		
-		string cmd = "Global.servo.neckPan(" + m_dNeckPanNeuValueJoint + ");"; 
-		client->send("%s", cmd.c_str());
+		std::string cmd_neckTilt = "Global.servo.neckTilt=" +  to_string(m_dNeckTiltNeuValueJoint) + ";"; 
+		m_pClient->send("%s", cmd_neckTilt.c_str());
 	}
 	
 	if(m_bFaceActivated)
 	{
-		string cmd = "Global.servo.LeftLC(" + m_dLeftLCNeuValueJoint + ");"; 
-		client->send("%s", cmd.c_str());
+		std::string cmd_leftLC = "Global.servo.LeftLC=" +  to_string(m_dLeftLCNeuValueJoint) + ";"; 
+		m_pClient->send("%s", cmd_leftLC.c_str());
 		
-		string cmd = "Global.servo.rightLC(" + m_dRightLCNeuValueJoint + ");"; 
-		client->send("%s", cmd.c_str());
+		std::string cmd_rightLC = "Global.servo.rightLC=" +  to_string(m_dRightLCNeuValueJoint) + ";"; 
+		m_pClient->send("%s", cmd_rightLC.c_str());
 		
-		string cmd = "Global.servo.topLip(" + m_dTopLipNeuValueJoint + ");"; 
-		client->send("%s", cmd.c_str());
+		std::string cmd_topLip = "Global.servo.topLip=" +  to_string(m_dTopLipNeuValueJoint) + ";"; 
+		m_pClient->send("%s", cmd_topLip.c_str());
 		
-		string cmd = "Global.servo.bottomLip(" + m_dBottomLipNeuValueJoint + ");"; 
-		client->send("%s", cmd.c_str());
+		std::string cmd_bottomLip = "Global.servo.bottomLip=" +  to_string(m_dBottomLipNeuValueJoint) + ";"; 
+		m_pClient->send("%s", cmd_bottomLip.c_str());
 	}
 	
 	if(m_bGazeActivated)
 	{
-		string cmd = "Global.servo.rightEyeTilt(" + m_dRightEyeTiltNeuValueJoint + ");"; 
-		client->send("%s", cmd.c_str());
+		std::string cmd_rightEyeTilt = "Global.servo.rightEyeTilt=" +  to_string(m_dRightEyeTiltNeuValueJoint) + ";"; 
+		m_pClient->send("%s", cmd_rightEyeTilt.c_str());
 		
-		string cmd = "Global.servo.leftEyeTilt(" + m_dLeftEyeTiltNeuValueJoint + ");"; 
-		client->send("%s", cmd.c_str());
+		std::string cmd_leftEyeTilt = "Global.servo.leftEyeTilt=" +  to_string(m_dLeftEyeTiltNeuValueJoint) + ";"; 
+		m_pClient->send("%s", cmd_leftEyeTilt.c_str());
 		
-		string cmd = "Global.servo.rightEyePan(" + m_dRightEyePanNeuValueJoint + ");"; 
-		client->send("%s", cmd.c_str());
+		std::string cmd_rightEyePan = "Global.servo.rightEyePan=" +  to_string(m_dRightEyePanNeuValueJoint) + ";"; 
+		m_pClient->send("%s", cmd_rightEyePan.c_str());
 		
-		string cmd = "Global.servo.leftEyePan(" + m_dLeftEyePanNeuValueJoint + ");"; 
-		client->send("%s", cmd.c_str());
+		std::string cmd_leftEyePan = "Global.servo.leftEyePan=" +  to_string(m_dLeftEyePanNeuValueJoint) + ";"; 
+		m_pClient->send("%s", cmd_leftEyePan.c_str());
 		
-		string cmd = "Global.servo.rightEyeLid(" + m_dRightEyeLidNeuValueJoint + ");"; 
-		client->send("%s", cmd.c_str());
+		std::string cmd_rightEyeLid = "Global.servo.rightEyeLid=" +  to_string(m_dRightEyeLidNeuValueJoint) + ";"; 
+		m_pClient->send("%s", cmd_rightEyeLid.c_str());
 		
-		string cmd = "Global.servo.leftEyeLid(" + m_dLeftEyeLidNeuValueJoint + ");"; 
-		client->send("%s", cmd.c_str());
+		std::string cmd_leftEyeLid = "Global.servo.leftEyeLid=" +  to_string(m_dLeftEyeLidNeuValueJoint) + ";"; 
+		m_pClient->send("%s", cmd_leftEyeLid.c_str());
 	}
 	
-	// TODO: to add switch off the led
+	// TODO: to add switch off the leds
 }
 
 
@@ -208,8 +222,8 @@ bool SWTeleoperation_reeti::close()
 	m_oFaceTrackerPort.close();
 	m_oGazeTrackerPort.close();
   
-	// close urbi client
-	client->close();
+	// close urbi m_pClient
+	m_pClient->close();
 	
 	std::cout << "--Closing the reeti Teleoperation module..." << std::endl;
 	return true;
@@ -220,21 +234,36 @@ bool SWTeleoperation_reeti::updateModule()
 {
 	// init command vector
         yarp::sig::Vector l_vHeadJoints;
-        l_vHeadJoints.resize(3); // Rotation, Pan, Tilt
-        l_vHeadJoints = 0.;
+		l_vHeadJoints.resize(3); // Rotation, Pan, Tilt
+		l_vHeadJoints = 0.;
 	yarp::sig::Vector l_vGazeJoints;
-        l_vGazeJoints.resize(6); // rightEyeX, Y, leftEyeX, Y, rightEyeLid, leftEyeLid
-        l_vHeadJoints = 0.;
+		l_vGazeJoints.resize(6); // rightEyeX, Y, leftEyeX, Y, rightEyeLid, leftEyeLid
+		l_vGazeJoints = 0.;
+	yarp::sig::Vector l_vFaceJoints;
+		l_vFaceJoints.resize(6); // leftLC, rightLC, topLip, bottomLip, rightEar, leftEar
+		l_vFaceJoints = 0.;
 	
 	// defines bottles
 	Bottle *l_pHeadTarget = NULL, *l_pFaceTarget = NULL, *l_pGazeTarget = NULL;
 	
-	// defines joint values
-	double l_dNeckRotatValueJoint, l_dNeckTiltValueJoint, l_dNeckPanValueJoint;
-	double l_dLeftLCValueJoint, l_dRightLCValueJoint, l_dTopLipValueJoint, l_dBottomLipValueJoint;
-	double l_dRightEarValueJoint, l_dLeftEarValueJoint;
-	double l_dRightEyeTiltValueJoint, l_dLeftEyeTiltValueJoint, l_dRightEyePanValueJoint, l_dLeftEyePanValueJoint;
-	double l_dRightEyeLidValueJoint, l_dLeftEyeLidValueJoint;
+	// defines joint values (by default = to neutral position)
+	double l_dNeckRotatValueJoint = m_dNeckRotatNeuValueJoint;
+	double l_dNeckTiltValueJoint = m_dNeckTiltNeuValueJoint;
+	double l_dNeckPanValueJoint = m_dNeckPanNeuValueJoint;
+
+	double l_dLeftLCValueJoint = m_dLeftLCNeuValueJoint;
+	double l_dRightLCValueJoint = m_dRightLCNeuValueJoint;
+	double l_dTopLipValueJoint = m_dTopLipNeuValueJoint;
+	double l_dBottomLipValueJoint = m_dBottomLipNeuValueJoint;
+	double l_dRightEarValueJoint = m_dRightEarNeuValueJoint;
+	double l_dLeftEarValueJoint = m_dLeftEarNeuValueJoint;
+
+	double l_dRightEyeTiltValueJoint = m_dRightEyeTiltNeuValueJoint;
+	double l_dLeftEyeTiltValueJoint = m_dLeftEyeTiltNeuValueJoint;
+	double l_dRightEyePanValueJoint = m_dRightEyePanNeuValueJoint;
+	double l_dLeftEyePanValueJoint = m_dLeftEyePanNeuValueJoint;
+	double l_dRightEyeLidValueJoint = m_dRightEyeLidNeuValueJoint;
+	double l_dLeftEyeLidValueJoint = m_dRightEyeLidNeuValueJoint;
 	
 	// read head commands
 	if(m_bHeadActivated)
@@ -243,50 +272,52 @@ bool SWTeleoperation_reeti::updateModule()
 
 		if(l_pHeadTarget)
 		{
+			//std::cout << "Head Bottle received" << std::endl;
+				
 			int l_deviceId = l_pHeadTarget->get(0).asInt();
 			
 			switch(l_deviceId)
 			{
 				case swTracking::DUMMY_LIB :
 				{
-					l_vHeadJoints[0] = l_pHeadTarget->get(1).asDouble()+50;
-					l_vHeadJoints[1] = l_pHeadTarget->get(2).asDouble()+50;
-					l_vHeadJoints[2] = l_pHeadTarget->get(3).asDouble()+50;
+					l_vHeadJoints[0] = l_pHeadTarget->get(1).asDouble();
+					l_vHeadJoints[1] = l_pHeadTarget->get(2).asDouble();
+					l_vHeadJoints[2] = l_pHeadTarget->get(3).asDouble();
 				}
 				break;
 				case swTracking::FASTRAK_LIB :
 				{
-					l_vHeadJoints[0] = l_pHeadTarget->get(2).asDouble()+50;
-					l_vHeadJoints[1] = l_pHeadTarget->get(3).asDouble()+50;
-					l_vHeadJoints[2] = -(l_pHeadTarget->get(1).asDouble()-90.0)+50;
+					l_vHeadJoints[0] = l_pHeadTarget->get(2).asDouble();
+					l_vHeadJoints[1] = l_pHeadTarget->get(3).asDouble();
+					l_vHeadJoints[2] = -(l_pHeadTarget->get(1).asDouble()-90.0);
 				}
 				break;
 				case swTracking::FOREST_LIB :
 				{
-					l_vHeadJoints[0] = -l_pHeadTarget->get(1).asDouble()+50; //head rotation "yes" 
-					l_vHeadJoints[1] = -l_pHeadTarget->get(3).asDouble()+50; //head rotation
-					l_vHeadJoints[2] = -l_pHeadTarget->get(2).asDouble()+50; //head rotation "no"
+					l_vHeadJoints[0] = -l_pHeadTarget->get(1).asDouble(); //head rotation "yes" 
+					l_vHeadJoints[1] = -l_pHeadTarget->get(3).asDouble(); //head rotation
+					l_vHeadJoints[2] = -l_pHeadTarget->get(2).asDouble(); //head rotation "no"
 				}
 				break;
 				case swTracking::COREDATA_LIB :
 				{
-					l_vHeadJoints[0] =  swUtil::rad2Deg(l_pHeadTarget->get(4).asDouble())+50; //head rotation "yes" 
-					l_vHeadJoints[1] = -swUtil::rad2Deg(l_pHeadTarget->get(6).asDouble())+50; //head rotation
-					l_vHeadJoints[2] =  swUtil::rad2Deg(l_pHeadTarget->get(5).asDouble())+50; //head rotation "no"
+					l_vHeadJoints[0] =  swUtil::rad2Deg(l_pHeadTarget->get(4).asDouble()); //head rotation "yes" 
+					l_vHeadJoints[1] = -swUtil::rad2Deg(l_pHeadTarget->get(6).asDouble()); //head rotation
+					l_vHeadJoints[2] =  swUtil::rad2Deg(l_pHeadTarget->get(5).asDouble()); //head rotation "no"
 				}
 				break;
 				case swTracking::EMICP_LIB :
 				{
-					l_vHeadJoints[0] = -l_pHeadTarget->get(4).asDouble()+50; 
-					l_vHeadJoints[1] = -l_pHeadTarget->get(6).asDouble()+50; 
-					l_vHeadJoints[2] = -l_pHeadTarget->get(5).asDouble()+50;
+					l_vHeadJoints[0] = -l_pHeadTarget->get(4).asDouble(); 
+					l_vHeadJoints[1] = -l_pHeadTarget->get(6).asDouble(); 
+					l_vHeadJoints[2] = -l_pHeadTarget->get(5).asDouble();
 				}
 				break;
 				case swTracking::FACESHIFT_LIB :
 				{
-					l_vHeadJoints[0] = -swUtil::rad2Deg(l_pHeadTarget->get(4).asDouble())+50; 
-					l_vHeadJoints[1] = swUtil::rad2Deg(l_pHeadTarget->get(6).asDouble())+50;
-					l_vHeadJoints[2] = swUtil::rad2Deg(l_pHeadTarget->get(5).asDouble())+50;
+					l_vHeadJoints[0] = -swUtil::rad2Deg(l_pHeadTarget->get(4).asDouble()); 
+					l_vHeadJoints[1] = -swUtil::rad2Deg(l_pHeadTarget->get(6).asDouble());
+					l_vHeadJoints[2] = swUtil::rad2Deg(l_pHeadTarget->get(5).asDouble());
 				}
 				break;
 				case swTracking::OPENNI_LIB :
@@ -309,17 +340,17 @@ bool SWTeleoperation_reeti::updateModule()
 					std::vector<double> l_vecHead       = swUtil::vec(l_pointNeck,		l_pointHead);
 					std::vector<double> l_rpyHead = swUtil::computeRollPitchYaw(l_vecHead, l_vecClavicles);
 
-					l_vHeadJoints[0] = -l_rpyHead[1]+50;
-					l_vHeadJoints[1] = -l_rpyHead[0]+50;
-					l_vHeadJoints[2] =  l_rpyHead[2]+50;
+					l_vHeadJoints[0] = -l_rpyHead[1];
+					l_vHeadJoints[1] = -l_rpyHead[0];
+					l_vHeadJoints[2] =  l_rpyHead[2];
 				}
 				break;
 			}
 			
-			// fills the joint variables
-			l_dNeckRotatValueJoint = l_vHeadJoints[2];
-			l_dNeckTiltValueJoint = l_vHeadJoints[0];
-			l_dNeckPanValueJoint = l_vHeadJoints[1];
+			// fills the joint variables (neutral value is not 0! therefore need to rereference the data)
+			l_dNeckRotatValueJoint = l_vHeadJoints[2] * m_dNeckRotatCoeffValueJoint + m_dNeckRotatNeuValueJoint;
+			l_dNeckTiltValueJoint = l_vHeadJoints[0] * m_dNeckTiltCoeffValueJoint + m_dNeckTiltNeuValueJoint;
+			l_dNeckPanValueJoint = l_vHeadJoints[1] * m_dNeckPanCoeffValueJoint + m_dNeckPanNeuValueJoint;
 
 			m_i32HeadTimeLastBottle = 0;
 		}
@@ -342,23 +373,22 @@ bool SWTeleoperation_reeti::updateModule()
 
 		if(l_pGazeTarget)
 		{
-		    int l_deviceId = l_pGazeTarget->get(0).asInt();
+		    	int l_deviceId = l_pGazeTarget->get(0).asInt();
 
 			switch(l_deviceId)
 			{
+				//std::cout << "Gaze bottle received" << std::endl;				
 				case swTracking::FACESHIFT_LIB :
 				{
-					//~ l_vGazeJoints[3] = -(l_pGazeTarget->get(1).asDouble() + l_pGazeTarget->get(3).asDouble())*0.5; // up/down eye [-35; +15]
-					//~ l_vGazeJoints[4] = -(l_pGazeTarget->get(2).asDouble() + l_pGazeTarget->get(4).asDouble())*0.5; // version angle [-50; 52] = (L+R)/2
-					//~ l_vGazeJoints[5] =  -l_pGazeTarget->get(2).asDouble() + l_pGazeTarget->get(4).asDouble();     // vergence angle [0 90] = R-L
-					
-					l_vGazeJoints[0] =  l_pGazeTarget->get(2).asDouble() +50; //rightEyeX
-					l_vGazeJoints[1] =  l_pGazeTarget->get(1).asDouble() +50; //rightEyeY
-					l_vGazeJoints[2] =  l_pGazeTarget->get(4).asDouble() +50; //leftEyeX
-					l_vGazeJoints[3] =  l_pGazeTarget->get(3).asDouble() +50; //leftEyeY
-					// TODO add the blink information
-					l_vGazeJoints[4] =  l_pGazeTarget->get(5).asDouble(); //rightEyeLid
-					l_vGazeJoints[5] =  l_pGazeTarget->get(6).asDouble(); //leftEyeLid
+					//tilt
+					l_dRightEyeTiltValueJoint =  -l_pGazeTarget->get(3).asDouble() * m_dRightEyeTiltCoeffValueJoint + m_dRightEyeTiltNeuValueJoint; 
+					l_dLeftEyeTiltValueJoint =  -l_pGazeTarget->get(1).asDouble() * m_dLeftEyeTiltCoeffValueJoint + m_dLeftEyeTiltNeuValueJoint; 
+					//pan
+					l_dRightEyePanValueJoint =  l_pGazeTarget->get(4).asDouble() * m_dRightEyePanCoeffValueJoint + m_dRightEyePanNeuValueJoint;
+					l_dLeftEyePanValueJoint =  l_pGazeTarget->get(2).asDouble() * m_dLeftEyePanCoeffValueJoint + m_dLeftEyePanNeuValueJoint;
+					//blink
+					l_dRightEyeLidValueJoint=  m_dRightEyeLidNeuValueJoint - l_pGazeTarget->get(6).asDouble()*100; 
+					l_dLeftEyeLidValueJoint =  m_dRightEyeLidNeuValueJoint - l_pGazeTarget->get(5).asDouble()*100; 
 					
 				}
 				break;
@@ -448,21 +478,31 @@ bool SWTeleoperation_reeti::updateModule()
 				break;
 				case swTracking::COREDATA_LIB :
 				{
-					// eye position
-					l_vGazeJoints[3] = swUtil::rad2Deg( (l_pGazeTarget->get(9) .asDouble() + l_pGazeTarget->get(14).asDouble())/2.); // up/down eye [-35; +15]
-					l_vGazeJoints[4] = swUtil::rad2Deg(-(l_pGazeTarget->get(10).asDouble() + l_pGazeTarget->get(15).asDouble())/2.); // version angle [-50; 52] = (L+R)/2
-					l_vGazeJoints[5] = swUtil::rad2Deg( -l_pGazeTarget->get(10).asDouble() + l_pGazeTarget->get(15).asDouble());     // vergence angle [0 90] = R-L
+					l_dRightEyeTiltValueJoint = swUtil::rad2Deg(l_pGazeTarget->get(14).asDouble()) * m_dRightEyeTiltCoeffValueJoint + m_dRightEyeTiltNeuValueJoint;//gaze: rightGazeRotation x / get(14).asDouble()
+					l_dLeftEyeTiltValueJoint = swUtil::rad2Deg(l_pGazeTarget->get(9).asDouble()) * m_dLeftEyeTiltCoeffValueJoint + m_dLeftEyeTiltNeuValueJoint; //gaze: leftGazeRotation x   / get(9).asDouble()
 
-					// eye closure
-					double l_dLeftEyeClosure = l_pGazeTarget->get(8).asDouble(), l_dRightEyeClosure = l_pGazeTarget->get(13).asDouble();
-					
-					
+					l_dRightEyePanValueJoint = swUtil::rad2Deg(l_pGazeTarget->get(15).asDouble()) * m_dRightEyePanCoeffValueJoint + m_dRightEyePanNeuValueJoint;//gaze: rightGazeRotation y / get(15).asDouble()
+					l_dLeftEyePanValueJoint = swUtil::rad2Deg(l_pGazeTarget->get(10).asDouble()) * m_dLeftEyePanCoeffValueJoint + m_dLeftEyePanNeuValueJoint;//gaze: leftGazeRotation y   / get(10).asDouble()
+
+					l_dRightEyeLidValueJoint = m_dRightEyeLidNeuValueJoint-l_pGazeTarget->get(13).asDouble()*100;//gaze: rightEyeClosure     / get(13).asDouble()
+					l_dLeftEyeLidValueJoint = m_dLeftEyeLidNeuValueJoint-l_pGazeTarget->get(8).asDouble()*100; //gaze: leftEyeClosure       / get(8).asDouble()
+
 				}
 				break;
 			}
 
-                m_dGazeTimeLastBottle = -1.;
-                m_pVelocityController->enableGaze(true);
+			m_i32GazeTimeLastBottle = 0.;
+                
+		}
+		else  // manage timeout and reset position
+		{
+			m_i32GazeTimeLastBottle += 1000/m_i32Fps;
+
+			if(m_i32GazeTimeLastBottle > m_i32GazeTimeoutReset)
+			{
+				m_i32GazeTimeLastBottle = 0;
+				resetPosition();
+			}
 		}
 	}
 
@@ -476,18 +516,61 @@ bool SWTeleoperation_reeti::updateModule()
 			int l_deviceId = l_pFaceTarget->get(0).asInt();
 			switch(l_deviceId)
 			{
-				case swTracking::OPENNI_LIB :
+				//std::cout << "Face bottle received" << std::endl;				
+				case swTracking::FACESHIFT_LIB :
 				{
 					
-				}break;
-				case swTracking::FOREST_LIB :
-				{                
+					l_dBottomLipValueJoint = m_dBottomLipNeuValueJoint - l_pFaceTarget->get(20).asDouble()*100; // JawOpen
+					l_dTopLipValueJoint = m_dTopLipNeuValueJoint + l_pFaceTarget->get(42).asDouble()*50; // LipsFunnel
+					l_dRightLCValueJoint = m_dRightLCNeuValueJoint+l_pFaceTarget->get(32).asDouble()*50; //MouthSmile_R
+					l_dLeftLCValueJoint = m_dLeftLCNeuValueJoint+l_pFaceTarget->get(31).asDouble()*50; //MouthSmile_L
+					l_dRightEarValueJoint = m_dRightEarNeuValueJoint - l_pFaceTarget->get(19).asDouble()*100; // Right eyebrow
+					l_dLeftEarValueJoint = m_dLeftEarNeuValueJoint - l_pFaceTarget->get(18).asDouble()*100; // Left eyebrow
+				}
+				break;
+				case swTracking::COREDATA_LIB :
+				{
+					// retrieve values
+					// mouth
+					// bottom lip
+					std::vector<double> l_vInnerLip2, l_vInnerLip6;
+					for(int ii = 0; ii < 3; ++ii)
+					{
+						l_vInnerLip2.push_back(l_pFaceTarget->get(25+ii).asDouble());
+						l_vInnerLip6.push_back(l_pFaceTarget->get(37+ii).asDouble());
+					}
+					double l_dLipsDistance = sqrt( pow(l_vInnerLip6[0] - l_vInnerLip2[0], 2) + pow(l_vInnerLip6[1] - l_vInnerLip2[1], 2) + pow(l_vInnerLip6[2] - l_vInnerLip2[2], 2));
 					
-				} break;
+					l_dBottomLipValueJoint = m_dBottomLipMaxValueJoint-l_dLipsDistance*5000;
+
+					// top lip (protrusion)
+					std::vector<double> l_vInnerLip0, l_vInnerLip4;
+					for(int ii = 0; ii < 3; ++ii)
+					{
+						l_vInnerLip0.push_back(l_pFaceTarget->get(19+ii).asDouble());
+						l_vInnerLip4.push_back(l_pFaceTarget->get(31+ii).asDouble());
+					}
+					double l_dCornerLipsDistance = sqrt( pow(l_vInnerLip4[0] - l_vInnerLip0[0], 2) + pow(l_vInnerLip4[1] - l_vInnerLip0[1], 2) + pow(l_vInnerLip4[2] - l_vInnerLip0[2], 2));			
+					l_dTopLipValueJoint = m_dTopLipMaxValueJoint-(l_dCornerLipsDistance-0.03)*5000;
+
+					// lip corners
+					std::vector<double> l_vNoseTip;
+					for(int ii = 0; ii < 3; ++ii)
+					{
+						l_vNoseTip.push_back(l_pFaceTarget->get(61+ii).asDouble());
+					}
+					double l_dRightCornerNoseTipYDistance = sqrt( pow(l_vInnerLip4[1] - l_vNoseTip[1], 2) );
+					
+					//l_dRightLCValueJoint = m_dRightLCNeuValueJoint-(l_dRightCornerNoseTipYDistance-0.025)*5000;
+
+					//std::cout << "l_l_dRightCornerNoseTipYDistance = " << l_dRightCornerNoseTipYDistance << std::endl;
+					
+				}
+				break;
 			}
 
-			m_i32DFaceTimeLastBottle = 0;
-			l_bFaceCapture = true;
+			m_i32FaceTimeLastBottle = 0;
+			
 		}
 		else
 		{
@@ -538,6 +621,15 @@ bool SWTeleoperation_reeti::updateModule()
 		l_dBottomLipValueJoint = m_dBottomLipMinValueJoint;
 	if (l_dBottomLipValueJoint > m_dBottomLipMaxValueJoint)
 		l_dBottomLipValueJoint = m_dBottomLipMaxValueJoint;
+	//ear
+	if (l_dLeftEarValueJoint < m_dLeftEarMinValueJoint)
+		l_dLeftEarValueJoint = m_dLeftEarMinValueJoint;
+	if (l_dLeftEarValueJoint > m_dLeftEarMaxValueJoint)
+		l_dLeftEarValueJoint = m_dLeftEarMaxValueJoint;
+	if (l_dRightEarValueJoint < m_dRightEarMinValueJoint)
+		l_dRightEarValueJoint = m_dRightEarMinValueJoint;
+	if (l_dRightEarValueJoint > m_dRightEarMaxValueJoint)
+		l_dRightEarValueJoint = m_dRightEarMaxValueJoint;
 	//gaze
 	if (l_dRightEyeTiltValueJoint < m_dRightEyeTiltMinValueJoint)
 		l_dRightEyeTiltValueJoint = m_dRightEyeTiltMinValueJoint;
@@ -572,55 +664,83 @@ bool SWTeleoperation_reeti::updateModule()
 	
 	// sends the command to the robot
 	// head
-	if (l_bHeadCapture)
+	if (m_bHeadActivated)
 	{
-		string cmd = "Global.servo.neckRotat(" + l_dNeckRotatValueJoint + ");"; 
-		client->send("%s", cmd.c_str());
+		std::string cmd_neckRotat = "Global.servo.neckRotat=" +  to_string(l_dNeckRotatValueJoint) + ";"; 
+		m_pClient->send("%s", cmd_neckRotat.c_str());
 		
-		string cmd = "Global.servo.neckTilt(" + l_dNeckTiltValueJoint + ");"; 
-		client->send("%s", cmd.c_str());
 		
-		string cmd = "Global.servo.neckPan(" + l_dNeckPanValueJoint + ");"; 
-		client->send("%s", cmd.c_str());
+		std::string cmd_neckPan = "Global.servo.neckPan="+  to_string(l_dNeckPanValueJoint) + ";"; 
+		m_pClient->send("%s", cmd_neckPan.c_str());
+		
+		std::string cmd_neckTilt = "Global.servo.neckTilt=" +  to_string(l_dNeckTiltValueJoint) + ";"; 
+		m_pClient->send("%s", cmd_neckTilt.c_str());
+		
+		
+		//~ std::cout << cmd_neckTilt<< std::endl;
+		//~ std::cout << cmd_neckPan<< std::endl;
+		//std::cout << "-->Head command sent!" << std::endl;
 	}
 	// face
 	if(m_bFaceActivated)
 	{
-		string cmd = "Global.servo.LeftLC(" + l_dLeftLCValueJoint + ");"; 
-		client->send("%s", cmd.c_str());
+		std::string cmd_leftLC = "Global.servo.leftLC=" +  to_string(l_dLeftLCValueJoint) + ";"; 
+		m_pClient->send("%s", cmd_leftLC.c_str());
 		
-		string cmd = "Global.servo.rightLC(" + l_dRightLCValueJoint + ");"; 
-		client->send("%s", cmd.c_str());
+		std::string cmd_rightLC = "Global.servo.rightLC=" +  to_string(l_dRightLCValueJoint) + ";"; 
+		m_pClient->send("%s", cmd_rightLC.c_str());
 		
-		string cmd = "Global.servo.topLip(" + l_dTopLipValueJoint + ");"; 
-		client->send("%s", cmd.c_str());
+		std::string cmd_topLip = "Global.servo.topLip=" +  to_string(l_dTopLipValueJoint) + ";"; 
+		m_pClient->send("%s", cmd_topLip.c_str());
 		
-		string cmd = "Global.servo.bottomLip(" + l_dBottomLipValueJoint + ");"; 
-		client->send("%s", cmd.c_str());
+		std::string cmd_bottomLip = "Global.servo.bottomLip=" +  to_string(l_dBottomLipValueJoint) + ";"; 
+		m_pClient->send("%s", cmd_bottomLip.c_str());
+		
+		std::string cmd_leftEar = "Global.servo.leftEar=" +  to_string(l_dLeftEarValueJoint) + ";"; 
+		m_pClient->send("%s", cmd_leftEar.c_str());
+		
+		std::string cmd_rightEar = "Global.servo.rightEar=" +  to_string(l_dRightEarValueJoint) + ";"; 
+		m_pClient->send("%s", cmd_rightEar.c_str());
+
+		//std::cout << "-->Face command sent!" << std::endl;
 	}
 	// gaze
 	if(m_bGazeActivated)
 	{
-		string cmd = "Global.servo.rightEyeTilt(" + l_dRightEyeTiltValueJoint + ");"; 
-		client->send("%s", cmd.c_str());
+		std::string cmd_rightEyeTilt = "Global.servo.rightEyeTilt=" + to_string(l_dRightEyeTiltValueJoint) + ";"; 
+		m_pClient->send("%s", cmd_rightEyeTilt.c_str());
+		//std::cout << cmd_rightEyeTilt << std::endl;		
+
+		std::string cmd_leftEyeTilt = "Global.servo.leftEyeTilt=" + to_string(l_dLeftEyeTiltValueJoint) + ";"; 
+		m_pClient->send("%s", cmd_leftEyeTilt.c_str());
+		//std::cout << cmd_leftEyeTilt << std::endl;
+
+		std::string cmd_rightEyePan = "Global.servo.rightEyePan=" + to_string(l_dRightEyePanValueJoint) + ";"; 
+		m_pClient->send("%s", cmd_rightEyePan.c_str());
 		
-		string cmd = "Global.servo.leftEyeTilt(" + l_dLeftEyeTiltValueJoint + ");"; 
-		client->send("%s", cmd.c_str());
+		std::string cmd_leftEyePan = "Global.servo.leftEyePan=" + to_string(l_dLeftEyePanValueJoint) + ";"; 
+		m_pClient->send("%s", cmd_leftEyePan.c_str());
 		
-		string cmd = "Global.servo.rightEyePan(" + l_dRightEyePanValueJoint + ");"; 
-		client->send("%s", cmd.c_str());
+		std::string cmd_rightEyeLid = "Global.servo.rightEyeLid=" + to_string(l_dRightEyeLidValueJoint) + ";"; 
+		m_pClient->send("%s", cmd_rightEyeLid.c_str());
 		
-		string cmd = "Global.servo.leftEyePan(" + l_dLeftEyePanValueJoint + ");"; 
-		client->send("%s", cmd.c_str());
-		
-		string cmd = "Global.servo.rightEyeLid(" + l_dRightEyeLidValueJoint + ");"; 
-		client->send("%s", cmd.c_str());
-		
-		string cmd = "Global.servo.leftEyeLid(" + l_dLeftEyeLidValueJoint + ");"; 
-		client->send("%s", cmd.c_str());
+		std::string cmd_leftEyeLid = "Global.servo.leftEyeLid=" + to_string(l_dLeftEyeLidValueJoint) + ";"; 
+		m_pClient->send("%s", cmd_leftEyeLid.c_str());
+
+		//std::cout << "-->Gaze command sent!" << std::endl;
 	}
 
 	return true;
+}
+
+
+
+template <typename T> 
+std::string SWTeleoperation_reeti::to_string(T value)
+{
+	std::ostringstream os ;
+	os << value ;
+	return os.str() ;
 }
 
 

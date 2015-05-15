@@ -12,9 +12,10 @@
 // STD
 #include <vector>
 #include <string>
+#include <sstream>
 
 // SWOOZ
-#include "commonTypes.h"
+//#include "commonTypes.h"
 
 // YARP
 #include <yarp/os/Network.h>
@@ -111,6 +112,9 @@ class SWTeleoperation_reeti : public RFModule
          */
         double getPeriod();
 
+	template <typename T> 
+	std::string to_string(T value);
+
 
     private:
 
@@ -126,7 +130,11 @@ class SWTeleoperation_reeti : public RFModule
       
         int m_i32Fps;                 /**< fps (define the period for calling updateModule) */
         int m_i32HeadTimeLastBottle;  /**< time elapsed without head bottle command */
+	int m_i32FaceTimeLastBottle;  /**< time elapsed without head bottle command */
+	int m_i32GazeTimeLastBottle;  /**< time elapsed without head bottle command */
         int m_i32HeadTimeoutReset;    /**< head timeout reset reeti */
+	int m_i32FaceTimeoutReset;    /**< head timeout reset reeti */
+	int m_i32GazeTimeoutReset;    /**< head timeout reset reeti */
         
 	// Config variables retrieved from the ini file
         std::string m_sModuleName;      /**< name of the module (config) */
@@ -136,14 +144,17 @@ class SWTeleoperation_reeti : public RFModule
 	double m_dNeckRotatMinValueJoint;
 	double m_dNeckRotatMaxValueJoint;
 	double m_dNeckRotatNeuValueJoint;
+	double m_dNeckRotatCoeffValueJoint;
 	
 	double m_dNeckTiltMinValueJoint;
 	double m_dNeckTiltMaxValueJoint;
 	double m_dNeckTiltNeuValueJoint;
+	double m_dNeckTiltCoeffValueJoint;
 	
 	double m_dNeckPanMinValueJoint;
 	double m_dNeckPanMaxValueJoint;
 	double m_dNeckPanNeuValueJoint;
+	double m_dNeckPanCoeffValueJoint;
 	
 	double m_dLeftLCMinValueJoint;
 	double m_dLeftLCMaxValueJoint;
@@ -172,18 +183,22 @@ class SWTeleoperation_reeti : public RFModule
 	double m_dRightEyeTiltMinValueJoint;
 	double m_dRightEyeTiltMaxValueJoint;
 	double m_dRightEyeTiltNeuValueJoint;
+	double m_dRightEyeTiltCoeffValueJoint;
 	
 	double m_dLeftEyeTiltMinValueJoint;
 	double m_dLeftEyeTiltMaxValueJoint;
 	double m_dLeftEyeTiltNeuValueJoint;
+	double m_dLeftEyeTiltCoeffValueJoint;
 	
 	double m_dRightEyePanMinValueJoint;
 	double m_dRightEyePanMaxValueJoint;
 	double m_dRightEyePanNeuValueJoint;
+	double m_dRightEyePanCoeffValueJoint;
 	
 	double m_dLeftEyePanMinValueJoint;
 	double m_dLeftEyePanMaxValueJoint;
 	double m_dLeftEyePanNeuValueJoint;
+	double m_dLeftEyePanCoeffValueJoint;
 	
 	double m_dRightEyeLidMinValueJoint;
 	double m_dRightEyeLidMaxValueJoint;
