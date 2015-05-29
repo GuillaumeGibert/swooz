@@ -21,13 +21,14 @@ LINK=link
 
 TOOLKIT_OBJ=\
     $(LIBDIR)/SWKinect.obj $(LIBDIR)/SWKinect_thread.obj $(LIBDIR)/SWSaveKinectData.obj $(LIBDIR)/SWLoadKinectData.obj $(LIBDIR)/SWKinectSkeleton.obj\
-    $(LIBDIR)/SWFastrak.obj $(LIBDIR)/SWFastrak_thread.obj \
+    $(LIBDIR)/SWFastrak.obj $(LIBDIR)/SWFastrak_thread.obj $(LIBDIR)/SWOculus.obj $(LIBDIR)/SWOculus_thread.obj \
     $(LIBDIR)/Tobii.obj\
 
 TOOLKIT_DYN_OBJ=\
     $(LIBDIR)/SWKinect_d.obj $(LIBDIR)/SWKinect_thread_d.obj $(LIBDIR)/SWSaveKinectData_d.obj \
     $(LIBDIR)/SWLoadKinectData_d.obj $(LIBDIR)/SWKinectSkeleton_d.obj $(LIBDIR)/FaceLab_d.obj \
     $(LIBDIR)/SWFaceLab_d.obj $(LIBDIR)/SWFastrak_d.obj $(LIBDIR)/SWFastrak_thread_d.obj\
+    $(LIBDIR)/SWOculus_d.obj $(LIBDIR)/SWOculus_thread_d.obj\
     $(LIBDIR)/Tobii_d.obj $(LIBDIR)/SWLeap_d.obj\
 
 KINECT_DIMENCO_OBJ=\
@@ -83,6 +84,12 @@ $(LIBDIR)/SWFastrak.obj: ./src/devices/fastrak/SWFastrak.cpp
 $(LIBDIR)/SWFastrak_thread.obj: ./src/devices/fastrak/SWFastrak_thread.cpp
         $(CC) -c ./src/devices/fastrak/SWFastrak_thread.cpp $(CFLAGS_STA) $(SW_FASTRAK_THREAD) -Fo"$(LIBDIR)/"
 	
+$(LIBDIR)/SWOculus.obj: ./src/devices/oculus/SWOculus.cpp
+        $(CC) -c ./src/devices/oculus/SWOculus.cpp $(CFLAGS_STA) $(SW_OCULUS) -Fo"$(LIBDIR)/"
+	
+$(LIBDIR)/SWOculus_thread.obj: ./src/devices/oculus/SWOculus_thread.cpp
+        $(CC) -c ./src/devices/oculus/SWOculus_thread.cpp $(CFLAGS_STA) $(SW_OCULUS_THREAD) -Fo"$(LIBDIR)/"
+	
 $(LIBDIR)/SWSaveKinectData.obj: ./src/devices/rgbd/SWSaveKinectData.cpp
         $(CC) -c ./src/devices/rgbd/SWSaveKinectData.cpp $(CFLAGS_STA) $(SW_SAVE_KINECT_DATA) -Fo"$(LIBDIR)/"
 
@@ -112,6 +119,12 @@ $(LIBDIR)/SWFastrak_d.obj: ./src/devices/fastrak/SWFastrak.cpp
 
 $(LIBDIR)/SWFastrak_thread_d.obj: ./src/devices/fastrak/SWFastrak_thread.cpp
         $(CC) -c ./src/devices/fastrak/SWFastrak_thread.cpp $(CFLAGS_DYN) $(SW_FASTRAK_THREAD) -Fo"$(LIBDIR)/SWFastrak_thread_d.obj"
+	
+$(LIBDIR)/SWOculus_d.obj: ./src/devices/oculus/SWOculus.cpp
+        $(CC) -c ./src/devices/oculus/SWOculus.cpp $(CFLAGS_DYN) $(SW_OCULUS) -Fo"$(LIBDIR)/SWOculus_d.obj"
+
+$(LIBDIR)/SWOculus_thread_d.obj: ./src/devices/oculus/SWOculus_thread.cpp
+        $(CC) -c ./src/devices/oculus/SWOculus_thread.cpp $(CFLAGS_DYN) $(SW_OCULUS_THREAD) -Fo"$(LIBDIR)/SWOculus_thread_d.obj"
 
 $(LIBDIR)/SWSaveKinectData_d.obj: ./src/devices/rgbd/SWSaveKinectData.cpp
         $(CC) -c ./src/devices/rgbd/SWSaveKinectData.cpp $(CFLAGS_DYN) $(SW_SAVE_KINECT_DATA) -Fo"$(LIBDIR)/SWSaveKinectData_d.obj"

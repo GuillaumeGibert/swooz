@@ -130,7 +130,11 @@ namespace swExcept
      */
     class swFastrakError : public deviceError { public: virtual const char * what(void) const throw () { return "Fastrak device error. ";}};
 
-
+    /**
+     * \class swOculusError
+     */
+    class swOculusError : public deviceError { public: virtual const char * what(void) const throw () { return "Oculus device error. ";}};
+    
     // ############################### openglError
 
     /**
@@ -245,6 +249,21 @@ namespace swExcept
      * \brief Fastrak data time out error.
      */
     class fastrakDataTimeOutError :  public swFastrakError { public: virtual const char * what(void) const throw () { return "Fastrak data time out launched. ";}};
+    
+     // ############################### oculus
+
+    /**
+     * \class oculusInitError
+     * \brief Oculus initialization error.
+     */
+    class oculusInitError :  public swOculusError { public: virtual const char * what(void) const throw () { return "Oculus initialization failed. ";}};
+
+
+    /**
+     * \class oculusDataTimeOutError
+     * \brief Oculus data time out error.
+     */
+    class oculusDataTimeOutError :  public swOculusError { public: virtual const char * what(void) const throw () { return "Oculus data time out launched. ";}};
 }
 
 

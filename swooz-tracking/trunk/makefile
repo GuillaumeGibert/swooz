@@ -51,11 +51,14 @@ OBJ_TRACKING_LEAP=\
 
 OBJ_TRACKING_FASTRAK=\
         $(LIBDIR)/SWFastrakTracking_d.obj\
+	
+OBJ_TRACKING_OCULUS=\
+        $(LIBDIR)/SWOculusTracking_d.obj\
 
 ############################################################################## Makefile commands
 
 !if  "$(ARCH)" == "x86"
-all: trackingFastrak trackingHeadForest trackingHeadEmicp trackingFaceLab trackingOpenNI trackingFake trackingLeap trackingFaceShift trackingTobii
+all: trackingOculus trackingFastrak trackingHeadForest trackingHeadEmicp trackingFaceLab trackingOpenNI trackingFake trackingLeap trackingFaceShift trackingTobii
 !endif
 
 !if "$(ARCH)" == "amd64"
@@ -70,6 +73,7 @@ trackingOpenNI     : $(BINDIR)/SWOpenNITracking.exe
 trackingFake       : $(BINDIR)/SWFakeTracking.exe
 trackingLeap	   : $(BINDIR)/SWLeapTracking.exe
 trackingFastrak    : $(BINDIR)/SWFastrakTracking.exe
+trackingOculus    : $(BINDIR)/SWOculusTracking.exe
 trackingHeadEmicp  :
 
 !if "$(CUDA_FOUND)" == "yes"
@@ -84,6 +88,9 @@ clean all:
 
 WIN_CONFIG = $(SETARGV) $(BINMODE) $(WINLIBS)
 
+$(BINDIR)/SWOculusTracking.exe: $(OBJ_TRACKING_OCULUS) $(LIBS_OCULUS_TRACK)
+        $(LINK) /OUT:$(BINDIR)/SWOculusTracking.exe $(LFLAGS) $(OBJ_TRACKING_OCULUS) $(LIBS_OCULUS_TRACK) $(WIN_CONFIG)
+	
 $(BINDIR)/SWFastrakTracking.exe: $(OBJ_TRACKING_FASTRAK) $(LIBS_FASTRAK_TRACK)
         $(LINK) /OUT:$(BINDIR)/SWFastrakTracking.exe $(LFLAGS) $(OBJ_TRACKING_FASTRAK) $(LIBS_FASTRAK_TRACK) $(WIN_CONFIG)
 
@@ -169,6 +176,11 @@ $(LIBDIR)/SWLeapTracking_d.obj: ./src/leap/SWLeapTracking.cpp
 $(LIBDIR)/SWFastrakTracking_d.obj: ./src/fastrak/SWFastrakTracking.cpp
         $(CC) -c ./src/fastrak/SWFastrakTracking.cpp $(CFLAGS_DYN) $(SW_FASTRAKTRACKING) -Fo"$(LIBDIR)/SWFastrakTracking_d.obj"
 
+############################################################################## OCULUS TRACKING OBJ
+
+$(LIBDIR)/SWOculusTracking_d.obj: ./src/oculus/SWOculusTracking.cpp
+        $(CC) -c ./src/oculus/SWOculusTracking.cpp $(CFLAGS_DYN) $(SW_OCULUSTRACKING) -Fo"$(LIBDIR)/SWOculusTracking_d.obj"
+	
 ############################################################################## Qt ui files
 
 $(QTGENW_RGBD)/SWUI_WEmicpHeadTracking.h: $(FORMDIR)/SWUI_WEmicpHeadTracking.ui

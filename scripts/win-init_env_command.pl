@@ -48,6 +48,7 @@ our $Feedback  = "swooz-feedback/trunk";
 
 # add projects to build here
 my @PbuildOrder            = ($Toolkit, $Avatar, $Tracking, $Teleop, $Manip, $Viewer, $Feedback, $Examples);
+my @PbuildOrder            = ($Toolkit,  $Tracking, $Teleop);
 
 sub buildOrder {
     return @PbuildOrder;
@@ -70,6 +71,7 @@ my @ExecScriptParams = (# toolkit
                         "sw-fakeTracking",                      "x86",  "SWFakeTracking.exe",
                         "sw-leapTracking",                      "x86",  "SWLeapTracking.exe",
                         "sw-fastrakTracking",                   "x86",  "SWFastrakTracking.exe",
+			"sw-oculusTracking",                   "x86",  "SWOculusTracking.exe",
                         "sw-tobiiTracking",                     "x86",  "SWTobiiTracking.exe",
                         # teleoperation
                         "sw-teleoperation_iCub",                "x86",  "SWTeleoperation_iCub.exe",
@@ -126,7 +128,7 @@ $ENV{THIRD_PARTY_ACE_64}= $PThird_party . "ace/amd64/Ace642/";
 $ENV{THIRD_PARTY_OPENNI}    = $PThird_party . "openni/openni-1.5.4.0/";
 $ENV{THIRD_PARTY_OPENNI2_64}= $PThird_party . "openni/amd64/openni-2.1.0.4-64/";
 ##################### OPENCV
-$ENV{THIRD_PARTY_OPENCV}   = $PThird_party . "opencvQt/opencv-2.49/";
+$ENV{THIRD_PARTY_OPENCV}   = $PThird_party . "opencv/opencv-2.49/";
 $ENV{THIRD_PARTY_OPENCV_64}= $PThird_party . "opencv/amd64/opencv-2.48/";
 ##################### FREEGLUT
 $ENV{THIRD_PARTY_FREEGLUT}   = $PThird_party . "freeglut/";
@@ -153,9 +155,12 @@ $ENV{THIRD_PARTY_CLAPACK_64}= $PThird_party . "CLAPACK/amd64/";
 ##################### GSL
 $ENV{THIRD_PARTY_GSL}   = $PThird_party . "GSL/";
 ##################### GLM
-$ENV{THIRD_PARTY_GLM}   = $PThird_party . "glm/glm-0.9.4.2/";
+#~ $ENV{THIRD_PARTY_GLM}   = $PThird_party . "glm/glm-0.9.4.2/";
+$ENV{THIRD_PARTY_GLM}   = $PThird_party . "glm/";
 ##################### POLHEMUS
 $ENV{THIRD_PARTY_POLHEMUS}   = $PThird_party . "Polhemus/";
+##################### POLHEMUS
+$ENV{THIRD_PARTY_OCULUS}   = $PThird_party . "OculusSDK/";
 ##################### NAOQI
 $ENV{THIRD_PARTY_NAOQI}   = $PThird_party . "naoqi/";
 ##################### LEAP
@@ -207,7 +212,7 @@ if($ARG eq "x86")
     $PathsToAdd = $ENV{THIRD_PARTY_GSL} . "lib/;" . $PathsToAdd;
 
     $PathsToAdd = $ENV{THIRD_PARTY_POLHEMUS} . "lib/Win32/;" . $PathsToAdd;
-
+    
     $PathsToAdd = $ENV{THIRD_PARTY_FREEGLUT} . "bin/;" . $PathsToAdd;
 
     $PathsToAdd = $ENV{THIRD_PARTY_NAOQI} . "bin/;" . $PathsToAdd;
