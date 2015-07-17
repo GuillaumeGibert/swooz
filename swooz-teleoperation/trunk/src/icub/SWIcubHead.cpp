@@ -192,7 +192,7 @@ bool swTeleop::SWIcubHead::init( yarp::os::ResourceFinder &oRf)
         }
 
     // initializing controllers
-        if (!m_oRobotHead.view(m_pIHeadVelocity) || !m_oRobotHead.view(m_pIHeadPosition) || !m_oRobotHead.view(m_pIHeadEncoders))
+        if (!m_oRobotHead.view(m_pIHeadVelocity) || !m_oRobotHead.view(m_pIHeadPosition) || !m_oRobotHead.view(m_pIHeadEncoders) ||!m_oRobotHead.view(m_pIHeadControlMode) )
         {
             std::cerr << std::endl << "-ERROR: while getting required robot head interfaces." << std::endl<< std::endl;
             m_oRobotHead.close();
@@ -262,7 +262,7 @@ bool swTeleop::SWIcubHead::init( yarp::os::ResourceFinder &oRf)
         }
 
     // init controller
-        m_pVelocityController = new swTeleop::SWHeadVelocityController(m_pIHeadEncoders, m_pIHeadVelocity, m_vHeadJointVelocityK, m_i32RateVelocityControl);
+        m_pVelocityController = new swTeleop::SWHeadVelocityController(m_pIHeadEncoders, m_pIHeadVelocity, m_pIHeadControlMode, m_vHeadJointVelocityK, m_i32RateVelocityControl);
         m_pVelocityController->enableHead(m_bHeadActivated);
         m_pVelocityController->enableGaze(m_bGazeActivated);
         m_pVelocityController->setMinMaxJoints(m_vHeadMinJoint, m_vHeadMaxJoint);
@@ -742,6 +742,7 @@ void swTeleop::SWIcubHead::resetHeadPosition()
     {
         for(int ii = 0; ii < 3; ++ii)
         {
+		m_pIHeadControlMode->setControlMode(ii,VOCAB_CM_POSITION);
             m_pIHeadPosition->positionMove(ii,m_vHeadResetPosition[ii]);
         }
     }
@@ -753,6 +754,7 @@ void swTeleop::SWIcubHead::resetGazePosition()
     {
         for(int ii = 3; ii < 6; ++ii)
         {
+		m_pIHeadControlMode->setControlMode(ii,VOCAB_CM_POSITION);
             m_pIHeadPosition->positionMove(ii,m_vHeadResetPosition[ii]);
         }
 
@@ -874,7 +876,7 @@ std::string swTeleop::SWIcubHead::eyesOpeningCode(cdouble dEyeLids, cdouble dMin
     return l_osCodeValue.str();
 }
 
-swTeleop::SWHeadVelocityController::SWHeadVelocityController(yarp::dev::IEncoders *pIHeadEncoders, yarp::dev::IVelocityControl *pIHeadVelocity,
+swTeleop::SWHeadVelocityController::SWHeadVelocityController(yarp::dev::IEncoders *pIHeadEncoders, yarp::dev::IVelocityControl *pIHeadVelocity, yarp::dev::IControlMode2    *pIHeadControlMode,
                                                      std::vector<double> &vHeadJointVelocityK, int i32Rate)
     : RateThread(i32Rate), m_bHeadEnabled(false), m_bGazeEnabled(false) , m_vHeadJointVelocityK(vHeadJointVelocityK)
 {   
@@ -885,7 +887,11 @@ swTeleop::SWHeadVelocityController::SWHeadVelocityController(yarp::dev::IEncoder
     if(pIHeadVelocity)
     {
         m_pIHeadVelocity = pIHeadVelocity;
-    }    
+    }   
+	if(pIHeadControlMode)
+    {
+	m_pIHeadControlMode = pIHeadControlMode;
+    }        
 }
 
 void swTeleop::SWHeadVelocityController::run()
@@ -939,7 +945,8 @@ void swTeleop::SWHeadVelocityController::run()
             {
                 for(int ii = 0; ii < 3; ++ii)
                 {
-                    m_pIHeadVelocity->velocityMove(ii, l_vCommand[ii]);
+			m_pIHeadControlMode->setControlMode(ii,VOCAB_CM_VELOCITY);
+			m_pIHeadVelocity->velocityMove(ii, l_vCommand[ii]);
                 }
             }
         //  gaze

@@ -163,7 +163,7 @@ bool swTeleop::SWIcubTorso::init( yarp::os::ResourceFinder &oRf)
         }
 
     // initializing controllers
-        if (!m_oRobotTorso.view(m_pITorsoVelocity) || !m_oRobotTorso.view(m_pITorsoPosition) || !m_oRobotTorso.view(m_pITorsoEncoders))
+        if (!m_oRobotTorso.view(m_pITorsoVelocity) || !m_oRobotTorso.view(m_pITorsoPosition) || !m_oRobotTorso.view(m_pITorsoEncoders) ||!m_oRobotTorso.view(m_pITorsoControlMode))
         {
             std::cerr << std::endl << "-ERROR: while getting required robot Torso interfaces." << std::endl << std::endl;
             m_oRobotTorso.close();
@@ -199,7 +199,7 @@ bool swTeleop::SWIcubTorso::init( yarp::os::ResourceFinder &oRf)
         }
 
     // init controller                
-        m_pVelocityController = new swTeleop::SWTorsoVelocityController(m_pITorsoEncoders, m_pITorsoVelocity, m_vTorsoJointVelocityK, m_i32RateVelocityControl);
+        m_pVelocityController = new swTeleop::SWTorsoVelocityController(m_pITorsoEncoders, m_pITorsoVelocity, m_pITorsoControlMode, m_vTorsoJointVelocityK, m_i32RateVelocityControl);
         m_pVelocityController->enableTorso(m_bTorsoActivated);
 
     // display parameters
@@ -342,6 +342,7 @@ void swTeleop::SWIcubTorso::resetTorsoPosition()
     {
         for(int ii = 0; ii < m_i32TorsoJointsNb; ++ii)
         {
+		m_pITorsoControlMode->setControlMode(ii,VOCAB_CM_POSITION);
             m_pITorsoPosition->positionMove(ii, m_vTorsoResetPosition[ii]);
         }
     }
@@ -394,7 +395,7 @@ bool swTeleop::SWIcubTorso::interruptModule()
 }
 
 
-swTeleop::SWTorsoVelocityController::SWTorsoVelocityController(yarp::dev::IEncoders *pITorsoEncoders, yarp::dev::IVelocityControl *pITorsoVelocity,
+swTeleop::SWTorsoVelocityController::SWTorsoVelocityController(yarp::dev::IEncoders *pITorsoEncoders, yarp::dev::IVelocityControl *pITorsoVelocity, yarp::dev::IControlMode2    *pITorsoControlMode,
                                                      std::vector<double> &vTorsoJointVelocityK, int i32Rate)
     : RateThread(i32Rate), m_bTorsoEnabled(false), m_vTorsoJointVelocityK(vTorsoJointVelocityK)
 {
@@ -406,6 +407,10 @@ swTeleop::SWTorsoVelocityController::SWTorsoVelocityController(yarp::dev::IEncod
     {
         m_pITorsoVelocity = pITorsoVelocity;
     }
+    	if(pITorsoControlMode)
+    {
+	m_pITorsoControlMode = pITorsoControlMode;
+    }   
 }
 
 void swTeleop::SWTorsoVelocityController::run()
@@ -433,6 +438,7 @@ void swTeleop::SWTorsoVelocityController::run()
             {
                 for(uint ii = 0; ii < l_vCommand.size(); ++ii)
                 {
+			m_pITorsoControlMode->setControlMode(ii,VOCAB_CM_VELOCITY);
                     m_pITorsoVelocity->velocityMove(ii, l_vCommand[ii]);
                 }
             }

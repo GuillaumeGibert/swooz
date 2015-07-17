@@ -54,6 +54,7 @@
 //#include <yarp/dev/CartesianControl.h>
 #include <yarp/dev/PolyDriver.h>
 #include <yarp/dev/ControlBoardInterfaces.h>
+#include <yarp/dev/IControlMode2.h>
 
 #include <yarp/os/RateThread.h>
 #include <yarp/os/Mutex.h>
@@ -77,7 +78,7 @@ namespace swTeleop
              * @param vTorsoJointVelocityK
              * @param i32Rate
              */
-            SWTorsoVelocityController(yarp::dev::IEncoders *pITorsoEncoders, yarp::dev::IVelocityControl *pITorsoVelocity,
+            SWTorsoVelocityController(yarp::dev::IEncoders *pITorsoEncoders, yarp::dev::IVelocityControl *pITorsoVelocity, yarp::dev::IControlMode2 *pITorsoControlMode,
                                  std::vector<double> &vTorsoJointVelocityK, int i32Rate = 10);
 
             /**
@@ -104,6 +105,7 @@ namespace swTeleop
             yarp::os::Mutex m_oMutex;                       /**< ... */
             yarp::dev::IEncoders *m_pITorsoEncoders;         /**< ... */
             yarp::dev::IVelocityControl *m_pITorsoVelocity;  /**< ... */
+		  yarp::dev::IControlMode2    *m_pITorsoControlMode;
             yarp::sig::Vector m_vLastTorsoJoint;             /**< ... */
 
             std::vector<double> m_vTorsoJointVelocityK;      /**< ... */
@@ -213,6 +215,7 @@ namespace swTeleop
             yarp::dev::IEncoders        *m_pITorsoEncoders; /**< ... */
             yarp::dev::IPositionControl *m_pITorsoPosition; /**< ... */
             yarp::dev::IVelocityControl *m_pITorsoVelocity; /**< ... */
+	      yarp::dev::IControlMode2    *m_pITorsoControlMode;
 
 
             SWTorsoVelocityController *m_pVelocityController;    /**< ... */

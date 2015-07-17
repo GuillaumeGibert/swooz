@@ -33,7 +33,7 @@
 #include "icub/SWTeleoperation_iCub.h"
 
 
-YARP_DECLARE_DEVICES(icubmod)
+//~ YARP_DECLARE_DEVICES(icubmod)
 
 SWTeleoperation_iCub::SWTeleoperation_iCub() : m_bIsRunning(false)
 {}
@@ -174,7 +174,7 @@ double SWTeleoperation_iCub::getPeriod()
 
 int main(int argc, char* argv[])
 {
-    YARP_REGISTER_DEVICES(icubmod);
+    //~ YARP_REGISTER_DEVICES(icubmod);
 
     /* initialize yarp network */
     Network yarp;

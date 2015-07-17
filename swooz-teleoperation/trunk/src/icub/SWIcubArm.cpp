@@ -181,7 +181,7 @@ bool swTeleop::SWIcubArm::init( yarp::os::ResourceFinder &oRf, bool bLeftArm)
         }
 
     // initializing controllers
-        if (!m_oRobotArm.view(m_pIArmVelocity) || !m_oRobotArm.view(m_pIArmPosition) || !m_oRobotArm.view(m_pIArmEncoders))
+        if (!m_oRobotArm.view(m_pIArmVelocity) || !m_oRobotArm.view(m_pIArmPosition) || !m_oRobotArm.view(m_pIArmEncoders) ||!m_oRobotArm.view(m_pIArmControlMode) )
         {
             std::cerr << std::endl <<  "-ERROR: " << m_sArm << " while getting required robot Arm interfaces." << std::endl <<std::endl;
             m_oRobotArm.close();
@@ -222,7 +222,7 @@ bool swTeleop::SWIcubArm::init( yarp::os::ResourceFinder &oRf, bool bLeftArm)
         }
 
     // init controller
-        m_pVelocityController = new swTeleop::SWArmVelocityController(m_pIArmEncoders, m_pIArmVelocity, m_vArmJointVelocityK, m_i32RateVelocityControl);
+        m_pVelocityController = new swTeleop::SWArmVelocityController(m_pIArmEncoders, m_pIArmVelocity, m_pIArmControlMode, m_vArmJointVelocityK, m_i32RateVelocityControl);
         m_pVelocityController->enable(m_bArmHandActivated, m_bFingersActivated);
 
         // display parameters
@@ -881,6 +881,7 @@ void swTeleop::SWIcubArm::resetArmPosition()
     {
         for(int ii = 0; ii < m_i32ArmJointsNb; ++ii)
         {
+		m_pIArmControlMode->setControlMode(ii,VOCAB_CM_POSITION);
             m_pIArmPosition->positionMove(ii,m_vArmResetPosition[ii]);
         }
     }
@@ -936,7 +937,7 @@ bool swTeleop::SWIcubArm::interruptModule()
 }
 
 
-swTeleop::SWArmVelocityController::SWArmVelocityController(yarp::dev::IEncoders *pIArmEncoders, yarp::dev::IVelocityControl *pIArmVelocity,
+swTeleop::SWArmVelocityController::SWArmVelocityController(yarp::dev::IEncoders *pIArmEncoders, yarp::dev::IVelocityControl *pIArmVelocity, yarp::dev::IControlMode2    *pIArmControlMode,
                                                      std::vector<double> &vArmJointVelocityK, int i32Rate)
     : RateThread(i32Rate), m_bArmHandEnabled(false), m_bFingersEnabled(false), m_vArmJointVelocityK(vArmJointVelocityK)
 {
@@ -949,6 +950,10 @@ swTeleop::SWArmVelocityController::SWArmVelocityController(yarp::dev::IEncoders 
     {
         m_pIArmVelocity = pIArmVelocity;
     }
+    	if(pIArmControlMode)
+    {
+	m_pIArmControlMode = pIArmControlMode;
+    }   
 }
 
 void swTeleop::SWArmVelocityController::run()
@@ -977,6 +982,7 @@ void swTeleop::SWArmVelocityController::run()
     {
         for(uint ii = 0; ii < 7; ++ii)
         {
+		m_pIArmControlMode->setControlMode(ii,VOCAB_CM_VELOCITY);
             m_pIArmVelocity->velocityMove(ii, l_vCommand[ii]);
         }
     }
@@ -985,6 +991,7 @@ void swTeleop::SWArmVelocityController::run()
     {
         for(uint ii = 7; ii < l_vArmJoints.size(); ++ii)
         {
+		m_pIArmControlMode->setControlMode(ii,VOCAB_CM_VELOCITY);
             m_pIArmVelocity->velocityMove(ii, l_vCommand[ii]);
         }
     }

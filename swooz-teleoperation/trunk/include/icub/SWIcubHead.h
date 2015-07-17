@@ -52,6 +52,7 @@
 
 #include <yarp/dev/PolyDriver.h>
 #include <yarp/dev/ControlBoardInterfaces.h>
+#include <yarp/dev/IControlMode2.h>
 
 #include <yarp/os/RateThread.h>
 #include <yarp/os/Mutex.h>
@@ -134,7 +135,7 @@ namespace swTeleop
              * @param vHeadJointVelocityK
              * @param i32Rate
              */
-            SWHeadVelocityController(yarp::dev::IEncoders *pIHeadEncoders, yarp::dev::IVelocityControl *pIHeadVelocity,
+            SWHeadVelocityController(yarp::dev::IEncoders *pIHeadEncoders, yarp::dev::IVelocityControl *pIHeadVelocity,  yarp::dev::IControlMode2 *pIHeadControlMode,
                                  std::vector<double> &vHeadJointVelocityK, int i32Rate = 10);
 
             /**
@@ -176,6 +177,7 @@ namespace swTeleop
             yarp::os::Mutex m_oMutex;                       /**< ... */
             yarp::dev::IEncoders *m_pIHeadEncoders;         /**< ... */
             yarp::dev::IVelocityControl *m_pIHeadVelocity;  /**< ... */
+		  yarp::dev::IControlMode2    *m_pIHeadControlMode;
             yarp::sig::Vector m_vLastHeadJoint;             /**< ... */
 
             std::vector<double> m_vHeadJointVelocityK;      /**< ... */
@@ -345,6 +347,7 @@ namespace swTeleop
             yarp::dev::IEncoders        *m_pIHeadEncoders;  /**< ... */
             yarp::dev::IPositionControl *m_pIHeadPosition;  /**< ... */
             yarp::dev::IVelocityControl *m_pIHeadVelocity;  /**< ... */
+	    yarp::dev::IControlMode2    *m_pIHeadControlMode;
 
 
             SWHeadVelocityController *m_pVelocityController;    /**< ... */

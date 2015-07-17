@@ -161,13 +161,15 @@ LIBS_NAO    = $(THIRD_PARTY_NAOQI)\lib\alvalue.lib\
               $(THIRD_PARTY_NAOQI)\lib\alcommon.lib\
 
 
+#~ LIBS_ICUB = $(THIRD_PARTY_ICUB)/lib/skinDynLib.lib\
+            #~ $(THIRD_PARTY_ICUB)/lib/gazecontrollerclient.lib\
+            #~ $(THIRD_PARTY_ICUB)/lib/icubmod.lib\
+            #~ $(THIRD_PARTY_ICUB)/lib/controlboardwrapper2.lib\
+            #~ $(THIRD_PARTY_ICUB)/lib/iCubDev.lib\
+            #~ $(THIRD_PARTY_ICUB)/lib/ctrlLib.lib\
 LIBS_ICUB = $(THIRD_PARTY_ICUB)/lib/skinDynLib.lib\
-            $(THIRD_PARTY_ICUB)/lib/gazecontrollerclient.lib\
-            $(THIRD_PARTY_ICUB)/lib/icubmod.lib\
-            $(THIRD_PARTY_ICUB)/lib/controlboardwrapper2.lib\
             $(THIRD_PARTY_ICUB)/lib/iCubDev.lib\
             $(THIRD_PARTY_ICUB)/lib/ctrlLib.lib\
-
 
 LIBS_GSL =  $(THIRD_PARTY_GSL)/lib/gsl.lib\
             $(THIRD_PARTY_GSL)/lib/gslcblas.lib

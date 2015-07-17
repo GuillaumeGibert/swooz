@@ -53,6 +53,7 @@
 #include <yarp/dev/PolyDriver.h>
 #include <yarp/dev/ControlBoardInterfaces.h>
 #include <yarp/dev/CartesianControl.h>
+#include <yarp/dev/IControlMode2.h>
 
 #include <yarp/os/RateThread.h>
 #include <yarp/os/Mutex.h>
@@ -77,7 +78,7 @@ namespace swTeleop
              * @param vArmJointVelocityK
              * @param i32Rate
              */
-            SWArmVelocityController(yarp::dev::IEncoders *pIArmEncoders, yarp::dev::IVelocityControl *pIArmVelocity,
+            SWArmVelocityController(yarp::dev::IEncoders *pIArmEncoders, yarp::dev::IVelocityControl *pIArmVelocity,  yarp::dev::IControlMode2 *pIArmControlMode,
                                  std::vector<double> &vArmJointVelocityK,int i32Rate = 10);
 
             /**
@@ -107,6 +108,7 @@ namespace swTeleop
             yarp::os::Mutex m_oMutex;                      /**< ... */
             yarp::dev::IEncoders *m_pIArmEncoders;         /**< ... */
             yarp::dev::IVelocityControl *m_pIArmVelocity;  /**< ... */
+	 yarp::dev::IControlMode2    *m_pIArmControlMode;
             yarp::sig::Vector m_vLastArmJoint;             /**< ... */
 
             std::vector<double> m_vArmJointVelocityK;      /**< ... */
@@ -228,7 +230,8 @@ namespace swTeleop
             yarp::dev::IPositionControl *m_pIArmPosition;                           /**< arm position control pointer */
             yarp::dev::IVelocityControl *m_pIArmVelocity;                           /**< arm velocity control pointer */
             yarp::dev::PolyDriver        m_oRobotArm;                               /**< robot arm controller */
-
+		 yarp::dev::IControlMode2    *m_pIArmControlMode;
+		 
             // yarp ports / bottles
             //  arm
             std::string m_sHandTrackerPortName;                                     /**< name of the hand tracker port */
