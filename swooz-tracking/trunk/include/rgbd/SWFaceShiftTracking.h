@@ -146,9 +146,11 @@ class SWFaceShiftTracking : public yarp::os::RFModule
         std::string m_sHeadTrackingPortName;    /**< yarp head tracking port name */
         std::string m_sGazeTrackingPortName;    /**< yarp gaze tracking port name */
         std::string m_sFaceTrackingPortName;    /**< yarp face tracking port name */
+	std::string m_sCoeffsTrackingPortName;    /**< yarp face tracking port name */  
         yarp::os::BufferedPort<yarp::os::Bottle> m_oHeadTrackingPort;   /**< yarp head tracking port */
         yarp::os::BufferedPort<yarp::os::Bottle> m_oGazeTrackingPort;   /**< yarp gaze tracking port */
         yarp::os::BufferedPort<yarp::os::Bottle> m_oFaceTrackingPort;   /**< yarp face tracking port */
+	yarp::os::BufferedPort<yarp::os::Bottle> m_oCoeffsTrackingPort;   /**< yarp face tracking port */
 
         // faceshift
         SOCKET ConnectSocket;                   /**< faceshift socket */

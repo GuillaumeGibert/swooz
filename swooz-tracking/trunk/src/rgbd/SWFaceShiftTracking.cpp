@@ -52,11 +52,13 @@ SWFaceShiftTracking::SWFaceShiftTracking() : m_i32Fps(30)
     m_sHeadTrackingPortName =  "/tracking/" + l_sDeviceName + "/"+ l_sLibraryName + "/head";
     m_sGazeTrackingPortName =  "/tracking/" + l_sDeviceName + "/"+ l_sLibraryName + "/gaze";
     m_sFaceTrackingPortName =  "/tracking/" + l_sDeviceName + "/"+ l_sLibraryName + "/face";
-
+    m_sCoeffsTrackingPortName =  "/tracking/" + l_sDeviceName + "/"+ l_sLibraryName + "/coeffs";
+	
     m_oHeadTrackingPort.open(m_sHeadTrackingPortName.c_str());
     m_oGazeTrackingPort.open(m_sGazeTrackingPortName.c_str());
     m_oFaceTrackingPort.open(m_sFaceTrackingPortName.c_str());
-
+     m_oCoeffsTrackingPort.open(m_sCoeffsTrackingPortName.c_str());
+	
     initFaceShift();
 
     if(!m_bIsFaceShiftInitialized)
@@ -237,6 +239,9 @@ bool SWFaceShiftTracking::updateModule()
             l_oGazeBottle.addDouble(data.m_eyeGazeRightPitch);   //gaze : right pitch / get(3).asDouble()
             l_oGazeBottle.addDouble(data.m_eyeGazeRightYaw);     //gaze : right yaw / get(4).asDouble()
 
+		l_oGazeBottle.addDouble(data.m_coeffs[0]); // blink left
+		l_oGazeBottle.addDouble(data.m_coeffs[1]); // blink right
+	     
         m_oGazeTrackingPort.write();
 
 
@@ -283,6 +288,20 @@ bool SWFaceShiftTracking::updateModule()
             }
 
         m_oFaceTrackingPort.write();
+	    
+	    
+	Bottle &l_oCoeffsBottle = m_oCoeffsTrackingPort.prepare();
+        l_oCoeffsBottle.clear();
+
+	// device lib id
+	l_oCoeffsBottle.addInt(swTracking::FACESHIFT_LIB); // coeffs : FACESHIT_LIB id / get(0).asInt()
+	
+	for(uint ii = 0; ii < data.m_coeffs.size(); ++ii)
+	{
+		l_oCoeffsBottle.addDouble(data.m_coeffs[ii]); // coeffs
+	}
+
+        m_oCoeffsTrackingPort.write();
 
     }
 
