@@ -954,6 +954,7 @@ void swTeleop::SWHeadVelocityController::run()
             {
                 for(int ii = 3; ii < 6; ++ii)
                 {
+			m_pIHeadControlMode->setControlMode(ii,VOCAB_CM_VELOCITY);
                     m_pIHeadVelocity->velocityMove(ii, l_vCommand[ii]);
                 }
             }
