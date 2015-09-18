@@ -48,7 +48,7 @@ our $Feedback  = "swooz-feedback/trunk";
 
 # add projects to build here
 my @PbuildOrder            = ($Toolkit, $Avatar, $Tracking, $Teleop, $Manip, $Viewer, $Feedback, $Examples);
-my @PbuildOrder            = ($Toolkit,  $Tracking, $Teleop);
+#~ my @PbuildOrder            = ($Toolkit,  $Tracking, $Teleop, $Feedback);
 
 sub buildOrder {
     return @PbuildOrder;
@@ -119,10 +119,10 @@ $ENV{THIRD_PARTY_TOBII}   = $PThird_party . "tobii/";
 ##################### FACELAB
 $ENV{THIRD_PARTY_FACELAB}   = $PThird_party . "facelab/coredata-3.2.1.65799_vc10/";
 ##################### YARP
-$ENV{THIRD_PARTY_YARP}   = $PThird_party . "yarp/yarp-2.3.60/";
+$ENV{THIRD_PARTY_YARP}   = $PThird_party . "yarp/yarp-2.3.64/";
 $ENV{THIRD_PARTY_YARP_64}= $PThird_party . "yarp/amd64/yarp-2.3.60/";
 ##################### ACE
-$ENV{THIRD_PARTY_ACE}   = $PThird_party . "ace/ace-6.1.0/";
+$ENV{THIRD_PARTY_ACE}   = $PThird_party . "ace/ace-6.1.1/";
 $ENV{THIRD_PARTY_ACE_64}= $PThird_party . "ace/amd64/Ace642/";
 ##################### OPENNI
 $ENV{THIRD_PARTY_OPENNI}    = $PThird_party . "openni/openni-1.5.4.0/";
