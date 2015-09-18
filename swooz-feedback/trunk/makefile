@@ -22,6 +22,7 @@ LINK=link
 HMD_OBJ=\
          $(LIBDIR)/SWHeadMountedDisplay.obj\
          $(LIBDIR)/SWSonyHMZT3W.obj\
+	 $(LIBDIR)/SWOculusRiftDK2.obj\
 
 ############################################################################## Makefile commands
 	
@@ -47,4 +48,7 @@ $(LIBDIR)/SWHeadMountedDisplay.obj: ./src/hmd/SWHeadMountedDisplay.cpp
 	
 $(LIBDIR)/SWSonyHMZT3W.obj: ./src/hmd/SWSonyHMZT3W.cpp
         $(CC) -c ./src/hmd/SWSonyHMZT3W.cpp $(CFLAGS_DYN) $(SW_HMD) -Fo"$(LIBDIR)/SWSonyHMZT3W.obj"
+	
+$(LIBDIR)/SWOculusRiftDK2.obj: ./src/hmd/SWOculusRiftDK2.cpp
+        $(CC) -c ./src/hmd/SWOculusRiftDK2.cpp $(CFLAGS_DYN) $(SW_HMD) -Fo"$(LIBDIR)/SWOculusRiftDK2.obj"
 

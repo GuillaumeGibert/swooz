@@ -164,8 +164,7 @@ SW_TOBIITRACKING        = $(COMMON) $(INC_TOBII) $(INC_YARP) $(INC_BOOST)
 
 ############################ COMMON DEBUG/RELEASE LIBS
 
-LIBS_COMMON	=
-#"$(PROGRAMFILES)\Microsoft SDKs\Windows\v7.0A\Lib\ws2_32.lib"
+LIBS_COMMON	= "$(PROGRAMFILES)\Microsoft SDKs\Windows\v7.0A\Lib\ws2_32.lib"
 
 ################################################################################################################# RELEASE MODE
 
