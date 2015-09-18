@@ -28,7 +28,7 @@
 
 ############################ WIN LIB
 
-WINLIBS=advapi32.lib comctl32.lib comdlg32.lib gdi32.lib shell32.lib user32.lib vfw32.lib winmm.lib opengl32.lib
+WINLIBS=advapi32.lib comctl32.lib comdlg32.lib gdi32.lib shell32.lib user32.lib vfw32.lib winmm.lib opengl32.lib WS2_32.lib
 
 ############################ DIRECTORIES
 
