@@ -1,0 +1,80 @@
+<application>
+
+  <name>SWoOz iCub demo Beaming </name>
+  <description> demo Beaming iCub </description>
+	
+	<module>
+		<name>perl sw-fastrakTracking.pl</name>
+		<parameters></parameters>
+		<node>localhost</node>
+		<stdio>localhost</stdio>
+		<tag>fastrak</tag>
+	</module>
+	
+	<module>
+		<name>perl sw-leapTracking.pl</name>
+		<parameters></parameters>
+		<node>localhost</node>
+		<stdio>localhost</stdio>
+		<tag>leap</tag>
+	</module>
+	
+	<module>
+		<name>perl sw-teleoperation_iCub.pl</name>
+		<parameters></parameters>
+		<node>localhost</node>
+		<stdio>localhost</stdio>
+		<tag>teleoperation_iCub</tag>
+	</module>
+	
+	<module>
+		<name>perl sw-feedback.pl</name>
+		<parameters></parameters>
+		<node>localhost</node>
+		<stdio>localhost</stdio>
+		<tag>feedback</tag>
+	</module>	
+	
+        <!---  LEAP -->
+            <!---  LEFT ARM -->          
+        <connection>
+                <from>/tracking/leap/leapSDK/left_arm/hand_fingers</from>
+                <to>/teleoperation/icub/left_arm/hand_fingers</to>
+                <protocol>tcp</protocol>
+        </connection>
+            <!---  RIGHT ARM -->
+        <connection>
+                <from>/tracking/leap/leapSDK/right_arm/hand_fingers</from>
+                <to>/teleoperation/icub/right_arm/hand_fingers</to>
+                <protocol>tcp</protocol>
+        </connection>
+
+	<!---  FASTRAK -->
+            <!---  HEAD -->
+        <connection>
+                <from>/tracking/polhemus/fastrak/head</from>
+                <to>/teleoperation/icub/head</to>
+                <protocol>tcp</protocol>
+        </connection>
+
+	<!---  HMD -->
+       	    <!---  RIGHT -->
+	    <connection>
+		<output>/icub/cam/right</output>
+		<input>/hmd/right/in</input>
+		<protocol>tcp</protocol>
+	   </connection>
+	   
+	    <!---  LEFT -->
+	  <connection>
+		<output>/icub/cam/left</output>
+		<input> /hmd/left/in</input>
+		<protocol>tcp</protocol>
+	  </connection>	
+	  
+</application>
+
+
+
+
+

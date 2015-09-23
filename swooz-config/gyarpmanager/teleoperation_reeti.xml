@@ -1,15 +1,7 @@
 <application>
 
   <name>SWoOz Reeti connections teleoperation </name>
-  <description>teleoperation reeti</description>
-	
-	<module>
-		<name>perl sw-faceshiftTracking.pl</name>
-		<parameters></parameters>
-		<node>localhost</node>
-		<stdio>localhost</stdio>
-		<tag>faceshift</tag>
-	</module>
+  <description>teleoperation reeti </description>
 	
 	<module>
 		<name>perl sw-fastrakTracking.pl</name>
@@ -28,11 +20,11 @@
 	</module>
 	
 	<module>
-		<name>perl sw-headForestTracking.pl</name>
+		<name>perl sw-faceshiftTracking.pl</name>
 		<parameters></parameters>
 		<node>localhost</node>
 		<stdio>localhost</stdio>
-		<tag>forest</tag>
+		<tag>faceshift</tag>
 	</module>
 	
 	<module>
@@ -44,14 +36,31 @@
 	</module>
 	
 	<module>
-		<name>perl sw-headTobiiTracking.pl</name>
+		<name>perl sw-headForestTracking.pl</name>
+		<parameters></parameters>
+		<node>localhost</node>
+		<stdio>localhost</stdio>
+		<tag>forest</tag>
+	</module>
+	
+	<module>
+		<name>perl sw-oculusTracking.pl</name>
+		<parameters></parameters>
+		<node>localhost</node>
+		<stdio>localhost</stdio>
+		<tag>oculus</tag>
+	</module>
+	
+	<module>
+		<name>perl sw-tobiiTracking.pl</name>
 		<parameters></parameters>
 		<node>localhost</node>
 		<stdio>localhost</stdio>
 		<tag>tobii</tag>
 	</module>
-
-        <!---  FOREST -->
+	
+	
+	 <!---  FOREST -->
             <!---  HEAD -->
         <connection>
                 <from>/tracking/rgbd/forest/head</from>
@@ -59,6 +68,14 @@
                 <protocol>tcp</protocol>
         </connection>
 
+	<!---  OCULUS -->
+            <!---  HEAD -->
+        <connection>
+                <from>/tracking/oculusVR/oculus/head</from>
+                <to>/teleoperation/reeti/head</to>
+                <protocol>tcp</protocol>
+        </connection>
+	
         <!---  EMCIP -->
             <!---  HEAD -->
         <connection>
@@ -95,8 +112,7 @@
                 <protocol>tcp</protocol>
         </connection>
 
-    
-        <!---  FACESHIFT -->
+           <!---  FACESHIFT -->
             <!---  HEAD -->
         <connection>
                 <from>/tracking/rgbd/faceshift/head</from>
@@ -113,6 +129,14 @@
         <connection>
                 <from>/tracking/rgbd/faceshift/gaze</from>
                 <to>/teleoperation/reeti/gaze</to>
+                <protocol>tcp</protocol>
+        </connection>
+	
+	<!---  OPENNI -->
+             <!---  HEAD -->
+        <connection>
+                <from>/tracking/rgbd/openni/head</from>
+                <to>/teleoperation/reeti/head</to>
                 <protocol>tcp</protocol>
         </connection>
 

@@ -1,15 +1,7 @@
 <application>
 
-  <name>SWoOz iCub connections teleoperation </name>
+  <name>SWoOz iCub teleoperation </name>
   <description>teleoperation iCub </description>
-	
-	<module>
-		<name>perl sw-faceshiftTracking.pl</name>
-		<parameters></parameters>
-		<node>localhost</node>
-		<stdio>localhost</stdio>
-		<tag>faceshift</tag>
-	</module>
 	
 	<module>
 		<name>perl sw-fastrakTracking.pl</name>
@@ -17,38 +9,6 @@
 		<node>localhost</node>
 		<stdio>localhost</stdio>
 		<tag>fastrak</tag>
-	</module>
-	
-	<module>
-		<name>perl sw-faceLabTracking.pl</name>
-		<parameters></parameters>
-		<node>localhost</node>
-		<stdio>localhost</stdio>
-		<tag>facelab</tag>
-	</module>
-	
-	<module>
-		<name>perl sw-headForestTracking.pl</name>
-		<parameters></parameters>
-		<node>localhost</node>
-		<stdio>localhost</stdio>
-		<tag>forest</tag>
-	</module>
-	
-	<module>
-		<name>perl sw-headEmicpTracking.pl</name>
-		<parameters></parameters>
-		<node>localhost</node>
-		<stdio>localhost</stdio>
-		<tag>emicp</tag>
-	</module>
-	
-	<module>
-		<name>perl sw-headTobiiTracking.pl</name>
-		<parameters></parameters>
-		<node>localhost</node>
-		<stdio>localhost</stdio>
-		<tag>tobii</tag>
 	</module>
 	
 	<module>
@@ -60,13 +20,61 @@
 	</module>
 	
 	<module>
+		<name>perl sw-faceLabTracking.pl</name>
+		<parameters></parameters>
+		<node>localhost</node>
+		<stdio>localhost</stdio>
+		<tag>faceLab</tag>
+	</module>
+	
+	<module>
+		<name>perl sw-faceshiftTracking.pl</name>
+		<parameters></parameters>
+		<node>localhost</node>
+		<stdio>localhost</stdio>
+		<tag>faceshift</tag>
+	</module>
+	
+	<module>
+		<name>perl sw-headEmicpTracking.pl</name>
+		<parameters></parameters>
+		<node>localhost</node>
+		<stdio>localhost</stdio>
+		<tag>emicp</tag>
+	</module>
+	
+	<module>
+		<name>perl sw-headForestTracking.pl</name>
+		<parameters></parameters>
+		<node>localhost</node>
+		<stdio>localhost</stdio>
+		<tag>forest</tag>
+	</module>
+	
+	<module>
+		<name>perl sw-oculusTracking.pl</name>
+		<parameters></parameters>
+		<node>localhost</node>
+		<stdio>localhost</stdio>
+		<tag>oculus</tag>
+	</module>
+	
+	<module>
+		<name>perl sw-tobiiTracking.pl</name>
+		<parameters></parameters>
+		<node>localhost</node>
+		<stdio>localhost</stdio>
+		<tag>tobii</tag>
+	</module>
+	
+	<module>
 		<name>perl sw-teleoperation_iCub.pl</name>
 		<parameters></parameters>
 		<node>localhost</node>
 		<stdio>localhost</stdio>
 		<tag>teleoperation_iCub</tag>
 	</module>
-	
+
         <!---  FOREST -->
             <!---  HEAD -->
         <connection>
@@ -75,6 +83,14 @@
                 <protocol>tcp</protocol>
         </connection>
 
+	<!---  OCULUS -->
+            <!---  HEAD -->
+        <connection>
+                <from>/tracking/oculusVR/oculus/head</from>
+                <to>/teleoperation/icub/head</to>
+                <protocol>tcp</protocol>
+        </connection>
+	
         <!---  EMCIP -->
             <!---  HEAD -->
         <connection>
@@ -142,6 +158,32 @@
         <connection>
                 <from>/tracking/rgbd/faceshift/gaze</from>
                 <to>/teleoperation/icub/gaze</to>
+                <protocol>tcp</protocol>
+        </connection>
+	
+	<!---  OPENNI -->
+             <!---  HEAD -->
+        <connection>
+                <from>/tracking/rgbd/openni/head</from>
+                <to>/teleoperation/icub/head</to>
+                <protocol>tcp</protocol>
+        </connection>
+            <!---  TORSO -->
+        <connection>
+                <from>/tracking/rgbd/openni/torso</from>
+                <to>/teleoperation/icub/torso</to>
+                <protocol>tcp</protocol>
+        </connection>
+            <!---  LEFT ARM -->
+        <connection>
+                <from>/tracking/rgbd/openni/left_arm</from>
+                <to>/teleoperation/icub/left_arm</to>
+                <protocol>tcp</protocol>
+        </connection>
+            <!---  RIGHT ARM -->
+        <connection>
+                <from>/tracking/rgbd/openni/right_arm</from>
+                <to>/teleoperation/icub/right_arm</to>
                 <protocol>tcp</protocol>
         </connection>
 

@@ -1,0 +1,23 @@
+<application>
+	<name>Feedback HMD reeti</name>
+	
+	<module>
+		<name>perl sw-feedback.pl</name>
+		<parameters></parameters>
+		<node>localhost</node>
+		<stdio>localhost</stdio>
+		<tag>feedback</tag>
+	</module>
+	
+	<connection>
+		<output>/webcam/left</output>
+		<input> /hmd/left/in</input>
+		<protocol>tcp</protocol>
+	</connection>
+	<connection>
+		<output>/webcam/right</output>
+		<input>/hmd/right/in</input>
+		<protocol>tcp</protocol>
+	</connection>
+</application>
+

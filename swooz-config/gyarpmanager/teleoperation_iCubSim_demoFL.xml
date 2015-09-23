@@ -1,0 +1,70 @@
+<application>
+
+  <name>SWoOz iCub simulator demo FaceLab</name>
+  <description>demo FaceLab iCub simulator</description>
+	
+	
+	<module>
+		<name>perl sw-faceLabTracking.pl</name>
+		<parameters></parameters>
+		<node>localhost</node>
+		<stdio>localhost</stdio>
+		<tag>faceLab</tag>
+	</module>
+	
+	<module>
+		<name>perl sw-leapTracking.pl</name>
+		<parameters></parameters>
+		<node>localhost</node>
+		<stdio>localhost</stdio>
+		<tag>leap</tag>
+	</module>
+	
+	<module>
+		<name>perl sw-teleoperation_iCub.pl</name>
+		<parameters></parameters>
+		<node>localhost</node>
+		<stdio>localhost</stdio>
+		<tag>teleoperation_iCub</tag>
+	</module>
+	
+	<!---  FACELAB -->
+            <!---  HEAD -->
+        <connection>
+                <from>/tracking/facelab/coredata/head</from>
+                <to>/teleoperation/icubSim/head</to>
+                <protocol>tcp</protocol>
+        </connection>
+            <!---  FACE -->
+	<connection>
+                <from>/tracking/facelab/coredata/face</from>
+                <to>/teleoperation/icubSim/face</to>
+                <protocol>tcp</protocol>
+        </connection>
+            <!---  GAZE -->
+        <connection>
+                <from>/tracking/facelab/coredata/gaze</from>
+                <to>/teleoperation/icubSim/gaze</to>
+                <protocol>tcp</protocol>
+        </connection>	
+	
+        <!---  LEAP -->
+            <!---  LEFT ARM -->          
+        <connection>
+                <from>/tracking/leap/leapSDK/left_arm/hand_fingers</from>
+                <to>/teleoperation/icubSim/left_arm/hand_fingers</to>
+                <protocol>tcp</protocol>
+        </connection>
+            <!---  RIGHT ARM -->
+        <connection>
+                <from>/tracking/leap/leapSDK/right_arm/hand_fingers</from>
+                <to>/teleoperation/icubSim/right_arm/hand_fingers</to>
+                <protocol>tcp</protocol>
+        </connection>
+       	
+</application>
+
+
+
+
+
