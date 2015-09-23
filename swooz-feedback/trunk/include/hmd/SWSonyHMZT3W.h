@@ -69,7 +69,7 @@ class SWSonyHMZT3W
          * @brief close
          * @return
          */
-		bool close();
+	bool close();
 
         /**
          * @brief loop
@@ -80,7 +80,7 @@ class SWSonyHMZT3W
          * @brief interrupt
          * @return
          */
-		bool interrupt();
+	bool interrupt();
 
     private :
 

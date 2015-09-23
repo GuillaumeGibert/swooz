@@ -101,8 +101,7 @@ COMMON			= $(INC_FEEDBACK) $(INC_OTHERS) $(INC_VS)
 
 SW_HMD		   	= $(COMMON) $(INC_OPENCV) $(INC_YARP) $(INC_OCULUS)
 
-LIBS_COMMON=
-#    "$(PROGRAMFILES)\Microsoft SDKs\Windows\v7.0A\Lib/ws2_32.lib"\
+LIBS_COMMON		= "$(PROGRAMFILES)\Microsoft SDKs\Windows\v7.0A\Lib\ws2_32.lib"
 
 ################################################################################################################# RELEASE MODE
 
