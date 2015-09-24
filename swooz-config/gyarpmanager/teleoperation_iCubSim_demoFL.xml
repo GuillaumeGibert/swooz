@@ -28,6 +28,20 @@
 		<tag>teleoperation_iCub</tag>
 	</module>
 	
+	<module>
+		<name>simFaceExpressions</name>
+		<parameters></parameters>
+		<node>localhost</node>
+		<tag>simExpressions</tag>
+	</module>
+	
+	<module>
+		<name>emotionInterface</name>
+		<parameters></parameters>
+		<node>localhost</node>
+		<tag>emotionInterface</tag>
+	</module>
+	
 	<!---  FACELAB -->
             <!---  HEAD -->
         <connection>
