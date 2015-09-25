@@ -121,7 +121,7 @@
         </connection>
             <!---  FACE -->
         <connection>
-                <from>/tracking/rgbd/faceshift/face</from>
+                <from>/tracking/rgbd/faceshift/coeffs</from>
                 <to>/teleoperation/reeti/face</to>
                 <protocol>tcp</protocol>
         </connection>
