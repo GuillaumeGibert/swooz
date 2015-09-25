@@ -80,6 +80,11 @@ namespace swTeleop
              */
             SWArmVelocityController(yarp::dev::IEncoders *pIArmEncoders, yarp::dev::IVelocityControl *pIArmVelocity,  yarp::dev::IControlMode2 *pIArmControlMode,
                                  std::vector<double> &vArmJointVelocityK,int i32Rate = 10);
+	
+	  /**
+             * \brief SWArmVelocityController destructor
+             */
+	~SWArmVelocityController();
 
             /**
              * @brief run
@@ -108,7 +113,7 @@ namespace swTeleop
             yarp::os::Mutex m_oMutex;                      /**< ... */
             yarp::dev::IEncoders *m_pIArmEncoders;         /**< ... */
             yarp::dev::IVelocityControl *m_pIArmVelocity;  /**< ... */
-	 yarp::dev::IControlMode2    *m_pIArmControlMode;
+		yarp::dev::IControlMode2    *m_pIArmControlMode;
             yarp::sig::Vector m_vLastArmJoint;             /**< ... */
 
             std::vector<double> m_vArmJointVelocityK;      /**< ... */

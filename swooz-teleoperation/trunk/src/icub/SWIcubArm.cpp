@@ -95,6 +95,11 @@ swTeleop::SWIcubArm::~SWIcubArm()
     }
 
     deleteAndNullify(m_pVelocityController);
+    
+    deleteAndNullify(m_pIArmEncoders);
+    deleteAndNullify(m_pIArmPosition);
+    deleteAndNullify(m_pIArmVelocity);
+    deleteAndNullify(m_pIArmControlMode);
 }
 
 bool swTeleop::SWIcubArm::init( yarp::os::ResourceFinder &oRf, bool bLeftArm)
@@ -955,6 +960,15 @@ swTeleop::SWArmVelocityController::SWArmVelocityController(yarp::dev::IEncoders 
 	m_pIArmControlMode = pIArmControlMode;
     }   
 }
+
+
+swTeleop::SWArmVelocityController::~SWArmVelocityController()
+{
+	deleteAndNullify(m_pIArmEncoders);
+	deleteAndNullify(m_pIArmVelocity);
+	deleteAndNullify(m_pIArmControlMode);
+}
+
 
 void swTeleop::SWArmVelocityController::run()
 {

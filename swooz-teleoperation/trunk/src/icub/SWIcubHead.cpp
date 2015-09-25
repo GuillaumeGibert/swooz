@@ -101,6 +101,11 @@ swTeleop::SWIcubHead::~SWIcubHead()
     }
 
     deleteAndNullify(m_pVelocityController);
+    
+	deleteAndNullify(m_pIHeadEncoders);
+    deleteAndNullify(m_pIHeadPosition);
+    deleteAndNullify(m_pIHeadVelocity);
+    deleteAndNullify(m_pIHeadControlMode);
 }
 
 bool swTeleop::SWIcubHead::init( yarp::os::ResourceFinder &oRf)
@@ -892,6 +897,13 @@ swTeleop::SWHeadVelocityController::SWHeadVelocityController(yarp::dev::IEncoder
     {
 	m_pIHeadControlMode = pIHeadControlMode;
     }        
+}
+
+swTeleop::SWHeadVelocityController::~SWHeadVelocityController()
+{
+	deleteAndNullify(m_pIHeadEncoders);
+	deleteAndNullify(m_pIHeadVelocity);
+	deleteAndNullify(m_pIHeadControlMode);
 }
 
 void swTeleop::SWHeadVelocityController::run()

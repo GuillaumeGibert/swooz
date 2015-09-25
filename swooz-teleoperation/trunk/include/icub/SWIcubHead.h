@@ -137,6 +137,11 @@ namespace swTeleop
              */
             SWHeadVelocityController(yarp::dev::IEncoders *pIHeadEncoders, yarp::dev::IVelocityControl *pIHeadVelocity,  yarp::dev::IControlMode2 *pIHeadControlMode,
                                  std::vector<double> &vHeadJointVelocityK, int i32Rate = 10);
+	
+	 /**
+             * \brief SWHeadVelocityController destructor
+             */
+	~SWHeadVelocityController();
 
             /**
              * @brief run

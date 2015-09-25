@@ -89,6 +89,11 @@ swTeleop::SWIcubTorso::~SWIcubTorso()
     }
 
     deleteAndNullify(m_pVelocityController);
+    
+    deleteAndNullify(m_pITorsoEncoders);
+    deleteAndNullify(m_pITorsoPosition);
+    deleteAndNullify(m_pITorsoVelocity);
+    deleteAndNullify(m_pITorsoControlMode);
 }
 
 bool swTeleop::SWIcubTorso::init( yarp::os::ResourceFinder &oRf)
@@ -411,6 +416,13 @@ swTeleop::SWTorsoVelocityController::SWTorsoVelocityController(yarp::dev::IEncod
     {
 	m_pITorsoControlMode = pITorsoControlMode;
     }   
+}
+
+swTeleop::SWTorsoVelocityController::~SWTorsoVelocityController()
+{
+	deleteAndNullify(m_pITorsoEncoders);
+	deleteAndNullify(m_pITorsoVelocity);
+	deleteAndNullify(m_pITorsoControlMode);
 }
 
 void swTeleop::SWTorsoVelocityController::run()

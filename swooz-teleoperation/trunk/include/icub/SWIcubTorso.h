@@ -80,6 +80,11 @@ namespace swTeleop
              */
             SWTorsoVelocityController(yarp::dev::IEncoders *pITorsoEncoders, yarp::dev::IVelocityControl *pITorsoVelocity, yarp::dev::IControlMode2 *pITorsoControlMode,
                                  std::vector<double> &vTorsoJointVelocityK, int i32Rate = 10);
+	
+	 /**
+             * \brief SWTorsoVelocityController destructor
+             */
+	~SWTorsoVelocityController();
 
             /**
              * @brief run
