@@ -38,12 +38,14 @@ KINECT_DIMENCO_OBJ=\
 KINECT_OBJ=\
      $(LIBDIR)/SWKinectRFModule_d.obj $(LIBDIR)/SWKinect_d.obj $(LIBDIR)/SWKinect_thread_d.obj\
 
+SYNC_YARP_OBJ=\
+	$(LIBDIR)/SWSynchronizedYarpPorts.obj
 ############################################################################## Makefile commands
 	
 # $(KINECT_OBJ) $(FACELAB_OBJ) $(TOBII_OBJ) $(FASTRAK_OBJ)
 
 !if  "$(ARCH)" == "x86"
-all: $(BINDIR)/SWDisplayKinectOnDimenco.exe $(BINDIR)/SWKinectRFModule.exe $(LIBDIR)/SWToolkit.lib $(LIBDIR)/SWToolkit_d.lib
+all: $(BINDIR)/SWDisplayKinectOnDimenco.exe $(BINDIR)/SWKinectRFModule.exe $(LIBDIR)/SWToolkit.lib $(LIBDIR)/SWToolkit_d.lib $(BINDIR)/SWSynchronizedYarpPorts.exe
 #$(FILTER_OBJ)
 !endif
 
@@ -66,7 +68,9 @@ $(BINDIR)/SWDisplayKinectOnDimenco.exe: $(KINECT_DIMENCO_OBJ)  $(LIBS_DIMENCO)
 
 $(BINDIR)/SWKinectRFModule.exe: $(KINECT_OBJ)  $(LIBS_KINECT)
         $(LINK) /OUT:$(BINDIR)/SWKinectRFModule.exe $(LFLAGS2) $(KINECT_OBJ)  $(SETARGV) $(BINMODE) $(LIBS_KINECT) $(WINLIBS)
-
+	
+$(BINDIR)/SWSynchronizedYarpPorts.exe: $(SYNC_YARP_OBJ)  $(LIBS_YARP)
+        $(LINK) /OUT:$(BINDIR)/SWSynchronizedYarpPorts.exe $(LFLAGS2) $(SYNC_YARP_OBJ)  $(SETARGV) $(BINMODE) $(LIBS_YARP) $(WINLIBS)
 
 ##################################################### devices
 
@@ -105,6 +109,8 @@ $(LIBDIR)/SWKinectSkeleton.obj: ./src/devices/rgbd/SWKinectSkeleton.cpp
 $(LIBDIR)/SWDimenco3DDisplay.obj: ./src/devices/dimenco/SWDimenco3DDisplay.cpp
         $(CC) -c ./src/devices/dimenco/SWDimenco3DDisplay.cpp $(CFLAGS_STA) $(SW_SDIMENCO3DPLAY) -Fo"$(LIBDIR)/"
 
+$(LIBDIR)/SWSynchronizedYarpPorts.obj: ./src/SWSynchronizedYarpPorts.cpp
+        $(CC) -c ./src/SWSynchronizedYarpPorts.cpp $(CFLAGS_DYN) $(SW_SYNC_YARP) -Fo"$(LIBDIR)/"
 
 ####### dynamic
 
@@ -149,3 +155,5 @@ $(LIBDIR)/SWLeap_d.obj: ./src/devices/leap/SWLeap.cpp
 
 $(LIBDIR)/SWKinectRFModule_d.obj: ./src/devices/rgbd/SWKinectRFModule.cpp
         $(CC) -c ./src/devices/rgbd/SWKinectRFModule.cpp $(CFLAGS_DYN) $(SW_KINECT) -Fo"$(LIBDIR)/SWKinectRFModule_d.obj"
+	
+
