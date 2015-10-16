@@ -92,20 +92,6 @@ swTeleop::SWIcubHead::SWIcubHead() : m_bInitialized(false), m_bIsRunning(false),
 
 swTeleop::SWIcubHead::~SWIcubHead()
 {
-    if(m_pVelocityController)
-    {
-        while(m_pVelocityController->isRunning())
-        {
-            yarp::os::Time::delay(0.01);
-        }
-    }
-
-    deleteAndNullify(m_pVelocityController);
-    
-	deleteAndNullify(m_pIHeadEncoders);
-    deleteAndNullify(m_pIHeadPosition);
-    deleteAndNullify(m_pIHeadVelocity);
-    deleteAndNullify(m_pIHeadControlMode);
 }
 
 bool swTeleop::SWIcubHead::init( yarp::os::ResourceFinder &oRf)
@@ -807,6 +793,10 @@ bool swTeleop::SWIcubHead::close()
     if(m_pVelocityController->isRunning())
     {
         m_pVelocityController->stop();
+	while(m_pVelocityController->isRunning())
+	{
+		yarp::os::Time::delay(0.1);
+	}
     }
 
     // close ports
@@ -823,7 +813,20 @@ bool swTeleop::SWIcubHead::close()
             m_oFaceTrackerPort.close();
             m_oFaceHandlerPort.close();
         }
-
+	
+	
+	
+	m_pIHeadEncoders = NULL;
+	m_pIHeadPosition = NULL;
+	m_pIHeadVelocity = NULL;
+	m_pIHeadControlMode = NULL;
+	
+	if (NULL !=m_pVelocityController)
+	{
+		delete m_pVelocityController;
+		m_pVelocityController = NULL;
+	}
+	
     return (l_bHeadPositionCloseState && l_bRobotHeadCloseState);
 }
 
@@ -901,9 +904,6 @@ swTeleop::SWHeadVelocityController::SWHeadVelocityController(yarp::dev::IEncoder
 
 swTeleop::SWHeadVelocityController::~SWHeadVelocityController()
 {
-	deleteAndNullify(m_pIHeadEncoders);
-	deleteAndNullify(m_pIHeadVelocity);
-	deleteAndNullify(m_pIHeadControlMode);
 }
 
 void swTeleop::SWHeadVelocityController::run()

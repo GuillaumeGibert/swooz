@@ -80,37 +80,23 @@ swTeleop::SWIcubTorso::SWIcubTorso() : m_bInitialized(false), m_bIsRunning(false
 
 swTeleop::SWIcubTorso::~SWIcubTorso()
 {
-    if(m_pVelocityController)
-    {
-        while(m_pVelocityController->isRunning())
-        {
-            yarp::os::Time::delay(0.1);
-        }
-    }
-
-    deleteAndNullify(m_pVelocityController);
-    
-    deleteAndNullify(m_pITorsoEncoders);
-    deleteAndNullify(m_pITorsoPosition);
-    deleteAndNullify(m_pITorsoVelocity);
-    deleteAndNullify(m_pITorsoControlMode);
 }
 
 bool swTeleop::SWIcubTorso::init( yarp::os::ResourceFinder &oRf)
 {
-    if(m_bInitialized)
-    {
-        std::cerr << "Icub Torso is already initialized. " << std::endl;
-        return true;
-    }
+	if(m_bInitialized)
+	{
+		std::cerr << "Icub Torso is already initialized. " << std::endl;
+		return true;
+	}
 
-    // gets the module name which will form the stem of all module port names
+	// gets the module name which will form the stem of all module port names
         m_sModuleName   = oRf.check("name", Value("teleoperation_iCub"), "Teleoperation/iCub Module name (string)").asString();
         m_sRobotName    = oRf.check("robot",Value("icubSim"),  "Robot name (string)").asString();
 
         m_i32RateVelocityControl = oRf.check("torsoRateVelocityControl", Value(m_i32RateVelocityControlDefault), "Torso rate velocity control (int)").asInt();
 
-    // robot parts to control
+	// robot parts to control
         m_bTorsoActivated = oRf.check("torsoActivated", Value(m_bTorsoActivatedDefault), "Torso activated (int)").asInt() != 0;
         if(!m_bTorsoActivated)
         {
@@ -118,7 +104,7 @@ bool swTeleop::SWIcubTorso::init( yarp::os::ResourceFinder &oRf)
             return (m_bInitialized=false);
         }
 
-    // min / max values for iCub Torso joints
+	// min / max values for iCub Torso joints
         for(uint ii = 0; ii < m_vTorsoJointVelocityAcceleration.size(); ++ii)
         {
             std::ostringstream l_os;
@@ -223,7 +209,7 @@ bool swTeleop::SWIcubTorso::init( yarp::os::ResourceFinder &oRf)
         std::cout << std::endl << std::endl;
 
 
-    return (m_bIsRunning=m_bInitialized=true);
+	return (m_bIsRunning=m_bInitialized=true);
 }
 
 bool swTeleop::SWIcubTorso::checkBottles()
@@ -348,7 +334,7 @@ void swTeleop::SWIcubTorso::resetTorsoPosition()
         for(int ii = 0; ii < m_i32TorsoJointsNb; ++ii)
         {
 		m_pITorsoControlMode->setControlMode(ii,VOCAB_CM_POSITION);
-            m_pITorsoPosition->positionMove(ii, m_vTorsoResetPosition[ii]);
+		m_pITorsoPosition->positionMove(ii, m_vTorsoResetPosition[ii]);
         }
     }
 }
@@ -356,47 +342,63 @@ void swTeleop::SWIcubTorso::resetTorsoPosition()
 bool swTeleop::SWIcubTorso::close()
 {
 
-    bool l_bTorsoPositionCloseState = m_pITorsoPosition->stop();
-    bool l_bRobotTorsoCloseState    = m_oRobotTorso.close();
+	bool l_bTorsoPositionCloseState = m_pITorsoPosition->stop();
+	bool l_bRobotTorsoCloseState    = m_oRobotTorso.close();
 
-    if(m_pVelocityController->isRunning())
-    {
-        m_pVelocityController->stop();
-    }
+	if(m_pVelocityController->isRunning())
+	{
+		m_pVelocityController->stop();
+		while(m_pVelocityController->isRunning())
+		{
+		    yarp::os::Time::delay(0.1);
+		}
+	}
 
-    // close ports
-        if(m_bTorsoActivated)
-        {
-            m_oTorsoTrackerPort.close();
-        }
-
-    return (l_bTorsoPositionCloseState && l_bRobotTorsoCloseState);
+	// close ports
+	if(m_bTorsoActivated)
+	{
+	    m_oTorsoTrackerPort.close();
+	}
+	
+	
+	m_pITorsoEncoders = NULL;
+	m_pITorsoPosition = NULL;
+	m_pITorsoVelocity = NULL;
+	m_pITorsoControlMode = NULL;
+	
+	if (NULL != m_pVelocityController)
+	{
+		delete m_pVelocityController;
+		m_pVelocityController = NULL;
+	}
+	
+	return (l_bTorsoPositionCloseState && l_bRobotTorsoCloseState);
 }
 
 bool swTeleop::SWIcubTorso::interruptModule()
 {
-    m_bIsRunning = false;
+	m_bIsRunning = false;
 
-    // reset positions
-        if(m_bTorsoActivated)
-        {
-            resetTorsoPosition();
-        }
+	// reset positions
+	if(m_bTorsoActivated)
+	{
+		resetTorsoPosition();
+	}
 
-    if(m_pVelocityController->isRunning())
-    {
-        m_pVelocityController->stop();
-    }
+	if(m_pVelocityController->isRunning())
+	{
+		m_pVelocityController->stop();
+	}
 
-    // close ports
-        if(m_bTorsoActivated)
-        {
-            m_oTorsoTrackerPort.interrupt();
-        }
+	// close ports
+	if(m_bTorsoActivated)
+	{
+		m_oTorsoTrackerPort.interrupt();
+	}
 
-    std::cout << "--Interrupting the iCub Torso Teleoperation module..." << std::endl;
+	std::cout << "--Interrupting the iCub Torso Teleoperation module..." << std::endl;
 
-    return true;
+	return true;
 }
 
 
@@ -404,25 +406,24 @@ swTeleop::SWTorsoVelocityController::SWTorsoVelocityController(yarp::dev::IEncod
                                                      std::vector<double> &vTorsoJointVelocityK, int i32Rate)
     : RateThread(i32Rate), m_bTorsoEnabled(false), m_vTorsoJointVelocityK(vTorsoJointVelocityK)
 {
-    if(pITorsoEncoders)
-    {
-        m_pITorsoEncoders = pITorsoEncoders;
-    }
-    if(pITorsoVelocity)
-    {
-        m_pITorsoVelocity = pITorsoVelocity;
-    }
-    	if(pITorsoControlMode)
-    {
-	m_pITorsoControlMode = pITorsoControlMode;
-    }   
+	if(pITorsoEncoders)
+	{
+		m_pITorsoEncoders = pITorsoEncoders;
+	}
+	
+	if(pITorsoVelocity)
+	{
+		m_pITorsoVelocity = pITorsoVelocity;
+	}
+	
+	if(pITorsoControlMode)
+	{
+		m_pITorsoControlMode = pITorsoControlMode;
+	}   
 }
 
 swTeleop::SWTorsoVelocityController::~SWTorsoVelocityController()
 {
-	deleteAndNullify(m_pITorsoEncoders);
-	deleteAndNullify(m_pITorsoVelocity);
-	deleteAndNullify(m_pITorsoControlMode);
 }
 
 void swTeleop::SWTorsoVelocityController::run()
@@ -439,21 +440,21 @@ void swTeleop::SWTorsoVelocityController::run()
         m_pITorsoEncoders->getEncoders(l_vEncoders.data());
 
         // Torso
-            for(uint ii = 0; ii < l_vCommand.size(); ++ii)
-            {
-                l_vCommand[ii] = m_vTorsoJointVelocityK[ii] * (l_vTorsoJoints[ii] - l_vEncoders[ii]);
-            }
+	for(uint ii = 0; ii < l_vCommand.size(); ++ii)
+	{
+		l_vCommand[ii] = m_vTorsoJointVelocityK[ii] * (l_vTorsoJoints[ii] - l_vEncoders[ii]);
+	}
 
         // velocity move
         //  Torso
-            if(l_bTorsoEnabled)
-            {
-                for(uint ii = 0; ii < l_vCommand.size(); ++ii)
-                {
+	if(l_bTorsoEnabled)
+	{
+		for(uint ii = 0; ii < l_vCommand.size(); ++ii)
+		{
 			m_pITorsoControlMode->setControlMode(ii,VOCAB_CM_VELOCITY);
-                    m_pITorsoVelocity->velocityMove(ii, l_vCommand[ii]);
-                }
-            }
+			m_pITorsoVelocity->velocityMove(ii, l_vCommand[ii]);
+		}
+	}
 }
 
 void swTeleop::SWTorsoVelocityController::enableTorso(cbool bActivated)

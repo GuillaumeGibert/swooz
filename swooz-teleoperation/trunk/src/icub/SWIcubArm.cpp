@@ -86,20 +86,6 @@ swTeleop::SWIcubArm::SWIcubArm() : m_bInitialized(false), m_bIsRunning(false),
 
 swTeleop::SWIcubArm::~SWIcubArm()
 {
-    if(m_pVelocityController)
-    {
-        while(m_pVelocityController->isRunning())
-        {
-            yarp::os::Time::delay(0.1);
-        }
-    }
-
-    deleteAndNullify(m_pVelocityController);
-    
-    deleteAndNullify(m_pIArmEncoders);
-    deleteAndNullify(m_pIArmPosition);
-    deleteAndNullify(m_pIArmVelocity);
-    deleteAndNullify(m_pIArmControlMode);
 }
 
 bool swTeleop::SWIcubArm::init( yarp::os::ResourceFinder &oRf, bool bLeftArm)
@@ -900,7 +886,11 @@ bool swTeleop::SWIcubArm::close()
 
     if(m_pVelocityController->isRunning())
     {
-        m_pVelocityController->stop();
+	m_pVelocityController->stop();
+	while(m_pVelocityController->isRunning())
+	{
+	yarp::os::Time::delay(0.1);
+	}
     }
 
     // close ports
@@ -909,7 +899,18 @@ bool swTeleop::SWIcubArm::close()
             m_oHandTrackerPort.close();
             m_oHandFingersTrackerPort.close();
         }
-
+	
+	m_pIArmEncoders = NULL;
+	m_pIArmPosition = NULL;
+	m_pIArmVelocity = NULL;
+	m_pIArmControlMode = NULL;
+	
+	if (NULL !=m_pVelocityController)
+	{
+		delete m_pVelocityController;
+		m_pVelocityController = NULL;
+	}
+	
     return (l_bArmPositionCloseState && l_bRobotArmCloseState);// && l_bRobotCartesianArmCloseState);
 }
 
@@ -964,9 +965,6 @@ swTeleop::SWArmVelocityController::SWArmVelocityController(yarp::dev::IEncoders 
 
 swTeleop::SWArmVelocityController::~SWArmVelocityController()
 {
-	deleteAndNullify(m_pIArmEncoders);
-	deleteAndNullify(m_pIArmVelocity);
-	deleteAndNullify(m_pIArmControlMode);
 }
 
 

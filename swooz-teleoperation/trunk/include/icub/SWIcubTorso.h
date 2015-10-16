@@ -89,7 +89,7 @@ namespace swTeleop
             /**
              * @brief run
              */
-            void run();
+	void run();
 
             /**
              * @brief setNewCommand
@@ -105,15 +105,15 @@ namespace swTeleop
 
         private :
 
-            bool m_bTorsoEnabled;
+		bool m_bTorsoEnabled;
 
-            yarp::os::Mutex m_oMutex;                       /**< ... */
-            yarp::dev::IEncoders *m_pITorsoEncoders;         /**< ... */
-            yarp::dev::IVelocityControl *m_pITorsoVelocity;  /**< ... */
-		  yarp::dev::IControlMode2    *m_pITorsoControlMode;
-            yarp::sig::Vector m_vLastTorsoJoint;             /**< ... */
+		yarp::os::Mutex m_oMutex;                       /**< ... */
+		yarp::dev::IEncoders *m_pITorsoEncoders;         /**< ... */
+		yarp::dev::IVelocityControl *m_pITorsoVelocity;  /**< ... */
+		yarp::dev::IControlMode2    *m_pITorsoControlMode;
+		yarp::sig::Vector m_vLastTorsoJoint;             /**< ... */
 
-            std::vector<double> m_vTorsoJointVelocityK;      /**< ... */
+		std::vector<double> m_vTorsoJointVelocityK;      /**< ... */
     };
 
     /**
@@ -206,24 +206,23 @@ namespace swTeleop
             std::string m_sModuleName;              /**< name of the mondule (config) */
             std::string m_sRobotName;               /**< name of the robot (config) */
 
-            // yarp ports / bottles
-            //  torso
-            std::string m_sTorsoTrackerPortName;        /**< name of the torso tracker port */
-            std::string m_sTorsoLocalPortName;          /**< name of the torso local port */
-            std::string m_sTorsoRemotePortName;         /**< name of the torso remote port */
-            std::string m_sTorsoControlName;            /**< control name */
-            yarp::os::BufferedPort<yarp::os::Bottle> m_oTorsoTrackerPort; /**< torso yarp tracker port*/
+		// yarp ports / bottles
+		//  torso
+		std::string m_sTorsoTrackerPortName;        /**< name of the torso tracker port */
+		std::string m_sTorsoLocalPortName;          /**< name of the torso local port */
+		std::string m_sTorsoRemotePortName;         /**< name of the torso remote port */
+		std::string m_sTorsoControlName;            /**< control name */
+		yarp::os::BufferedPort<yarp::os::Bottle> m_oTorsoTrackerPort; /**< torso yarp tracker port*/
 
-            // torso control
-            yarp::os::Property m_oTorsoOptions;             /**< robot interfaces properties */
-            yarp::dev::PolyDriver        m_oRobotTorso;     /**< ... */
-            yarp::dev::IEncoders        *m_pITorsoEncoders; /**< ... */
-            yarp::dev::IPositionControl *m_pITorsoPosition; /**< ... */
-            yarp::dev::IVelocityControl *m_pITorsoVelocity; /**< ... */
-	      yarp::dev::IControlMode2    *m_pITorsoControlMode;
+		// torso control
+		yarp::os::Property m_oTorsoOptions;             /**< robot interfaces properties */
+		yarp::dev::PolyDriver        m_oRobotTorso;     /**< ... */
+		yarp::dev::IEncoders        *m_pITorsoEncoders; /**< ... */
+		yarp::dev::IPositionControl *m_pITorsoPosition; /**< ... */
+		yarp::dev::IVelocityControl *m_pITorsoVelocity; /**< ... */
+		yarp::dev::IControlMode2    *m_pITorsoControlMode;
 
-
-            SWTorsoVelocityController *m_pVelocityController;    /**< ... */
+		SWTorsoVelocityController *m_pVelocityController;    /**< ... */
     };
 }
 
