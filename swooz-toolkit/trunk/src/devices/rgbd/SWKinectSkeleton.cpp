@@ -57,7 +57,7 @@ SWKinectSkeleton::SWKinectSkeleton(bool verbose) : m_verbose(verbose), m_bNeedPo
 	m_strPose[0] = '\0';
 }
 
-SWKinectSkeleton::SkeletonProfile SWKinectSkeleton::UpperBody = boost::assign::list_of (XN_SKEL_TORSO) (XN_SKEL_NECK) (XN_SKEL_HEAD) (XN_SKEL_LEFT_SHOULDER) (XN_SKEL_RIGHT_SHOULDER) (XN_SKEL_LEFT_ELBOW) (XN_SKEL_RIGHT_ELBOW) (XN_SKEL_LEFT_HAND) (XN_SKEL_RIGHT_HAND);
+SWKinectSkeleton::SkeletonProfile SWKinectSkeleton::UpperBody = boost::assign::list_of (XN_SKEL_TORSO) (XN_SKEL_NECK) (XN_SKEL_HEAD) (XN_SKEL_LEFT_SHOULDER) (XN_SKEL_RIGHT_SHOULDER) (XN_SKEL_LEFT_ELBOW) (XN_SKEL_RIGHT_ELBOW) (XN_SKEL_LEFT_HAND) (XN_SKEL_RIGHT_HAND) (XN_SKEL_LEFT_HIP) ( XN_SKEL_RIGHT_HIP);
 
 const std::string SWKinectSkeleton::m_defaultConfigFile = std::string(getenv("OPEN_NI_INSTALL_PATH")) + std::string("\\Data\\SamplesConfig.xml");
 
