@@ -272,7 +272,7 @@ bool swTeleop::SWIcubTorso::checkBottles()
                         std::vector<double> l_vecClavicles  = swUtil::vec(l_pointLShoulder, l_pointRShoulder);
                         std::vector<double> l_rpyTorso      = swUtil::computeRollPitchYaw(l_vecTorso, l_vecClavicles);
 
-                        l_vTorsoJoints[0] = l_rpyTorso[2];
+                        l_vTorsoJoints[0] = -l_rpyTorso[2];
                         l_vTorsoJoints[1] = l_rpyTorso[0];
                         l_vTorsoJoints[2] = l_rpyTorso[1];
 
