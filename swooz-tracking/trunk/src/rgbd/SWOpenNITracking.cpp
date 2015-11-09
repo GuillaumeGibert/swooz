@@ -123,14 +123,17 @@ bool SWOpenNITracking::updateModule()
     if (m_oKinectSkeleton->grab(l_values) == 0)
 	{
 		swDevice::SWKinectSkeleton::Coordinates l_pointTorso		= l_values[0];
-		swDevice::SWKinectSkeleton::Coordinates l_pointNeck			= l_values[1];
-		swDevice::SWKinectSkeleton::Coordinates l_pointHead			= l_values[2];
-		swDevice::SWKinectSkeleton::Coordinates l_pointLShoulder	= l_values[3];
-		swDevice::SWKinectSkeleton::Coordinates l_pointRShoulder	= l_values[4];
+		swDevice::SWKinectSkeleton::Coordinates l_pointNeck		= l_values[1];
+		swDevice::SWKinectSkeleton::Coordinates l_pointHead		= l_values[2];
+		swDevice::SWKinectSkeleton::Coordinates l_pointLShoulder		= l_values[3];
+		swDevice::SWKinectSkeleton::Coordinates l_pointRShoulder		= l_values[4];
 		swDevice::SWKinectSkeleton::Coordinates l_pointLElbow		= l_values[5];
 		swDevice::SWKinectSkeleton::Coordinates l_pointRElbow		= l_values[6];
 		swDevice::SWKinectSkeleton::Coordinates l_pointLHand		= l_values[7];
 		swDevice::SWKinectSkeleton::Coordinates l_pointRHand		= l_values[8];
+		swDevice::SWKinectSkeleton::Coordinates l_pointLHip			= l_values[9];
+		swDevice::SWKinectSkeleton::Coordinates l_pointRHip			= l_values[10];
+
 
         yarp::os::Bottle & l_HeadBottle		= m_oHeadTrackingPort.prepare();
 		l_HeadBottle.clear();
