@@ -387,7 +387,8 @@ bool swTeleop::SWIcubHead::checkBottles()
 
                         l_vHeadJoints[0] = -l_rpyHead[1];
                         l_vHeadJoints[1] = -l_rpyHead[0];
-                        l_vHeadJoints[2] =  l_rpyHead[2];
+                        //~ l_vHeadJoints[2] =  l_rpyHead[2];
+			l_vHeadJoints[2] =  0;
                     }
                     break;
                 }
