@@ -68,6 +68,14 @@
 	</module>
 	
 	<module>
+		<name>perl sw-openNITracking.pl</name>
+		<parameters></parameters>
+		<node>localhost</node>
+		<stdio>localhost</stdio>
+		<tag>openni</tag>
+	</module>
+	
+	<module>
 		<name>perl sw-teleoperation_iCub.pl</name>
 		<parameters></parameters>
 		<node>localhost</node>
@@ -212,13 +220,13 @@
             <!---  LEFT ARM -->
         <connection>
                 <from>/tracking/rgbd/openni/left_arm</from>
-                <to>/teleoperation/icubSim/left_arm</to>
+                <to>/teleoperation/icubSim/left_arm/hand_fingers</to>
                 <protocol>tcp</protocol>
         </connection>
             <!---  RIGHT ARM -->
         <connection>
                 <from>/tracking/rgbd/openni/right_arm</from>
-                <to>/teleoperation/icubSim/right_arm</to>
+                <to>/teleoperation/icubSim/right_arm/hand_fingers</to>
                 <protocol>tcp</protocol>
         </connection>
 	
