@@ -1,13 +1,13 @@
 
 /**
- * \file SWSynchronizedYarpPorts.h
+ * \file SWSynchronizediCubEncoders.h
  * \author Guillaume Gibert
  * \date 01/10/2015
  * \brief ...
  */
 
-#ifndef _SYNCHRONIZED_YARP_PORTS_
-#define _SYNCHRONIZED_YARP_PORTS_
+#ifndef _SYNCHRONIZED_ICUB_ENCODERS_
+#define _SYNCHRONIZED_ICUB_ENCODERS_
 
 // STD
 #include <vector>
@@ -40,24 +40,24 @@ using namespace yarp::sig;
 
 
 /**
- * \class SWSynchronizedYarpPorts
+ * \class SWSynchronizediCubEncoders
  * \author Guillaume Gibert
  * \date 01-10-2015
  * \brief ...
  */
-class SWSynchronizedYarpPorts : public RFModule
+class SWSynchronizediCubEncoders : public RFModule
 {
     public:
 
         /**
          * \brief SWTeleoperation_reeti constructor
          */
-        SWSynchronizedYarpPorts();
+        SWSynchronizediCubEncoders();
     
 	/**
          * \brief SWTeleoperation_reeti destructor
          */
-        ~SWSynchronizedYarpPorts();  
+        ~SWSynchronizediCubEncoders();  
 
         /**
          * \brief The configure function loads the config options.
@@ -110,12 +110,13 @@ class SWSynchronizedYarpPorts : public RFModule
         
 	// body parts activated by default
 	bool m_bHeadActivatedDefault;                /**< ... */
+	bool m_bTorsoActivatedDefault;                /**< ... */
         bool m_bLeftArmActivatedDefault;               /**< ... */
         bool m_bRightArmActivatedDefault;               /**< ... */
-	std::string m_sTriggerPortNameDefault;
     
 	// body parts activated
 	bool m_bHeadActivated;                /**< ... */
+	bool m_bTorsoActivated;                /**< ... */
         bool m_bLeftArmActivated;               /**< ... */
         bool m_bRightArmActivated;               /**< ... */
 
@@ -125,15 +126,10 @@ class SWSynchronizedYarpPorts : public RFModule
         std::string m_sModuleName;              /**< name of the mondule (config) */
         std::string m_sRobotName;               /**< name of the robot (config) */
 
-	// trigger yarp port
-	std::string m_sTriggerPortName;     /**< name of the trigger port */
-	yarp::os::BufferedPort<yarp::os::Bottle> m_oTriggerPort; /**< head yarp tracker port  */
-	
 	// sync yarp data port 
 	std::string m_sSynchronizedDataPortName;
 	yarp::os::BufferedPort<yarp::os::Bottle> m_oSynchronizedDataPort; /**< head yarp tracker port  */
-       
-	
+       	
 	// head control
 	yarp::os::Property m_oHeadOptions;              /**< robot interfaces for head/gaze movements */
 	yarp::dev::PolyDriver        m_oRobotHead;      /**< ... */         
@@ -142,6 +138,14 @@ class SWSynchronizedYarpPorts : public RFModule
 	yarp::dev::IVelocityControl *m_pIHeadVelocity;
 	int m_i32HeadJointsNb;  /**< ... */
 		
+	// torso control
+	yarp::os::Property m_oTorsoOptions;              /**< robot interfaces for head/gaze movements */
+	yarp::dev::PolyDriver        m_oRobotTorso;      /**< ... */         
+	yarp::dev::IPositionControl *m_pITorsoPosition;                           /**< arm position control pointer */	
+	yarp::dev::IEncoders        *m_pITorsoEncoders;  /**< ... */
+	yarp::dev::IVelocityControl *m_pITorsoVelocity;
+	int m_i32TorsoJointsNb;  /**< ... */
+	
 	// left arm control
 	yarp::os::Property m_oLeftArmOptions;              /**< robot interfaces for head/gaze movements */
 	yarp::dev::IEncoders        *m_pILeftArmEncoders;                           /**< arm encoder pointer */

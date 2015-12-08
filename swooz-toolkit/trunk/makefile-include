@@ -140,7 +140,7 @@ SW_LEAP                 = $(COMMON) $(INC_LEAP) $(INC_BOOST)
 
 SW_KINECT               = $(COMMON) $(INC_OPENCV) $(INC_YARP) $(INC_BOOST) $(INC_OPENNI)
 
-SW_SYNC_YARP		=  $(COMMON) $(INC_YARP)
+SW_SYNC_ICUB		=  $(COMMON) $(INC_YARP)
 
 !IF  "$(CFG)" == "Release"
 

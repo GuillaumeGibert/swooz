@@ -1,0 +1,92 @@
+<application>
+
+  <name>SWoOz iCub simulator teleoperation OpenNI</name>
+  <description>teleoperation iCub simulator</description>
+	
+	<module>
+		<name>perl sw-headForestTracking.pl</name>
+		<parameters></parameters>
+		<node>localhost</node>
+		<stdio>localhost</stdio>
+		<tag>forest</tag>
+	</module>
+	
+	<module>
+		<name>perl sw-openNITracking.pl</name>
+		<parameters></parameters>
+		<node>localhost</node>
+		<stdio>localhost</stdio>
+		<tag>openni</tag>
+	</module>
+	
+	<module>
+		<name>perl sw-teleoperation_iCub.pl</name>
+		<parameters></parameters>
+		<node>localhost</node>
+		<stdio>localhost</stdio>
+		<tag>teleoperation_iCub</tag>
+	</module>
+	
+	<module>
+		<name>perl sw-synchronizediCubEncoders.pl</name>
+		<parameters></parameters>
+		<node>localhost</node>
+		<stdio>localhost</stdio>
+		<tag>synchronizediCubEncoders</tag>
+	</module>
+	
+	<module>
+		<name>yarpdatadumper</name>
+		<parameters>--name /data/icubSim/encoders</parameters>
+		<node>localhost</node>
+		<stdio>localhost</stdio>
+		<tag>dataDumper</tag>
+	</module>
+		
+        <!---  FOREST -->
+            <!---  HEAD -->
+        <connection>
+                <from>/tracking/rgbd/forest/head</from>
+                <to>/teleoperation/icubSim/head</to>
+                <protocol>tcp</protocol>
+        </connection>
+
+        <!---  OPENNI -->
+             <!---  HEAD 
+        <connection>
+                <from>/tracking/rgbd/openni/head</from>
+                <to>/teleoperation/icubSim/head</to>
+                <protocol>tcp</protocol>
+        </connection> -->
+            <!---  TORSO -->
+        <connection>
+                <from>/tracking/rgbd/openni/torso</from>
+                <to>/teleoperation/icubSim/torso</to>
+                <protocol>tcp</protocol>
+        </connection>
+            <!---  LEFT ARM -->
+        <connection>
+                <from>/tracking/rgbd/openni/left_arm</from>
+                <to>/teleoperation/icubSim/left_arm/hand_fingers</to>
+                <protocol>tcp</protocol>
+        </connection>
+            <!---  RIGHT ARM -->
+        <connection>
+                <from>/tracking/rgbd/openni/right_arm</from>
+                <to>/teleoperation/icubSim/right_arm/hand_fingers</to>
+                <protocol>tcp</protocol>
+        </connection>
+	
+	 <!---  DUMPER -->
+	<connection>
+                <from>/sync/icubSim/syncdata</from>
+                <to>/data/icubSim/encoders</to>
+                <protocol>udp</protocol>
+	</connection>
+	 
+</application>
+
+
+
+
+

@@ -58,6 +58,7 @@ sub buildOrder {
 my @ExecScriptParams = (# toolkit
                         "sw-toolkit_kinectOnDimenco",           "x86",  "SWDisplayKinectOnDimenco.exe",
                         "sw-kinect",                            "x86",  "SWKinectRFModule.exe",
+			"sw-synchronizediCubEncoders",                            "x86",  "SWSynchronizediCubEncoders.exe",
                         # avatar
                         "sw-createAvatar",                      "x86",  "SWCreateAvatar.exe",
                         #"sw-morphing",                          "x86",  "SWMorphing.exe",
