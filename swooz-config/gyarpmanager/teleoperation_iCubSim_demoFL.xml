@@ -2,8 +2,7 @@
 
   <name>SWoOz iCub simulator demo FaceLab</name>
   <description>demo FaceLab iCub simulator</description>
-	
-	
+		
 	<module>
 		<name>perl sw-faceLabTracking.pl</name>
 		<parameters></parameters>
