@@ -274,8 +274,39 @@ bool swTeleop::SWIcubTorso::checkBottles()
 
                         l_vTorsoJoints[0] = -l_rpyTorso[2];
                         l_vTorsoJoints[1] = l_rpyTorso[0];
-                        l_vTorsoJoints[2] = l_rpyTorso[1];
-
+                        //~ l_vTorsoJoints[2] = l_rpyTorso[1];
+			
+			
+			std::vector<double> l_pointXaxis(3), l_pointYaxis(3), l_pointZaxis(3), l_pointOrigin(3);
+			l_pointOrigin[0] = 0.0; l_pointOrigin[1] = 0.0; l_pointOrigin[2] = 0.0; 
+			l_pointXaxis[0] = 1.0; l_pointXaxis[1] = 0.0; l_pointXaxis[2] = 0.0; 
+			l_pointYaxis[0] = 0.0; l_pointYaxis[1] = 1.0; l_pointYaxis[2] = 0.0; 
+			l_pointZaxis[0] = 0.0; l_pointZaxis[1] = 0.0; l_pointZaxis[2] = 1.0; 
+			std::vector<double> l_vecXAxis  = swUtil::vec(l_pointOrigin, l_pointXaxis);
+			std::vector<double> l_vecYAxis  = swUtil::vec(l_pointOrigin, l_pointYaxis);
+			std::vector<double> l_vecZAxis  = swUtil::vec(l_pointOrigin, l_pointZaxis);
+						
+			if (l_vecClavicles[2]>0)
+			{
+				l_vTorsoJoints[0] = swUtil::vectorAngle(l_vecClavicles, l_vecXAxis);
+			}
+			else
+			{
+				l_vTorsoJoints[0] = -swUtil::vectorAngle(l_vecClavicles, l_vecXAxis);
+			}
+			
+			if (l_vecTorso[0]>0)
+			{
+				l_vTorsoJoints[1] = -swUtil::vectorAngle(l_vecTorso, l_vecYAxis);
+			}
+			else
+			{
+				l_vTorsoJoints[1] = swUtil::vectorAngle(l_vecTorso, l_vecYAxis);
+			}
+			
+			l_vTorsoJoints[2] = swUtil::vectorAngle(l_vecTorso, l_vecZAxis) - 90;
+			
+			//~ std::cerr <<  l_vTorsoJoints[2]  << std::endl;
                     }
                     break;
                 }

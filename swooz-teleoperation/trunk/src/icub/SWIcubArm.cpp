@@ -805,7 +805,7 @@ bool swTeleop::SWIcubArm::checkBottles()
                     // ...
                 break;
                 case swTracking::LEAP_LIB :
-
+		{
 
                     // set default joint values
                         for(int ii = 0; ii < m_i32ArmJointsNb; ++ii)
@@ -832,8 +832,63 @@ bool swTeleop::SWIcubArm::checkBottles()
                         {
                             l_vArmJoints[7 + ii] = l_vFingerAngles[ii];
                         }
-
+		}
                 break;
+		case swTracking::OPENNI_LIB :
+		{
+			
+			std::vector<double> l_pointTorso(3);
+				l_pointTorso[0] = l_pHandTarget->get(1).asDouble();
+				l_pointTorso[1] = l_pHandTarget->get(2).asDouble();
+				l_pointTorso[2] = l_pHandTarget->get(3).asDouble();
+			std::vector<double> l_pointNeck(3);
+				l_pointNeck[0] = l_pHandTarget->get(4).asDouble();
+				l_pointNeck[1] = l_pHandTarget->get(5).asDouble();
+				l_pointNeck[2] = l_pHandTarget->get(6).asDouble();
+			std::vector<double> l_pointShoulder(3);
+				l_pointShoulder[0] = l_pHandTarget->get(7).asDouble();
+				l_pointShoulder[1] = l_pHandTarget->get(8).asDouble();
+				l_pointShoulder[2] = l_pHandTarget->get(9).asDouble();
+			std::vector<double> l_pointElbow(3);
+				l_pointElbow[0] = l_pHandTarget->get(10).asDouble();
+				l_pointElbow[1] = l_pHandTarget->get(11).asDouble();
+				l_pointElbow[2] = l_pHandTarget->get(12).asDouble();
+			std::vector<double> l_pointHand(3);
+				l_pointHand[0] = l_pHandTarget->get(13).asDouble();
+				l_pointHand[1] = l_pHandTarget->get(14).asDouble();
+				l_pointHand[2] = l_pHandTarget->get(15).asDouble();
+
+			std::vector<double> l_vecTorso = swUtil::vec(l_pointNeck, l_pointTorso);
+			std::vector<double> l_vecForearm = swUtil::vec(l_pointElbow, l_pointHand);
+			std::vector<double> l_vecShoulder = swUtil::vec(l_pointShoulder, l_pointNeck);
+			std::vector<double> l_vecArm = swUtil::vec( l_pointShoulder, l_pointElbow);
+
+			std::vector<double> l_rpyShoulder = swUtil::computeRollPitchYaw(l_vecArm, l_vecTorso);
+			std::vector<double> l_rpyElbow = swUtil::computeRollPitchYaw(l_vecForearm, l_vecArm);
+
+			//~ l_vArmJoints[0] = swUtil::degree180(l_rpyShoulder[1] - 180.);
+			//~ l_vArmJoints[1] = swUtil::degree180(- l_rpyShoulder[0] - 180.);
+			//l_vArmJoints[2] = swUtil::degree180(l_rpyElbow[1] - 90.);
+			//~ l_vArmJoints[1] = swUtil::vectorAngle(l_vecArm, l_vecShoulder);
+			
+			//~ l_vArmJoints[3] = swUtil::vectorAngle(l_vecForearm, l_vecArm);
+			
+			std::vector<double> l_vecArm_roll(3);
+			l_vecArm_roll[0] = 0; l_vecArm_roll[1] = l_vecArm[1]; l_vecArm_roll[2] = l_vecArm[2]; 
+			l_vArmJoints[0] = -swUtil::vectorAngle(l_vecTorso, l_vecArm_roll);
+			
+			
+			std::vector<double> l_vecArm_pitch(3);
+			l_vecArm_pitch[0] =  l_vecArm[0]; l_vecArm_pitch[1] = l_vecArm[1]; l_vecArm_pitch[2] = 0; 
+			l_vArmJoints[1] = swUtil::vectorAngle(l_vecTorso, l_vecArm_pitch);
+			
+			l_vArmJoints[3] = swUtil::vectorAngle(l_vecForearm, l_vecArm);
+			
+			//~ std::cerr <<  l_vArmJoints[0]  << std::endl;
+			
+			
+		}			
+		break;
 
             }
         }
@@ -851,6 +906,8 @@ bool swTeleop::SWIcubArm::checkBottles()
                 l_vArmJoints[ii] = m_vArmMaxJoint[ii];
             }
         }
+	
+	//~ std::cerr <<  l_vArmJoints[0]  << std::endl;
 
         if(l_pHandTarget)
         {

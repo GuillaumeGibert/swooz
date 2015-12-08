@@ -341,7 +341,7 @@ bool swTeleop::SWIcubHead::checkBottles()
                         {
                             l_vHeadJoints[0] = -l_pHeadTarget->get(1).asDouble(); //head rotation "yes" [-40 30]
                             l_vHeadJoints[1] = -l_pHeadTarget->get(3).asDouble(); //head rotation [-70 60]
-                            l_vHeadJoints[2] = -l_pHeadTarget->get(2).asDouble(); //head rotation "no" [-55 55]
+                            l_vHeadJoints[2] = l_pHeadTarget->get(2).asDouble(); //head rotation "no" [-55 55]
                         }
                     break;
                     case swTracking::COREDATA_LIB :
