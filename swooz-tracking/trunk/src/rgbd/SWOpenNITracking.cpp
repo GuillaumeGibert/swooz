@@ -93,7 +93,7 @@ bool SWOpenNITracking::isOpenNIInitialized() const
 double SWOpenNITracking::getPeriod()
 {
 	// module periodicity (seconds), called implicitly by myModule
-    return 0.001/30.;
+    return 1/30.;
 }
 
 bool SWOpenNITracking::interruptModule() {
