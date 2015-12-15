@@ -45,7 +45,7 @@
 
 
 
-swTeleop::SWIcubArm::SWIcubArm() : m_bInitialized(false), m_bIsRunning(false),
+swTeleop::SWIcubArm::SWIcubArm() : m_bInitialized(false), m_bIsRunning(false), m_dArmTimeLastBottle(-1.),
                                        m_pIArmVelocity(NULL), m_pIArmEncoders(NULL), m_pIArmPosition(NULL), m_pVelocityController(NULL)
 {
     // set ini file defaults values
@@ -91,11 +91,11 @@ swTeleop::SWIcubArm::~SWIcubArm()
 bool swTeleop::SWIcubArm::init( yarp::os::ResourceFinder &oRf, bool bLeftArm)
 {
 
-    if(m_bInitialized)
-    {
-        std::cerr << "Icub Arm is already initialized. " << std::endl;
-        return true;
-    }
+    //~ if(m_bInitialized)
+    //~ {
+        //~ std::cerr << "Icub Arm is already initialized. " << std::endl;
+        //~ return false;
+    //~ }
 
     if(bLeftArm)
     {
@@ -889,9 +889,28 @@ bool swTeleop::SWIcubArm::checkBottles()
 			
 		}			
 		break;
-
+		
             }
+	    
+	    m_dArmTimeLastBottle = -1.;
+                m_pVelocityController->enable(m_bArmHandActivated, m_bFingersActivated);
         }
+	else // manage timeout and reset position
+        {
+		if(m_dArmTimeLastBottle < 0.)
+		{
+		    m_dArmTimeLastBottle = yarp::os::Time::now();
+		}
+		else
+		{
+		    if(yarp::os::Time::now() - m_dArmTimeLastBottle > 0.001 * m_i32TimeoutArmReset)
+		    {
+			m_pVelocityController->enable(false, false);
+			resetArmPosition();
+			m_dArmTimeLastBottle = -1.;
+		    }
+		}
+	}
 
 
     // check each joint value to ensure it is in the right range, if not crop to the max/min values

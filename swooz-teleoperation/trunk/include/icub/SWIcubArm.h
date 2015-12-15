@@ -147,6 +147,7 @@ namespace swTeleop
              */
             bool init( yarp::os::ResourceFinder &oRf, bool bLeftArm = true);
 
+
             /**
              * @brief checkBottles
              * @return
@@ -192,7 +193,9 @@ namespace swTeleop
             bool m_bIsRunning;                  /**< is the module running */
 
             int m_i32ArmJointsNb;               /**< arm joint number */
-
+		
+		double m_dArmTimeLastBottle;/**< ... */
+	 
             // Config variables retrieved from the ini file
             bool m_bArmHandActivated;           /**< is arm/hand activated value */
             bool m_bFingersActivated;           /**< is fingers activated value */
