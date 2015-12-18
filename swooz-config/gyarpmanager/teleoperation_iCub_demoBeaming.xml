@@ -35,6 +35,14 @@
 		<tag>feedback</tag>
 	</module>	
 	
+	<module>
+		<name>yarpdatadumper</name>
+		<parameters>--name /data/icub/head/encoders</parameters>
+		<node>localhost</node>
+		<stdio>localhost</stdio>
+		<tag>dataDumper</tag>
+	</module>
+	
         <!---  LEAP -->
             <!---  LEFT ARM -->          
         <connection>
@@ -71,6 +79,15 @@
 		<input> /hmd/left/in</input>
 		<protocol>tcp</protocol>
 	  </connection>	
+	  
+	  
+	  <!---  DUMPER -->
+	<connection>
+                <from>/tracking/polhemus/fastrak/head</from>
+                <to>/data/icub/head/encoders</to>
+                <protocol>udp</protocol>
+	</connection>
+	  
 	  
 </application>
 
