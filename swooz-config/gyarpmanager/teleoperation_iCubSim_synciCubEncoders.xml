@@ -52,7 +52,7 @@
         </connection>
 
         <!---  OPENNI -->
-             <!---  HEAD 
+             <!---  HEAD -->
         <connection>
                 <from>/tracking/rgbd/openni/head</from>
                 <to>/teleoperation/icubSim/head</to>
@@ -80,6 +80,13 @@
 	 <!---  DUMPER -->
 	<connection>
                 <from>/sync/icubSim/syncdata</from>
+                <to>/data/icubSim/encoders</to>
+                <protocol>udp</protocol>
+	</connection>
+	
+	<!---  DUMPER -->
+	<connection>
+                <from>/tracking/openni/icub/encoders</from>
                 <to>/data/icubSim/encoders</to>
                 <protocol>udp</protocol>
 	</connection>

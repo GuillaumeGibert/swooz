@@ -121,6 +121,8 @@ class SWOpenNITracking : public yarp::os::RFModule
         std::string m_sTorsoTrackingPortName;    /**< torso tracking port name */
         std::string m_sLeftArmTrackingPortName;  /**< left arm trakcing port name */
         std::string m_sRightArmTrackingPortName; /**< right arm tracking port name */
+    
+	std::string m_siCubEncodersTrackingPortName; /**< right arm tracking port name */
 
         // buffered ports
         yarp::os::BufferedPort<yarp::os::Bottle> m_oHeadTrackingPort;        /**< head tracking port */
@@ -128,6 +130,8 @@ class SWOpenNITracking : public yarp::os::RFModule
         yarp::os::BufferedPort<yarp::os::Bottle> m_oLeftArmTrackingPort;     /**< left arm tracking port */
         yarp::os::BufferedPort<yarp::os::Bottle> m_oRightArmTrackingPort;    /**< right arm tracking port */
         yarp::os::BufferedPort<yarp::os::Bottle> m_oAllJointsTrackingPort;   /**< ... */
+    
+	yarp::os::BufferedPort<yarp::os::Bottle> m_oiCubEncodersTrackingPort;   /**< ... */
 
         boost::scoped_ptr<swDevice::SWKinectSkeleton> m_oKinectSkeleton;     /**< kinect skeleton */
 };

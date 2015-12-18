@@ -49,11 +49,16 @@ SWOpenNITracking::SWOpenNITracking()
     m_sLeftArmTrackingPortName	= "/tracking/" + l_DeviceName + "/"+ l_LibraryName + "/left_arm";
     m_sRightArmTrackingPortName	= "/tracking/" + l_DeviceName + "/"+ l_LibraryName + "/right_arm";
 
+	m_siCubEncodersTrackingPortName = "/tracking/openni/icub/encoders";
+	
     m_oHeadTrackingPort.open(m_sHeadTrackingPortName.c_str());
     m_oTorsoTrackingPort.open(m_sTorsoTrackingPortName.c_str());
     m_oLeftArmTrackingPort.open(m_sLeftArmTrackingPortName.c_str());
     m_oRightArmTrackingPort.open(m_sRightArmTrackingPortName.c_str());
     m_oAllJointsTrackingPort.open("/tracking/joints:o");
+	
+	m_oiCubEncodersTrackingPort.open(m_siCubEncodersTrackingPortName.c_str());
+	
 
     initOpenNi();
 }
@@ -66,6 +71,8 @@ SWOpenNITracking::~SWOpenNITracking()
     m_oLeftArmTrackingPort.close();
     m_oRightArmTrackingPort.close();
     m_oAllJointsTrackingPort.close();
+	
+	m_oiCubEncodersTrackingPort.close();
 }
 
 void SWOpenNITracking::initOpenNi()
@@ -102,6 +109,8 @@ bool SWOpenNITracking::interruptModule() {
     m_oLeftArmTrackingPort	.interrupt();
     m_oRightArmTrackingPort	.interrupt();
     m_oAllJointsTrackingPort	.interrupt();
+	
+	m_oiCubEncodersTrackingPort.interrupt();
 	return true;
 }
 
@@ -186,6 +195,149 @@ bool SWOpenNITracking::updateModule()
             l_LeftArmBottle.addDouble(l_pointLHand.X);		l_LeftArmBottle.addDouble(l_pointLHand.Y);		l_LeftArmBottle.addDouble(l_pointLHand.Z);
             l_RightArmBottle.addDouble(l_pointRHand.X);		l_RightArmBottle.addDouble(l_pointRHand.Y);		l_RightArmBottle.addDouble(l_pointRHand.Z);
         m_oAllJointsTrackingPort.write();
+	
+	
+	yarp::os::Bottle &l_iCubEncodersBottle = m_oiCubEncodersTrackingPort.prepare();
+        l_iCubEncodersBottle.clear();
+	//head
+	std::vector<double> l_vPointNeck(3), l_vPointHead(3), l_vPointTorso(3), l_vPointLShoulder(3), l_vPointRShoulder(3), l_vPointLElbow(3), l_vPointRElbow(3), l_vPointLHand(3), l_vPointRHand(3);
+		l_vPointNeck[0] = l_pointNeck.X;
+		l_vPointNeck[1] = l_pointNeck.Y;
+		l_vPointNeck[2] = l_pointNeck.Z;
+		l_vPointHead[0] = l_pointHead.X;
+		l_vPointHead[1] = l_pointHead.Y;
+		l_vPointHead[2] = l_pointHead.Z;
+		l_vPointLShoulder[0] = l_pointLShoulder.X;
+		l_vPointLShoulder[1] = l_pointLShoulder.Y;
+		l_vPointLShoulder[2] = l_pointLShoulder.Z;
+		l_vPointRShoulder[0] = l_pointRShoulder.X;
+		l_vPointRShoulder[1] = l_pointRShoulder.Y;
+		l_vPointRShoulder[2] = l_pointRShoulder.Z;
+
+		std::vector<double> l_vecClavicles  = swUtil::vec(l_vPointLShoulder,	l_vPointRShoulder);
+		std::vector<double> l_vecHead       = swUtil::vec(l_vPointNeck,		l_vPointHead);
+		std::vector<double> l_rpyHead = swUtil::computeRollPitchYaw(l_vecHead, l_vecClavicles);
+		
+	l_iCubEncodersBottle.addDouble(-l_rpyHead[1]);
+	l_iCubEncodersBottle.addDouble(-l_rpyHead[0]);
+	l_iCubEncodersBottle.addDouble(0);
+	//
+	// torso
+	yarp::sig::Vector l_vTorsoJoints;
+        l_vTorsoJoints.resize(3);
+        l_vTorsoJoints = 0.;
+	
+	l_vPointTorso[0] = l_pointTorso.X;
+	l_vPointTorso[1] = l_pointTorso.Y;
+        l_vPointTorso[2] = l_pointTorso.Z;
+	std::vector<double> l_vecTorso      = swUtil::vec(l_vPointTorso, l_vPointNeck);
+	std::vector<double> l_rpyTorso      = swUtil::computeRollPitchYaw(l_vecTorso, l_vecClavicles);
+	
+	 l_vTorsoJoints[0] = -l_rpyTorso[2];
+	l_vTorsoJoints[1] = l_rpyTorso[0];
+	//~ l_vTorsoJoints[2] = l_rpyTorso[1];
+			
+	std::vector<double> l_pointXaxis(3), l_pointYaxis(3), l_pointZaxis(3), l_pointOrigin(3);
+	l_pointOrigin[0] = 0.0; l_pointOrigin[1] = 0.0; l_pointOrigin[2] = 0.0; 
+	l_pointXaxis[0] = 1.0; l_pointXaxis[1] = 0.0; l_pointXaxis[2] = 0.0; 
+	l_pointYaxis[0] = 0.0; l_pointYaxis[1] = 1.0; l_pointYaxis[2] = 0.0; 
+	l_pointZaxis[0] = 0.0; l_pointZaxis[1] = 0.0; l_pointZaxis[2] = 1.0; 
+	std::vector<double> l_vecXAxis  = swUtil::vec(l_pointOrigin, l_pointXaxis);
+	std::vector<double> l_vecYAxis  = swUtil::vec(l_pointOrigin, l_pointYaxis);
+	std::vector<double> l_vecZAxis  = swUtil::vec(l_pointOrigin, l_pointZaxis);
+				
+	if (l_vecClavicles[2]>0)
+	{
+		l_vTorsoJoints[0] = swUtil::vectorAngle(l_vecClavicles, l_vecXAxis);
+	}
+	else
+	{
+		l_vTorsoJoints[0] = -swUtil::vectorAngle(l_vecClavicles, l_vecXAxis);
+	}
+	
+	if (l_vecTorso[0]>0)
+	{
+		l_vTorsoJoints[1] = -swUtil::vectorAngle(l_vecTorso, l_vecYAxis);
+	}
+	else
+	{
+		l_vTorsoJoints[1] = swUtil::vectorAngle(l_vecTorso, l_vecYAxis);
+	}
+	
+	l_vTorsoJoints[2] = swUtil::vectorAngle(l_vecTorso, l_vecZAxis) - 90;
+	
+	l_iCubEncodersBottle.addDouble(l_vTorsoJoints[0]);
+	l_iCubEncodersBottle.addDouble(l_vTorsoJoints[1]);
+	l_iCubEncodersBottle.addDouble(l_vTorsoJoints[2]);
+	//
+	// left arm
+	yarp::sig::Vector l_vLArmJoints;
+        l_vLArmJoints.resize(15);
+        l_vLArmJoints = 0.;
+	
+	l_vPointLElbow[0] = l_pointLElbow.X;
+	l_vPointLElbow[1] = l_pointLElbow.Y;
+	l_vPointLElbow[2] = l_pointLElbow.Z;
+	
+	l_vPointLHand[0] = l_pointLHand.X;
+	l_vPointLHand[1] = l_pointLHand.Y;
+	l_vPointLHand[2] = l_pointLHand.Z;
+	
+	l_vecTorso      = swUtil::vec(l_vPointNeck, l_vPointTorso);
+	std::vector<double> l_vecLForearm = swUtil::vec(l_vPointLElbow, l_vPointLHand);
+	std::vector<double> l_vecLShoulder = swUtil::vec(l_vPointLShoulder, l_vPointNeck);
+	std::vector<double> l_vecLArm = swUtil::vec( l_vPointLShoulder, l_vPointLElbow);
+
+	std::vector<double> l_rpyLShoulder = swUtil::computeRollPitchYaw(l_vecLArm, l_vecTorso);
+	std::vector<double> l_rpyLElbow = swUtil::computeRollPitchYaw(l_vecLForearm, l_vecLArm);
+	std::vector<double> l_vecLArm_roll(3);
+	l_vecLArm_roll[0] = 0; l_vecLArm_roll[1] = l_vecLArm[1]; l_vecLArm_roll[2] = l_vecLArm[2]; 
+	l_vLArmJoints[0] = -swUtil::vectorAngle(l_vecTorso, l_vecLArm_roll);
+	
+	std::vector<double> l_vecLArm_pitch(3);
+	l_vecLArm_pitch[0] =  l_vecLArm[0]; l_vecLArm_pitch[1] = l_vecLArm[1]; l_vecLArm_pitch[2] = 0; 
+	l_vLArmJoints[1] = swUtil::vectorAngle(l_vecTorso, l_vecLArm_pitch);
+	
+	l_vLArmJoints[3] = swUtil::vectorAngle(l_vecLForearm, l_vecLArm);
+	
+	for (int l_enc=0; l_enc < 15; l_enc++)
+		l_iCubEncodersBottle.addDouble(l_vLArmJoints[l_enc]);
+	//
+	// right arm
+	yarp::sig::Vector l_vRArmJoints;
+        l_vRArmJoints.resize(15);
+        l_vRArmJoints = 0.;
+	
+	l_vPointRElbow[0] = l_pointRElbow.X;
+	l_vPointRElbow[1] = l_pointRElbow.Y;
+	l_vPointRElbow[2] = l_pointRElbow.Z;
+	
+	l_vPointRHand[0] = l_pointRHand.X;
+	l_vPointRHand[1] = l_pointRHand.Y;
+	l_vPointRHand[2] = l_pointRHand.Z;
+	
+	l_vecTorso      = swUtil::vec(l_vPointNeck, l_vPointTorso);
+	std::vector<double> l_vecRForearm = swUtil::vec(l_vPointRElbow, l_vPointRHand);
+	std::vector<double> l_vecRShoulder = swUtil::vec(l_vPointRShoulder, l_vPointNeck);
+	std::vector<double> l_vecRArm = swUtil::vec( l_vPointRShoulder, l_vPointRElbow);
+
+	std::vector<double> l_rpyRShoulder = swUtil::computeRollPitchYaw(l_vecRArm, l_vecTorso);
+	std::vector<double> l_rpyRElbow = swUtil::computeRollPitchYaw(l_vecRForearm, l_vecRArm);
+	std::vector<double> l_vecRArm_roll(3);
+	l_vecRArm_roll[0] = 0; l_vecRArm_roll[1] = l_vecRArm[1]; l_vecRArm_roll[2] = l_vecRArm[2]; 
+	l_vRArmJoints[0] = -swUtil::vectorAngle(l_vecTorso, l_vecRArm_roll);
+	
+	std::vector<double> l_vecRArm_pitch(3);
+	l_vecRArm_pitch[0] =  l_vecRArm[0]; l_vecRArm_pitch[1] = l_vecRArm[1]; l_vecRArm_pitch[2] = 0; 
+	l_vRArmJoints[1] = swUtil::vectorAngle(l_vecTorso, l_vecRArm_pitch);
+	
+	l_vRArmJoints[3] = swUtil::vectorAngle(l_vecRForearm, l_vecRArm);
+	
+	for (int l_enc=0; l_enc < 15; l_enc++)
+		l_iCubEncodersBottle.addDouble(l_vRArmJoints[l_enc]);
+	//
+	m_oiCubEncodersTrackingPort.write();
+	
 	}
 
 	return true; // RF Module OK
