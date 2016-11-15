@@ -77,6 +77,7 @@ my @ExecScriptParams = (# toolkit
                         # teleoperation
                         "sw-teleoperation_iCub",                "x86",  "SWTeleoperation_iCub.exe",
                         "sw-teleoperation_nao",                 "x86",  "SWTeleoperation_nao.exe",
+			 "sw-teleoperation_pepper",                 "x86",  "SWTeleoperation_pepper.exe",
                         # manipulation
                         "sw-manipulation",                      "x86",  "SWManipulation.exe",
                         # viewer
@@ -120,7 +121,7 @@ $ENV{THIRD_PARTY_TOBII}   = $PThird_party . "tobii/";
 ##################### FACELAB
 $ENV{THIRD_PARTY_FACELAB}   = $PThird_party . "facelab/coredata-3.2.1.65799_vc10/";
 ##################### YARP
-$ENV{THIRD_PARTY_YARP}   = $PThird_party . "yarp/yarp-2.3.64/";
+$ENV{THIRD_PARTY_YARP}   = $PThird_party . "yarp/yarp-2.3.64.14/";
 $ENV{THIRD_PARTY_YARP_64}= $PThird_party . "yarp/amd64/yarp-2.3.60/";
 ##################### ACE
 $ENV{THIRD_PARTY_ACE}   = $PThird_party . "ace/ace-6.1.1/";
@@ -164,6 +165,8 @@ $ENV{THIRD_PARTY_POLHEMUS}   = $PThird_party . "Polhemus/";
 $ENV{THIRD_PARTY_OCULUS}   = $PThird_party . "OculusSDK/";
 ##################### NAOQI
 $ENV{THIRD_PARTY_NAOQI}   = $PThird_party . "naoqi/";
+##################### NAOQI_PEPPER
+$ENV{THIRD_PARTY_NAOQI_PEPPER}   = $PThird_party . "naoqi_pepper/";
 ##################### LEAP
 $ENV{THIRD_PARTY_LEAP}   = $PThird_party . "leap/";
 ##################### ICUB
@@ -215,8 +218,10 @@ if($ARG eq "x86")
     $PathsToAdd = $ENV{THIRD_PARTY_POLHEMUS} . "lib/Win32/;" . $PathsToAdd;
     
     $PathsToAdd = $ENV{THIRD_PARTY_FREEGLUT} . "bin/;" . $PathsToAdd;
-
+    
     $PathsToAdd = $ENV{THIRD_PARTY_NAOQI} . "bin/;" . $PathsToAdd;
+
+    $PathsToAdd = $ENV{THIRD_PARTY_NAOQI_PEPPER} . "bin/;" . $PathsToAdd;
 
     $PathsToAdd = $ENV{THIRD_PARTY_LEAP} . "lib/;" . $PathsToAdd;
 }

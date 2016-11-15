@@ -26,12 +26,15 @@ OBJ_TELEOPERATION_ICUB=\
 
 OBJ_TELEOPERATION_NAO=\
         $(LIBDIR)/SWTeleoperation_nao.obj\
+	
+OBJ_TELEOPERATION_PEPPER=\
+        $(LIBDIR)/SWTeleoperation_pepper.obj\
 
 	
 ############################################################################## Makefile commands
 
 !if "$(ARCH)" == "x86"
-all: $(BINDIR)/SWTeleoperation_iCub.exe $(BINDIR)/SWTeleoperation_nao.exe
+all: $(BINDIR)/SWTeleoperation_iCub.exe $(BINDIR)/SWTeleoperation_nao.exe $(BINDIR)/SWTeleoperation_pepper.exe
 !endif
 
 !if "$(ARCH)" == "amd64"
@@ -45,6 +48,9 @@ $(BINDIR)/SWTeleoperation_iCub.exe: $(OBJ_TELEOPERATION_ICUB)  $(LIBS_TELEOP_ICU
 
 $(BINDIR)/SWTeleoperation_nao.exe: $(OBJ_TELEOPERATION_NAO) $(LIBS_TELEOP_NAO)
         $(LINK) /OUT:$(BINDIR)/SWTeleoperation_nao.exe $(LFLAGS) $(OBJ_TELEOPERATION_NAO)  $(SETARGV) $(BINMODE) $(LIBS_TELEOP_NAO) $(WINLIBS)
+	
+$(BINDIR)/SWTeleoperation_pepper.exe: $(OBJ_TELEOPERATION_PEPPER) $(LIBS_TELEOP_PEPPER)
+        $(LINK) /OUT:$(BINDIR)/SWTeleoperation_pepper.exe $(LFLAGS) $(OBJ_TELEOPERATION_PEPPER)  $(SETARGV) $(BINMODE) $(LIBS_TELEOP_PEPPER) $(WINLIBS)
 
 ##################################################### devices
 
@@ -63,5 +69,8 @@ $(LIBDIR)/SWTeleoperation_iCub.obj: ./src/icub/SWTeleoperation_iCub.cpp
 
 $(LIBDIR)/SWTeleoperation_nao.obj: ./src/nao/SWTeleoperation_nao.cpp
         $(CC) -c ./src/nao/SWTeleoperation_nao.cpp $(CFLAGS_DYN) $(SW_TELE_NAO) -Fo"$(LIBDIR)/"
+	
+$(LIBDIR)/SWTeleoperation_pepper.obj: ./src/pepper/SWTeleoperation_pepper.cpp
+        $(CC) -c ./src/pepper/SWTeleoperation_pepper.cpp $(CFLAGS_DYN) $(SW_TELE_PEPPER) -Fo"$(LIBDIR)/"
 
 

@@ -23,6 +23,7 @@ HMD_OBJ=\
          $(LIBDIR)/SWHeadMountedDisplay.obj\
          $(LIBDIR)/SWSonyHMZT3W.obj\
 	 $(LIBDIR)/SWOculusRiftDK2.obj\
+	 $(LIBDIR)/SWPepperCamera.obj\
 
 ############################################################################## Makefile commands
 	
@@ -51,4 +52,7 @@ $(LIBDIR)/SWSonyHMZT3W.obj: ./src/hmd/SWSonyHMZT3W.cpp
 	
 $(LIBDIR)/SWOculusRiftDK2.obj: ./src/hmd/SWOculusRiftDK2.cpp
         $(CC) -c ./src/hmd/SWOculusRiftDK2.cpp $(CFLAGS_DYN) $(SW_HMD) -Fo"$(LIBDIR)/SWOculusRiftDK2.obj"
+	
+$(LIBDIR)/SWPepperCamera.obj: ./src/hmd/SWPepperCamera.cpp
+        $(CC) -c ./src/hmd/SWPepperCamera.cpp $(CFLAGS_DYN) $(SW_HMD) -Fo"$(LIBDIR)/SWPepperCamera.obj"
 

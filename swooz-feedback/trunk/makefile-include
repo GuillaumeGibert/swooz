@@ -95,11 +95,13 @@ INC_YARP        = -I$(THIRD_PARTY_YARP)/include\
 
 INC_OCULUS	= -I$(THIRD_PARTY_OCULUS)/LibOVR/Include -I$(THIRD_PARTY_OCULUS)/LibOVRKernel/Src\
 
+INC_PEPPER             = -I"$(THIRD_PARTY_NAOQI_PEPPER)"\include
+
 ############################ DEPENDENCIES
 
 COMMON			= $(INC_FEEDBACK) $(INC_OTHERS) $(INC_VS)
 
-SW_HMD		   	= $(COMMON) $(INC_OPENCV) $(INC_YARP) $(INC_OCULUS)
+SW_HMD		   	= $(COMMON) $(INC_OPENCV) $(INC_YARP) $(INC_OCULUS) $(INC_PEPPER)
 
 LIBS_COMMON		= "$(PROGRAMFILES)\Microsoft SDKs\Windows\v7.0A\Lib\ws2_32.lib"
 
@@ -130,12 +132,24 @@ LIBS_YARP   = 	$(THIRD_PARTY_YARP)/lib/YARP_sig.lib\
                 $(THIRD_PARTY_YARP)/lib/YARP_init.lib\
                 $(THIRD_PARTY_YARP)/lib/YARP_math.lib\
 
-				
+			
+LIBS_PEPPER    = $(THIRD_PARTY_NAOQI_PEPPER)\lib\alvalue.lib\
+			$(THIRD_PARTY_NAOQI_PEPPER)\lib\alproxies.lib\
+			$(THIRD_PARTY_NAOQI_PEPPER)\lib\alerror.lib\
+			$(THIRD_PARTY_NAOQI_PEPPER)\lib\alcommon.lib\
+			$(THIRD_PARTY_NAOQI_PEPPER)\lib\boost_chrono-vc100-mt-1_55.lib\
+			$(THIRD_PARTY_NAOQI_PEPPER)\lib\boost_system-vc100-mt-1_55.lib\
+			$(THIRD_PARTY_NAOQI_PEPPER)\lib\boost_atomic-vc100-mt-1_55.lib\
+			$(THIRD_PARTY_NAOQI_PEPPER)\lib\boost_thread-vc100-mt-1_55.lib\
+			$(THIRD_PARTY_NAOQI_PEPPER)\lib\boost_date_time-vc100-mt-1_55.lib\
+			$(THIRD_PARTY_NAOQI_PEPPER)\lib\qi.lib\
+
+
 LIBS_ACE    = 	$(THIRD_PARTY_ACE)/lib/ACE.lib
 
 LIBS_OCULUS	= $(THIRD_PARTY_OCULUS)/LibOVR/Lib/Windows/Win32/Release/VS2010/LibOVR.lib\
 
-LIBS_HMD =  $(LIBS_YARP) $(LIBS_ACE)  $(LIBS_OCULUS) $(LIBS_OPENCV) $(LIBS_COMMON)
+LIBS_HMD =  $(LIBS_YARP) $(LIBS_ACE)  $(LIBS_OCULUS) $(LIBS_OPENCV) $(LIBS_COMMON) $(LIBS_PEPPER)
 
 !ENDIF
 

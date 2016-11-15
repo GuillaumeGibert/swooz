@@ -94,6 +94,8 @@ INC_YARP            = -I"$(THIRD_PARTY_YARP)"\include
 
 INC_NAO             = -I"$(THIRD_PARTY_NAOQI)"\include
 
+INC_PEPPER             = -I"$(THIRD_PARTY_NAOQI_PEPPER)"\include
+
 INC_ICUB            = -I"$(THIRD_PARTY_ICUB)"\include
 
 INC_OPENCV      = -I"$(THIRD_PARTY_OPENCV)"\modules/core/include -I"$(THIRD_PARTY_OPENCV)"\modules/imgproc/include\
@@ -109,6 +111,8 @@ COMMON              = $(INC_TELEOPERATION) $(INC_OTHERS) $(INC_VS)
 SW_TELE_ICUB        = $(COMMON) $(INC_YARP) $(INC_ICUB) $(INC_OPENCV)
 
 SW_TELE_NAO  = $(COMMON) $(INC_OPENCV) $(INC_NAO) $(INC_YARP)
+
+SW_TELE_PEPPER  = $(COMMON) $(INC_PEPPER) $(INC_YARP)
 
 ############################ COMMON DEBUG/RELEASE LIBS
 
@@ -160,6 +164,30 @@ LIBS_NAO    = $(THIRD_PARTY_NAOQI)\lib\alvalue.lib\
               $(THIRD_PARTY_NAOQI)\lib\althread.lib\
               $(THIRD_PARTY_NAOQI)\lib\alcommon.lib\
 
+LIBS_PEPPER    = $(THIRD_PARTY_NAOQI_PEPPER)\lib\alvalue.lib\
+              $(THIRD_PARTY_NAOQI_PEPPER)\lib\alproxies.lib\
+              $(THIRD_PARTY_NAOQI_PEPPER)\lib\alerror.lib\
+	       $(THIRD_PARTY_NAOQI_PEPPER)\lib\alcommon.lib\
+	       $(THIRD_PARTY_NAOQI_PEPPER)\lib\boost_chrono-vc100-mt-1_55.lib\
+		 $(THIRD_PARTY_NAOQI_PEPPER)\lib\boost_system-vc100-mt-1_55.lib\
+		  $(THIRD_PARTY_NAOQI_PEPPER)\lib\boost_atomic-vc100-mt-1_55.lib\
+		   $(THIRD_PARTY_NAOQI_PEPPER)\lib\boost_thread-vc100-mt-1_55.lib\
+		   $(THIRD_PARTY_NAOQI_PEPPER)\lib\boost_date_time-vc100-mt-1_55.lib\
+		    $(THIRD_PARTY_NAOQI_PEPPER)\lib\qi.lib\
+	       
+              #~ $(THIRD_PARTY_NAOQI_PEPPER)\lib\pthreadVCE2.lib\
+              #~ $(THIRD_PARTY_NAOQI_PEPPER)\lib\boost_signals-vc100-mt-1_55.lib\
+              #~ $(THIRD_PARTY_NAOQI_PEPPER)\lib\boost_system-vc100-mt-1_55.lib\
+              #~ $(THIRD_PARTY_NAOQI_PEPPER)\lib\tinyxmlSTL.lib\
+              #~ $(THIRD_PARTY_NAOQI_PEPPER)\lib\boost_filesystem-vc100-mt-1_55.lib\
+	      #~ $(THIRD_PARTY_NAOQI_PEPPER)\lib\boost_atomic-vc100-mt-1_55.lib\
+              #~ $(THIRD_PARTY_NAOQI_PEPPER)\lib\rttools.lib\
+              #~ $(THIRD_PARTY_NAOQI_PEPPER)\lib\qi.lib\
+              #~ $(THIRD_PARTY_NAOQI_PEPPER)\lib\alextractor.lib\
+              #~ $(THIRD_PARTY_NAOQI_PEPPER)\lib\almath.lib\
+              #~ $(THIRD_PARTY_NAOQI_PEPPER)\lib\alsoap.lib\
+              #~ $(THIRD_PARTY_NAOQI_PEPPER)\lib\althread.lib\
+             
 
 #~ LIBS_ICUB = $(THIRD_PARTY_ICUB)/lib/skinDynLib.lib\
             #~ $(THIRD_PARTY_ICUB)/lib/gazecontrollerclient.lib\
@@ -180,7 +208,8 @@ LIBS_TELEOP_ICUB    =   $(LIBS_YARP)  $(LIBS_ACE)  $(LIBS_COMMON) $(LIBS_ICUB) $
 
 LIBS_TELEOP_NAO = $(LIBS_COMMON) $(LIBS_NAO) $(LIBS_YARP) $(LIBS_ACE) $(LIBS_CV)
 
-# $(LIBS_GSL)
+LIBS_TELEOP_PEPPER = $(LIBS_COMMON) $(LIBS_PEPPER) $(LIBS_YARP) $(LIBS_ACE)  $(LIBS_CV)
+
 
 !ENDIF
 

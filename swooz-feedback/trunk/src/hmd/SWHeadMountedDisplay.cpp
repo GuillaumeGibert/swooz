@@ -5,6 +5,7 @@
  * \author Guillaume Gibert
  * \date 17/07/14
  */
+#include "hmd/SWPepperCamera.h"
 
 #include <iostream>
 #include <yarp/os/Network.h>
@@ -12,6 +13,7 @@
 
 #include "hmd/SWSonyHMZT3W.h"
 #include "hmd/SWOculusRiftDK2.h"
+
 #include <yarp/os/RFModule.h>
 
 using namespace yarp::os;
@@ -24,6 +26,7 @@ class SWHeadMountedDisplay: public RFModule
 		int hmdIndex;
 		SWSonyHMZT3W m_hmdSony;
 		SWOculusRiftDK2 m_hmdOculus;
+		SWPepperCamera m_hmdPepper;
 
 	public:
 		SWHeadMountedDisplay(){m_startLoop = false;}
@@ -36,9 +39,14 @@ class SWHeadMountedDisplay: public RFModule
 
 		int displayImgWidth   	= rf.check("displayImgWidth",     	 Value(1280),  "Width of the display (int)").asInt();
 		int displayImgHeight	= rf.check("displayImgHeight", 	 Value(720),  "Height of the display (int)").asInt();
-		m_i32Fps            	= rf.check("fps",                  	 Value(50),  "Frame per second (int)").asInt();
-		hmdIndex	= rf.check("hmdIndex", 	 Value(0),  "HMD Index (int)").asInt();
-
+		m_i32Fps            	= rf.check("fps",                  	 Value(30),  "Frame per second (int)").asInt();
+		hmdIndex			= rf.check("hmdIndex", 		 Value(0),  "HMD Index (int)").asInt();
+		std::string sRobotAddress 	= rf.check("pepperIP", 		Value("192.168.1.103"), "IP Adress of the Pepper Robot").asString();
+		int pepperPort		= rf.check("pepperPort",     		 Value(9559),  "Port to connect to the Pepper robot").asInt();
+		std::string sPepperVideoMode= rf.check("pepperVideoMode", 		Value("kQQVGA"), "Video mode of the Pepper Robot's camera").asString();
+		
+		std::cout << displayImgWidth << ", " << displayImgHeight << ", " << sRobotAddress << ", " << pepperPort << ", " << sPepperVideoMode << ", " << m_i32Fps << ", " << hmdIndex << std::endl;
+	
 		if (hmdIndex==0)
 		{
 			m_startLoop = m_hmdSony.open(displayImgWidth, displayImgHeight);
@@ -46,6 +54,10 @@ class SWHeadMountedDisplay: public RFModule
 		else if (hmdIndex==1)
 		{
 			m_startLoop = m_hmdOculus.open(displayImgWidth, displayImgHeight);
+		}
+		else if (hmdIndex==2)
+		{
+			m_startLoop = m_hmdPepper.open(displayImgWidth, displayImgHeight, sRobotAddress, pepperPort,  sPepperVideoMode, m_i32Fps);
 		}
 		else
 		{
@@ -74,6 +86,10 @@ class SWHeadMountedDisplay: public RFModule
 			{
 				return m_hmdOculus.loop();
 			}
+			else if (hmdIndex==2)
+			{
+				return m_hmdPepper.loop();
+			}
 		}
 		else
 		{
@@ -92,6 +108,10 @@ class SWHeadMountedDisplay: public RFModule
 		{
 			m_hmdOculus.interrupt();
 		}
+		else if (hmdIndex==2)
+		{
+			m_hmdPepper.interrupt();
+		}
 	
 		return true;
         }
@@ -108,6 +128,10 @@ class SWHeadMountedDisplay: public RFModule
 		{
 			m_hmdOculus.close();
 		}
+		else if (hmdIndex==2)
+		{
+			m_hmdPepper.close();
+		}
 		
 		return true;
         }
@@ -120,7 +144,7 @@ int main(int argc, char *argv[])
 	SWHeadMountedDisplay module;
 	ResourceFinder rf;
 	rf.setVerbose(true);
-	rf.setDefaultConfigFile("feedback_hmd_iCub.ini"); //overridden by --from parameter
+	rf.setDefaultConfigFile("feedback_hmd.ini"); //overridden by --from parameter
 	rf.setDefaultContext("swooz-feedback/conf");   //overridden by --context parameter
 	rf.configure("ICUB_ROOT", argc, argv);
 
