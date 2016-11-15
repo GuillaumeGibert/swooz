@@ -50,6 +50,7 @@ using namespace swExcept;
 int SWCloud::m_i32NumberOfCreatedClouds   = 0;			
 int SWCloud::m_i32NumberOfDestroyedClouds = 0;
 
+
 // ############################################# CONSTRUCTORS / DESTRUCTORS - SWRigidMotion
 
 SWRigidMotion::SWRigidMotion()
